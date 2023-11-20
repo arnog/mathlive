@@ -285,6 +285,7 @@ export class MenuList implements MenuInterface {
     menu.setAttribute('part', 'ui-menu-container');
     if (this._containerClass) menu.classList.add(this._containerClass);
     menu.classList.add('ui-menu-container');
+    menu.addEventListener('focus', this);
     menu.addEventListener('wheel', this, { passive: true });
 
     // Remove consecutive dividers

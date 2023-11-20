@@ -516,7 +516,7 @@ export class ModelPrivate implements Model {
     let format: OutputFormat;
     if (isOffset(arg1) && isOffset(arg2)) {
       ranges = [this.normalizeRange([arg1, arg2])];
-      format = arg3 ?? 'latex';
+      format = arg3 as OutputFormat;
     } else if (isRange(arg1)) {
       ranges = [this.normalizeRange(arg1)];
       format = arg2 as OutputFormat;
@@ -525,8 +525,10 @@ export class ModelPrivate implements Model {
       format = arg2 as OutputFormat;
     } else {
       ranges = [this.normalizeRange([0, -1])];
-      format = (arg1 as OutputFormat) ?? 'latex';
+      format = arg1 as OutputFormat;
     }
+
+    format ??= 'latex';
 
     if (format === 'math-json') {
       if (!window.MathfieldElement.computeEngine) {

@@ -39,9 +39,9 @@ import { defaultReadAloudHook } from '../editor/speech-read-aloud';
 import type { ComputeEngine } from '@cortex-js/compute-engine';
 
 import { l10n } from '../core/l10n';
-import { getStylesheet, getStylesheetContent } from 'common/stylesheet';
-import { Scrim } from 'ui/utils/scrim';
-import { MenuItem } from 'ui/menu/types';
+import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
+import { Scrim } from '../ui/utils/scrim';
+import { MenuItem } from '../ui/menu/types';
 
 export declare type Expression =
   | number
@@ -1747,13 +1747,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /** @internal */
   handleEvent(evt: Event): void {
+    // If the scrim is open (variant panel), ignore events
+    // Otherwise we may end up disconecting from the VK
+    if (Scrim.scrim && Scrim.scrim.state !== 'closed') return;
+
+    // Also, if the menu is open
+    if (this._mathfield?.menu?.state !== 'closed') return;
+
     if (evt.type === 'pointerdown') this.onPointerDown();
     if (evt.type === 'focus') this._mathfield?.focus();
-
-    // Ignore blur events if the scrim is open (case where the variant panel
-    // is open). Otherwise we disconect from the VK and end up in a weird state.
-    if (evt.type === 'blur' && Scrim.scrim?.state === 'closed')
-      this._mathfield?.blur();
+    if (evt.type === 'blur') this._mathfield?.blur();
   }
 
   /**

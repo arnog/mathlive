@@ -1,4 +1,4 @@
-import { MenuItem } from 'ui/menu/types';
+import { MenuItem } from '../ui/menu/types';
 import { convertLatexToMarkup } from 'public/mathlive-ssr';
 import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
@@ -13,7 +13,7 @@ import { VARIANT_REPERTOIRE } from 'core/modes-math';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
-function getSelectionString(mf: _Mathfield): string {
+function getSelectionPlainString(mf: _Mathfield): string {
   // const model = mf.model;
   // return model.getValue(model.selection, 'latex');
   const atoms = getSelectionAtoms(mf);
@@ -47,38 +47,42 @@ function validVariantStyleSelection(
   mf: _Mathfield,
   _variantStyle: VariantStyle
 ): boolean {
-  return getSelectionString(mf).length > 0;
+  return getSelectionPlainString(mf).length > 0;
 }
 
 function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
   return [
     {
-      label: () => convertLatexToMarkup(`\\mathbb{${getSelectionString(mf)}}`),
+      label: () =>
+        convertLatexToMarkup(`\\mathbb{${getSelectionPlainString(mf)}}`),
       visible: () => validVariantAtom(mf, 'double-struck'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\mathfrak{${getSelectionString(mf)}}`),
+        convertLatexToMarkup(`\\mathfrak{${getSelectionPlainString(mf)}}`),
       visible: () => validVariantAtom(mf, 'fraktur'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'fraktur' }, { operation: 'toggle' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\mathcal{${getSelectionString(mf)}}`),
+      label: () =>
+        convertLatexToMarkup(`\\mathcal{${getSelectionPlainString(mf)}}`),
       visible: () => validVariantAtom(mf, 'calligraphic'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'calligraphic' }, { operation: 'toggle' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\mathrm{${getSelectionString(mf)}}`),
+      label: () =>
+        convertLatexToMarkup(`\\mathrm{${getSelectionPlainString(mf)}}`),
       visible: () => validVariantStyleSelection(mf, 'up'),
       onMenuSelect: () =>
         mf.applyStyle({ variantStyle: 'up' }, { operation: 'toggle' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\mathbf{${getSelectionString(mf)}}`),
+      label: () =>
+        convertLatexToMarkup(`\\mathbf{${getSelectionPlainString(mf)}}`),
       visible: () => validVariantStyleSelection(mf, 'bold'),
       onMenuSelect: () =>
         mf.applyStyle({ variantStyle: 'bold' }, { operation: 'toggle' }),
@@ -89,78 +93,84 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
 function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
   return [
     {
-      label: () => convertLatexToMarkup(`\\vec{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length === 1,
+      label: () =>
+        convertLatexToMarkup(`\\vec{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length === 1,
       onMenuSelect: () => mf.insert('\\vec{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\overrightarrow{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(
+          `\\overrightarrow{${getSelectionPlainString(mf)}}`
+        ),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\overrightarrow{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\overleftarrow{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\overleftarrow{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\overleftarrow{#@}', { selectionMode: 'item' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\dot{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length === 1,
+      label: () =>
+        convertLatexToMarkup(`\\dot{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length === 1,
       onMenuSelect: () => mf.insert('\\dot{#@}', { selectionMode: 'item' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\ddot{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length === 1,
+      label: () =>
+        convertLatexToMarkup(`\\ddot{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length === 1,
       onMenuSelect: () => mf.insert('\\ddot{#@}', { selectionMode: 'item' }),
     },
     {
-      label: () => convertLatexToMarkup(`\\bar{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length === 1,
+      label: () =>
+        convertLatexToMarkup(`\\bar{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length === 1,
       onMenuSelect: () => mf.insert('\\bar{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\overline{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\overline{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\overline{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\overgroup{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\overgroup{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\overgroup{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\overbrace{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\overbrace{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\overbrace{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\underline{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\underline{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\underline{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\undergroup{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\undergroup{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\undergroup{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
-        convertLatexToMarkup(`\\underbrace{${getSelectionString(mf)}}`),
-      visible: () => getSelectionString(mf).length > 0,
+        convertLatexToMarkup(`\\underbrace{${getSelectionPlainString(mf)}}`),
+      visible: () => getSelectionPlainString(mf).length > 0,
       onMenuSelect: () =>
         mf.insert('\\underbrace{#@}', { selectionMode: 'item' }),
     },
@@ -175,14 +185,17 @@ function getDecorationSubmenu(mf: _Mathfield): MenuItem[] {
     //   onMenuSelect: () => mf.insert('\\cancel{#@}', { selectionMode: 'item' }),
     // },
     {
-      label: () => convertLatexToMarkup(`\\boxed{${getSelectionString(mf)}}`),
+      label: () =>
+        convertLatexToMarkup(`\\boxed{${mf.getValue(mf.model.selection)}}}`),
       // visible: () => getSelection(mf).length > 0,
       onMenuSelect: () => mf.insert('\\boxed{#@}', { selectionMode: 'item' }),
     },
     {
       label: () =>
         convertLatexToMarkup(
-          `\\bbox[5px, border: 2px solid red]{${getSelectionString(mf)}}`
+          `\\bbox[5px, border: 2px solid red]{${mf.getValue(
+            mf.model.selection
+          )}}`
         ),
       // visible: () => getSelection(mf).length > 0,
       onMenuSelect: () =>
@@ -193,11 +206,13 @@ function getDecorationSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(
-          `\\bbox[5px, border: 2px dashed black]{${getSelectionString(mf)}}`
+          `\\bbox[5px, border: 2px dashed black]{${mf.getValue(
+            mf.model.selection
+          )}}`
         ),
       // visible: () => getSelection(mf).length > 0,
       onMenuSelect: () =>
-        mf.insert('\\bbox[5px, border: 1px solid black]{#@}', {
+        mf.insert('\\bbox[5px, border: 2px dashed black]{#@}', {
           selectionMode: 'item',
         }),
     },
@@ -281,6 +296,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     // },
     {
       label: 'Return to Math Mode',
+      id: 'return-to-math-mode',
       onMenuSelect: () => mf.executeCommand(['switchMode', 'math']),
       visible: () => mf.isSelectionEditable && mf.model.mode === 'text',
     },
@@ -289,16 +305,19 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: localize('menu.array.add row above'),
+      id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.add row below'),
+      id: 'add-row-below',
       onMenuSelect: () => mf.executeCommand('addRowAfter'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.add column before'),
+      id: 'add-column-before',
       onMenuSelect: () => mf.executeCommand('addColumnBefore'),
       visible: () => inMatrix(mf),
       enabled: () => {
@@ -310,22 +329,26 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: localize('menu.array.add column after'),
+      id: 'add-column-after',
       onMenuSelect: () => mf.executeCommand('addColumnAfter'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.delete row'),
+      id: 'delete-row',
       onMenuSelect: () => mf.executeCommand('removeRow'),
       visible: () => inMatrix(mf),
     },
     {
       label: localize('menu.array.delete column'),
+      id: 'delete-column',
       onMenuSelect: () => mf.executeCommand('removeColumn'),
       visible: () => inMatrix(mf),
     },
 
     {
       label: 'Insert Matrix',
+      id: 'insert-matrix',
       containerClass: 'menu-container-insert-matrix',
       visible: () => mf.isSelectionEditable,
       submenu: getInsertMatrixSubmenu(mf),
@@ -338,22 +361,27 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       submenu: [
         {
           label: ' ⋱ ',
+          id: 'environment-no-border',
           onMenuSelect: () => performSetEnvironment(mf, 'matrix'),
         },
         {
           label: '(⋱)',
+          id: 'environment-parentheses',
           onMenuSelect: () => performSetEnvironment(mf, 'pmatrix'),
         },
         {
           label: '[⋱]',
+          id: 'environment-brackets',
           onMenuSelect: () => performSetEnvironment(mf, 'bmatrix'),
         },
         {
           label: '|⋱|',
+          id: 'environment-bar',
           onMenuSelect: () => performSetEnvironment(mf, 'vmatrix'),
         },
         {
           label: '{⋱}',
+          id: 'environment-braces',
           onMenuSelect: () => performSetEnvironment(mf, 'Bmatrix'),
         },
       ],
@@ -363,6 +391,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: 'Insert Text',
+      id: 'insert-text',
       onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
       visible: () => mf.model.mode === 'math',
     },
@@ -372,30 +401,35 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: 'Variant',
+      id: 'variant',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getVariantSubmenu(mf),
     },
     {
       label: 'Accent',
+      id: 'accent',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getAccentSubmenu(mf),
     },
     {
       label: 'Decoration',
+      id: 'decoration',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
       submenu: getDecorationSubmenu(mf),
     },
     {
       label: 'Color',
+      id: 'color',
       containerClass: 'menu-container-swatches',
       visible: () => mf.isSelectionEditable,
       submenu: getColorSubmenu(mf),
     },
     {
       label: 'Background Color',
+      id: 'background-color',
       containerClass: 'menu-container-swatches',
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
@@ -408,15 +442,19 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'ce-evaluate',
       visible: () => window.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
-        const result = mf.expression?.evaluate();
+        const latex = evaluate(mf);
+        if (!latex) {
+          mf.model.announce('plonk');
+          return;
+        }
         if (mf.model.selectionIsCollapsed) {
           mf.model.position = mf.model.lastOffset;
-          mf.insert(`=${result?.latex ?? ''}`, {
+          mf.insert(`=${latex}`, {
             insertionMode: 'insertAfter',
             selectionMode: 'item',
           });
         } else {
-          mf.insert(result?.latex ?? '', {
+          mf.insert(latex, {
             insertionMode: 'replaceSelection',
             selectionMode: 'item',
           });
@@ -428,15 +466,26 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'ce-simplify',
       visible: () => window.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
-        const result = mf.expression?.simplify();
         if (mf.model.selectionIsCollapsed) {
+          const result = mf.expression?.simplify();
           mf.model.position = mf.model.lastOffset;
-          mf.insert(`=${result?.latex ?? ''}`, {
+          if (!result) {
+            mf.model.announce('plonk');
+            return;
+          }
+          mf.insert(`=${result.latex}`, {
             insertionMode: 'insertAfter',
             selectionMode: 'item',
           });
         } else {
-          mf.insert(result?.latex ?? '', {
+          const result = window.MathfieldElement.computeEngine
+            ?.parse(mf.getValue(mf.model.selection))
+            .simplify();
+          if (!result) {
+            mf.model.announce('plonk');
+            return;
+          }
+          mf.insert(result.latex, {
             insertionMode: 'replaceSelection',
             selectionMode: 'item',
           });
@@ -452,7 +501,9 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       onMenuSelect: () => {
         const expr = mf.expression!;
         const unknown = expr?.unknowns[0];
-        const results = expr.solve(unknown)?.map((x) => x.latex ?? '');
+        const results = expr
+          .solve(unknown)
+          ?.map((x) => x.simplify().latex ?? '');
         if (!results) {
           mf.model.announce('plonk');
           return;
@@ -485,18 +536,22 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     // },
     {
       label: 'Copy',
+      id: 'copy',
       submenu: [
         {
           label: 'Copy LaTeX',
+          id: 'copy-latex',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
           keyboardShortcut: 'meta+C',
         },
         {
           label: 'Copy ASCII Math',
+          id: 'copy-ascii-math',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),
         },
         {
           label: 'Copy MathML',
+          id: 'copy-math-ml',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'math-ml'),
         },
       ],
@@ -504,12 +559,14 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 
     {
       label: 'Paste',
+      id: 'paste',
       onMenuSelect: () => mf.executeCommand('pasteFromClipboard'),
       visible: () => !mf.options.readOnly,
       keyboardShortcut: 'meta+V',
     },
     {
       label: 'Select All',
+      id: 'select-all',
       keyboardShortcut: 'meta+A',
       onMenuSelect: () => mf.executeCommand('selectAll'),
     },
@@ -535,4 +592,24 @@ function performSetEnvironment(mf: _Mathfield, env: TabularEnvironment): void {
   mf.flushInlineShortcutBuffer();
   setEnvironment(mf.model, env);
   requestUpdate(mf);
+}
+
+function evaluate(mf: _Mathfield): string {
+  let expr: any;
+  if (mf.model.selectionIsCollapsed) {
+    expr = window.MathfieldElement.computeEngine?.parse(mf.getValue(), {
+      canonical: false,
+    });
+  } else {
+    expr = window.MathfieldElement.computeEngine?.parse(
+      mf.getValue(mf.model.selection),
+      { canonical: false }
+    );
+  }
+  if (!expr) return '';
+  let result = expr.evaluate();
+  // eslint-disable-next-line new-cap
+  if (result.isSame(expr)) result = expr.N();
+
+  return result.latex;
 }

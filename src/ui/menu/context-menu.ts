@@ -31,7 +31,7 @@ export function onContextMenu(
   if (event.type === 'keydown') {
     const evt = event as KeyboardEvent;
     if (evt.code === 'ContextMenu' || (evt.code === 'F10' && evt.shiftKey)) {
-      // Shift+F10 = contextual menu
+      // Shift+F10 = context menu
       // Get the center of the parent
       const bounds = target?.getBoundingClientRect();
       if (bounds) {

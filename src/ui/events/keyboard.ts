@@ -58,8 +58,6 @@ export function getKeybindingMarkup(keybinding: string): string {
           'minus': '-',
           'equal': '=',
           'quote': "'",
-          'bracketLeft': '[',
-          'bracketRight': ']',
           'backslash': '\\',
           'intlbackslash': '\\',
           'backquote': '`',

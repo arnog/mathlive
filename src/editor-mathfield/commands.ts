@@ -28,7 +28,12 @@ registerCommand({
     mathfield.field!.scroll(fieldBounds.left - window.scrollX, 0);
     return true;
   },
-  toggleKeystrokeCaption: toggleKeystrokeCaption,
+  toggleKeystrokeCaption,
+  toggleContextMenu: (mathfield: _Mathfield) => {
+    const result = mathfield.toggleContextMenu();
+    if (!result) mathfield.model.announce('plonk');
+    return result;
+  },
   plonk: (mathfield: _Mathfield) => {
     mathfield.model.announce('plonk');
     return true;

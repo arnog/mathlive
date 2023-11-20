@@ -128,14 +128,14 @@ exports[`BASIC PARSING 14/ "-a" renders correctly 1`] = `
 
 exports[`BASIC PARSING 15/ "a-" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.59em"></span><span class="ML__strut--bottom" style="height:0.67em;vertical-align:-0.08em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.22em"></span><span class="ML__cmr">−</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.59em"></span><span class="ML__strut--bottom" style="height:0.67em;vertical-align:-0.08em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">−</span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`BASIC PARSING 16/ "a-b" renders correctly 1`] = `
 [
-  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.78em;vertical-align:-0.08em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.22em"></span><span class="ML__cmr">−</span><span style="display:inline-block;width:0.22em"></span><span class="ML__mathit">b</span></span></span>",
+  "<span class="ML__mathlive"><span class="ML__strut" style="height:0.7em"></span><span class="ML__strut--bottom" style="height:0.78em;vertical-align:-0.08em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">−</span><span style="display:inline-block;width:0.23em"></span><span class="ML__mathit">b</span></span></span>",
   "no-error",
 ]
 `;

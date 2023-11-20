@@ -401,10 +401,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.field.addEventListener('contextmenu', this, {
       signal: this.eventController.signal,
     });
-    // Listen to keydown (for context menu shortcut)
-    this.field.addEventListener('keydown', this, {
-      signal: this.eventController.signal,
-    });
 
     const menuToggle =
       this.element!.querySelector<HTMLElement>('[part=menu-toggle]')!;
@@ -1228,6 +1224,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
     requestUpdate(this);
   }
 
+  toggleContextMenu(): boolean {
+    if (this._menu.menuItems.length === 0) return false;
+    if (this._menu.state === 'open') {
+      this._menu.hide();
+      return true;
+    }
+    this._menu.show({
+      container: this.element!.querySelector<HTMLElement>('[part=container')!,
+      location: this.getCaretPoint() ?? undefined,
+      onDismiss: () => this.element?.focus(),
+    });
+    return true;
+  }
+
   getCaretPoint(): { x: number; y: number } | null {
     const caretOffset = getCaretPoint(this.field!);
     return caretOffset ? { x: caretOffset.x, y: caretOffset.y } : null;
@@ -1676,6 +1686,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   private onGeometryChange(): void {
+    this._menu.hide();
     updateSuggestionPopoverPosition(this);
     updateEnvironmentPopover(this);
   }

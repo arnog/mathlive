@@ -150,3 +150,10 @@ export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
 
   return PRINTABLE_KEYCODE.has(evt.code);
 }
+
+export function deepActiveElement(): HTMLOrSVGElement | null {
+  let a = document.activeElement;
+  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
+
+  return a as unknown as HTMLOrSVGElement;
+}

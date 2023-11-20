@@ -1,3 +1,5 @@
+import { deepActiveElement } from 'ui/events/utils';
+
 export class Scrim {
   static scrim: Scrim;
 
@@ -139,11 +141,4 @@ export class Scrim {
       }
     }
   }
-}
-
-function deepActiveElement(): HTMLOrSVGElement | null {
-  let a = document.activeElement;
-  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
-
-  return a as unknown as HTMLOrSVGElement;
 }

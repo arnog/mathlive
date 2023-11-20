@@ -76,6 +76,8 @@ export class Menu extends MenuList implements RootMenuInterface {
         this.currentKeyboardModifiers = newModifiers;
       }
     }
+    // Capture any keyup event to prevent ancestors from handling it
+    ev.stopImmediatePropagation();
   }
 
   handleKeydownEvent(ev: KeyboardEvent): void {
@@ -254,6 +256,7 @@ export class Menu extends MenuList implements RootMenuInterface {
     onDismiss?: () => void;
   }): boolean {
     this._onDismiss = options?.onDismiss;
+
     // Connect the scrim now, so that the menu can be measured and placed
     this.connectScrim(options?.container);
     if (!super.show({ ...options, container: this.scrim })) {

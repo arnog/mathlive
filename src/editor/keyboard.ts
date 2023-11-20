@@ -26,7 +26,10 @@
 
 import { normalizeKeyboardEvent } from './keyboard-layout';
 import { Scrim } from '../ui/utils/scrim';
-import { mightProducePrintableCharacter } from 'ui/events/utils';
+import {
+  deepActiveElement,
+  mightProducePrintableCharacter,
+} from 'ui/events/utils';
 
 export interface KeyboardDelegate {
   cancelComposition: () => void;
@@ -345,13 +348,6 @@ export function delegateKeyboardEvents(
       keyboardSink.style.left = `${x}px`;
     },
   };
-}
-
-function deepActiveElement(): Element | null {
-  let a = document.activeElement;
-  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
-
-  return a;
 }
 
 export function keyboardEventToChar(evt?: KeyboardEvent): string {

@@ -2,9 +2,14 @@
 
 ### New Features
 
-- **Contextual Menu**
-  Right-clicking on a mathfield or clicking the menu glyph next to the 
-  virtual keyboard glyph will bring up a contextual menu. 
+- **Context Menu**
+  Right-clicking on a mathfield or clicking the menu icon next to the 
+  virtual keyboard icon will bring up a context menu.
+
+  The keyboard shortcut <kbd>ALT</kbd>+<kbd>SPACE</kbd> will also bring up
+  the context menu. This keyboard shortcut previously toggled the virtual
+  keyboard. This keyboard shortcut to toggle the virtual keyboard is now
+  <kbd>ALT</kbd>+<kbd>SHIFT</kbd>+<kbd>SPACE</kbd>.
   
   The menu includes commands to:
   - insert and edit matrixes
@@ -13,10 +18,11 @@
   - change the style (italic, bold, etc...) of the selection
   - change the color and background color
   - insert text
-  - copying LaTeX, MathML or  MathASCII to the clipboard
+  - copy LaTeX, MathML or  MathASCII to the clipboard
   - toggle the virtual keyboard
 
-  The content of the menu may change in future versions.
+  The content of the menu may change in future versions, and feedback is
+  welcome.
 
   The menu can be customized by setting the `mf.menuItems` property of the
   mathfield. The value of this property is an array of menu items. 

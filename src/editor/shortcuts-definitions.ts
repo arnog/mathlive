@@ -336,8 +336,6 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   // '(-)':                  '\\circleddash',
 
   '||': '\\Vert',
-  '{': '\\{',
-  '}': '\\}',
 
   '*': '\\cdot',
 

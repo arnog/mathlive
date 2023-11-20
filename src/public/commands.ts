@@ -94,6 +94,7 @@ export interface Commands {
    */
   scrollToEnd: (mathfield: Mathfield) => boolean;
 
+  toggleContextMenu: (mathfield: Mathfield) => boolean;
   toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;
 
   plonk: (mathfield: Mathfield) => boolean;

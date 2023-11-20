@@ -280,6 +280,15 @@ export function onKeystroke(
     }
   }
 
+  console.log(
+    'selector',
+    selector,
+    'shortcut',
+    shortcut,
+    'keystroke',
+    keystroke
+  );
+
   // No shortcut, no selector. Consider a smartfence
   if (!shortcut && !selector) {
     //
