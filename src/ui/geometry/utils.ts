@@ -194,8 +194,8 @@ export function fitInViewport(
 
   element.style.left = `${Math.ceil(left!).toString()}px`;
   element.style.top = `${Math.ceil(top!).toString()}px`;
-  // element.style.height = `${Math.ceil(height).toString()}px`;
-  // element.style.width = `${Math.ceil(width).toString()}px`;
+  element.style.height = `${Math.ceil(height).toString()}px`;
+  element.style.width = `${Math.ceil(width).toString()}px`;
 }
 
 export function distance(

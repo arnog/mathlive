@@ -2203,7 +2203,14 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.menu.menuItems ?? [];
   }
   set menuItems(menuItems: MenuItem[]) {
-    if (this._mathfield?.menu) this._mathfield.menu.menuItems = menuItems;
+    if (this._mathfield?.menu) {
+      const btn =
+        this._mathfield.element?.querySelector<HTMLElement>(
+          '[part=menu-toggle]'
+        );
+      if (btn) btn.style.display = menuItems.length === 0 ? 'none' : '';
+      this._mathfield.menu.menuItems = menuItems;
+    }
   }
 
   /**

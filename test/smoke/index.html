@@ -19,6 +19,8 @@
         color: var(--on-editable);
         max-width: 640px;
         width: 100%;
+        position: relative;
+        z-index: 1;
       }
       @media (prefers-color-scheme: dark) {
         math-field {
@@ -26,6 +28,10 @@
         }
       }
 
+      /* math-field::part(menu-toggle) {
+        display: none;
+      }
+ */
       #mathml-render {
         margin-top: 1rem;
         margin-bottom: 1rem;
@@ -208,6 +214,10 @@
       // ];
 
       const mf = document.getElementById("mf");
+
+      const menuItems = mf.menuItems;
+      mf.menuItems = [];
+      mf.menuItems = menuItems;
 
       MathfieldElement.computeEngine.notation = "scientific";
 

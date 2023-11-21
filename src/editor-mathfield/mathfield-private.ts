@@ -410,12 +410,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (ev.currentTarget !== menuToggle) return;
         if (this._menu.state !== 'closed') return;
         this.element!.classList.add('tracking');
+        const bounds = menuToggle.getBoundingClientRect();
         this._menu.show({
           container: menuToggle,
-          location: {
-            x: menuToggle.offsetLeft,
-            y: menuToggle.offsetHeight + menuToggle.offsetTop,
-          },
+          location: { x: bounds.left, y: bounds.bottom },
           modifiers: keyboardModifiersFromEvent(ev),
           onDismiss: () => this.element!.classList.remove('tracking'),
         });
@@ -751,21 +749,25 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       case 'pointerdown':
         onPointerDown(this, evt as PointerEvent);
-        onContextMenu(
-          evt,
-          this.element!.querySelector<HTMLElement>('[part=container')!,
-          this._menu,
-          () => stopTrackingPointer(this)
-        );
+        if (this._menu.menuItems.length > 0) {
+          onContextMenu(
+            evt,
+            this.element!.querySelector<HTMLElement>('[part=container')!,
+            this._menu,
+            () => stopTrackingPointer(this)
+          );
+        }
         break;
 
       case 'contextmenu':
-        onContextMenu(
-          evt,
-          this.element!.querySelector<HTMLElement>('[part=container')!,
-          this._menu,
-          () => stopTrackingPointer(this)
-        );
+        if (this._menu.menuItems.length > 0) {
+          onContextMenu(
+            evt,
+            this.element!.querySelector<HTMLElement>('[part=container')!,
+            this._menu,
+            () => stopTrackingPointer(this)
+          );
+        }
         break;
 
       case 'virtual-keyboard-toggle':
