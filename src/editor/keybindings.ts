@@ -13,6 +13,7 @@ import { isBrowser, osPlatform } from '../ui/utils/capabilities';
 import { ParseMode } from '../public/core-types';
 import { KeyboardLayout } from './keyboard-layouts/types';
 import { getKeybindingMarkup } from '../ui/events/keyboard';
+import { keyboardEventToString } from './keyboard';
 
 /**
  * @param p The platform to test against.
@@ -38,19 +39,31 @@ function matchPlatform(p: string): boolean {
 export function getCommandForKeybinding(
   keybindings: Keybinding[],
   mode: ParseMode,
-  inKeystroke: string
+  evt: KeyboardEvent
 ): Selector | [Selector, ...any[]] | '' {
   if (keybindings.length === 0) return '';
 
   // Normalize keystroke to the format (order of modifiers) expected
   // by keybindings
   const keystroke = keystrokeModifiersToString(
-    keystrokeModifiersFromString(inKeystroke)
+    keystrokeModifiersFromString(keyboardEventToString(evt))
   );
+  const altKeystroke = keystrokeModifiersToString({
+    key: evt.key,
+    shift: evt.shiftKey,
+    alt: evt.altKey,
+    ctrl: evt.ctrlKey,
+    meta: evt.metaKey || (evt.ctrlKey && /macos|ios/.test(osPlatform())),
+    cmd: false,
+    win: false,
+  });
 
   // Try to match using a virtual keystroke
   for (let i = keybindings.length - 1; i >= 0; i--) {
-    if (keybindings[i].key === keystroke) {
+    if (
+      keybindings[i].key === keystroke ||
+      keybindings[i].key === altKeystroke
+    ) {
       if (!keybindings[i].ifMode || keybindings[i].ifMode === mode)
         return keybindings[i].command as Selector | [Selector, ...any[]];
     }
@@ -104,6 +117,12 @@ export function getKeybindingsForCommand(
   return result.map(getKeybindingMarkup);
 }
 
+/**
+ * Return a normalized keybinding that account for the current
+ * keyboard layout. For example, a keybinding with the key `{` and
+ * a US layout will return 'shift+[' and '{' (the latter is the key code).
+ *
+ */
 function normalizeKeybinding(
   keybinding: Keybinding,
   layout: KeyboardLayout
@@ -165,22 +184,17 @@ function normalizeKeybinding(
 
   if (platform && !matchPlatform(platform)) return undefined;
 
-  // if (/^\[.+\]$/.test(modifiers.key)) {
-  //   // This is a keybinding specified with a key code (e.g.  `[KeyW]`)
-  //   return {
-  //     ...keybinding,
-  //     ifPlatform: platform,
-  //     key: keystrokeModifiersToString(modifiers),
-  //   };
-  // }
+  //
   // Is this a keybinding specified with a key code (e.g.  `[KeyW]`)?
+  //
   if (/^\[.+\]$/.test(modifiers.key))
     return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
 
+  //
   // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
-  // Convert it to a key code.
+  // Map it to a key code given the current keyboard layout.
+  //
   const code = getCodeForKey(modifiers.key, layout);
-  // if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
   if (!code)
     return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
 
@@ -197,12 +211,7 @@ function normalizeKeybinding(
   code.alt = code.alt || modifiers.alt;
   code.meta = modifiers.meta;
   code.ctrl = modifiers.ctrl;
-  return {
-    ...keybinding,
-    ifPlatform: platform,
-    key: keystrokeModifiersToString(code),
-  };
-  // return { ...keybinding, key: keystrokeModifiersToString(code) };
+  return { ...keybinding, key: keystrokeModifiersToString(code) };
 }
 
 function selectorToString(selector: Selector | [Selector, ...any[]]): string {
@@ -230,27 +239,27 @@ export function normalizeKeybindings(
   keybindings: Keybinding[],
   layout: KeyboardLayout
 ): [result: Keybinding[], errors: string[]] {
-  const result: Keybinding[] = [];
   const errors: string[] = [];
+  const result: Keybinding[] = [];
 
   for (const x of keybindings) {
     try {
-      const keybinding = normalizeKeybinding(x, layout);
-      if (keybinding) {
-        const matches = result.filter(
-          (x) => x.key === keybinding.key && x.ifMode === keybinding.ifMode
+      const binding = normalizeKeybinding(x, layout);
+      if (!binding) continue;
+      // Is there a conflict with an existing keybinding?
+      const conflict = result.find(
+        (x) => x.key === binding.key && x.ifMode === binding.ifMode
+      );
+      if (conflict) {
+        throw new Error(
+          `Ambiguous key binding ${x.key} (${selectorToString(
+            x.command as Selector | [Selector, ...any[]]
+          )}) matches ${conflict.key} (${selectorToString(
+            conflict.command as Selector | [Selector, ...any[]]
+          )}) with the ${layout.displayName} keyboard layout`
         );
-        if (matches.length > 0) {
-          throw new Error(
-            `Ambiguous key binding ${x.key} (${selectorToString(
-              x.command as Selector | [Selector, ...any[]]
-            )}) matches ${matches[0].key} (${selectorToString(
-              matches[0].command as Selector | [Selector, ...any[]]
-            )}) with the ${layout.displayName} keyboard layout`
-          );
-        }
-        result.push(keybinding);
       }
+      result.push(binding);
     } catch (error: unknown) {
       if (error instanceof Error) errors.push(error.message);
     }

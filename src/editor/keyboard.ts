@@ -42,35 +42,8 @@ export interface KeyboardDelegate {
   dispose: () => void;
 }
 
-/**
- * Create a normalized representation of a keyboard event,
- * i.e., key code and modifier keys. For example:
- * - `ctrl+Shift+alt+[KeyF]`
- *
- * Note: the key code corresponds to a physical key, e.g. 'KeyQ' is
- * the key labeled 'A' on a French keyboard
- *
- */
-function keyboardEventToString(evt: KeyboardEvent): string {
-  evt = normalizeKeyboardEvent(evt);
-
-  const modifiers: string[] = [];
-
-  if (evt.ctrlKey) modifiers.push('ctrl');
-  if (evt.metaKey) modifiers.push('meta');
-  if (evt.altKey) modifiers.push('alt');
-  if (evt.shiftKey) modifiers.push('shift');
-
-  // If no modifiers, simply return the key name
-  if (modifiers.length === 0) return `[${evt.code}]`;
-
-  modifiers.push(`[${evt.code}]`);
-
-  return modifiers.join('+');
-}
-
 export interface KeyboardDelegateInterface {
-  onKeystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
+  onKeystroke: (ev: KeyboardEvent) => boolean;
   onInput: (text: string) => void;
   onCut: (ev: ClipboardEvent) => void;
   onCopy: (ev: ClipboardEvent) => void;
@@ -136,8 +109,7 @@ export function delegateKeyboardEvents(
 
       keydownEvent = event;
       keypressEvent = null;
-      if (!delegate.onKeystroke(keyboardEventToString(event), event))
-        keydownEvent = null;
+      if (!delegate.onKeystroke(event)) keydownEvent = null;
       else keyboardSink.textContent = '';
     },
     { capture: true, signal }
@@ -149,8 +121,7 @@ export function delegateKeyboardEvents(
       if (compositionInProgress) return;
       // If this is not the first keypress after a keydown, that is,
       // if this is a repeated keystroke, call the keystroke handler.
-      if (keydownEvent && keypressEvent)
-        delegate.onKeystroke(keyboardEventToString(keydownEvent), keydownEvent);
+      if (keydownEvent && keypressEvent) delegate.onKeystroke(keydownEvent);
 
       keypressEvent = event;
     },
@@ -371,4 +342,31 @@ export function keyboardEventToChar(evt?: KeyboardEvent): string {
     result = '';
 
   return result;
+}
+
+/**
+ * Create a normalized representation of a keyboard event,
+ * i.e., key code and modifier keys. For example:
+ * - `ctrl+Shift+alt+[KeyF]`
+ *
+ * Note: the key code corresponds to a physical key, e.g. 'KeyQ' is
+ * the key labeled 'A' on a French keyboard
+ *
+ */
+export function keyboardEventToString(evt: KeyboardEvent): string {
+  evt = normalizeKeyboardEvent(evt);
+
+  const modifiers: string[] = [];
+
+  if (evt.ctrlKey) modifiers.push('ctrl');
+  if (evt.metaKey) modifiers.push('meta');
+  if (evt.altKey) modifiers.push('alt');
+  if (evt.shiftKey) modifiers.push('shift');
+
+  // If no modifiers, simply return the key name
+  if (modifiers.length === 0) return `[${evt.code}]`;
+
+  modifiers.push(`[${evt.code}]`);
+
+  return modifiers.join('+');
 }

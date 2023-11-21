@@ -11,7 +11,11 @@ import {
   LINUX_FRENCH,
   WINDOWS_FRENCH,
 } from './keyboard-layouts/french';
-import { WINDOWS_GERMAN, APPLE_GERMAN } from './keyboard-layouts/german';
+import {
+  WINDOWS_GERMAN,
+  APPLE_GERMAN,
+  LINUX_GERMAN,
+} from './keyboard-layouts/german';
 import {
   APPLE_SPANISH,
   WINDOWS_SPANISH,
@@ -327,7 +331,7 @@ switch (platform()) {
     register(LINUX_ENGLISH);
     register(LINUX_FRENCH);
     register(LINUX_SPANISH);
-    // register(LINUX_GERMAN);
+    register(LINUX_GERMAN);
     break;
 }
 

@@ -3,7 +3,7 @@ import type { Selector } from '../public/commands';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { Atom } from '../core/atom';
 
-import { keyboardEventToChar } from '../editor/keyboard';
+import { keyboardEventToChar, keyboardEventToString } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
 import { SelectorPrivate } from '../editor/commands';
@@ -55,10 +55,11 @@ import { mightProducePrintableCharacter } from 'ui/events/utils';
  */
 export function onKeystroke(
   mathfield: _Mathfield,
-  keystroke: string,
   evt: KeyboardEvent
 ): boolean {
   const { model } = mathfield;
+
+  const keystroke = keyboardEventToString(evt);
 
   // 1. Update the current keyboard layout based on this event
   if (evt.isTrusted) {
@@ -199,7 +200,7 @@ export function onKeystroke(
       selector = getCommandForKeybinding(
         mathfield.keybindings,
         model.mode,
-        keystroke
+        evt
       );
     }
 
@@ -279,15 +280,6 @@ export function onKeystroke(
         selector = 'insertDecimalSeparator';
     }
   }
-
-  console.log(
-    'selector',
-    selector,
-    'shortcut',
-    shortcut,
-    'keystroke',
-    keystroke
-  );
 
   // No shortcut, no selector. Consider a smartfence
   if (!shortcut && !selector) {
@@ -546,7 +538,7 @@ export function onInput(
   if (options.simulateKeystroke) {
     let handled = true;
     for (const c of graphemes) {
-      if (onKeystroke(mathfield, c, new KeyboardEvent('keypress', { key: c })))
+      if (onKeystroke(mathfield, new KeyboardEvent('keypress', { key: c })))
         handled = false;
     }
     if (handled) return;

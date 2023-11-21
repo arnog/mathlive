@@ -1611,8 +1611,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     onInput(this, text);
   }
 
-  onKeystroke(keystroke: string, evt: KeyboardEvent): boolean {
-    return onKeystroke(this, keystroke, evt);
+  onKeystroke(evt: KeyboardEvent): boolean {
+    return onKeystroke(this, evt);
   }
 
   onCompositionStart(_composition: string): void {

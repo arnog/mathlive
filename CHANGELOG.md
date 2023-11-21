@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bugs Fixed
+
+- Keybindings for German Linux keyboard layout were not working correctly.
+
 ## 0.97.1 (2023-11-20)
 
 ### Bugs Fixed
