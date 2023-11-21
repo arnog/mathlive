@@ -430,6 +430,7 @@ with this style */
   & > span {
     padding: 0;
     margin: 0;
+    line-height: 0;
   }
 
   & > span > span {
@@ -440,9 +441,9 @@ with this style */
     border-radius: 50%;
   }
   box-sizing: border-box;
-  background: #fbfbfb;
+  background: var(--neutral-200);
   &:hover {
-    background: #f0f0f0;
+    background: var(--neutral-100);
     & > span > span {
       border-radius: 2px;
     }

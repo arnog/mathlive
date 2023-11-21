@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Bugs Fixed
+
+- **#2180** Allow the context menu to get turned off by setting `mf.menuItems = []`
+- Fixed a layout issue with the positioning of the context menu in some
+  cases.
+- Improved dark mode appearance of context menu
+
 ## 0.97.0 (2023-11-20)
 
 ### New Features

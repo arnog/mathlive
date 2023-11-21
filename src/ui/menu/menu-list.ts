@@ -207,12 +207,6 @@ export class MenuList implements MenuInterface {
 
     if (value) value.element?.focus();
     else this._element?.focus();
-
-    // Update secondary state of parent
-    this.parentMenu?.activeMenuItem?.element?.classList.toggle(
-      'is-submenu-open',
-      Boolean(value)
-    );
   }
 
   nextMenuItem(dir: number): MenuItemInterface | null {
@@ -378,6 +372,8 @@ export class MenuList implements MenuInterface {
         expanded.toString()
       );
     }
+    // Update secondary state of parent
+    this.activeMenuItem?.element?.classList.toggle('is-submenu-open', expanded);
 
     this.isSubmenuOpen = expanded;
   }
