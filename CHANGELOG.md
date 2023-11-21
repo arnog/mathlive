@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.97.2 (2023-11-21)
 
 ### Bugs Fixed
 
