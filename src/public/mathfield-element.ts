@@ -1296,8 +1296,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   set mode(value: ParseMode) {
-    if (!this._mathfield) return;
-    this._mathfield.model.mode = value;
+    this._mathfield?.switchMode(value);
   }
 
   /**

@@ -45,6 +45,8 @@ export type GetAtomOptions = {
 export class ModelPrivate implements Model {
   readonly mathfield: _Mathfield;
 
+  // Note: in most cases, use mf.switchMode() instead.
+  // Changing this directly will not dispatch the 'change-mode' event
   mode: ParseMode;
 
   silenceNotifications: boolean;

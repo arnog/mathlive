@@ -45,6 +45,7 @@ import {
 import { UndoManager } from '../editor/undo';
 import {
   disposeSuggestionPopover,
+  hideSuggestionPopover,
   updateSuggestionPopoverPosition,
 } from '../editor/suggestion-popover';
 import { l10n, localize } from '../core/l10n';
@@ -1072,6 +1073,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return;
 
     // Dispatch event with option of canceling
+    // Set the mode to the requested mode so the event handler
+    // can inspect it.
+    const previousMode = this.model.mode;
+    this.model.mode = mode;
     if (
       !this.host?.dispatchEvent(
         new Event('mode-change', {
@@ -1080,8 +1085,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
           cancelable: true,
         })
       )
-    )
+    ) {
+      this.model.mode = previousMode;
       return;
+    }
 
     // Notify of mode change
     const currentMode = this.model.mode;
@@ -1538,7 +1545,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.blurred = true;
     this.ariaLiveText!.textContent = '';
 
-    complete(this, 'accept');
+    hideSuggestionPopover(this);
 
     if (this.model.getValue() !== this.valueOnFocus) {
       this.host?.dispatchEvent(

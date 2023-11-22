@@ -150,7 +150,7 @@ export function complete(
   const newPos = latexGroup.leftSibling;
   latexGroup.parent!.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
-  mathfield.model.mode = options?.mode ?? 'math';
+  mathfield.switchMode(options?.mode ?? 'math');
 
   if (completion === 'reject') return true;
 

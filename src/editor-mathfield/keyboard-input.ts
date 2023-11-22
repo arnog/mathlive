@@ -164,28 +164,13 @@ export function onKeystroke(
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
     if (mathfield.options.smartMode) {
-      const previousMode = model.mode;
       if (shortcut) {
         // If we found a shortcut (e.g. "alpha"),
         // switch to math mode and insert it
-        model.mode = 'math';
+        mathfield.switchMode('math');
       } else if (smartMode(mathfield, keystroke, evt)) {
-        model.mode = { math: 'text', text: 'math' }[model.mode];
+        mathfield.switchMode({ math: 'text', text: 'math' }[model.mode]);
         selector = '';
-      }
-
-      // Notify of mode change
-      if (model.mode !== previousMode) {
-        if (
-          !mathfield.host?.dispatchEvent(
-            new Event('mode-change', {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-            })
-          )
-        )
-          model.mode = previousMode;
       }
     }
   }
@@ -440,7 +425,7 @@ export function onKeystroke(
 
         // Switch (back) to text mode if the shortcut ended with a space
         if (shortcut!.endsWith(' ')) {
-          model.mode = 'text';
+          mathfield.switchMode('text');
           ModeEditor.insert(model, ' ', { style, mode: 'text' });
         }
 
