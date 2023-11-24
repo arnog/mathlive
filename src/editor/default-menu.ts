@@ -393,7 +393,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Insert Text',
       id: 'insert-text',
       onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
-      visible: () => mf.model.mode === 'math',
+      visible: () => mf.isSelectionEditable && mf.model.mode === 'math',
     },
 
     {
@@ -440,7 +440,9 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: 'Evaluate',
       id: 'ce-evaluate',
-      visible: () => window.MathfieldElement.computeEngine !== null,
+      visible: () =>
+        mf.isSelectionEditable &&
+        window.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
         const latex = evaluate(mf);
         if (!latex) {
@@ -464,7 +466,9 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: 'Simplify',
       id: 'ce-simplify',
-      visible: () => window.MathfieldElement.computeEngine !== null,
+      visible: () =>
+        mf.isSelectionEditable &&
+        window.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
         if (mf.model.selectionIsCollapsed) {
           const result = mf.expression?.simplify();
@@ -496,6 +500,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Solve',
       id: 'ce-solve',
       visible: () =>
+        mf.isSelectionEditable &&
         window.MathfieldElement.computeEngine !== null &&
         mf.expression?.unknowns.length === 1,
       onMenuSelect: () => {

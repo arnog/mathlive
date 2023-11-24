@@ -1763,7 +1763,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @internal
    */
   connectedCallback(): void {
-    this.shadowRoot!.host.addEventListener('pointerdown', this, true);
+    const computedStyle = window.getComputedStyle(this);
+    const userSelect = computedStyle.userSelect !== 'none';
+    (this.shadowRoot!.firstElementChild! as HTMLElement).style.pointerEvents =
+      userSelect ? 'none' : 'auto';
+
+    if (userSelect)
+      this.shadowRoot!.host.addEventListener('pointerdown', this, true);
+
+    const span = this.shadowRoot?.querySelector('span');
+    span!.style.pointerEvents = userSelect ? 'auto' : 'none';
 
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
     this.shadowRoot!.host.addEventListener('focus', this, true);
@@ -1777,7 +1786,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     // NVDA on Firefox seems to require this attribute
-    if (!this.hasAttribute('contenteditable'))
+    if (userSelect && !this.hasAttribute('contenteditable'))
       this.setAttribute('contenteditable', 'true');
 
     // When the elements get focused (through tabbing for example)

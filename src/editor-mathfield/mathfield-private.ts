@@ -424,6 +424,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
       { signal: this.eventController.signal }
     );
 
+    if (this.userSelect === 'none') menuToggle!.style.display = 'none';
+
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
 
@@ -744,24 +746,35 @@ If you are using Vue, this may be because you are using the runtime-only build o
         break;
 
       case 'mousedown':
-        // iOS <=13 Safari and Firefox on Android
-        onPointerDown(this, evt as PointerEvent);
+        if (this.userSelect !== 'none') {
+          // iOS <=13 Safari and Firefox on Android
+          onPointerDown(this, evt as PointerEvent);
+        }
         break;
 
       case 'pointerdown':
-        onPointerDown(this, evt as PointerEvent);
-        if (this._menu.menuItems.length > 0) {
-          onContextMenu(
-            evt,
-            this.element!.querySelector<HTMLElement>('[part=container')!,
-            this._menu,
-            () => stopTrackingPointer(this)
-          );
+        if (this.userSelect !== 'none') {
+          onPointerDown(this, evt as PointerEvent);
+          if (
+            (evt as PointerEvent).shiftKey === false &&
+            this._menu.menuItems.length > 0
+          ) {
+            onContextMenu(
+              evt,
+              this.element!.querySelector<HTMLElement>('[part=container')!,
+              this._menu,
+              () => stopTrackingPointer(this)
+            );
+          }
         }
         break;
 
       case 'contextmenu':
-        if (this._menu.menuItems.length > 0) {
+        if (
+          this.userSelect !== 'none' &&
+          (evt as PointerEvent).shiftKey === false &&
+          this._menu.menuItems.length > 0
+        ) {
           onContextMenu(
             evt,
             this.element!.querySelector<HTMLElement>('[part=container')!,

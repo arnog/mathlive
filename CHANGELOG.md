@@ -7,6 +7,9 @@
 - When the mathfield loses focus, if some of the content is in LaTeX mode, 
   it remains in LaTeX mode. Previously, it would switch to math mode when
   losing focus.
+- Changing the `user-select` CSS property before inserting the mathfield 
+  in the DOM would not always be respected.
+
 
 ## 0.97.2 (2023-11-21)
 
