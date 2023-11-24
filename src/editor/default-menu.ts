@@ -497,7 +497,11 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       },
     },
     {
-      label: 'Solve',
+      label: () => {
+        const unknown = mf.expression?.unknowns[0];
+        if (unknown) return 'Solve for ' + convertLatexToMarkup(unknown);
+        return 'Solve';
+      },
       id: 'ce-solve',
       visible: () =>
         mf.isSelectionEditable &&
