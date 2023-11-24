@@ -188,6 +188,8 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   private _menu: Menu;
 
+  private _l10Subscription: number;
+
   // The value of the mathfield when it is focussed.
   // If this value is different when the field is blured
   // the `change` event is dispatched
@@ -234,9 +236,6 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     this.element = element;
     element.mathfield = this;
-
-    // Where the localized elements will be searched and updated
-    l10n.root = element;
 
     // Focus/blur state
     this.blurred = true;
@@ -354,6 +353,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return;
     }
 
+    // Update the localizable elements, and subscribe to
+    // future updates
+    this._l10Subscription = l10n.subscribe(() => l10n.update(this.element!));
+    l10n.update(this.element!);
+
     this.field = this.element.querySelector('[part=content]')!;
 
     // Listen to 'click' events on the part of the field that doesn't have
@@ -413,7 +417,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.element!.classList.add('tracking');
         const bounds = menuToggle.getBoundingClientRect();
         this._menu.show({
-          container: menuToggle,
+          target: menuToggle,
           location: { x: bounds.left, y: bounds.bottom },
           modifiers: keyboardModifiersFromEvent(ev),
           onDismiss: () => this.element!.classList.remove('tracking'),
@@ -817,6 +821,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   dispose(): void {
     if (!isValidMathfield(this)) return;
+
+    l10n.unsubscribe(this._l10Subscription);
 
     this.keyboardDelegate.dispose();
     (this as any).keyboardDelegate = undefined;
@@ -1253,7 +1259,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return true;
     }
     this._menu.show({
-      container: this.element!.querySelector<HTMLElement>('[part=container')!,
+      target: this.element!.querySelector<HTMLElement>('[part=container')!,
       location: this.getCaretPoint() ?? undefined,
       onDismiss: () => this.element?.focus(),
     });

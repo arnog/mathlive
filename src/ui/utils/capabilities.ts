@@ -64,3 +64,7 @@ export function supportRegexPropertyEscape(): boolean {
 
   return true;
 }
+
+export function supportPopover(): boolean {
+  return HTMLElement.prototype.hasOwnProperty('popover');
+}

@@ -8,6 +8,7 @@ import {
   MenuSelectEvent,
 } from './types';
 import { _MenuItem } from './menu-item';
+import { supportPopover } from 'ui/utils/capabilities';
 
 /**
  * A collection of menu items.
@@ -325,6 +326,10 @@ export class MenuList implements MenuInterface {
     if (this._menuItems.filter((x) => x.visible).length === 0) return false;
 
     options.container.appendChild(this.element);
+    if (supportPopover()) {
+      this.element.popover = 'manual';
+      this.element.showPopover();
+    }
 
     if (options.location) {
       fitInViewport(this.element, {
@@ -353,6 +358,9 @@ export class MenuList implements MenuInterface {
 
     // Notify our parent
     if (this.parentMenu) this.parentMenu.openSubmenu = null;
+
+    if (supportPopover() && this._element?.parentNode)
+      this.element.hidePopover();
 
     this._element?.parentNode?.removeChild(this._element);
     this._element = null;

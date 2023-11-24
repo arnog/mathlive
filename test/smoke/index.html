@@ -55,11 +55,9 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf" name="formula"> {(\sin(5))} </math-field>
-
-      <!-- <math-field id="mf" name="formula"
-        >\begin{pmatrix}a\end{pmatrix}</math-field
-      > -->
+      <math-field id="mf" name="formula">
+        1+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+      </math-field>
 
       <!-- <math-field id="mf"
         >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
@@ -212,6 +210,13 @@
       //   },
       //   'alphabetic',
       // ];
+
+      const mf2 = new MathfieldElement();
+      mf2.readonly = true;
+      mf2.value = "f(x) := x^2";
+      document.getElementById("container").appendChild(mf2);
+
+      mf2.style.userSelect = "none";
 
       const mf = document.getElementById("mf");
 

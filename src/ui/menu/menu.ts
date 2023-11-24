@@ -218,8 +218,8 @@ export class Menu extends MenuList implements RootMenuInterface {
     return this._scrim.element;
   }
 
-  private connectScrim(root?: Node | null): void {
-    const { scrim } = this;
+  private connectScrim(target?: Node | null): void {
+    const scrim = this.scrim!;
     scrim.addEventListener('pointerup', this);
 
     scrim.addEventListener('contextmenu', this);
@@ -228,11 +228,11 @@ export class Menu extends MenuList implements RootMenuInterface {
     scrim.addEventListener('keyup', this);
     scrim.addEventListener('pointermove', this);
 
-    this._scrim.open({ root });
+    this._scrim.open({ root: target });
   }
 
   private disconnectScrim(): void {
-    const { scrim } = this;
+    const scrim = this.scrim!;
     scrim.removeEventListener('pointerup', this);
 
     scrim.removeEventListener('contextmenu', this);
@@ -249,7 +249,7 @@ export class Menu extends MenuList implements RootMenuInterface {
   }
 
   show(options?: {
-    container?: Node | null; // Where the menu should attach
+    target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
     modifiers?: KeyboardModifiers;
@@ -258,8 +258,13 @@ export class Menu extends MenuList implements RootMenuInterface {
     this._onDismiss = options?.onDismiss;
 
     // Connect the scrim now, so that the menu can be measured and placed
-    this.connectScrim(options?.container);
-    if (!super.show({ ...options, container: this.scrim })) {
+    this.connectScrim(options?.target);
+    if (
+      !super.show({
+        ...options,
+        container: this.scrim,
+      })
+    ) {
       // There was nothing to show: remove the scrim
       this.disconnectScrim();
       return false;

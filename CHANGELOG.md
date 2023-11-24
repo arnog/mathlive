@@ -9,7 +9,12 @@
   losing focus.
 - Changing the `user-select` CSS property before inserting the mathfield 
   in the DOM would not always be respected.
+- Use the Popover API when available, which should ensure menus are displayed on top of other elements.
 
+### Bugs Fixed
+
+- If there were multiple mathfield elements on the page, only
+  the last one would display tooltips.
 
 ## 0.97.2 (2023-11-21)
 

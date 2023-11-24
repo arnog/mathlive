@@ -16,7 +16,7 @@ export function onContextMenu(
     const evt = event as MouseEvent;
     onTrigger?.();
     menu.show({
-      container: target,
+      target: target,
       location: { x: Math.round(evt.clientX), y: Math.round(evt.clientY) },
       modifiers: keyboardModifiersFromEvent(evt),
     });
@@ -37,7 +37,7 @@ export function onContextMenu(
       if (bounds) {
         onTrigger?.();
         menu.show({
-          container: target,
+          target: target,
           location: {
             x: Math.round(bounds.left + bounds.width / 2),
             y: Math.round(bounds.top + bounds.height / 2),
@@ -66,7 +66,7 @@ export function onContextMenu(
     onLongPress(event, () => {
       if (menu.state !== 'closed') return;
       onTrigger?.();
-      menu.show({ container: target, location: pt, modifiers });
+      menu.show({ target: target, location: pt, modifiers });
     });
     return true;
   }
