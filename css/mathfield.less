@@ -316,25 +316,35 @@ with this style */
   }
 }
 
-[data-tooltip]:hover {
-  position: relative;
-  &::after {
-    visibility: visible; // Visible triggers the animation...
-    opacity: 1; // ... but we start fully transparent to
-    transform: scale(1);
-    transition-property: opacity, scale;
-    transition-duration: 0.15s;
-    // give ourselves a delay before showing
-    transition-delay: 1s;
-    transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
-    }
+menu [data-tooltip]::after {
+  left: 100%; // place tooltip to the right of element
+  top: 0%;
 }
 
-.tracking [data-tooltip]:hover {
-  &::after {
-    display: none
-  }
+/** Don't display if we're tracking, i.e. have the pointer down */
+.tracking [data-tooltip]:hover::after {
+  display: none;
 }
+
+
+.tracking menu [data-tooltip]:hover::after, 
+[data-tooltip]:hover::after {
+  visibility: visible; // Visible triggers the animation...
+  opacity: 1; // ... but we start fully transparent to
+  transform: scale(1);
+  transition-property: opacity, scale;
+  transition-duration: 0.15s;
+  // give ourselves a delay before showing
+  transition-delay: 1s;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
+}
+
+
+/** But do display if we're inside a menu */
+.tracking menu li[data-tooltip]:hover::after {
+  display: visible;
+}
+
 
 
 
@@ -371,12 +381,7 @@ with this style */
 .menu-container-variant {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  column-count: 3;
-  column-gap: 8px;
   padding: 8px;
-  margin: 8px;
 }
 
 .menu-container-variant [part=menu-item] {
@@ -388,6 +393,7 @@ with this style */
 .menu-container-insert-matrix {
   column-count: 5;
   column-gap: 0;
+  padding: 8px;
 }
 
 .menu-container-insert-matrix [part=menu-item] {
@@ -407,17 +413,15 @@ with this style */
   text-align: center;
 }
 
+
 .menu-container-swatches {
+  --_swatch-size: 2rem;
+  --_columns: 4;
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  column-count: 4;
-  column-gap: 0;
+  flex-flow: wrap;
   padding: 8px;
-  margin: 8px;
-  max-width: calc(4 * (2rem + 18px));
+  max-width: calc(var(--_columns) * (var(--_swatch-size) + 18px) + 16px);
+  box-sizing: border-box;
 }
 
 .menu-swatch {
@@ -436,11 +440,10 @@ with this style */
   & > span > span {
     display: inline-block;
     margin: 6px;
-    min-width: 2rem;
-    min-height: 2rem;
+    min-width: var(--_swatch-size);
+    min-height: var(--_swatch-size);
     border-radius: 50%;
   }
-  box-sizing: border-box;
   background: var(--neutral-200);
   &:hover {
     background: var(--neutral-100);
