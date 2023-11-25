@@ -100,12 +100,12 @@ export function fitInViewport(
   // Reset any location, so we can get the natural width/height
   // element.style.display = 'unset';
   element.style.position = 'absolute';
-  element.style.left = 'auto';
-  element.style.top = 'auto';
-  element.style.right = 'auto';
-  element.style.bottom = 'auto';
-  element.style.height = 'auto';
-  element.style.width = 'auto';
+  element.style.left = '';
+  element.style.top = '';
+  element.style.right = '';
+  element.style.bottom = '';
+  element.style.height = '';
+  element.style.width = '';
 
   const elementBounds = element.getBoundingClientRect();
 
@@ -117,13 +117,8 @@ export function fitInViewport(
   const maxHeight = Number.isFinite(options.maxHeight)
     ? Math.min(options.maxHeight!, window.innerHeight)
     : window.innerHeight;
-  let height = Math.min(
-    maxHeight,
-    options.height ??
-      elementBounds.height -
-        parseFloat(computedStyle.paddingTop) -
-        parseFloat(computedStyle.paddingBottom)
-  );
+
+  let height = Math.min(maxHeight, options.height ?? elementBounds.height);
 
   let top: number | undefined = getEffectivePos(
     options.location.y,
@@ -194,8 +189,10 @@ export function fitInViewport(
 
   element.style.left = `${Math.ceil(left!).toString()}px`;
   element.style.top = `${Math.ceil(top!).toString()}px`;
-  element.style.height = `${Math.ceil(height).toString()}px`;
-  element.style.width = `${Math.ceil(width).toString()}px`;
+  if (height !== elementBounds.height)
+    element.style.height = `${Math.ceil(height).toString()}px`;
+  if (width !== elementBounds.width)
+    element.style.width = `${Math.ceil(width).toString()}px`;
 }
 
 export function distance(
