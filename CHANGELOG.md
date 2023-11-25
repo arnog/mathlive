@@ -16,6 +16,7 @@
 
 - If there were multiple mathfield elements on the page, only
   the last one would display tooltips.
+- **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank) would not move to the next prompt
 
 ## 0.97.2 (2023-11-21)
 

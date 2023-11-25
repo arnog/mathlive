@@ -553,7 +553,14 @@ register(
       // 3/ Find a placeholder, a prompt or empty group.
       // They have priority over other options below
       //
-      const target = leapTarget(model, model.position + 1, 'forward');
+
+      // If we're in a prompt, start looking after the prompt
+      const parentPrompt = model.at(model.anchor).parentPrompt;
+      const origin = parentPrompt
+        ? model.offsetOf(parentPrompt) + 1
+        : Math.max(model.position + 1, 0);
+
+      const target = leapTarget(model, origin, 'forward');
       if (target) return leapTo(model, target);
 
       //
@@ -644,7 +651,13 @@ register(
       //
       // 3/ Find a placeholder, a prompt or empty group.
       //
-      const target = leapTarget(model, model.position - 1, 'backward');
+      // If we're in a prompt, start looking before the prompt
+      const parentPrompt = model.at(model.anchor).parentPrompt;
+      const origin = parentPrompt
+        ? model.offsetOf(parentPrompt.leftSibling)
+        : Math.max(model.position - 1, 0);
+
+      const target = leapTarget(model, origin, 'backward');
       if (target) return leapTo(model, target);
 
       //

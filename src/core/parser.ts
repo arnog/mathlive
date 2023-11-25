@@ -1499,17 +1499,10 @@ export class Parser {
       else body = defaultAtoms;
       if (id) {
         return [
-          new PromptAtom(
-            id,
-            correctness,
-            // locked,
-            locked,
-            body ?? defaultAtoms,
-            {
-              mode: this.parseMode,
-              style: this.style,
-            }
-          ),
+          new PromptAtom(id, correctness, locked, body ?? defaultAtoms, {
+            mode: this.parseMode,
+            style: this.style,
+          }),
         ];
       }
       return [new PlaceholderAtom({ mode: this.parseMode, style: this.style })];
