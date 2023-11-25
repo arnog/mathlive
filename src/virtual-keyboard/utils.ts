@@ -125,20 +125,36 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
   const template =
     ALPHABETIC_TEMPLATE[layoutName] ?? ALPHABETIC_TEMPLATE.qwerty;
 
-  const rows: (string | Partial<VirtualKeyboardKeycap>)[][] = [
-    [
-      { label: '1', variants: '1' },
-      { label: '2', variants: '2' },
-      { label: '3', variants: '3' },
-      { label: '4', variants: '4' },
-      { label: '5', shift: { latex: '\\frac{#@}{#?}' }, variants: '5' },
-      { label: '6', shift: { latex: '#@^#?' }, variants: '6' },
-      { label: '7', variants: '7' },
-      { label: '8', shift: { latex: '\\times' }, variants: '8' },
-      { label: '9', shift: { label: '(', latex: '(' }, variants: '9' },
-      { label: '0', shift: { label: ')', latex: ')' }, variants: '0' },
-    ],
-  ];
+  const rows: (string | Partial<VirtualKeyboardKeycap>)[][] =
+    layoutName === 'azerty'
+      ? [
+          [
+            { label: '1', variants: '1' },
+            { label: '2', shift: { latex: 'é' }, variants: '2' },
+            { label: '3', shift: { latex: 'ù' }, variants: '3' },
+            { label: '4', variants: '4' },
+            { label: '5', shift: { label: '(', latex: '(' }, variants: '5' },
+            { label: '6', shift: { label: ')', latex: ')' }, variants: '6' },
+            { label: '7', shift: { latex: 'è' }, variants: '7' },
+            { label: '8', shift: { latex: 'ê' }, variants: '8' },
+            { label: '9', shift: { latex: 'ç' }, variants: '9' },
+            { label: '0', shift: { latex: 'à' }, variants: '0' },
+          ],
+        ]
+      : [
+          [
+            { label: '1', variants: '1' },
+            { label: '2', variants: '2' },
+            { label: '3', variants: '3' },
+            { label: '4', variants: '4' },
+            { label: '5', shift: { latex: '\\frac{#@}{#?}' }, variants: '5' },
+            { label: '6', shift: { latex: '#@^#?' }, variants: '6' },
+            { label: '7', variants: '7' },
+            { label: '8', shift: { latex: '\\times' }, variants: '8' },
+            { label: '9', shift: { label: '(', latex: '(' }, variants: '9' },
+            { label: '0', shift: { label: ')', latex: ')' }, variants: '0' },
+          ],
+        ];
 
   for (const templateRow of template) {
     const row: (string | Partial<VirtualKeyboardKeycap>)[] = [];
