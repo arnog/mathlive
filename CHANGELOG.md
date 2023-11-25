@@ -18,6 +18,7 @@
   the last one would display tooltips.
 - **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank) would not move to the next prompt
 - **#2183** The MathML serialization of factorial was incorrect.
+- **#2181** The MathML serialization of limits was incorrect.
 
 ## 0.97.2 (2023-11-21)
 

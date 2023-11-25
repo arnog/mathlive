@@ -446,8 +446,12 @@ function scanOperator(stream: MathMLStream, final: number, options) {
         mathML += '</munder>';
       }
 
-      lastType = 'mo';
-    } else {
+      stream.mathML += mathML;
+      stream.lastType = 'mo';
+      stream.index += 1;
+      return true;
+    }
+    {
       const atom = stream.atoms[stream.index];
       const isUnit = atom.value === '\\operatorname';
       const op = isUnit
