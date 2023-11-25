@@ -103,6 +103,16 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
     '\\ldotp': '\u002E',
   };
 
+  if (atom.command === '!') {
+    stream.index += 1;
+    mathML = '<mo>!</mo>';
+    if (!parseSubsup(mathML, stream, options)) {
+      stream.mathML += mathML;
+      stream.lastType = 'mo';
+    }
+    return true;
+  }
+
   if (SPECIAL_IDENTIFIERS[atom.command]) {
     stream.index += 1;
     let mathML = `<mi${makeID(atom.id, options)}${variantProp}>${
