@@ -55,6 +55,7 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(`\\mathbb{${getSelectionPlainString(mf)}}`),
+      tooltip: 'Blackboard',
       visible: () => validVariantAtom(mf, 'double-struck'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' }),
@@ -62,6 +63,7 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(`\\mathfrak{${getSelectionPlainString(mf)}}`),
+      tooltip: 'Fraktur',
       visible: () => validVariantAtom(mf, 'fraktur'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'fraktur' }, { operation: 'toggle' }),
@@ -69,6 +71,7 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(`\\mathcal{${getSelectionPlainString(mf)}}`),
+      tooltip: 'Caligraphic',
       visible: () => validVariantAtom(mf, 'calligraphic'),
       onMenuSelect: () =>
         mf.applyStyle({ variant: 'calligraphic' }, { operation: 'toggle' }),
@@ -76,6 +79,7 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(`\\mathrm{${getSelectionPlainString(mf)}}`),
+      tooltip: 'Roman Upright',
       visible: () => validVariantStyleSelection(mf, 'up'),
       onMenuSelect: () =>
         mf.applyStyle({ variantStyle: 'up' }, { operation: 'toggle' }),
@@ -83,6 +87,7 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
     {
       label: () =>
         convertLatexToMarkup(`\\mathbf{${getSelectionPlainString(mf)}}`),
+      tooltip: 'Bold',
       visible: () => validVariantStyleSelection(mf, 'bold'),
       onMenuSelect: () =>
         mf.applyStyle({ variantStyle: 'bold' }, { operation: 'toggle' }),
@@ -548,7 +553,8 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'copy',
       submenu: [
         {
-          label: 'Copy LaTeX',
+          label: ({ modifiers }) =>
+            modifiers?.alt ? 'COPY LATEX' : 'Copy LaTeX',
           id: 'copy-latex',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
           keyboardShortcut: 'meta+C',
