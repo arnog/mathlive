@@ -283,11 +283,12 @@ export function skip(
     }
 
     if (options?.delete ?? false) {
-      deleteRange(
-        model,
-        [previousPosition, offset],
-        direction === 'forward' ? 'deleteWordForward' : 'deleteWordBackward'
-      );
+      if (direction === 'forward')
+        deleteRange(model, [previousPosition, offset], 'deleteWordForward');
+      else {
+        deleteRange(model, [previousPosition, offset], 'deleteWordBackward');
+        model.position = offset;
+      }
     } else {
       model.position = offset;
       model.announce('move', previousPosition);
