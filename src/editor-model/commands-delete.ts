@@ -1,7 +1,7 @@
 import { register } from '../editor/commands';
 import type { ModelPrivate } from './model-private';
 import { deleteForward, deleteBackward, deleteRange } from './delete';
-import { wordBoundaryOffset } from './commands';
+import { skip } from './commands';
 
 register(
   {
@@ -12,18 +12,10 @@ register(
     deleteBackward: (model: ModelPrivate): boolean => deleteBackward(model),
     deleteNextWord: (model: ModelPrivate): boolean =>
       model.contentWillChange({ inputType: 'deleteWordForward' }) &&
-      deleteRange(
-        model,
-        [model.anchor, wordBoundaryOffset(model, model.position, 'forward')],
-        'deleteWordForward'
-      ),
+      skip(model, 'forward', { delete: true }),
     deletePreviousWord: (model: ModelPrivate): boolean =>
       model.contentWillChange({ inputType: 'deleteWordBackward' }) &&
-      deleteRange(
-        model,
-        [model.anchor, wordBoundaryOffset(model, model.position, 'backward')],
-        'deleteWordBackward'
-      ),
+      skip(model, 'backward', { delete: true }),
     deleteToGroupStart: (model: ModelPrivate): boolean =>
       model.contentWillChange({ inputType: 'deleteSoftLineBackward' }) &&
       deleteRange(

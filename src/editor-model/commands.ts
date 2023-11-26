@@ -8,6 +8,7 @@ import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
 import type { Offset, Selection } from '../public/mathfield';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
 import { PromptAtom } from '../core-atoms/prompt';
+import { deleteRange } from './delete';
 
 /*
  * Calculates the offset of the "next word".
@@ -115,12 +116,13 @@ export function wordBoundaryOffset(
  * than the current focus.
  * If `extend` is true, the selection will be extended. Otherwise, it is
  * collapsed, then moved.
+ * If `delete` is true, the skipped range is removed.
  * @todo array
  */
 export function skip(
   model: ModelPrivate,
   direction: 'forward' | 'backward',
-  options?: { extend: boolean }
+  options?: { extend?: boolean; delete?: boolean }
 ): boolean {
   const previousPosition = model.position;
 
@@ -273,16 +275,25 @@ export function skip(
       model.announce('plonk');
       return false;
     }
+    model.announce('move', previousPosition);
   } else {
     if (offset === model.position) {
       model.announce('plonk');
       return false;
     }
 
-    model.position = offset;
+    if (options?.delete ?? false) {
+      deleteRange(
+        model,
+        [previousPosition, offset],
+        direction === 'forward' ? 'deleteWordForward' : 'deleteWordBackward'
+      );
+    } else {
+      model.position = offset;
+      model.announce('move', previousPosition);
+    }
   }
 
-  model.announce('move', previousPosition);
   model.mathfield.stopCoalescingUndo();
   return true;
 }

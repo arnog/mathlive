@@ -13,10 +13,10 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'shift+[ArrowDown]', command: 'extendSelectionDownward' },
 
   { key: '[Backspace]', command: 'deleteBackward' },
-  { key: 'alt+[Delete]', command: 'deleteBackward' },
-
   { key: '[Delete]', command: 'deleteForward' },
-  { key: 'alt+[Backspace]', command: 'deleteForward' },
+
+  { key: 'alt+[Backspace]', command: 'deletePreviousWord' },
+  { key: 'alt+[Delete]', command: 'deleteNextWord' },
 
   { key: 'alt+[ArrowLeft]', command: 'moveToPreviousWord' },
   { key: 'alt+[ArrowRight]', command: 'moveToNextWord' },
