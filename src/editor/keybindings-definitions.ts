@@ -18,6 +18,9 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'alt+[Backspace]', command: 'deletePreviousWord' },
   { key: 'alt+[Delete]', command: 'deleteNextWord' },
 
+  { key: 'ctrl+[Backspace]', command: 'deleteToGroupStart' },
+  { key: 'ctrl+[Delete]', command: 'deleteToGroupEnd' },
+
   { key: 'alt+[ArrowLeft]', command: 'moveToPreviousWord' },
   { key: 'alt+[ArrowRight]', command: 'moveToNextWord' },
 
@@ -330,16 +333,6 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: 'addRowBefore',
   },
-  {
-    key: 'ctrl+[Backspace]',
-    ifMode: 'math',
-    command: 'removeRow',
-  },
-  {
-    key: 'cmd+[Backspace]',
-    ifMode: 'math',
-    command: 'removeRow',
-  },
 
   // {
   //   key: 'ctrl+[Comma]',
@@ -377,6 +370,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'shift+[Backspace]',
     ifMode: 'math',
     command: 'removeColumn',
+  },
+  {
+    key: 'shift+[Delete]',
+    ifMode: 'math',
+    command: 'removeRow',
   },
 
   {

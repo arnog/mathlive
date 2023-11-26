@@ -16,20 +16,37 @@ register(
     deletePreviousWord: (model: ModelPrivate): boolean =>
       model.contentWillChange({ inputType: 'deleteWordBackward' }) &&
       skip(model, 'backward', { delete: true }),
-    deleteToGroupStart: (model: ModelPrivate): boolean =>
-      model.contentWillChange({ inputType: 'deleteSoftLineBackward' }) &&
-      deleteRange(
-        model,
-        [model.anchor, model.offsetOf(model.at(model.position).firstSibling)],
-        'deleteSoftLineBackward'
-      ),
-    deleteToGroupEnd: (model: ModelPrivate): boolean =>
-      model.contentWillChange({ inputType: 'deleteSoftLineForward' }) &&
-      deleteRange(
-        model,
-        [model.anchor, model.offsetOf(model.at(model.position).lastSibling)],
-        'deleteSoftLineForward'
-      ),
+    deleteToGroupStart: (model: ModelPrivate): boolean => {
+      if (!model.contentWillChange({ inputType: 'deleteSoftLineBackward' }))
+        return false;
+      const pos = model.offsetOf(model.at(model.position).firstSibling);
+      if (pos === model.position) {
+        model.announce('plonk');
+        return false;
+      }
+
+      model.deferNotifications(
+        { content: true, selection: true, type: 'deleteSoftLineBackward' },
+        () => model.deleteAtoms([model.anchor, pos])
+      );
+      model.position = pos;
+      return true;
+    },
+    deleteToGroupEnd: (model: ModelPrivate): boolean => {
+      if (!model.contentWillChange({ inputType: 'deleteSoftLineForward' }))
+        return false;
+      const pos = model.offsetOf(model.at(model.position).lastSibling);
+      if (pos === model.position) {
+        model.announce('plonk');
+        return false;
+      }
+
+      model.deferNotifications(
+        { content: true, selection: true, type: 'deleteSoftLineForward' },
+        () => model.deleteAtoms([model.anchor, pos])
+      );
+      return true;
+    },
     deleteToMathFieldStart: (model: ModelPrivate): boolean =>
       model.contentWillChange({ inputType: 'deleteHardLineBackward' }) &&
       deleteRange(model, [model.anchor, 0], 'deleteHardLineBackward'),
