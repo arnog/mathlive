@@ -5,50 +5,61 @@ import {
   mightProducePrintableCharacter,
 } from 'ui/events/utils';
 import { Scrim } from 'ui/utils/scrim';
-import { MenuList } from './menu-list';
-import { RootMenuInterface, MenuItem, MenuInterface } from './types';
+import { _MenuListState } from './menu-list';
+import { MenuItem } from './types';
+import { RootMenuState, MenuListState } from './private-types';
 
-/** A top-level menu */
-export class Menu extends MenuList implements RootMenuInterface {
-  lastMoveEvent?: PointerEvent;
-
-  private typingBufferResetTimer = 0;
-  private typingBuffer: string;
-  private readonly _scrim: Scrim;
-  private _openTimestamp?: number;
-  private _onDismiss?: () => void;
-  private currentKeyboardModifiers?: KeyboardModifiers;
-  private hysteresisTimer = 0;
+/**
+ *
+ * A root menu.
+ *
+ * It may include submenus.
+ *
+ */
+export class Menu extends _MenuListState implements RootMenuState {
   /**
    * - 'closed': the menu is not visible
    * - 'open': the menu is visible as long as the mouse button is pressed
    * - 'modal': the menu is visible until dismissed, even with the mouse button
    * released
    */
-  state: 'closed' | 'open' | 'modal';
+  state: 'closed' | 'open' | 'modal' = 'closed';
 
   /** If true, the state of some of the menu items in this menu are
-   * provide by a function and may need to be updated dynamically
+   * provided by a function and may need to be updated dynamically depending on the state of the keyboard modifiers
    */
   isDynamic: boolean;
 
+  /** @private */
+  lastMoveEvent?: PointerEvent;
+
+  /** @private */
+  modifiers: KeyboardModifiers;
+
+  private typingBufferResetTimer = 0;
+  private typingBuffer: string;
+  private readonly _scrim: Scrim;
+  private _openTimestamp?: number;
+  private _onDismiss?: () => void;
+  private hysteresisTimer = 0;
   private _host: HTMLElement | null;
+
+  private _updating = false;
 
   /**
    * The host is the element that the events will be dispatched from
    *
    */
-  constructor(
-    menuItems: MenuItem[],
-    options?: {
-      host?: HTMLElement | null;
-      keyboardModifiers?: KeyboardModifiers;
-    }
-  ) {
+  constructor(menuItems: MenuItem[], options?: { host?: HTMLElement | null }) {
     super(menuItems);
     this._host = options?.host ?? null;
     this.isDynamic = menuItems.some(isDynamic);
-    this.currentKeyboardModifiers = options?.keyboardModifiers;
+    this.modifiers = {
+      shift: false,
+      control: false,
+      alt: false,
+      meta: false,
+    };
     this.typingBuffer = '';
     this.state = 'closed';
 
@@ -58,47 +69,62 @@ export class Menu extends MenuList implements RootMenuInterface {
   /**
    * The currently active menu: could be the root menu or a submenu
    */
-  get activeMenu(): MenuInterface {
+  get activeSubmenu(): MenuListState {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let result: MenuInterface = this;
+    let result: MenuListState = this;
+
     while (result.isSubmenuOpen) result = result.activeMenuItem!.submenu!;
 
     return result;
   }
 
+  set dirty(value: boolean) {
+    if (this._updating) return;
+
+    console.assert(value === true);
+    if (this._dirty === value) return;
+    if (value) {
+      this._dirty = true;
+      setTimeout(() => {
+        this._dirty = false;
+        this.updateElement();
+      });
+    }
+  }
+
+  update(modifiers?: KeyboardModifiers): void {
+    this._updating = true;
+    this.modifiers = modifiers ?? this.modifiers;
+    super.update(this.modifiers);
+    this._updating = false;
+  }
+
   handleKeyupEvent(ev: KeyboardEvent): void {
     if (this.isDynamic) {
       const newModifiers = keyboardModifiersFromEvent(ev);
-      if (
-        !equalKeyboardModifiers(this.currentKeyboardModifiers, newModifiers)
-      ) {
-        this.updateMenu(newModifiers);
-        this.currentKeyboardModifiers = newModifiers;
-      }
+      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
+        this.update(newModifiers);
     }
     // Capture any keyup event to prevent ancestors from handling it
     ev.stopImmediatePropagation();
   }
 
   handleKeydownEvent(ev: KeyboardEvent): void {
-    if (ev.key === 'Tab') {
+    if (ev.key === 'Tab' || ev.key === 'Escape') {
       // Close and bubble
-      this.rootMenu.hide();
+      this.hide();
       return;
     }
 
+    // Update menu if the keyboard modifiers have changed
     if (this.isDynamic) {
       const newModifiers = keyboardModifiersFromEvent(ev);
-      if (
-        !equalKeyboardModifiers(this.currentKeyboardModifiers, newModifiers)
-      ) {
-        this.updateMenu(newModifiers);
-        this.currentKeyboardModifiers = newModifiers;
-      }
+      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
+        this.update(newModifiers);
     }
 
     let handled = true;
-    const menu = this.activeMenu;
+    const menu = this.activeSubmenu;
     const menuItem = menu.activeMenuItem;
     switch (ev.key) {
       case ' ':
@@ -110,7 +136,7 @@ export class Menu extends MenuList implements RootMenuInterface {
       case 'ArrowRight':
         if (menuItem?.submenu) {
           menuItem.select(keyboardModifiersFromEvent(ev));
-          this.activeMenu.activeMenuItem = this.activeMenu.firstMenuItem;
+          this.activeSubmenu.activeMenuItem = this.activeSubmenu.firstMenuItem;
         } else if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
 
         break;
@@ -141,9 +167,6 @@ export class Menu extends MenuList implements RootMenuInterface {
       case 'End':
       case 'PageDown':
         menu.activeMenuItem = menu.lastMenuItem;
-        break;
-      case 'Escape':
-        this.rootMenu.hide();
         break;
       case 'Backspace':
         if (this.typingBuffer) {
@@ -252,19 +275,13 @@ export class Menu extends MenuList implements RootMenuInterface {
     target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
-    modifiers?: KeyboardModifiers;
     onDismiss?: () => void;
   }): boolean {
     this._onDismiss = options?.onDismiss;
 
     // Connect the scrim now, so that the menu can be measured and placed
     this.connectScrim(options?.target);
-    if (
-      !super.show({
-        ...options,
-        container: this.scrim,
-      })
-    ) {
+    if (!super.show({ ...options, container: this.scrim })) {
       // There was nothing to show: remove the scrim
       this.disconnectScrim();
       return false;
@@ -280,15 +297,17 @@ export class Menu extends MenuList implements RootMenuInterface {
 
   hide(): void {
     this.cancelDelayedOperation();
-    if (this.state !== 'closed') {
-      this.activeMenuItem = null;
-      super.hide();
-      this.state = 'closed';
-      this.disconnectScrim();
-    }
-    if (this._onDismiss) {
-      this._onDismiss();
-      this._onDismiss = undefined;
+    if (this.state !== undefined) {
+      if (this.state !== 'closed') {
+        this.activeMenuItem = null;
+        super.hide();
+        this.state = 'closed';
+        this.disconnectScrim();
+      }
+      if (this._onDismiss) {
+        this._onDismiss();
+        this._onDismiss = undefined;
+      }
     }
   }
 

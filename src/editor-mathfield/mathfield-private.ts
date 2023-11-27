@@ -313,7 +313,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
       markup.push(
         `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
           this.hasEditableContent ? '' : 'style="display:none;"'
-        }data-l10n-tooltip="tooltip.toggle virtual keyboard">`
+        } data-l10n-tooltip="tooltip.toggle virtual keyboard">`
       );
       markup.push(DEFAULT_KEYBOARD_TOGGLE_GLYPH);
       markup.push('</div>');
@@ -416,10 +416,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (this._menu.state !== 'closed') return;
         this.element!.classList.add('tracking');
         const bounds = menuToggle.getBoundingClientRect();
+        this._menu.update(keyboardModifiersFromEvent(ev));
         this._menu.show({
           target: menuToggle,
           location: { x: bounds.left, y: bounds.bottom },
-          modifiers: keyboardModifiersFromEvent(ev),
           onDismiss: () => this.element!.classList.remove('tracking'),
         });
         ev.preventDefault();
@@ -759,10 +759,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
       case 'pointerdown':
         if (this.userSelect !== 'none') {
           onPointerDown(this, evt as PointerEvent);
-          if (
-            (evt as PointerEvent).shiftKey === false &&
-            this._menu.menuItems.length > 0
-          ) {
+          // Firefox convention: holding the shift key disables custom context menu
+          if ((evt as PointerEvent).shiftKey === false) {
             onContextMenu(
               evt,
               this.element!.querySelector<HTMLElement>('[part=container')!,
@@ -777,7 +775,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (
           this.userSelect !== 'none' &&
           (evt as PointerEvent).shiftKey === false &&
-          this._menu.menuItems.length > 0
+          this._menu.visible
         ) {
           onContextMenu(
             evt,
@@ -1253,7 +1251,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   toggleContextMenu(): boolean {
-    if (this._menu.menuItems.length === 0) return false;
+    if (!this._menu.visible) return false;
     if (this._menu.state === 'open') {
       this._menu.hide();
       return true;

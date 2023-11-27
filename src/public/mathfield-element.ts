@@ -2208,7 +2208,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
 
   get menuItems(): MenuItem[] {
-    return this._mathfield?.menu.menuItems ?? [];
+    return this._mathfield?.menu._menuItems.map((x) => x.menuItem) ?? [];
   }
   set menuItems(menuItems: MenuItem[]) {
     if (this._mathfield?.menu) {

@@ -8,6 +8,11 @@ export function onContextMenu(
   menu: Menu,
   onTrigger?: () => void
 ): boolean {
+  // If no items visible, don't show anything
+  const modifiers = keyboardModifiersFromEvent(event);
+  menu.update(modifiers);
+  if (!menu.visible) return false;
+
   //
   // The context menu gesture (right-click, control-click, etc..)
   // was triggered
@@ -18,7 +23,6 @@ export function onContextMenu(
     menu.show({
       target: target,
       location: { x: Math.round(evt.clientX), y: Math.round(evt.clientY) },
-      modifiers: keyboardModifiersFromEvent(evt),
     });
     event.preventDefault();
     event.stopPropagation();
@@ -42,7 +46,6 @@ export function onContextMenu(
             x: Math.round(bounds.left + bounds.width / 2),
             y: Math.round(bounds.top + bounds.height / 2),
           },
-          modifiers: keyboardModifiersFromEvent(evt),
         });
         event.preventDefault();
         event.stopPropagation();
@@ -62,11 +65,10 @@ export function onContextMenu(
     if (!eventTarget) return false;
 
     const pt = eventLocation(event);
-    const modifiers = keyboardModifiersFromEvent(event);
     onLongPress(event, () => {
       if (menu.state !== 'closed') return;
       onTrigger?.();
-      menu.show({ target: target, location: pt, modifiers });
+      menu.show({ target: target, location: pt });
     });
     return true;
   }

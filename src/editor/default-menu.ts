@@ -553,19 +553,18 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'copy',
       submenu: [
         {
-          label: ({ modifiers }) =>
-            modifiers?.alt ? 'COPY LATEX' : 'Copy LaTeX',
+          label: 'Copy as LaTeX',
           id: 'copy-latex',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
           keyboardShortcut: 'meta+C',
         },
         {
-          label: 'Copy ASCII Math',
+          label: 'Copy as ASCII Math',
           id: 'copy-ascii-math',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),
         },
         {
-          label: 'Copy MathML',
+          label: 'Copy as MathML',
           id: 'copy-math-ml',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'math-ml'),
         },

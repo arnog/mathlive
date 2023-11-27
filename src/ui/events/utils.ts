@@ -3,7 +3,8 @@ import { KeyboardModifiers } from './types';
 export function eventLocation(
   evt: Event
 ): { x: number; y: number } | undefined {
-  if (evt instanceof MouseEvent) return { x: evt.clientX, y: evt.clientY };
+  if (evt instanceof MouseEvent || evt instanceof PointerEvent)
+    return { x: evt.clientX, y: evt.clientY };
 
   if (evt instanceof TouchEvent) {
     const result = [...evt.touches].reduce(
@@ -17,13 +18,13 @@ export function eventLocation(
   return undefined;
 }
 
-export function eventPointerCount(evt: Event): number {
-  if (evt instanceof MouseEvent) return 1;
+// export function eventPointerCount(evt: Event): number {
+//   if (evt instanceof MouseEvent) return 1;
 
-  if (evt instanceof TouchEvent) return evt.touches.length;
+//   if (evt instanceof TouchEvent) return evt.touches.length;
 
-  return 0;
-}
+//   return 0;
+// }
 
 export function keyboardModifiersFromEvent(ev: Event): KeyboardModifiers {
   const result = {
@@ -34,6 +35,7 @@ export function keyboardModifiersFromEvent(ev: Event): KeyboardModifiers {
   };
   if (
     ev instanceof MouseEvent ||
+    ev instanceof PointerEvent ||
     ev instanceof TouchEvent ||
     ev instanceof KeyboardEvent
   ) {
@@ -51,12 +53,12 @@ export function equalKeyboardModifiers(
   b?: KeyboardModifiers
 ): boolean {
   if ((!a && b) || (a && !b)) return false;
-  if (!a && !b) return true;
+  if (!a || !b) return true;
   return (
-    a!.alt === b!.alt &&
-    a!.control === b!.control &&
-    a!.shift === b!.shift &&
-    a!.meta === b!.meta
+    a.alt === b.alt &&
+    a.control === b.control &&
+    a.shift === b.shift &&
+    a.meta === b.meta
   );
 }
 
