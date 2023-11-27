@@ -128,10 +128,15 @@
 }
 
 /** Keyboard shortcut */
-.ui-menu-container > li > kbd {
+:where(.ui-menu-container > li > kbd) {
   font-family: var(--ui-font-family);
   opacity: 0.4;
 }
+
+:where(.ui-menu-container > li.active > kbd) {
+  opacity: 0.85;
+}
+
 
 .ui-right-chevron {
   margin-left: 24px;
