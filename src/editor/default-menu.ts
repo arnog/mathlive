@@ -575,7 +575,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Paste',
       id: 'paste',
       onMenuSelect: () => mf.executeCommand('pasteFromClipboard'),
-      visible: () => !mf.options.readOnly,
+      visible: () => mf.hasEditableContent,
       keyboardShortcut: 'meta+V',
     },
     {

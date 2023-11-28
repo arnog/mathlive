@@ -428,7 +428,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       { signal: this.eventController.signal }
     );
 
-    if (this.userSelect === 'none') menuToggle!.style.display = 'none';
+    if (
+      this.userSelect === 'none' ||
+      (this.readOnly && !this.hasEditableContent) ||
+      this.disabled
+    )
+      menuToggle!.style.display = 'none';
 
     this.ariaLiveText = this.element.querySelector('[role=status]')!;
     // this.accessibleMathML = this.element.querySelector('.accessibleMathML')!;
