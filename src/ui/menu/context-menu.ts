@@ -8,16 +8,16 @@ export function onContextMenu(
   menu: Menu,
   onTrigger?: () => void
 ): boolean {
-  // If no items visible, don't show anything
-  const modifiers = keyboardModifiersFromEvent(event);
-  menu.update(modifiers);
-  if (!menu.visible) return false;
-
   //
   // The context menu gesture (right-click, control-click, etc..)
   // was triggered
   //
   if (event.type === 'contextmenu') {
+    // If no items visible, don't show anything
+    const modifiers = keyboardModifiersFromEvent(event);
+    menu.update(modifiers);
+    if (!menu.visible) return false;
+
     const evt = event as MouseEvent;
     onTrigger?.();
     menu.show({
@@ -39,6 +39,10 @@ export function onContextMenu(
       // Get the center of the parent
       const bounds = target?.getBoundingClientRect();
       if (bounds) {
+        // If no items visible, don't show anything
+        const modifiers = keyboardModifiersFromEvent(event);
+        menu.update(modifiers);
+        if (!menu.visible) return false;
         onTrigger?.();
         menu.show({
           target: target,
@@ -66,6 +70,11 @@ export function onContextMenu(
 
     const pt = eventLocation(event);
     onLongPress(event, () => {
+      // If no items visible, don't show anything
+      const modifiers = keyboardModifiersFromEvent(event);
+      menu.update(modifiers);
+      if (!menu.visible) return;
+
       if (menu.state !== 'closed') return;
       onTrigger?.();
       menu.show({ target: target, location: pt });

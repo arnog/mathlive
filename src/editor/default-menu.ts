@@ -339,6 +339,9 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       visible: () => inMatrix(mf),
     },
     {
+      type: 'divider',
+    },
+    {
       label: localize('menu.array.delete row'),
       id: 'delete-row',
       onMenuSelect: () => mf.executeCommand('removeRow'),
@@ -350,18 +353,15 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       onMenuSelect: () => mf.executeCommand('removeColumn'),
       visible: () => inMatrix(mf),
     },
-
     {
-      label: 'Insert Matrix',
-      id: 'insert-matrix',
-      containerClass: 'menu-container-insert-matrix',
-      visible: () => mf.isSelectionEditable,
-      submenu: getInsertMatrixSubmenu(mf),
+      type: 'divider',
     },
+
     {
       label: 'Borders',
       containerClass: 'menu-container-border',
-      visible: () => inMatrix(mf) && mf.isSelectionEditable,
+      visible: () =>
+        (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
       type: 'group',
       submenu: [
         {
@@ -393,6 +393,13 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       type: 'divider',
+    },
+    {
+      label: 'Insert Matrix',
+      id: 'insert-matrix',
+      containerClass: 'menu-container-insert-matrix',
+      visible: () => mf.isSelectionEditable,
+      submenu: getInsertMatrixSubmenu(mf),
     },
     {
       label: 'Insert Text',
@@ -589,6 +596,10 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 
 function inMatrix(mf: _Mathfield): boolean {
   return !!mf.model.parentEnvironment?.array;
+}
+
+function isMatrixSelected(mf: _Mathfield): boolean {
+  return mf.model.at(mf.model.position).type === 'array';
 }
 
 function shape(mf: _Mathfield): [number, number] {
