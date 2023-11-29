@@ -1,4 +1,4 @@
-import { KeyboardModifiers } from 'ui/events/types';
+import { KeyboardModifiers } from './events-types';
 
 export type MenuItem<T = unknown> = {
   /** If no type is specified, defaults to `"command"`, unless

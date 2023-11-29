@@ -1,6 +1,6 @@
-import { KeyboardModifiers } from 'ui/events/types';
+import { KeyboardModifiers } from 'public/events-types';
 import { fitInViewport } from 'ui/geometry/utils';
-import { MenuItem } from './types';
+import { MenuItem } from '../../public/menu-types';
 import { _MenuItemState } from './menu-item';
 import { supportPopover } from 'ui/utils/capabilities';
 import { MenuListState, MenuItemState, RootMenuState } from './private-types';

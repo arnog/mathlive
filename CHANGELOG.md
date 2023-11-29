@@ -9,15 +9,20 @@
   losing focus.
 - Changing the `user-select` CSS property before inserting the mathfield 
   in the DOM would not always be respected.
-- Use the DOM Popover API when available, which should ensure menus are displayed on top of other elements more consistently.
-- Added support for accented characters in the virtual keyboard (press and hold a vowel on an alphabetic keyboard to get accented variants), including a modified AZERTY layout (<kbd>SHIFT</kbd>+digits to get common accented characters).
+- Use the DOM Popover API when available, which should ensure menus are 
+  displayed on top of other elements more consistently.
+- Added support for accented characters in the virtual keyboard (press and 
+  hold a vowel on an alphabetic keyboard to get accented variants), 
+  including a modified AZERTY layout (<kbd>SHIFT</kbd>+digits to get common 
+  accented characters).
 - Improved rendering of the menu for CJK and LTR languages.
 
 ### Bugs Fixed
 
-- If there were multiple mathfield elements on the page, only
-  the last one would display tooltips.
-- **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank) would not move to the next prompt
+- If there were multiple mathfield elements on the page, only the last one 
+  would display tooltips.
+- **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank)
+   would not move to the next prompt
 - **#2183** The MathML serialization of factorial was incorrect.
 - **#2181** The MathML serialization of limits was incorrect.
 

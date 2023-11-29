@@ -20,6 +20,7 @@ import type {
   Keybinding,
   MathfieldOptions,
 } from './options';
+import { MenuItem } from './menu-types';
 
 import {
   get as getOptions,
@@ -41,7 +42,6 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
-import { MenuItem } from '../ui/menu/types';
 
 export declare type Expression =
   | number

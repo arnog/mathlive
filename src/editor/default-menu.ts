@@ -1,4 +1,4 @@
-import { MenuItem } from '../ui/menu/types';
+import { MenuItem } from '../public/menu-types';
 import { convertLatexToMarkup } from 'public/mathlive-ssr';
 import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';

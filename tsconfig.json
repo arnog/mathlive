@@ -22,7 +22,7 @@
     // Do not include all the type definitions in `node_modules/@types`,
     // which include NodeJS definitions that are not applicable to a web app
     // but only those type definitions that are required
-    "typeRoots": ["./src/public"],
+    "typeRoots": ["./src/public", "./src/ui/types"],
     // "types": ["@cortex-js/compute-engine"],
 
     "emitDecoratorMetadata": false,
