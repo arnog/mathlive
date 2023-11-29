@@ -121,24 +121,29 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
  */
 export function complete(
   mathfield: _Mathfield,
-  completion: 'reject' | 'accept' | 'accept-suggestion' = 'accept',
+  completion:
+    | 'reject'
+    | 'accept'
+    | 'accept-suggestion'
+    | 'accept-all' = 'accept',
   options?: { mode?: ParseMode; selectItem?: boolean }
 ): boolean {
   hideSuggestionPopover(mathfield);
   const latexGroup = getLatexGroup(mathfield.model);
   if (!latexGroup) return false;
 
-  if (completion === 'accept-suggestion') {
+  if (completion === 'accept-suggestion' || completion === 'accept-all') {
     const suggestions = getLatexGroupBody(mathfield.model).filter(
       (x) => x.isSuggestion
     );
-    if (suggestions.length === 0) return false;
-    for (const suggestion of suggestions) suggestion.isSuggestion = false;
+    if (suggestions.length !== 0) {
+      for (const suggestion of suggestions) suggestion.isSuggestion = false;
 
-    mathfield.model.position = mathfield.model.offsetOf(
-      suggestions[suggestions.length - 1]
-    );
-    return true;
+      mathfield.model.position = mathfield.model.offsetOf(
+        suggestions[suggestions.length - 1]
+      );
+    }
+    if (completion === 'accept-suggestion') return suggestions.length !== 0;
   }
 
   const body = getLatexGroupBody(mathfield.model).filter(
