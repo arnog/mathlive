@@ -363,7 +363,7 @@ export class _MenuListState implements MenuListState {
         location: options.location,
         alternateLocation: options.alternateLocation,
         verticalPos: 'bottom',
-        horizontalPos: 'right',
+        horizontalPos: 'start',
       });
     }
 

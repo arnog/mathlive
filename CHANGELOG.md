@@ -11,6 +11,7 @@
   in the DOM would not always be respected.
 - Use the DOM Popover API when available, which should ensure menus are displayed on top of other elements more consistently.
 - Added support for accented characters in the virtual keyboard (press and hold a vowel on an alphabetic keyboard to get accented variants), including a modified AZERTY layout (<kbd>SHIFT</kbd>+digits to get common accented characters).
+- Improved rendering of the menu for CJK and LTR languages.
 
 ### Bugs Fixed
 

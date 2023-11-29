@@ -72,9 +72,9 @@
   color: inherit;
 
   font-family: var(--ui-font-family);
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0.007em;
+  font-size: var(--ui-font-size);
+  line-height: var(--ui-line-height);
+  letter-spacing: var(--ui-letter-spacing);
 }
 
 :where(.ui-menu-container > li > .label) {
@@ -87,6 +87,7 @@
   overflow: visible;
   border: 1px solid transparent;
   white-space: nowrap;
+  text-align: start;
 }
 
 :where(.ui-menu-container > li:has(.heading)) {
@@ -153,14 +154,21 @@
 }
 
 
-.ui-right-chevron {
+.ui-trailing-chevron {
+  display: flex;
   margin-inline-start: 24px;
   width: 10px;
   height: 10px;
   margin-bottom: 4px;
 }
 
+
+.ui-trailing-chevron:dir(rtl) {
+  transform: scaleX(-1);
+}
+
 .ui-checkmark {
+  display: flex;
   margin-inline-end: -11px;
   margin-inline-start: -4px;
   margin-top: 2px;

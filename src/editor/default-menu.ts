@@ -309,19 +309,19 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: localize('menu.array.add row above'),
+      label: () => localize('menu.array.add row above')!,
       id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.add row below'),
+      label: () => localize('menu.array.add row below')!,
       id: 'add-row-below',
       onMenuSelect: () => mf.executeCommand('addRowAfter'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.add column before'),
+      label: () => localize('menu.array.add column before')!,
       id: 'add-column-before',
       onMenuSelect: () => mf.executeCommand('addColumnBefore'),
       visible: () => inMatrix(mf),
@@ -333,7 +333,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       },
     },
     {
-      label: localize('menu.array.add column after'),
+      label: () => localize('menu.array.add column after')!,
       id: 'add-column-after',
       onMenuSelect: () => mf.executeCommand('addColumnAfter'),
       visible: () => inMatrix(mf),
@@ -342,13 +342,13 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: localize('menu.array.delete row'),
+      label: () => localize('menu.array.delete row')!,
       id: 'delete-row',
       onMenuSelect: () => mf.executeCommand('removeRow'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.delete column'),
+      label: () => localize('menu.array.delete column')!,
       id: 'delete-column',
       onMenuSelect: () => mf.executeCommand('removeColumn'),
       visible: () => inMatrix(mf),
@@ -358,7 +358,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
 
     {
-      label: 'Borders',
+      label: () => localize('menu.borders')!,
       containerClass: 'menu-container-border',
       visible: () =>
         (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
@@ -395,7 +395,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: 'Insert Matrix',
+      label: () => localize('menu.insert matrix')!,
       id: 'insert-matrix',
       containerClass: 'menu-container-insert-matrix',
       visible: () => mf.isSelectionEditable,
@@ -436,6 +436,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Color',
       id: 'color',
       containerClass: 'menu-container-swatches',
+      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getColorSubmenu(mf),
     },
@@ -443,6 +444,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Background Color',
       id: 'background-color',
       containerClass: 'menu-container-swatches',
+      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
     },

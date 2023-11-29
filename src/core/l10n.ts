@@ -74,8 +74,7 @@ export const l10n: L10n = {
   },
 
   set dirty(val: boolean) {
-    if (l10n._dirty !== val) return;
-    if (l10n._dirty) return;
+    if (l10n._dirty || l10n._dirty === val) return;
     l10n._dirty = true;
     setTimeout(() => {
       l10n._dirty = false;

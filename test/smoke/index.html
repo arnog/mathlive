@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-US">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Smoke Test</title>
@@ -210,6 +210,7 @@
       // ];
 
       const mf = document.getElementById("mf");
+      // MathfieldElement.locale = "he";
 
       const menuItems = mf.menuItems;
       mf.menuItems = [];
@@ -363,6 +364,7 @@
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
+        console.log(mf.caretPoint);
         const latex = mf.getValue("latex-expanded");
         try {
           setHtml("latex", mf.getValue("latex-expanded"));

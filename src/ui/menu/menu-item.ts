@@ -10,6 +10,8 @@ import {
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
 import { MenuItemState, MenuListState } from './private-types';
+import { getEdge } from 'ui/geometry/utils';
+import { getComputedDir } from 'ui/i18n/utils';
 
 const BLINK_SPEED = 80;
 
@@ -257,7 +259,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       li.append(kbd);
     }
 
-    if (this.type === 'submenu') li.append(icon('chevron-right')!);
+    if (this.type === 'submenu') li.append(icon('trailing-chevron')!);
   }
 
   get element(): HTMLElement | null {
@@ -415,10 +417,14 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     }
 
     const bounds = this.element.getBoundingClientRect();
+    const dir = getComputedDir(this.element);
     this.submenu!.show({
       container: this.parentMenu.rootMenu.element!.parentNode!,
-      location: { x: bounds.right, y: bounds.top - 4 },
-      alternateLocation: { x: bounds.left, y: bounds.top - 4 },
+      location: { x: getEdge(bounds, 'trailing', dir), y: bounds.top - 4 },
+      alternateLocation: {
+        x: getEdge(bounds, 'leading', dir),
+        y: bounds.top - 4,
+      },
     });
   }
 
