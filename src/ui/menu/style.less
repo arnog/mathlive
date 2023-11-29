@@ -89,8 +89,23 @@
   white-space: nowrap;
 }
 
+:where(.ui-menu-container > li:has(.heading)) {
+  margin-top: .5em;
+}
+
+
+:where(.ui-menu-container > li > .label.heading) {
+  font-weight: bold;
+  opacity: 0.4;
+}
+
+:where(.ui-menu-container > li.indent > .label) {
+  margin-inline-start: 12px;
+}
+
+
 :where(.ui-menu-container > li > .label.indent) {
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 
 :where(.ui-menu-container > li[role='divider']) {
@@ -120,7 +135,7 @@
 }
 
 :where(.ui-menu-container > li[aria-haspopup='true'] > .label) {
-  padding-right: 0;
+  padding-inline-end: 0;
 }
 
 :where(.ui-menu-container > li[aria-haspopup='true'].active::after) {
@@ -139,14 +154,15 @@
 
 
 .ui-right-chevron {
-  margin-left: 24px;
+  margin-inline-start: 24px;
   width: 10px;
   height: 10px;
   margin-bottom: 4px;
 }
+
 .ui-checkmark {
-  margin-right: -11px;
-  margin-left: -4px;
+  margin-inline-end: -11px;
+  margin-inline-start: -4px;
   margin-top: 2px;
   width: 16px;
   height: 16px;

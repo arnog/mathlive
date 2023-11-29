@@ -362,7 +362,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       containerClass: 'menu-container-border',
       visible: () =>
         (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
-      type: 'group',
+      type: 'submenu',
       submenu: [
         {
           label: ' ⋱ ',

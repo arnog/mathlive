@@ -100,7 +100,27 @@ export class _MenuListState implements MenuListState {
   update(modifiers?: KeyboardModifiers): void {
     this._menuItems.forEach((x) => x.update(modifiers));
 
-    // Remove consecutive dividers
+    //
+    // 1/ Hide headings with no items
+    //
+    let heading: MenuItemState | undefined = undefined;
+    let itemInHeadingCount = 0;
+    for (const item of this._menuItems) {
+      if (item.type === 'heading') {
+        if (heading && itemInHeadingCount === 0) heading.visible = false;
+        heading = item;
+        itemInHeadingCount = 0;
+      } else if (item.type === 'divider' && heading) {
+        heading.visible = itemInHeadingCount > 0;
+        heading = undefined;
+        itemInHeadingCount = 0;
+      } else if (heading && item.visible) itemInHeadingCount += 1;
+    }
+    if (heading) heading.visible = itemInHeadingCount > 0;
+
+    //
+    // 2/ Hide consecutive dividers
+    //
     let wasDivider = true; // Avoid divider as first item
     for (const item of this._menuItems) {
       if (item.type === 'divider') {
@@ -116,7 +136,11 @@ export class _MenuListState implements MenuListState {
     );
 
     if (!this.activeMenuItem?.visible) this.activeMenuItem = null;
-    if (!this.activeMenuItem?.enabled) this._activeMenuItem?.submenu?.hide();
+    if (
+      !this.activeMenuItem?.enabled &&
+      this.activeMenuItem?.type === 'submenu'
+    )
+      this._activeMenuItem!.submenu!.hide();
   }
 
   get enabled(): boolean {
@@ -148,12 +172,6 @@ export class _MenuListState implements MenuListState {
     // Note: when we update a menu list, we do not recreate the element:
     // popover may depend on that element remaining the same
     this._element.textContent = '';
-
-    const openSubmenuElement = this._activeMenuItem?.submenu?.element;
-    if (openSubmenuElement) {
-      openSubmenuElement.parentElement?.removeChild(openSubmenuElement);
-      this._activeMenuItem = null;
-    }
 
     // Add all visible items
     for (const { element, visible } of this._menuItems)
@@ -205,7 +223,8 @@ export class _MenuListState implements MenuListState {
    * Call `item.submenu.openSubmenu()` to open the submenu.
    */
   set activeMenuItem(value: MenuItemState | null) {
-    this.parentMenu?.rootMenu.cancelDelayedOperation();
+    this.rootMenu.cancelDelayedOperation();
+
     if (value !== this._activeMenuItem) {
       // Remove previously active element
       if (this.activeMenuItem) {
@@ -325,11 +344,11 @@ export class _MenuListState implements MenuListState {
    * @return false if no menu to show
    */
   show(options: {
-    container: Node;
+    container: Node | null;
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
   }): boolean {
-    if (!this.visible) return false;
+    if (!this.visible || !options.container) return false;
 
     this.updateElement();
     options.container.appendChild(this.element);
@@ -380,7 +399,7 @@ export class _MenuListState implements MenuListState {
   set openSubmenu(submenu: MenuListState | null) {
     const expanded = submenu !== null;
     // We're closing a submenu
-    if (this.activeMenuItem?.submenu) {
+    if (this.activeMenuItem?.type === 'submenu') {
       this.activeMenuItem.element?.setAttribute(
         'aria-expanded',
         expanded.toString()

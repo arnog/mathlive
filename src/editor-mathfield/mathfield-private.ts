@@ -766,6 +766,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
           onPointerDown(this, evt as PointerEvent);
           // Firefox convention: holding the shift key disables custom context menu
           if ((evt as PointerEvent).shiftKey === false) {
+            const modifiers = keyboardModifiersFromEvent(evt);
+            this._menu.update(modifiers);
             onContextMenu(
               evt,
               this.element!.querySelector<HTMLElement>('[part=container')!,
@@ -779,9 +781,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       case 'contextmenu':
         if (
           this.userSelect !== 'none' &&
-          (evt as PointerEvent).shiftKey === false &&
-          this._menu.visible
+          (evt as PointerEvent).shiftKey === false
         ) {
+          const modifiers = keyboardModifiersFromEvent(evt);
+          this._menu.update(modifiers);
+
           onContextMenu(
             evt,
             this.element!.querySelector<HTMLElement>('[part=container')!,

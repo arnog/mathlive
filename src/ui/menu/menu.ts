@@ -134,7 +134,7 @@ export class Menu extends _MenuListState implements RootMenuState {
         menuItem?.select(keyboardModifiersFromEvent(ev));
         break;
       case 'ArrowRight':
-        if (menuItem?.submenu) {
+        if (menuItem?.type === 'submenu') {
           menuItem.select(keyboardModifiersFromEvent(ev));
           this.activeSubmenu.activeMenuItem = this.activeSubmenu.firstMenuItem;
         } else if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
@@ -263,7 +263,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.removeEventListener('keydown', this);
     scrim.removeEventListener('keyup', this);
     scrim.removeEventListener('pointermove', this);
-    this._scrim.close();
+    if (this._scrim.state === 'open') this._scrim.close();
   }
 
   get rootMenu(): Menu {
@@ -344,16 +344,18 @@ export class Menu extends _MenuListState implements RootMenuState {
 }
 
 function isDynamic(item: MenuItem): boolean {
-  const result =
+  if (
     typeof item.enabled === 'function' ||
     typeof item.visible === 'function' ||
     typeof item.checked === 'function' ||
     typeof item.label === 'function' ||
     typeof item.ariaDetails === 'function' ||
-    typeof item.ariaLabel === 'function';
+    typeof item.ariaLabel === 'function' ||
+    typeof item.tooltip === 'function'
+  )
+    return true;
 
-  if (item.type === 'submenu' && item.submenu)
-    return result || item.submenu.some(isDynamic);
+  if (item.submenu) return item.submenu.some(isDynamic);
 
-  return result;
+  return false;
 }

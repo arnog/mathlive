@@ -14,8 +14,6 @@ export function onContextMenu(
   //
   if (event.type === 'contextmenu') {
     // If no items visible, don't show anything
-    const modifiers = keyboardModifiersFromEvent(event);
-    menu.update(modifiers);
     if (!menu.visible) return false;
 
     const evt = event as MouseEvent;

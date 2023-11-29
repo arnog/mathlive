@@ -4,7 +4,7 @@ import {
   DynamicBoolean,
   DynamicString,
   MenuItem,
-  MenuSelectEvent,
+  MenuSelectEventDetail,
   MenuItemType,
 } from './types';
 import { icon } from 'ui/icons/icons';
@@ -23,9 +23,11 @@ const BLINK_SPEED = 80;
  * Menu items are grouped in a menulist, which can be a root menu
  * or a submenu.
  *
+ * @internal
  */
 export class _MenuItemState<T> implements MenuItemState<T> {
   parentMenu: MenuListState;
+
   /** If this menu _type is 'submenu' */
   submenu?: _MenuListState;
 
@@ -54,7 +56,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     this._template = template;
 
-    if (Array.isArray(template.submenu)) {
+    if (template.submenu) {
       this._type = 'submenu';
       this.submenu = new _MenuListState(template.submenu, {
         parentMenu,
@@ -160,29 +162,43 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   }
 
   get items(): MenuItemState[] | undefined {
-    if (this.type === 'submenu' && this.submenu) return this.submenu.items;
-    return undefined;
+    return this.submenu?.items;
   }
 
   update(modifiers?: KeyboardModifiers): void {
     const template = this._template;
 
-    if (template.type === 'divider') return;
-
-    this.checked =
-      evalToBoolean(template, template.checked, modifiers) ?? false;
-    this.visible = evalToBoolean(template, template.visible, modifiers) ?? true;
-    this.enabled = evalToBoolean(template, template.enabled, modifiers) ?? true;
-
-    if (this.visible && this.enabled && this.submenu) {
-      this.submenu.update(modifiers);
-      if (!this.submenu.visible) this.visible = false;
+    if (template.type === 'divider') {
+      this.enabled = false;
+      this.checked = false;
+      return;
     }
 
-    this.tooltip = evalToString(template, template.tooltip, modifiers);
-    this.label = evalToString(template, template.label, modifiers);
-    this.ariaLabel = evalToString(template, template.ariaLabel, modifiers);
-    this.ariaDetails = evalToString(template, template.ariaDetails, modifiers);
+    if (template.type === 'heading') {
+      this.enabled = false;
+      this.checked = false;
+      this.visible = true;
+    } else {
+      this.checked =
+        evalToBoolean<T>(template, template.checked, modifiers) ?? false;
+      this.enabled =
+        evalToBoolean<T>(template, template.enabled, modifiers) ?? true;
+      this.visible =
+        evalToBoolean<T>(template, template.visible, modifiers) ?? true;
+      if (this.visible && this.enabled && this.submenu) {
+        this.submenu.update(modifiers);
+        if (!this.submenu.visible) this.visible = false;
+      }
+    }
+
+    this.label = evalToString<T>(template, template.label, modifiers);
+    this.tooltip = evalToString<T>(template, template.tooltip, modifiers);
+    this.ariaLabel = evalToString<T>(template, template.ariaLabel, modifiers);
+    this.ariaDetails = evalToString<T>(
+      template,
+      template.ariaDetails,
+      modifiers
+    );
 
     if (this._element) this.updateElement();
   }
@@ -216,9 +232,11 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     const span = document.createElement('span');
     span.className = this.parentMenu.hasCheck ? 'label indent' : 'label';
 
-    if (this.type === 'group') {
-      // @todo
-    } else span.innerHTML = this.label;
+    if (this.type === 'heading') span.classList.add('heading');
+
+    span.innerHTML = this.label;
+
+    li.append(span);
 
     //
     // Tooltip
@@ -228,8 +246,6 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       // li.setAttribute('title', this._tooltip);
       li.setAttribute('data-tooltip', this._tooltip);
     }
-
-    li.append(span);
 
     //
     // Keyboard shortcut
@@ -241,7 +257,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       li.append(kbd);
     }
 
-    if (this.submenu) li.append(icon('chevron-right')!);
+    if (this.type === 'submenu') li.append(icon('chevron-right')!);
   }
 
   get element(): HTMLElement | null {
@@ -268,7 +284,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       li.setAttribute('role', 'menuitemcheckbox');
     else li.setAttribute('role', 'menuitem');
 
-    if (this.submenu) {
+    if (this.type === 'submenu') {
       li.setAttribute('aria-haspopup', 'true');
       li.setAttribute('aria-expanded', 'false');
     }
@@ -289,7 +305,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
    * `onMenuSelect()` hook if defined.
    */
   dispatchSelect(): void {
-    const ev = new CustomEvent<MenuSelectEvent>('menu-select', {
+    const ev = new CustomEvent<MenuSelectEventDetail>('menu-select', {
       cancelable: true,
       bubbles: true,
       detail: {
@@ -336,11 +352,11 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       ) {
         this.parentMenu.rootMenu.scheduleOperation(() => {
           this.parentMenu.activeMenuItem = this;
-          if (this.submenu) this.openSubmenu();
+          this.openSubmenu();
         });
       } else {
         this.parentMenu.activeMenuItem = this;
-        this.openSubmenu({ withDelay: false });
+        this.openSubmenu({ withDelay: true });
       }
       return;
     }
@@ -370,7 +386,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   select(): void {
     this.parentMenu.rootMenu.cancelDelayedOperation();
 
-    if (this.submenu) {
+    if (this.type === 'submenu') {
       this.openSubmenu();
       return;
     }
@@ -391,7 +407,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
    * This delay improves targeting of submenus with the mouse.
    */
   openSubmenu(options?: { withDelay: boolean }): void {
-    if (!this.submenu || !this.element) return;
+    if (this.type !== 'submenu' || !this.element) return;
 
     if (options?.withDelay ?? false) {
       this.parentMenu.rootMenu.scheduleOperation(() => this.openSubmenu());
@@ -399,7 +415,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     }
 
     const bounds = this.element.getBoundingClientRect();
-    this.submenu.show({
+    this.submenu!.show({
       container: this.parentMenu.rootMenu.element!.parentNode!,
       location: { x: bounds.right, y: bounds.top - 4 },
       alternateLocation: { x: bounds.left, y: bounds.top - 4 },
@@ -408,6 +424,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
   movingTowardSubmenu(ev: PointerEvent): boolean {
     if (!this.element) return false;
+    if (this.type !== 'submenu') return false;
     const lastEv = this.parentMenu.rootMenu.lastMoveEvent;
     if (!lastEv) return false;
 
@@ -438,9 +455,9 @@ function speed(dx: number, dy: number, dt: number): number {
   return Math.hypot(dx, dy) / dt;
 }
 
-function evalToBoolean(
-  item: MenuItem,
-  value: DynamicBoolean | undefined,
+function evalToBoolean<T>(
+  item: MenuItem<T>,
+  value: DynamicBoolean<T> | undefined,
   modifiers?: KeyboardModifiers
 ): boolean | undefined {
   if (typeof value === 'boolean') return value;
@@ -450,15 +467,16 @@ function evalToBoolean(
     return value({
       modifiers,
       id: item.id,
+      group: item.group,
       data: item.data,
     });
   }
   return undefined;
 }
 
-function evalToString(
-  item: MenuItem,
-  value: DynamicString | undefined,
+function evalToString<T>(
+  item: MenuItem<T>,
+  value: DynamicString<T> | undefined,
   modifiers?: KeyboardModifiers
 ): string | undefined {
   if (typeof value === 'string') return value;
@@ -468,6 +486,7 @@ function evalToString(
     return value({
       modifiers,
       id: item.id,
+      group: item.group,
       data: item.data,
     });
   }
