@@ -1,3 +1,28 @@
+## [Unreleased]
+
+### Breaking Changes
+
+- The `setPromptContent()` method has been renamed to `setPromptValue()` for
+  consistency with the `getPromptValue()` method.
+- The `stripPromptContent()` method has been removed. Its functionality can
+  be achieved with:
+
+```js
+const prompts = mf.getPrompts();
+const values = prompts.map(id => mf.getPromptValue(id));
+prompts.forEach(id => mf.setPromptValue(id, ''));
+```
+
+### Improvements
+
+- A new `mf.getPromptRange()` method returns the selection range of a prompt.
+  This can be used for example to focus a mathfield and select a specific prompt:
+
+```js
+mf.focus();
+mf.selection = mf.getPromptRange('id');
+```
+
 ## 0.97.4 (2023-11-29)
 
 ### Bugs Fixed

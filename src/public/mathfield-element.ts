@@ -1264,6 +1264,35 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.getPromptValue(placeholderId, format) ?? '';
   }
 
+  /**
+   * @inheritdoc Mathfield.setPromptValue
+   * @category Prompts
+   * */
+  setPromptValue(
+    id: string,
+    content: string,
+    insertOptions: Omit<InsertOptions, 'insertionMode'>
+  ): void {
+    this._mathfield?.setPromptValue(id, content, insertOptions);
+  }
+
+  /**
+   * Return the selection range for the specified prompt.
+   *
+   * This can be used for example to select the content of the prompt.
+   *
+   * ```js
+   * mf.selection = mf.getPromptRange('my-prompt-id');
+   * ```
+   *
+   * @category Prompts
+   *
+   */
+
+  getPromptRange(id: string): Range | null {
+    return this._mathfield?.getPromptRange(id) ?? null;
+  }
+
   /** Return the id of the prompts matching the filter.
    * @category Prompts
    */
@@ -2323,26 +2352,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   getPromptState(id: string): ['correct' | 'incorrect' | undefined, boolean] {
     return this._mathfield?.getPromptState(id) ?? [undefined, true];
-  }
-
-  /** @category Prompts */
-  setPromptContent(
-    id: string,
-    content: string,
-    insertOptions: Omit<InsertOptions, 'insertionMode'>
-  ): void {
-    this._mathfield?.setPromptValue(id, content, insertOptions);
-  }
-
-  /** Remove the contents of all prompts, and return an object with the prompt contents
-   * @category Prompts
-   */
-  stripPromptContent(filter?: {
-    id?: string;
-    locked?: boolean;
-    correctness?: 'correct' | 'incorrect' | 'undefined';
-  }): Record<string, string> {
-    return this._mathfield?.stripPromptContent(filter) ?? {};
   }
 
   /** @category Virtual Keyboard */
