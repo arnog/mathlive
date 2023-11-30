@@ -58,8 +58,10 @@ function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
         convertLatexToMarkup(`\\mathbb{${getSelectionPlainString(mf)}}`),
       tooltip: 'Blackboard',
       visible: () => validVariantAtom(mf, 'double-struck'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' }),
+      onMenuSelect: () => {
+        mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' });
+        mf.adoptStyle = 'none';
+      },
     },
     {
       label: () =>
@@ -234,8 +236,14 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
           ? 'dark-contrast'
           : 'light-contrast') + ' menu-swatch',
       label: `<span style="background:${BACKGROUND_COLORS[color]} "></span>`,
-      onMenuSelect: () =>
-        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' }),
+      checked: () =>
+        ({ some: 'mixed', all: true })[
+          mf.queryStyle({ backgroundColor: color }) ?? false
+        ],
+      onMenuSelect: () => {
+        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
+        mf.adoptStyle = 'none';
+      },
     });
   }
   return result;
@@ -253,11 +261,12 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
       type: 'radio',
       group: 'color',
 
-      checked: () => {
-        // Get the color of the first atom in the selection
-        return mf.queryStyle({ color: color }) !== 'none';
+      checked: () =>
+        ({ some: 'mixed', all: true })[mf.queryStyle({ color }) ?? false],
+      onMenuSelect: () => {
+        mf.applyStyle({ color }, { operation: 'toggle' });
+        mf.adoptStyle = 'none';
       },
-      onMenuSelect: () => mf.applyStyle({ color }, { operation: 'toggle' }),
     });
   }
   return result;

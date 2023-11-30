@@ -145,10 +145,12 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   options: Readonly<Required<_MathfieldOptions>>;
 
-  private _style: Style;
   // When inserting new characters, if not `"none"`, adopt the style
-  // (up variant, etc..) from the previous or following atom.
+  // (color, up variant, etc..) from the previous or following atom.
   adoptStyle: 'left' | 'right' | 'none';
+
+  // The style used when `adoptStyle` is set to 'none'
+  private _defaultStyle: Style;
 
   dirty: boolean; // If true, need to be redrawn
 
@@ -254,7 +256,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     // Current style (color, weight, italic, etc...):
     // reflects the style to be applied on next insertion.
-    this.style = {};
+    this.defaultStyle = {};
     this.adoptStyle = 'left';
 
     if (this.options.defaultMode === 'inline-math')
@@ -483,13 +485,35 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.undoManager.snapshot('set-value');
   }
 
-  get style(): Readonly<Style> {
-    return this._style;
+  get defaultStyle(): Readonly<Style> {
+    return this._defaultStyle;
   }
 
-  set style(value: Style) {
+  set defaultStyle(value: Style) {
     // console.log('set style', value);
-    this._style = value;
+    this._defaultStyle = value;
+  }
+
+  /** Depending on the value of `adoptStyle` return the style of the
+   * sibling or the default style.
+   *
+   * This style is the one that will be applied to the next inserted atom.
+   *
+   */
+  get effectiveStyle(): Readonly<Style> {
+    if (this.adoptStyle === 'none') return this.defaultStyle;
+
+    const atom = this.model.at(this.model.position);
+    const sibling = this.adoptStyle === 'right' ? atom.rightSibling : atom;
+    if (!sibling) return this.defaultStyle;
+    if (sibling.type === 'group') {
+      const branch = sibling.branch('body');
+      if (!branch || branch.length < 2) return {};
+      if (this.adoptStyle === 'right') return branch[1].computedStyle;
+      return branch[branch.length - 1].computedStyle;
+    }
+
+    return sibling.computedStyle;
   }
 
   connectToVirtualKeyboard(): void {
@@ -603,24 +627,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   /** Returns styles shared by all selected atoms */
   get selectionStyle(): Readonly<Style> {
-    // Selection is not extended, adopt style
-    if (this.model.selectionIsCollapsed) {
-      const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
-
-      const siblingToAdopt =
-        this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
-
-      if (!siblingToAdopt) return this.style;
-
-      if (siblingToAdopt.type === 'group') {
-        const branch = siblingToAdopt.branch('body');
-        if (!branch || branch.length < 2) return {};
-        if (this.adoptStyle === 'right') return branch[1].style;
-        return { ...branch[branch.length - 1].style, ...this.style };
-      }
-
-      return { ...siblingToAdopt.style, ...this.style };
-    }
+    if (this.model.selectionIsCollapsed) return this.effectiveStyle;
 
     // Potentially multiple atoms selected, return the COMMON styles
     const selectedAtoms = this.model.getAtoms(this.model.selection);
@@ -628,10 +635,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const style = { ...selectedAtoms[0].style };
     for (const atom of selectedAtoms) {
       for (const [key, value] of Object.entries(atom.style))
-        if (!style[key] || style[key] !== value) style[key] = undefined;
+        if (style[key] !== value) delete style[key];
     }
 
-    return { ...style, ...this.style };
+    return style;
   }
 
   /**
@@ -643,7 +650,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
    * (determined by a combination of the style of the previous atom and
    * the current style) matches the `style` argument, 'none' if it does not.
    */
-  queryStyle(style: Style): 'some' | 'all' | 'none' {
+  queryStyle(style: Readonly<Style>): 'some' | 'all' | 'none' {
+    style = validateStyle(this, style);
+    if ('verbatimColor' in style) delete style.verbatimColor;
+    if ('verbatimBackgroundColor' in style)
+      delete style.verbatimBackgroundColor;
     const keyCount = Object.keys(style).length;
     if (keyCount === 0) return 'all';
     if (keyCount > 1) {
@@ -659,11 +670,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const value = style[prop];
 
     if (this.model.selectionIsCollapsed) {
-      const atom = this.model.at(this.model.position);
-
-      const sibling = this.adoptStyle === 'right' ? atom.rightSibling : atom;
-      const style = sibling?.style ?? this.style;
-      if (style[prop] === value) return 'all';
+      if (this.effectiveStyle[prop] === value) return 'all';
       return 'none';
     }
 
@@ -1132,14 +1139,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       addRowAfter(this.model);
     } else if (s === '&') addColumnAfter(this.model);
     else {
-      const savedStyle = this.style;
       if (this.model.selectionIsCollapsed) {
         ModeEditor.insert(this.model, s, {
           style: this.model.at(this.model.position).computedStyle,
           ...options,
         });
       } else ModeEditor.insert(this.model, s, options);
-      if (options.resetStyle) this.style = savedStyle;
     }
 
     this.snapshot(`insert-${this.model.at(this.model.position).type}`);
@@ -1312,12 +1317,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.range === undefined && this.model.selectionIsCollapsed) {
       // We don't have a selection. Set the global style instead.
       if (operation === 'set') {
-        this.style = { ...this.style, ...style };
+        // if ('color' in style) delete this.defaultStyle.verbatimColor;
+        // if ('backgroundColor' in style)
+        //   delete this.defaultStyle.verbatimBackgroundColor;
+        this.defaultStyle = { ...this.defaultStyle, ...style };
         return;
       }
 
       // Toggle the properties
-      const newStyle: PrivateStyle = { ...this.style };
+      const newStyle: PrivateStyle = { ...this.defaultStyle };
       for (const prop of Object.keys(style)) {
         if (newStyle[prop] === style[prop]) {
           if (prop === 'color') delete newStyle.verbatimColor;
@@ -1327,7 +1335,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           delete newStyle[prop];
         } else newStyle[prop] = style[prop];
       }
-      this.style = newStyle;
+      this.defaultStyle = newStyle;
       return;
     }
 

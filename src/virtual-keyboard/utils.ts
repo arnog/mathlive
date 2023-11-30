@@ -1191,7 +1191,6 @@ function handleVirtualKeyboardEvent(controller) {
                 scrollIntoView: true,
                 mode: 'math',
                 format: 'latex',
-                resetStyle: true,
               } as InsertOptions,
             ]);
           } else executeKeycapCommand(keycap.shift);
@@ -1222,7 +1221,6 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
       } as InsertOptions,
     ];
   }
@@ -1244,7 +1242,6 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
       } as InsertOptions,
     ];
   }

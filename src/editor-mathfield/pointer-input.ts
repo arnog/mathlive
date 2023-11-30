@@ -171,7 +171,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
       }
 
       // Reset any user-specified style
-      mathfield.style = {};
+      mathfield.defaultStyle = {};
       // `evt.detail` contains the number of consecutive clicks
       // for double-click, triple-click, etc...
       // (note that `evt.detail` is not set when using pointerEvent)

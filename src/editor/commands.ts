@@ -148,7 +148,7 @@ export function perform(
     ) {
       mathfield.flushInlineShortcutBuffer();
       if (!info?.changeContent) mathfield.stopCoalescingUndo();
-      mathfield.style = {};
+      mathfield.defaultStyle = {};
     }
   }
 

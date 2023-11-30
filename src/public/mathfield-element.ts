@@ -1678,7 +1678,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Accessing and changing the content
    */
   applyStyle(
-    style: Style,
+    style: Readonly<Style>,
     options?: Range | { range?: Range; operation?: 'set' | 'toggle' }
   ): void {
     return this._mathfield?.applyStyle(style, options);
@@ -1688,7 +1688,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    *
    * @category Accessing and changing the content
    */
-  queryStyle(style: Style): 'some' | 'all' | 'none' {
+  queryStyle(style: Readonly<Style>): 'some' | 'all' | 'none' {
     return this._mathfield?.queryStyle(style) ?? 'none';
   }
 

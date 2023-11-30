@@ -235,8 +235,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (this.checked === true) {
       li.setAttribute('aria-checked', 'true');
       li.append(icon('checkmark')!);
-    }
-    if (this.checked === 'mixed') {
+    } else if (this.checked === 'mixed') {
       li.setAttribute('aria-checked', 'mixed');
       li.append(icon('mixedmark')!);
     } else li.removeAttribute('aria-checked');

@@ -326,7 +326,11 @@ export function onKeystroke(
         }
       }
     } else if (
-      insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
+      insertSmartFence(
+        model,
+        keyboardEventToChar(evt),
+        mathfield.effectiveStyle
+      )
     ) {
       mathfield.dirty = true;
       mathfield.scrollIntoView();
@@ -352,7 +356,7 @@ export function onKeystroke(
     parent?.type === 'leftright' &&
     child.isLastSibling &&
     mathfield.options.smartFence &&
-    insertSmartFence(model, '.', mathfield.style)
+    insertSmartFence(model, '.', mathfield.defaultStyle)
   ) {
     // Pressing the space bar (moveAfterParent selector) when at the end
     // of a potential smartFence will close it as a semi-open fence
@@ -380,10 +384,7 @@ export function onKeystroke(
     //
     // 6.4 Insert the shortcut
     //
-    const style = {
-      ...model.at(model.position).computedStyle,
-      ...mathfield.style,
-    };
+    const style = mathfield.effectiveStyle;
     //
     // Make the substitution to be undoable
     //
@@ -534,7 +535,7 @@ export function onInput(
   // If the selection is not collapsed, the content will be deleted first
   //
   const atom = model.at(model.position);
-  const style = { ...atom.computedStyle, ...mathfield.style };
+  const style = { ...atom.computedStyle, ...mathfield.defaultStyle };
 
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
@@ -627,7 +628,7 @@ function insertMathModeChar(
     return;
   }
 
-  if (mathfield.adoptStyle !== 'none') {
+  if (/[a-zA-Z0-9]/.test(c) && mathfield.adoptStyle !== 'none') {
     // If adding an alphabetic character, and the neighboring atom is an
     // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
     const sibling =
@@ -636,11 +637,7 @@ function insertMathModeChar(
         : atom.parent
           ? atom.rightSibling
           : null;
-    if (
-      sibling?.type === 'mord' &&
-      /[a-zA-Z0-9]/.test(sibling.value) &&
-      /[a-zA-Z0-9]/.test(c)
-    ) {
+    if (sibling?.type === 'mord' && /[a-zA-Z0-9]/.test(sibling.value)) {
       style = { ...style };
       if (sibling.style.variant) style.variant = sibling.style.variant;
       if (sibling.style.variantStyle)

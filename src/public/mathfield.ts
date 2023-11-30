@@ -79,12 +79,6 @@ export type InsertOptions = {
   scrollIntoView?: boolean;
 
   style?: Style;
-
-  /** If `true`, the style after the insertion is the same as the style
-   *  before. If `false`, the style after the insertion is the style of
-   *  the last inserted atom.
-   */
-  resetStyle?: boolean;
 };
 
 export type ApplyStyleOptions = {
