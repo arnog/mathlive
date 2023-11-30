@@ -98,7 +98,6 @@ export function fitInViewport(
   const dir = getComputedDir(element) ?? 'ltr';
 
   // Reset any location, so we can get the natural width/height
-  // element.style.display = 'unset';
   element.style.position = 'absolute';
   element.style.left = '';
   element.style.top = '';

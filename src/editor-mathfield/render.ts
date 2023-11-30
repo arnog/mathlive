@@ -173,8 +173,7 @@ export function render(
   const toggle = mathfield.element?.querySelector<HTMLElement>(
     '[part=virtual-keyboard-toggle]'
   );
-  if (toggle)
-    toggle.style.display = mathfield.hasEditableContent ? 'flex' : 'none';
+  if (toggle) toggle.style.display = mathfield.hasEditableContent ? '' : 'none';
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
