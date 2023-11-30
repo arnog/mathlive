@@ -10,6 +10,7 @@ import { removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
 import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
+import { contrast } from 'ui/colors/utils';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
@@ -228,16 +229,13 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(BACKGROUND_COLORS)) {
     result.push({
-      class: 'menu-swatch',
+      class:
+        (contrast(BACKGROUND_COLORS[color]) === '#000'
+          ? 'dark-contrast'
+          : 'light-contrast') + ' menu-swatch',
       label: `<span style="background:${BACKGROUND_COLORS[color]} "></span>`,
-      onMenuSelect: () => {
-        if (mf.model.selectionIsCollapsed) {
-          if (mf.style.backgroundColor === color)
-            mf.style.backgroundColor = undefined;
-          else mf.style.backgroundColor = color;
-        } else
-          mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
-      },
+      onMenuSelect: () =>
+        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' }),
     });
   }
   return result;
@@ -247,14 +245,19 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(FOREGROUND_COLORS)) {
     result.push({
-      class: 'menu-swatch',
+      class:
+        (contrast(FOREGROUND_COLORS[color]) === '#000'
+          ? 'dark-contrast'
+          : 'light-contrast') + ' menu-swatch',
       label: `<span style="background:${FOREGROUND_COLORS[color]} "></span>`,
-      onMenuSelect: () => {
-        if (mf.model.selectionIsCollapsed) {
-          if (mf.style.color === color) mf.style.color = undefined;
-          else mf.style.color = color;
-        } else mf.applyStyle({ color: color }, { operation: 'toggle' });
+      type: 'radio',
+      group: 'color',
+
+      checked: () => {
+        // Get the color of the first atom in the selection
+        return mf.queryStyle({ color: color }) !== 'none';
       },
+      onMenuSelect: () => mf.applyStyle({ color }, { operation: 'toggle' }),
     });
   }
   return result;

@@ -24,7 +24,7 @@
  */
 :where(.ui-menu-container) {
   position: absolute;
-  overflow: visible;    // Important: Needed for the submenu to overflow the parent
+  overflow: visible; // Important: Needed for the submenu to overflow the parent
   width: auto;
   height: auto;
   z-index: 10000;
@@ -91,9 +91,8 @@
 }
 
 :where(.ui-menu-container > li:has(.heading)) {
-  margin-top: .5em;
+  margin-top: 0.5em;
 }
-
 
 :where(.ui-menu-container > li > .label.heading) {
   font-weight: bold;
@@ -103,7 +102,6 @@
 :where(.ui-menu-container > li.indent > .label) {
   margin-inline-start: 12px;
 }
-
 
 :where(.ui-menu-container > li > .label.indent) {
   margin-inline-start: 12px;
@@ -153,7 +151,6 @@
   opacity: 0.85;
 }
 
-
 .ui-trailing-chevron {
   display: flex;
   margin-inline-start: 24px;
@@ -162,12 +159,20 @@
   margin-bottom: 4px;
 }
 
-
 .ui-trailing-chevron:dir(rtl) {
   transform: scaleX(-1);
 }
 
 .ui-checkmark {
+  display: flex;
+  margin-inline-end: -11px;
+  margin-inline-start: -4px;
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ui-mixedmark {
   display: flex;
   margin-inline-end: -11px;
   margin-inline-start: -4px;

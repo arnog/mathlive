@@ -425,30 +425,50 @@ menu [data-tooltip]::after {
 }
 
 .menu-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   box-sizing: border-box;
   width: fit-content;
   height: fit-content;
   margin: 2px;
   padding: 0;
+  background: var(--neutral-200);
 
-  & > span {
+  & > .label {
     padding: 0;
     margin: 0;
     line-height: 0;
   }
 
-  & > span > span {
+  & > .label > span {
     display: inline-block;
     margin: 6px;
     min-width: var(--_swatch-size);
     min-height: var(--_swatch-size);
     border-radius: 50%;
   }
-  background: var(--neutral-200);
+
   &:hover {
     background: var(--neutral-100);
-    & > span > span {
+    scale: 1.4;
+    & > .label > span {
       border-radius: 2px;
     }
   }
+
+  .ui-checkmark, .ui-mixedmark {    
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    color: white;
+  }
+
+  &.dark-contrast .ui-checkmark, 
+  &.dark-contrast .ui-mixedmark {
+    color: #000;
+  }
+
 }
+

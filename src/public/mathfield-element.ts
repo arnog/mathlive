@@ -519,9 +519,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * If adding a 'boolean' attribute, add its default value to getOptionsFromAttributes
    * @internal
    */
-  static get optionsAttributes(): Record<
-    string,
-    'number' | 'boolean' | 'string' | 'on/off'
+  static get optionsAttributes(): Readonly<
+    Record<string, 'number' | 'boolean' | 'string' | 'on/off'>
   > {
     return {
       'default-mode': 'string',
@@ -546,7 +545,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * Custom elements lifecycle hooks
    * @internal
    */
-  static get observedAttributes(): string[] {
+  static get observedAttributes(): readonly string[] {
     return [
       ...Object.keys(this.optionsAttributes),
       'contenteditable', // Global attribute
@@ -670,12 +669,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
    * @category Virtual Keyboard
    */
-  static get keypressSound(): {
+  static get keypressSound(): Readonly<{
     spacebar: null | string;
     return: null | string;
     delete: null | string;
     default: null | string;
-  } {
+  }> {
     return this._keypressSound;
   }
   static set keypressSound(
@@ -868,7 +867,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * options for the SRE engine are documented
    * {@link https://github.com/zorkow/speech-rule-engine | here}
    */
-  static get textToSpeechRulesOptions(): Record<string, string> {
+  static get textToSpeechRulesOptions(): Readonly<Record<string, string>> {
     return this._textToSpeechRulesOptions;
   }
   static set textToSpeechRulesOptions(value: Record<string, string>) {
@@ -925,7 +924,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   *
   * @category Localization
   */
-  static get strings(): Record<string, Record<string, string>> {
+  static get strings(): Readonly<Record<string, Record<string, string>>> {
     return l10n.strings;
   }
   static set strings(value: Record<string, Record<string, string>>) {
@@ -1344,7 +1343,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
-  get errors(): LatexSyntaxError[] {
+  get errors(): readonly LatexSyntaxError[] {
     return this._mathfield?.errors ?? [];
   }
 
@@ -1657,10 +1656,18 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
+   *
+   * @category Accessing and changing the content
+   */
+  queryStyle(style: Style): 'some' | 'all' | 'none' {
+    return this._mathfield?.queryStyle(style) ?? 'none';
+  }
+
+  /**
    * @inheritdoc Mathfield.getCaretPoint
    * @category Selection
    */
-  get caretPoint(): null | { x: number; y: number } {
+  get caretPoint(): null | Readonly<{ x: number; y: number }> {
     return this._mathfield?.getCaretPoint() ?? null;
   }
 
@@ -2038,7 +2045,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc LayoutOptions.macros
    */
-  get macros(): MacroDictionary {
+  get macros(): Readonly<MacroDictionary> {
     return this._getOption('macros');
   }
   set macros(value: MacroDictionary) {
@@ -2048,7 +2055,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc Registers
    */
-  get registers(): Registers {
+  get registers(): Readonly<Registers> {
     const that = this;
     return new Proxy(
       {},
@@ -2207,7 +2214,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Customization
    */
 
-  get menuItems(): MenuItem[] {
+  get menuItems(): readonly MenuItem[] {
     return this._mathfield?.menu._menuItems.map((x) => x.menuItem) ?? [];
   }
   set menuItems(menuItems: MenuItem[]) {
@@ -2236,7 +2243,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc EditingOptions.inlineShortcuts
    */
-  get inlineShortcuts(): InlineShortcutDefinitions {
+  get inlineShortcuts(): Readonly<InlineShortcutDefinitions> {
     return this._getOption('inlineShortcuts');
   }
   set inlineShortcuts(value: InlineShortcutDefinitions) {
@@ -2256,7 +2263,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc EditingOptions.keybindings
    */
-  get keybindings(): Keybinding[] {
+  get keybindings(): readonly Keybinding[] {
     return this._getOption('keybindings');
   }
   set keybindings(value: Keybinding[]) {
@@ -2355,7 +2362,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    *
    */
-  get selection(): Selection {
+  get selection(): Readonly<Selection> {
     if (this._mathfield) return this._mathfield.model.selection;
 
     if (gDeferredState.has(this)) return gDeferredState.get(this)!.selection;

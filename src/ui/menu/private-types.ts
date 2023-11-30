@@ -11,7 +11,7 @@ export interface MenuItemState<T = unknown> {
   readonly type: MenuItemType;
   readonly label: string;
   readonly enabled: boolean;
-  readonly checked: boolean;
+  readonly checked: boolean | 'mixed';
   readonly submenu?: MenuListState;
   readonly items?: MenuItemState[]; // if a list of items
   readonly id?: string;

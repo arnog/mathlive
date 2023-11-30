@@ -1,6 +1,18 @@
+## [Unreleased]
+
+### Bugs Fixed
+
+- When a global `.row` class was defined, it would be applied to the virtual
+  keyboard rows, resulting in incorrect layout.
+
+### Improvements
+
+- Added `mf.queryStyle()` method to query the style of a selection or the
+  current style if no selection.
+
 ## 0.97.3 (2023-11-28)
 
-## Improvements
+### Improvements
 
 - The `mode-change` event is now dispatched more consistently when the mode
   changes.

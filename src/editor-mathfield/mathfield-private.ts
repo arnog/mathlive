@@ -118,7 +118,7 @@ import type {
   LatexSyntaxError,
 } from '../public/core-types';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
-import type { ContextInterface } from '../core/types';
+import type { ContextInterface, PrivateStyle } from '../core/types';
 import {
   disposeEnvironmentPopover,
   hideEnvironmentPopover,
@@ -143,9 +143,9 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   readonly undoManager: UndoManager;
 
-  options: Required<_MathfieldOptions>;
+  options: Readonly<Required<_MathfieldOptions>>;
 
-  style: Style;
+  private _style: Style;
   // When inserting new characters, if not `"none"`, adopt the style
   // (up variant, etc..) from the previous or following atom.
   adoptStyle: 'left' | 'right' | 'none';
@@ -172,9 +172,9 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   keystrokeCaptionVisible: boolean;
 
-  readonly keyboardDelegate: KeyboardDelegate;
+  readonly keyboardDelegate: Readonly<KeyboardDelegate>;
 
-  _keybindings?: Keybinding[]; // Normalized keybindings (raw ones in config)
+  _keybindings?: readonly Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
 
   inlineShortcutBuffer: {
@@ -483,6 +483,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.undoManager.snapshot('set-value');
   }
 
+  get style(): Readonly<Style> {
+    return this._style;
+  }
+
+  set style(value: Style) {
+    // console.log('set style', value);
+    this._style = value;
+  }
+
   connectToVirtualKeyboard(): void {
     if (this.connectedToVirtualKeyboard) return;
     this.connectedToVirtualKeyboard = true;
@@ -593,7 +602,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   /** Returns styles shared by all selected atoms */
-  get selectionStyle(): Style {
+  get selectionStyle(): Readonly<Style> {
     // Selection is not extended, adopt style
     if (this.model.selectionIsCollapsed) {
       const previousAtom = this.model.at(this.model.selection.ranges[0][0]);
@@ -601,31 +610,83 @@ If you are using Vue, this may be because you are using the runtime-only build o
       const siblingToAdopt =
         this.adoptStyle === 'right' ? previousAtom.rightSibling : previousAtom;
 
-      if (!siblingToAdopt) return {};
+      if (!siblingToAdopt) return this.style;
 
       if (siblingToAdopt.type === 'group') {
         const branch = siblingToAdopt.branch('body');
         if (!branch || branch.length < 2) return {};
         if (this.adoptStyle === 'right') return branch[1].style;
-        return branch[branch.length - 1].style;
+        return { ...branch[branch.length - 1].style, ...this.style };
       }
 
-      return siblingToAdopt.style;
+      return { ...siblingToAdopt.style, ...this.style };
     }
 
     // Potentially multiple atoms selected, return the COMMON styles
     const selectedAtoms = this.model.getAtoms(this.model.selection);
     if (selectedAtoms.length === 0) return {};
     const style = { ...selectedAtoms[0].style };
-    selectedAtoms.forEach((a: Atom) => {
-      for (const [key, value] of Object.entries(a.style))
+    for (const atom of selectedAtoms) {
+      for (const [key, value] of Object.entries(atom.style))
         if (!style[key] || style[key] !== value) style[key] = undefined;
-    });
+    }
 
-    return style!;
+    return { ...style, ...this.style };
   }
 
-  get keybindings(): Keybinding[] {
+  /**
+   *
+   * If there is a selection, return if all the atoms in the selection,
+   * some of them or none of them match the `style` argument.
+   *
+   * If there is no selection, return 'all' if the current implicit style
+   * (determined by a combination of the style of the previous atom and
+   * the current style) matches the `style` argument, 'none' if it does not.
+   */
+  queryStyle(style: Style): 'some' | 'all' | 'none' {
+    const keyCount = Object.keys(style).length;
+    if (keyCount === 0) return 'all';
+    if (keyCount > 1) {
+      for (const prop of Object.keys(style)) {
+        const result = this.queryStyle({ [prop]: style[prop] });
+        if (result === 'none') return 'none';
+        if (result === 'some') return 'some';
+      }
+      return 'all';
+    }
+
+    const prop = Object.keys(style)[0] as keyof Style;
+    const value = style[prop];
+
+    if (this.model.selectionIsCollapsed) {
+      const atom = this.model.at(this.model.position);
+
+      const sibling = this.adoptStyle === 'right' ? atom.rightSibling : atom;
+      const style = sibling?.style ?? this.style;
+      if (style[prop] === value) return 'all';
+      return 'none';
+    }
+
+    const atoms = this.model.getAtoms(this.model.selection, {
+      includeChildren: true,
+    });
+    let length = atoms.length;
+    if (length === 0) return 'none';
+    let count = 0;
+
+    for (const atom of atoms) {
+      if (atom.type === 'first') {
+        length -= 1;
+        continue;
+      }
+      if (atom.style[prop] === value) count += 1;
+    }
+    if (count === 0) return 'none';
+    if (count === length) return 'all';
+    return 'some';
+  }
+
+  get keybindings(): readonly Keybinding[] {
     if (this._keybindings) return this._keybindings;
 
     const [keybindings, errors] = normalizeKeybindings(
@@ -894,7 +955,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return perform(this, command);
   }
 
-  get errors(): LatexSyntaxError[] {
+  get errors(): readonly LatexSyntaxError[] {
     return validateLatex(this.model.getValue(), { context: this.context });
   }
 
@@ -928,7 +989,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     }
   }
 
-  get expression(): BoxedExpression | null {
+  get expression(): Readonly<BoxedExpression> | null {
     const ce = window.MathfieldElement.computeEngine;
     if (!ce) {
       console.error(
@@ -1247,6 +1308,29 @@ If you are using Vue, this may be because you are using the runtime-only build o
     }
     const style = validateStyle(this, inStyle);
     const operation = options.operation ?? 'set';
+
+    if (options.range === undefined && this.model.selectionIsCollapsed) {
+      // We don't have a selection. Set the global style instead.
+      if (operation === 'set') {
+        this.style = { ...this.style, ...style };
+        return;
+      }
+
+      // Toggle the properties
+      const newStyle: PrivateStyle = { ...this.style };
+      for (const prop of Object.keys(style)) {
+        if (newStyle[prop] === style[prop]) {
+          if (prop === 'color') delete newStyle.verbatimColor;
+          if (prop === 'backgroundColor')
+            delete newStyle.verbatimBackgroundColor;
+
+          delete newStyle[prop];
+        } else newStyle[prop] = style[prop];
+      }
+      this.style = newStyle;
+      return;
+    }
+
     this.model.deferNotifications(
       { content: !options.silenceNotifications, type: 'insertText' },
       () => {
@@ -1755,7 +1839,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     ) as HTMLSpanElement;
   }
 
-  get context(): ContextInterface {
+  get context(): Readonly<ContextInterface> {
     return {
       registers: this.options.registers ?? {},
       smartFence: this.smartFence,

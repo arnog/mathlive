@@ -18,11 +18,11 @@ export type MenuItem<T = unknown> = {
   data?: T;
 
   /** The label is a string of HTML markup used to describe the item */
-  label?: DynamicString<T>;
-  ariaLabel?: DynamicString<T>;
-  ariaDetails?: DynamicString<T>;
+  label?: DynamicValue<string, T>;
+  ariaLabel?: DynamicValue<string, T>;
+  ariaDetails?: DynamicValue<string, T>;
 
-  tooltip?: DynamicString<T>;
+  tooltip?: DynamicValue<string, T>;
   keyboardShortcut?: string;
 
   /**
@@ -35,9 +35,9 @@ export type MenuItem<T = unknown> = {
    */
   columns?: number;
 
-  visible?: DynamicBoolean<T>;
-  enabled?: DynamicBoolean<T>;
-  checked?: DynamicBoolean<T>;
+  visible?: DynamicValue<boolean, T>;
+  enabled?: DynamicValue<boolean, T>;
+  checked?: DynamicValue<boolean | 'mixed', T>;
 
   /** Optional CSS class applied to the menu item */
   class?: string;
@@ -114,11 +114,7 @@ export type MenuItemProps<T = unknown> = {
   modifiers?: KeyboardModifiers;
 };
 
-export type DynamicString<T> = string | ((props: MenuItemProps<T>) => string);
-
-export type DynamicBoolean<T> =
-  | boolean
-  | ((props: MenuItemProps<T>) => boolean);
+export type DynamicValue<T, U> = T | ((props: MenuItemProps<U>) => T);
 
 declare global {
   /**

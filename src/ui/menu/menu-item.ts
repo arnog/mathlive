@@ -1,11 +1,11 @@
 import { KeyboardModifiers } from 'public/events-types';
 import { _MenuListState } from './menu-list';
 import {
-  DynamicBoolean,
-  DynamicString,
   MenuItem,
   MenuSelectEventDetail,
   MenuItemType,
+  DynamicValue,
+  MenuItemProps,
 } from '../../public/menu-types';
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
@@ -44,7 +44,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
   _enabled: boolean;
   _visible: boolean;
-  _checked: boolean;
+  _checked: boolean | 'mixed';
 
   /** The DOM element the menu item is rendered as */
   _element: HTMLElement | null = null;
@@ -117,10 +117,10 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     }
   }
 
-  get checked(): boolean {
+  get checked(): boolean | 'mixed' {
     return this._checked;
   }
-  set checked(value: boolean) {
+  set checked(value: boolean | 'mixed') {
     this._checked = value;
     this.dirty = true;
   }
@@ -182,21 +182,33 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       this.visible = true;
     } else {
       this.checked =
-        evalToBoolean<T>(template, template.checked, modifiers) ?? false;
+        dynamicValue<boolean | 'mixed', T>(
+          template,
+          template.checked,
+          modifiers
+        ) ?? false;
       this.enabled =
-        evalToBoolean<T>(template, template.enabled, modifiers) ?? true;
+        dynamicValue<boolean, T>(template, template.enabled, modifiers) ?? true;
       this.visible =
-        evalToBoolean<T>(template, template.visible, modifiers) ?? true;
+        dynamicValue<boolean, T>(template, template.visible, modifiers) ?? true;
       if (this.visible && this.enabled && this.submenu) {
         this.submenu.update(modifiers);
         if (!this.submenu.visible) this.visible = false;
       }
     }
 
-    this.label = evalToString<T>(template, template.label, modifiers);
-    this.tooltip = evalToString<T>(template, template.tooltip, modifiers);
-    this.ariaLabel = evalToString<T>(template, template.ariaLabel, modifiers);
-    this.ariaDetails = evalToString<T>(
+    this.label = dynamicValue<string, T>(template, template.label, modifiers);
+    this.tooltip = dynamicValue<string, T>(
+      template,
+      template.tooltip,
+      modifiers
+    );
+    this.ariaLabel = dynamicValue<string, T>(
+      template,
+      template.ariaLabel,
+      modifiers
+    );
+    this.ariaDetails = dynamicValue<string, T>(
       template,
       template.ariaDetails,
       modifiers
@@ -220,9 +232,13 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (!this.enabled) li.setAttribute('aria-disabled', 'true');
     else li.removeAttribute('aria-disabled');
 
-    if (this.checked) {
+    if (this.checked === true) {
       li.setAttribute('aria-checked', 'true');
       li.append(icon('checkmark')!);
+    }
+    if (this.checked === 'mixed') {
+      li.setAttribute('aria-checked', 'mixed');
+      li.append(icon('mixedmark')!);
     } else li.removeAttribute('aria-checked');
 
     //
@@ -461,40 +477,19 @@ function speed(dx: number, dy: number, dt: number): number {
   return Math.hypot(dx, dy) / dt;
 }
 
-function evalToBoolean<T>(
-  item: MenuItem<T>,
-  value: DynamicBoolean<T> | undefined,
+function dynamicValue<T, U>(
+  item: MenuItem<U>,
+  value: DynamicValue<T, U> | undefined,
   modifiers?: KeyboardModifiers
-): boolean | undefined {
-  if (typeof value === 'boolean') return value;
+): T | undefined {
+  if (value === undefined || typeof value !== 'function') return value;
+
   modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
-  if (typeof value === 'function') {
-    return value({
-      modifiers,
-      id: item.id,
-      group: item.group,
-      data: item.data,
-    });
-  }
-  return undefined;
-}
-
-function evalToString<T>(
-  item: MenuItem<T>,
-  value: DynamicString<T> | undefined,
-  modifiers?: KeyboardModifiers
-): string | undefined {
-  if (typeof value === 'string') return value;
-  modifiers ??= { alt: false, control: false, shift: false, meta: false };
-
-  if (typeof value === 'function') {
-    return value({
-      modifiers,
-      id: item.id,
-      group: item.group,
-      data: item.data,
-    });
-  }
-  return undefined;
+  return (value as (props: MenuItemProps<U>) => T)({
+    modifiers,
+    id: item.id,
+    group: item.group,
+    data: item.data,
+  });
 }

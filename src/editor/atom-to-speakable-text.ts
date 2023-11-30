@@ -689,13 +689,23 @@ export function atomToSpeakableText(atoms: Atom | Atom[]): string {
       if (window.MathfieldElement.textToSpeechMarkup) {
         window.MathfieldElement.textToSpeechRulesOptions =
           window.MathfieldElement.textToSpeechRulesOptions ?? {};
-        window.MathfieldElement.textToSpeechRulesOptions.markup =
-          window.MathfieldElement.textToSpeechMarkup;
-        if (window.MathfieldElement.textToSpeechRulesOptions.markup === 'ssml')
-          window.MathfieldElement.textToSpeechRulesOptions.markup = 'ssml_step';
+        window.MathfieldElement.textToSpeechRulesOptions = {
+          ...window.MathfieldElement.textToSpeechRulesOptions,
+          markup: window.MathfieldElement.textToSpeechMarkup,
+        };
+        if (
+          window.MathfieldElement.textToSpeechRulesOptions.markup === 'ssml'
+        ) {
+          window.MathfieldElement.textToSpeechRulesOptions = {
+            ...window.MathfieldElement.textToSpeechRulesOptions,
+            markup: 'ssml_step',
+          };
+        }
 
-        window.MathfieldElement.textToSpeechRulesOptions.rate =
-          window.MathfieldElement.speechEngineRate;
+        window.MathfieldElement.textToSpeechRulesOptions = {
+          ...window.MathfieldElement.textToSpeechRulesOptions,
+          rate: window.MathfieldElement.speechEngineRate,
+        };
       }
 
       const SRE = window['SRE'] ?? window.sre.System.getInstance();
