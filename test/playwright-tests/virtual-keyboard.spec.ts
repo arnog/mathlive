@@ -24,7 +24,7 @@ async function virtualKeyboardSample1(page: Page) {
   await page.getByText('2■2').click();
 
   return 'z=\\frac12';
-} 
+}
 
 async function virtualKeyboardSample2(page: Page) {
   await page.getByText('na', { exact: true }).click();
@@ -33,7 +33,7 @@ async function virtualKeyboardSample2(page: Page) {
   await page.getByText('■2■′').click();
 
   return 'n=x^2';
-} 
+}
 
 test('virtual keyboard with two math fields', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
@@ -76,8 +76,15 @@ test('virtual keyboard with two math fields', async ({ page }) => {
     .waitFor({ state: 'detached' });
 });
 
-test('math fields in iframe with virtual keyboard', async ({ page, browserName, context }) => {
-  test.skip(browserName === "webkit" && Boolean(process.env.CI), "Iframe test is flaky in webkit on GH actions");
+test('math fields in iframe with virtual keyboard', async ({
+  page,
+  browserName,
+  context,
+}) => {
+  test.skip(
+    browserName === 'webkit' && Boolean(process.env.CI),
+    'Iframe test is flaky in webkit on GH actions'
+  );
 
   await page.goto('/dist/playwright-test-page/iframe_test.html');
 
@@ -146,7 +153,7 @@ test('Switch layer by shift', async ({ page }) => {
   });
 
   await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
-  const rowLocator = page.locator('.MLK__layer.is-visible .row');
+  const rowLocator = page.locator('.MLK__layer.is-visible .MLK__row');
   await rowLocator.locator('> :nth-child(1)').click(); // shift
   await rowLocator.locator('> :nth-child(2)').click(); // A
   await rowLocator.locator('> :nth-child(1)').click(); // shift

@@ -380,7 +380,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   touch-action: none;
 }
 
-.MLK__rows > .row {
+.MLK__rows > .MLK__row {
   display: flex;
   flex-flow: row;
   justify-content: center;
@@ -522,7 +522,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
  * Use the :where() pseudo-class to give it a very low specifity, 
  * so that it can be overriden by custom style.
  */
-:where(.MLK__rows > .row  div) {
+:where(.MLK__rows > .MLK__row  div) {
     display: flex;
     flex-flow: column;
     align-items: center;
@@ -967,19 +967,19 @@ Note there are a different set of tooltip rules for the keyboard toggle
     font-size: 16px;
   }
 
-  .MLK__rows > .row > div.fnbutton {
+  .MLK__rows > .MLK__row > div.fnbutton {
     font-size: 16px;
   }
 
-  .MLK__rows > .row > div.bigfnbutton {
+  .MLK__rows > .MLK__row > div.bigfnbutton {
     font-size: calc(var(--_keycap-extra-small-font-size) / 1.55);
   }
 
   // Class for keycaps (not a tag)
-  .MLK__rows > .row > div.small {
+  .MLK__rows > .MLK__row > div.small {
     font-size: 13px;
   }
-  .MLK__rows > .row > div > aside {
+  .MLK__rows > .MLK__row > div > aside {
     display: none;
   }
   .MLK__shift {
@@ -993,7 +993,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
   }
 
-  .MLK__rows > .row > div > small {
+  .MLK__rows > .MLK__row > div > small {
     font-size: 14px;
   }
 }
@@ -1002,7 +1002,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
   .MLK__rows {
     --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
   }
-  .MLK__rows > .row > div > small {
+  .MLK__rows > .MLK__row > div > small {
     font-size: 14px;
   }
 
