@@ -4,7 +4,7 @@ import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
 import { _Mathfield } from './mathfield';
 import { setEnvironment } from 'editor-model/array';
-import { TabularEnvironment, VariantStyle } from 'public/core-types';
+import { TabularEnvironment, Variant, VariantStyle } from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
 import { removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
@@ -53,48 +53,11 @@ function validVariantStyleSelection(
 
 function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
   return [
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathbb{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Blackboard',
-      visible: () => validVariantAtom(mf, 'double-struck'),
-      onMenuSelect: () => {
-        mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' });
-        mf.adoptStyle = 'none';
-      },
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathfrak{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Fraktur',
-      visible: () => validVariantAtom(mf, 'fraktur'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'fraktur' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathcal{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Caligraphic',
-      visible: () => validVariantAtom(mf, 'calligraphic'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'calligraphic' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathrm{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Roman Upright',
-      visible: () => validVariantStyleSelection(mf, 'up'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variantStyle: 'up' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathbf{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Bold',
-      visible: () => validVariantStyleSelection(mf, 'bold'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variantStyle: 'bold' }, { operation: 'toggle' }),
-    },
+    variantMenuItem(mf, 'double-struck', 'mathbb', 'Blackboard'),
+    variantMenuItem(mf, 'fraktur', 'mathfrak', 'Fraktur'),
+    variantMenuItem(mf, 'calligraphic', 'mathcal', 'Caligraphic'),
+    variantStyleMenuItem(mf, 'up', 'mathrm', 'Roman Upright'),
+    variantStyleMenuItem(mf, 'bold', 'mathbf', 'Bold'),
   ];
 }
 
@@ -651,4 +614,44 @@ function evaluate(mf: _Mathfield): string {
   if (result.isSame(expr)) result = expr.N();
 
   return result.latex;
+}
+
+function variantMenuItem(
+  mf: _Mathfield,
+  variant: Variant,
+  command: string,
+  tooltip: string
+): MenuItem {
+  return {
+    label: () =>
+      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    tooltip,
+    visible: () => validVariantAtom(mf, variant),
+    checked: () =>
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variant }) ?? false],
+    onMenuSelect: () => {
+      mf.applyStyle({ variant }, { operation: 'toggle' });
+      mf.adoptStyle = 'none';
+    },
+  };
+}
+
+function variantStyleMenuItem(
+  mf: _Mathfield,
+  variantStyle: VariantStyle,
+  command: string,
+  tooltip: string
+): MenuItem {
+  return {
+    label: () =>
+      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    tooltip,
+    visible: () => validVariantStyleSelection(mf, variantStyle),
+    checked: () =>
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle }) ?? false],
+    onMenuSelect: () => {
+      mf.applyStyle({ variantStyle }, { operation: 'toggle' });
+      mf.adoptStyle = 'none';
+    },
+  };
 }

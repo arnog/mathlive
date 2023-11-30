@@ -23,6 +23,9 @@ mf.focus();
 mf.selection = mf.getPromptRange('id');
 ```
 
+- The Color, Background Color and Variant menus correctly toggle the colors and variant, and 
+  reflect their state with a checkmark or mixedmark.
+
 ## 0.97.4 (2023-11-29)
 
 ### Bugs Fixed

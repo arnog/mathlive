@@ -264,7 +264,18 @@ function variantString(atom: Atom): string {
   const { style } = atom;
   if (style.variant === undefined) return '';
   let result = style.variant;
-  if (style.variantStyle && style.variantStyle !== 'up')
+  if (
+    ![
+      'calligraphic',
+      'fraktur',
+      'double-struck',
+      'script',
+      'monospace',
+      'sans-serif',
+    ].includes(style.variant) &&
+    style.variantStyle &&
+    style.variantStyle !== 'up'
+  )
     result += '-' + style.variantStyle;
 
   return result;
