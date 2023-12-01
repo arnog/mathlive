@@ -454,6 +454,7 @@ export class ModelPrivate implements Model {
       return Atom.serialize([atom], {
         expandMacro: format === 'latex-expanded',
         skipStyles: format === 'latex-unstyled',
+        skipPlaceholders: format === 'latex-without-placeholders',
         defaultMode: this.mathfield.options.defaultMode,
       });
     }
@@ -554,6 +555,7 @@ export class ModelPrivate implements Model {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
         skipStyles: format === 'latex-unstyled',
+        skipPlaceholders: format === 'latex-without-placeholders',
         defaultMode: this.mathfield.options.defaultMode,
       };
       return joinLatex(

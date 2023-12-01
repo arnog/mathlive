@@ -1,6 +1,6 @@
 import type { ParseMode, Style } from '../public/core-types';
 
-import { Atom, AtomJson } from '../core/atom-class';
+import { Atom, AtomJson, ToLatexOptions } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 
@@ -36,7 +36,8 @@ export class PlaceholderAtom extends Atom {
     return result;
   }
 
-  _serialize(): string {
+  _serialize(options: ToLatexOptions): string {
+    if (options.skipPlaceholders) return '';
     return '\\placeholder{}';
   }
 }

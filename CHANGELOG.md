@@ -38,6 +38,10 @@ mf.selection = mf.getPromptRange(id);
   The placeholder text can be styled with the 
   `math-field::part(placeholder)` CSS selector.
 
+- **#2162** Added a `"latex-without-placeholders"` format to the 
+  `getValue()` method. This format is similar to the `"latex"` 
+  format, but does not include the placeholders (for "fill-in-the-blanks").
+
 ### Bugs Fixed
 
 - **#2169** Changing the selection programatically will

@@ -168,6 +168,9 @@ export class PromptAtom extends Atom {
 
   _serialize(options: ToLatexOptions): string {
     const value = this.bodyToLatex(options) ?? '';
+
+    if (options.skipPlaceholders) return value;
+
     let command = '\\placeholder';
 
     if (this.placeholderId) command += `[${this.placeholderId}]`;

@@ -79,9 +79,15 @@ export type Branches = {
 };
 
 export type ToLatexOptions = {
+  // Replace macros with their definitions
   expandMacro?: boolean;
-  // If true, don't emit color, backgroundcolor, fontsize commands
+
+  // Don't emit color, backgroundcolor, fontsize commands
   skipStyles?: boolean;
+
+  // Replace placeholders with their content
+  skipPlaceholders?: boolean;
+
   // Don't emit unnecessary style shift commands: you can assume we're in
   // this default mode.
   defaultMode: 'text' | 'math' | 'inline-math';
@@ -452,7 +458,11 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     // 1/ Verbatim LaTeX. This allow non-significant punctuation to be
     // preserved when possible.
     if (
-      !(options.expandMacro || options.skipStyles) &&
+      !(
+        options.expandMacro ||
+        options.skipStyles ||
+        options.skipPlaceholders
+      ) &&
       typeof this.verbatimLatex === 'string'
     )
       return this.verbatimLatex;
