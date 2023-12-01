@@ -286,7 +286,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'alt+/',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '\\/'],
+    command: ['insert', '/'],
+  },
+  {
+    key: 'alt+shift+/',
+    ifMode: 'math',
+    command: ['insert', '/'],
   },
   {
     key: 'alt+[BracketLeft]',

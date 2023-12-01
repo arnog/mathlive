@@ -48,6 +48,10 @@ mf.selection = mf.getPromptRange(id);
   now correctly update the mathfield.
 - **#2189** If the decimal separator is set to `,`, the virtual keyboard
   will now correctly display the decimal separator as a comma.
+- **#2139** On some keyboard layouts, <kbd>ALT</kbd>+<kbd>/</kbd> would 
+  insert a `\/` command, which is not standard. Now, the simple `/` is
+  inserted.
+
 
 ## 0.97.4 (2023-11-29)
 
