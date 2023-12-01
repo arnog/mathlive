@@ -66,13 +66,13 @@ export function onContextMenu(
       eventTarget = eventTarget.parentNode as HTMLElement;
     if (!eventTarget) return false;
 
+    // If no items visible, don't show anything
+    const modifiers = keyboardModifiersFromEvent(event);
+    menu.update(modifiers);
+    if (!menu.visible) return false;
+
     const pt = eventLocation(event);
     onLongPress(event, () => {
-      // If no items visible, don't show anything
-      const modifiers = keyboardModifiersFromEvent(event);
-      menu.update(modifiers);
-      if (!menu.visible) return;
-
       if (menu.state !== 'closed') return;
       onTrigger?.();
       menu.show({ target: target, location: pt });

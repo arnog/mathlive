@@ -26,12 +26,14 @@ mf.selection = mf.getPromptRange(id);
 - The Color, Background Color and Variant menus correctly toggle the colors 
   and variant, and reflect their state with a checkmark or mixedmark.
 
+- Setting the `mf.menuItems` property before the mathfield is inserted in the
+  DOM will now correctly update the menu items. 
+
 ### New Features
 
 - **#348** Added a `placeholder` attribute, similar to the `placeholder`
-  attribute of a `<textarea>` element. This is a read-only attribute that
-  specifies a short hint as a LaTeX string that describes the expected value 
-  of the mathfield.
+  attribute of a `<textarea>` element. This specifies a short hint as a 
+  LaTeX string that describes the expected value of the mathfield.
   When the mathfield is empty, the placeholder text is displayed.
   The placeholder text can be styled with the 
   `math-field::part(placeholder)` CSS selector.

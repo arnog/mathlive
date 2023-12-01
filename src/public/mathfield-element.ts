@@ -133,6 +133,7 @@ const gDeferredState = new WeakMap<
     value: string | undefined;
     selection: Selection;
     options: Partial<MathfieldOptions>;
+    menuItems: Readonly<MenuItem[]> | undefined;
   }
 >();
 
@@ -1194,10 +1195,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
-    const computedStyle = window.getComputedStyle(this);
-    const pointerEvents = computedStyle.userSelect === 'none' ? 'none' : 'auto';
-    const shadowRootMarkup = `<span style="pointer-events:${pointerEvents}"></span><slot style="display:none"></slot>`;
-
     if (this.shadowRoot && 'adoptedStyleSheets' in this.shadowRoot) {
       // @ts-ignore
       this.shadowRoot!.adoptedStyleSheets = [
@@ -1207,9 +1204,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheet('ui'),
         getStylesheet('menu'),
       ];
+
       // @ts-ignore
-      this.shadowRoot!.innerHTML = shadowRootMarkup;
+      this.shadowRoot!.appendChild(document.createElement('span'));
+
+      const slot = document.createElement('slot');
+      slot.style.display = 'none';
+      // @ts-ignore
+      this.shadowRoot!.appendChild(slot);
     } else {
+      // @ts-ignore
       this.shadowRoot!.innerHTML =
         '<style>' +
         getStylesheetContent('core') +
@@ -1218,7 +1222,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheetContent('ui') +
         getStylesheetContent('menu') +
         '</style>' +
-        shadowRootMarkup;
+        '<span></span><slot style="display:none"></slot>';
     }
 
     // Record the (optional) configuration options, as a deferred state
@@ -1508,6 +1512,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         value: undefined,
         selection: { ranges: [[0, 0]] },
         options,
+        menuItems: undefined,
       });
     }
 
@@ -1614,6 +1619,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           direction: 'forward',
         },
         options,
+        menuItems: undefined,
       });
       return;
     }
@@ -1626,6 +1632,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         direction: 'forward',
       },
       options: attrOptions,
+      menuItems: undefined,
     });
   }
 
@@ -1805,19 +1812,19 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   connectedCallback(): void {
     const computedStyle = window.getComputedStyle(this);
+    const shadowRoot = this.shadowRoot!;
     const userSelect = computedStyle.userSelect !== 'none';
-    (this.shadowRoot!.firstElementChild! as HTMLElement).style.pointerEvents =
+    (shadowRoot.firstElementChild! as HTMLElement).style.pointerEvents =
       userSelect ? 'none' : 'auto';
 
-    if (userSelect)
-      this.shadowRoot!.host.addEventListener('pointerdown', this, true);
-
-    const span = this.shadowRoot?.querySelector('span');
-    span!.style.pointerEvents = userSelect ? 'auto' : 'none';
-
+    if (userSelect) shadowRoot.host.addEventListener('pointerdown', this, true);
+    else {
+      const span = shadowRoot.querySelector('span');
+      span!.style.pointerEvents = 'none';
+    }
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
-    this.shadowRoot!.host.addEventListener('focus', this, true);
-    this.shadowRoot!.host.addEventListener('blur', this, true);
+    shadowRoot.host.addEventListener('focus', this, true);
+    shadowRoot.host.addEventListener('blur', this, true);
 
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
@@ -1834,29 +1841,30 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     // focus the mathfield
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
-    const slot =
-      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
-    try {
-      this._style = slot!
-        .assignedElements()
-        .filter((x) => x.tagName.toLowerCase() === 'style')
-        .map((x) => x.textContent)
-        .join('');
-    } catch (error: unknown) {
-      console.error(error);
+    const slot = shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
+    if (slot) {
+      try {
+        this._style = slot
+          .assignedElements()
+          .filter((x) => x.tagName.toLowerCase() === 'style')
+          .map((x) => x.textContent)
+          .join('');
+      } catch (error: unknown) {
+        console.error(error);
+      }
     }
     // Add shadowed stylesheet if one was provided
     // (this is important to support the `\class{}{}` command)
     if (this._style) {
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
-      this.shadowRoot!.appendChild(styleElement);
+      shadowRoot.appendChild(styleElement);
     }
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value
     // of the mathfield from it
-    if (this.hasAttribute('value')) value = this.getAttribute('value') ?? '';
+    if (this.hasAttribute('value')) value = this.getAttribute('value')!;
     else {
       value =
         slot
@@ -1867,11 +1875,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     this._mathfield = new _Mathfield(
-      this.shadowRoot!.querySelector(':host > span')!,
+      shadowRoot.querySelector(':host > span')!,
       {
-        ...(gDeferredState.has(this)
-          ? gDeferredState.get(this)!.options
-          : getOptionsFromAttributes(this)),
+        ...(gDeferredState.get(this)?.options ??
+          getOptionsFromAttributes(this)),
         eventSink: this,
         value,
       }
@@ -1891,16 +1898,18 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     if (gDeferredState.has(this)) {
-      this._mathfield.model.deferNotifications(
-        { content: false, selection: false },
-        () => {
-          const value = gDeferredState.get(this)!.value;
-          if (value !== undefined) this._mathfield!.setValue(value);
-          this._mathfield!.model.selection =
-            gDeferredState.get(this)!.selection;
-          gDeferredState.delete(this);
-        }
-      );
+      const mf = this._mathfield!;
+      const state = gDeferredState.get(this)!;
+      const menuItems = state.menuItems;
+      mf.model.deferNotifications({ content: false, selection: false }, () => {
+        const value = state.value;
+        if (value !== undefined) mf.setValue(value);
+        mf.model.selection = state.selection;
+
+        gDeferredState.delete(this);
+      });
+
+      if (menuItems) this.menuItems = menuItems;
     }
 
     // Notify listeners that we're mounted and ready
@@ -1947,6 +1956,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.model.selection,
+      menuItems: this._mathfield.menu?.menuItems ?? undefined,
       options,
     });
 
@@ -2249,16 +2259,33 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
 
   get menuItems(): readonly MenuItem[] {
-    return this._mathfield?.menu._menuItems.map((x) => x.menuItem) ?? [];
+    if (this._mathfield)
+      return this._mathfield.menu._menuItems.map((x) => x.menuItem) ?? [];
+
+    return gDeferredState.get(this)?.menuItems ?? [];
   }
-  set menuItems(menuItems: MenuItem[]) {
-    if (this._mathfield?.menu) {
+  set menuItems(menuItems: Readonly<MenuItem[]>) {
+    if (this._mathfield) {
       const btn =
         this._mathfield.element?.querySelector<HTMLElement>(
           '[part=menu-toggle]'
         );
       if (btn) btn.style.display = menuItems.length === 0 ? 'none' : '';
       this._mathfield.menu.menuItems = menuItems;
+    }
+
+    if (gDeferredState.has(this)) {
+      gDeferredState.set(this, {
+        ...gDeferredState.get(this)!,
+        menuItems,
+      });
+    } else {
+      gDeferredState.set(this, {
+        value: undefined,
+        selection: { ranges: [[0, 0]] },
+        options: getOptionsFromAttributes(this),
+        menuItems,
+      });
     }
   }
 
@@ -2409,6 +2436,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       value: undefined,
       selection: sel,
       options: getOptionsFromAttributes(this),
+      menuItems: undefined,
     });
   }
 
@@ -2460,6 +2488,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       value: undefined,
       selection: { ranges: [[offset, offset]] },
       options: getOptionsFromAttributes(this),
+      menuItems: undefined,
     });
   }
 

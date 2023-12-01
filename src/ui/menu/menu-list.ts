@@ -25,7 +25,7 @@ export class _MenuListState implements MenuListState {
 
   private _containerClass?: string;
 
-  private _abortController: AbortController;
+  private _abortController?: AbortController;
 
   protected _dirty = false;
 
@@ -40,7 +40,6 @@ export class _MenuListState implements MenuListState {
     this._containerClass = options?.containerClass;
 
     this.isSubmenuOpen = false;
-    this._abortController = new AbortController();
 
     this.menuItems = items;
   }
@@ -48,7 +47,7 @@ export class _MenuListState implements MenuListState {
   /** Setting the menu items will reset this item and
    * redefine a set of _MenuItem objects
    */
-  set menuItems(items: MenuItem[]) {
+  set menuItems(items: Readonly<MenuItem[]>) {
     // Clear any existing menu items
     const parent = this.parentMenu;
     this.dispose();
@@ -64,7 +63,7 @@ export class _MenuListState implements MenuListState {
   dispose(): void {
     this.hide();
     if (this._element) this._element.remove();
-    this._abortController.abort();
+    if (this._abortController) this._abortController.abort();
     this._menuItems?.forEach((x) => x.dispose());
     this._menuItems = [];
     this._activeMenuItem = null;
@@ -199,6 +198,7 @@ export class _MenuListState implements MenuListState {
     if (this._containerClass) menu.classList.add(this._containerClass);
     menu.classList.add('ui-menu-container');
 
+    if (!this._abortController) this._abortController = new AbortController();
     const signal = this._abortController.signal;
     menu.addEventListener('focus', this, { signal });
     menu.addEventListener('wheel', this, { passive: true, signal });
