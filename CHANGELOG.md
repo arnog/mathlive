@@ -34,7 +34,13 @@ mf.selection = mf.getPromptRange(id);
   of the mathfield.
   When the mathfield is empty, the placeholder text is displayed.
   The placeholder text can be styled with the 
-  `math-field [part=placeholder]` CSS selector.
+  `math-field::part(placeholder)` CSS selector.
+
+### Bugs Fixed
+
+- **#2169** Changing the selection programatically will
+  now correctly update the mathfield.
+
 
 ## 0.97.4 (2023-11-29)
 

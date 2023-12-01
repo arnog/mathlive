@@ -984,8 +984,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.mode === undefined || options.mode === 'auto')
       options.mode = getMode(this.model, this.model.position) ?? 'math';
 
+    const couldUndo = this.undoManager.canUndo();
     if (ModeEditor.insert(this.model, value, options)) {
       requestUpdate(this);
+      // If this is the first insertion, drop the previous (empty) snapshot
+      if (!couldUndo) this.undoManager.reset();
       this.undoManager.snapshot('set-value');
     }
   }
@@ -1279,6 +1282,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (!this.hasFocus()) {
       this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
+      this.onFocus();
       this.model.announce('line');
     }
     if (!options?.preventScroll ?? false) this.scrollIntoView();
@@ -1292,6 +1296,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   select(): void {
     this.model.selection = { ranges: [[0, this.model.lastOffset]] };
+    // The behavior of select() is not clearly defined. Some implementations
+    // focus, others don't. Selecting the sink may focus it in some cases
+    // so, to be safe, we focus the field as well
+    this.focus();
   }
 
   applyStyle(inStyle: Style, inOptions: Range | ApplyStyleOptions = {}): void {

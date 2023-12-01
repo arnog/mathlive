@@ -2393,6 +2393,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (this._mathfield) {
       this._mathfield.model.selection = sel;
+      requestUpdate(this._mathfield);
       return;
     }
 
@@ -2442,7 +2443,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    */
   set position(offset: Offset) {
-    if (this._mathfield) this._mathfield.model.position = offset;
+    if (this._mathfield) {
+      this._mathfield.model.position = offset;
+      requestUpdate(this._mathfield);
+    }
 
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
