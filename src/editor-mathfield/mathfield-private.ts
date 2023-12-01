@@ -154,17 +154,12 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   dirty: boolean; // If true, need to be redrawn
 
-  element:
-    | (HTMLElement & {
-        mathfield?: _Mathfield;
-      })
-    | undefined;
+  element: HTMLElement & { mathfield?: _Mathfield };
 
   /** The element from which events are emitted, usually a MathfieldElement */
   readonly host: HTMLElement | undefined;
 
   field: HTMLElement;
-  fieldContent: HTMLElement; // set in render() function
   readonly ariaLiveText: HTMLElement;
   // readonly accessibleMathML: HTMLElement;
 
@@ -914,11 +909,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     const element = this.element!;
     delete element.mathfield;
-    this.element = undefined;
+    (this.element as any) = undefined;
 
     (this as any).host = undefined;
     (this as any).field = undefined;
-    (this as any).fieldContent = undefined;
     (this as any).ariaLiveText = undefined;
 
     disposeKeystrokeCaption();
@@ -1824,7 +1818,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     let target = atom;
     while (!target.id && target.hasChildren) target = atom.children[0];
 
-    return this.fieldContent!.querySelector(
+    return this.field.querySelector(
       `[data-atom-id="${target.id}"]`
     ) as HTMLSpanElement;
   }

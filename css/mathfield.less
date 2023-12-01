@@ -17,7 +17,12 @@
 
 // The .ML__container includes the visible parts of the math-field: 
 // the .ML__content and the .ML__virtual-keyboard-toggle.
-// .ML__container > .ML__content > .ML__mathlive > .base
+// .ML__container 
+//      > .ML__content 
+//            > .ML__latex > .ML__base
+//            > .ML__selection
+//      > .ML__virtual-keyboard-toggle
+//      > .ML__menu-toggle
 .ML__container {
   display: inline-flex;
   flex-flow: row;
@@ -54,7 +59,7 @@
   --_smart-fence-opacity: var(--smart-fence-opacity, 0.5);
 
   // The text color of content in LaTeX mode
-  --_latex-color: var(--latex-color, hsl(var(--_hue), 40%, 50%));
+  --_latex-color: var(--latex-color, hsl(var(--_hue), 80%, 40%));
   // The border color when a prompt is in "correct" state
   --_correct-color: var(--correct-color, #10a000);
   // The border color when a prompt is in "incorrect" state
@@ -128,6 +133,8 @@
     align-items: center;
   }
 }
+
+
 /* The invisible element used to capture keyboard events. We're just trying
  really hard to make sure it doesn't show. */
 .ML__keyboard-sink {
@@ -137,17 +144,16 @@
   outline: none;
   border: none;
 
-  // border-radius: 16px;
-  // min-width: 16px;
-  // height: 16px;
-  // background-color: #29c;
-
   /* Need these for Microsoft Edge */
   position: fixed;
   clip: rect(0 0 0 0);
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
+}
+
+[part="placeholder"] {
+  color: var(--neutral-400);
 }
 
 
@@ -165,39 +171,55 @@
 // }
 
 
-.ML__caret:after {
+.ML__caret::after {
   content: '';
+  width: 0;
+
+  display: inline-block;
+  height: 0.76em;
+
+  --_caret-width: clamp(2px, 0.08em, 10px);
   border: none;
-  border-radius: 2px;
-  border-right: 2px solid var(--_caret-color);
-  margin-right: -2px;
+  border-radius: calc(var(--_caret-width) / 2);
+  border-right: var(--_caret-width) solid var(--_caret-color);
+  margin-right: calc(-1 * var(--_caret-width));
   position: relative;
-  left: -1px;
+  left: -0.045em;
+  bottom: -0.05em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
-.ML__text-caret:after {
+
+.ML__text-caret::after {
   content: '';
+  width: 0;
+
+  display: inline-block;
+  height: 0.76em;
+
+  --_caret-width: clamp(2px, 0.08em, 10px);
   border: none;
-  border-radius: 1px;
-  border-right: 1px solid var(--_caret-color);
-  margin-right: -1px;
+  border-radius: calc(var(--_caret-width) / 2);
+  border-right: var(--_caret-width) solid var(--_caret-color);
+  margin-right: calc(-1 * var(--_caret-width));
   position: relative;
-  left: 0;
+  left: -0.045em;
+  bottom: -0.05em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
 
-.ML__latex-caret:after {
+.ML__latex-caret::after {
   content: '';
+
+  --_caret-width: clamp(2px, 0.08em, 10px);
   border: none;
-  border-radius: 2px;
-  border-right: 2px solid var(--_caret-color);
-  margin-right: -2px;
+  border-radius: calc(var(--_caret-width) / 2);
+  border-right: var(--_caret-width) solid var(--_latex-color);
+  margin-right: calc(-1 * var(--_caret-width));
   position: relative;
-  left: -1px;
-  color: var(--_caret-color);
+  left: -0.019em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
@@ -241,15 +263,17 @@ with this style */
   box-sizing: border-box;
 }
 
-.ML__latex {
+.ML__raw-latex {
   font-family: @monospace;
   font-weight: 400;
+  font-size: 0.8em;
+  letter-spacing: -0.05em;
 
   color: var(--_latex-color);
 }
 
 .ML__suggestion {
-  opacity: 0.5;
+  color: var(--neutral-500);
 }
 
 .ML__virtual-keyboard-toggle.is-visible.is-pressed:hover {
@@ -296,7 +320,9 @@ with this style */
     background: #616161; // Grey 700
     color: #fff;
 
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12),
+    box-shadow: 
+      0 2px 2px 0 rgba(0, 0, 0, 0.14), 
+      0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2);
 
     text-align: center;

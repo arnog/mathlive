@@ -10,7 +10,7 @@
 ```js
 const prompts = mf.getPrompts();
 const values = prompts.map(id => mf.getPromptValue(id));
-prompts.forEach(id => mf.setPromptValue(id, ''));
+prompts.forEach(id => mf.setPromptValue(id, ""));
 ```
 
 ### Improvements
@@ -20,11 +20,21 @@ prompts.forEach(id => mf.setPromptValue(id, ''));
 
 ```js
 mf.focus();
-mf.selection = mf.getPromptRange('id');
+mf.selection = mf.getPromptRange(id);
 ```
 
-- The Color, Background Color and Variant menus correctly toggle the colors and variant, and 
-  reflect their state with a checkmark or mixedmark.
+- The Color, Background Color and Variant menus correctly toggle the colors 
+  and variant, and reflect their state with a checkmark or mixedmark.
+
+### New Features
+
+- **#348** Added a `placeholder` attribute, similar to the `placeholder`
+  attribute of a `<textarea>` element. This is a read-only attribute that
+  specifies a short hint as a LaTeX string that describes the expected value 
+  of the mathfield.
+  When the mathfield is empty, the placeholder text is displayed.
+  The placeholder text can be styled with the 
+  `math-field [part=placeholder]` CSS selector.
 
 ## 0.97.4 (2023-11-29)
 

@@ -400,7 +400,7 @@ export class Box implements BoxInterface {
 
     classes.push(
       {
-        latex: 'ML__latex',
+        latex: 'ML__raw-latex',
         placeholder: 'ML__placeholder',
         error: 'ML__error',
       }[this.type] ?? ''

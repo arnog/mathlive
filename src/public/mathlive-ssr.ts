@@ -118,7 +118,7 @@ export function convertLatexToMarkup(
   //
   // 4. Wrap the expression with struts
   //
-  const struts = makeStruts(box, { classes: 'ML__mathlive' });
+  const struts = makeStruts(box, { classes: 'ML__latex' });
 
   //
   // 5. Generate markup

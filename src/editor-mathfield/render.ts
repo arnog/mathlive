@@ -14,6 +14,7 @@ import { gFontsState } from '../core/fonts';
 import { Context } from 'core/context';
 import { Atom } from 'core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { convertLatexToMarkup } from 'public/mathlive';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -92,8 +93,8 @@ function makeBox(
   //
   const wrapper = makeStruts(applyInterBoxSpacing(base, context), {
     classes: mathfield.hasEditablePrompts
-      ? 'ML__mathlive ML__prompting'
-      : 'ML__mathlive',
+      ? 'ML__latex ML__prompting'
+      : 'ML__latex',
     attributes: {
       // Sometimes Google Translate kicks in an attempts to 'translate' math
       // This doesn't work very well, so turn off translate
@@ -170,7 +171,7 @@ export function render(
   // 1. Hide the virtual keyboard toggle if not applicable
   //
 
-  const toggle = mathfield.element?.querySelector<HTMLElement>(
+  const toggle = mathfield.element.querySelector<HTMLElement>(
     '[part=virtual-keyboard-toggle]'
   );
   if (toggle) toggle.style.display = mathfield.hasEditableContent ? '' : 'none';
@@ -182,7 +183,12 @@ export function render(
   //     '</math>'
   // );
 
+  //
+  // 2. Render the content
+  //
+
   const field = mathfield.field;
+  if (!field) return;
 
   const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
   const isFocused = field.classList.contains('ML__focused');
@@ -190,15 +196,25 @@ export function render(
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = window.MathfieldElement.createHTML(
-    contentMarkup(mathfield, renderOptions)
-  );
-  mathfield.fieldContent = field.getElementsByClassName(
-    'ML__mathlive'
-  )[0]! as HTMLElement;
+  let content = contentMarkup(mathfield, renderOptions);
 
   //
-  // 5. Render the selection/caret
+  // 3. Render the content placeholder, if applicable
+  //
+  // If the mathfield is emply, display a placeholder
+  if (mathfield.model.atoms.length <= 1) {
+    const placeholder = mathfield.options.contentPlaceholder;
+    if (placeholder) {
+      content += `<span part=placeholder class="ML__content-placeholder">${convertLatexToMarkup(
+        placeholder
+      )}</span>`;
+    }
+  }
+
+  field.innerHTML = window.MathfieldElement.createHTML(content);
+
+  //
+  // 4. Render the selection/caret
   //
   renderSelection(mathfield, renderOptions.interactive);
 

@@ -241,6 +241,10 @@ export interface MathfieldElementAttributes {
 
   'script-depth': string;
 
+  /** When the mathfield is empty, display this placeholder LaTeX string
+   *  instead */
+  'placeholder': string;
+
   /**
    * - `"auto"`: the virtual keyboard is triggered when a
    * mathfield is focused on a touch capable device.
@@ -536,6 +540,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'smart-superscript': 'on/off',
       'inline-shortcut-timeout': 'string',
       'script-depth': 'string',
+      'placeholder': 'string',
       'virtual-keyboard-target-origin': 'string',
       'math-virtual-keyboard-policy': 'string',
     };
@@ -2490,12 +2495,14 @@ function toCamelCase(s: string): string {
 function getOptionsFromAttributes(
   mfe: MathfieldElement
 ): Partial<MathfieldOptions> {
-  const result = { readOnly: false };
+  const result: Partial<MathfieldOptions> = { readOnly: false };
   const attribs = MathfieldElement.optionsAttributes;
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {
       const value = mfe.getAttribute(x);
-      if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
+
+      if (x === 'placeholder') result.contentPlaceholder = value ?? '';
+      else if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
       else if (attribs[x] === 'on/off') {
         if (value === 'on') result[toCamelCase(x)] = true;
         else if (value === 'off') result[toCamelCase(x)] = false;
