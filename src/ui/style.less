@@ -1,130 +1,147 @@
-
 @import 'colors/colors.less';
 
 :host {
   --ui-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
+  --ui-font-size: 14px;
+  --ui-line-height: 1.5;
+  --ui-letter-spacing: 0.007em;
 
   --mono-font-family: 'Berkeley Mono', 'JetBrains Mono', 'IBM Plex Mono',
     'Source Code Pro', Menlo, Monaco, 'Courier New', monospace;
 
---ui-layer-1: var(--neutral-100);
---ui-layer-2: var(--neutral-200);
---ui-layer-3: var(--neutral-300);
---ui-layer-4: var(--neutral-400);
---ui-layer-5: var(--neutral-500);
---ui-layer-6: var(--neutral-600);
+  --ui-layer-1: var(--neutral-100);
+  --ui-layer-2: var(--neutral-200);
+  --ui-layer-3: var(--neutral-300);
+  --ui-layer-4: var(--neutral-400);
+  --ui-layer-5: var(--neutral-500);
+  --ui-layer-6: var(--neutral-600);
 
---ui-border-color: var(--primary-color);
---ui-border-radius: 4px;
+  --ui-border-color: var(--primary-color);
+  --ui-border-radius: 4px;
 
---ui-text: var(--neutral-900);
---ui-text-secondary: var(--neutral-700);
---ui-text-placeholder: var(--neutral-500);
---ui-text-muted: var(--neutral-300);
+  --ui-text: var(--neutral-900);
+  --ui-text-secondary: var(--neutral-700);
+  --ui-text-placeholder: var(--neutral-500);
+  --ui-text-muted: var(--neutral-300);
 
-/** A field is a UI element in which a user can type data, for
+  /** A field is a UI element in which a user can type data, for
   * example an input or textarea element.
   */
---ui-field-bg: var(--neutral-100);
---ui-field-bg-hover: var(--neutral-100);
---ui-field-bg-disabled: var(--neutral-300);
---ui-field-bg-invalid: var(--red-100);
---ui-field-bg-focus: var(--neutral-100);
+  --ui-field-bg: var(--neutral-100);
+  --ui-field-bg-hover: var(--neutral-100);
+  --ui-field-bg-disabled: var(--neutral-300);
+  --ui-field-bg-invalid: var(--red-100);
+  --ui-field-bg-focus: var(--neutral-100);
 
---ui-field-border: .5px solid var(--border-color);
---ui-field-border-hover: .5px solid var(--border-color);
---ui-field-border-disabled: .5px solid var(--border-color);
---ui-field-border-invalid: .5px solid var(--border-color);
---ui-field-border-focus: .5px solid var(--border-color);
+  --ui-field-border: 0.5px solid var(--border-color);
+  --ui-field-border-hover: 0.5px solid var(--border-color);
+  --ui-field-border-disabled: 0.5px solid var(--border-color);
+  --ui-field-border-invalid: 0.5px solid var(--border-color);
+  --ui-field-border-focus: 0.5px solid var(--border-color);
 
+  --ui-menu-bg: var(--neutral-100);
+  --ui-menu-text: var(--neutral-900);
 
---ui-menu-bg: var(--neutral-100);
---ui-menu-text: var(--neutral-900);
+  --ui-menu-bg-hover: var(--neutral-200);
+  --ui-menu-text-hover: var(--neutral-900);
 
---ui-menu-bg-hover: var(--neutral-200);
---ui-menu-text-hover: var(--neutral-900);
-
-/** The `active` state is used for the state of menu items
+  /** The `active` state is used for the state of menu items
   * when they are selected.
   */
---ui-menu-bg-active: var(--primary-color);
---ui-menu-text-active: var(--primary-color-reverse);
+  --ui-menu-bg-active: var(--primary-color);
+  --ui-menu-text-active: var(--primary-color-reverse);
 
-/** The `active-muted` set is used for the state of
+  /** The `active-muted` set is used for the state of
   * submenus when they are open.
   */
---ui-menu-bg-active-muted: var(--neutral-300);
---ui-menu-text-active-muted: var(--neutral-900);
+  --ui-menu-bg-active-muted: var(--neutral-300);
+  --ui-menu-text-active-muted: var(--neutral-900);
 
-/* --ui-menu-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.302),
+  /* --ui-menu-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.302),
 0 2px 6px 2px rgba(60, 64, 67, 0.149); */
 
---ui-menu-shadow: 0 0 2px rgba(0, 0, 0, .5), 0 0 20px rgba(0, 0, 0, .2);
+  --ui-menu-shadow: 0 0 2px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.2);
 
---ui-menu-divider: .5px solid #c7c7c7; /* var(--neutral-300); */
+  --ui-menu-divider: 0.5px solid #c7c7c7; /* var(--neutral-300); */
 
---ui-menu-z-index: 10000;
+  --ui-menu-z-index: 10000;
 
---page-bg: var(--neutral-100);
---content-bg: var(--neutral-200);
+  --page-bg: var(--neutral-100);
+  --content-bg: var(--neutral-200);
 }
-
 
 @media (prefers-color-scheme: dark) {
   :host {
     --ui-menu-bg: var(--neutral-200);
   }
-
 }
 
 /* PingFang SC is a macOS font. Microsoft Yahei is a Windows font. 
   Noto  is a Linux/Android font.
 */
-:lang(zh-cn), :lang(zh-sg), :lang(zh-my), :lang(zh) {
-  --ui-font-family: -apple-system, system-ui, 
-    "PingFang SC", "Hiragino Sans GB",
-    "Noto Sans CJK SC", "Noto Sans SC", "Noto Sans", 
-    "Microsoft Yahei UI", "Microsoft YaHei New", "Microsoft Yahei",
-    "微软雅黑", SimSun, "宋体", STXihei, "华文细黑", sans-serif;
-  font-size: 24px;
-  line-height: 1.7;
+:lang(zh-cn),
+:lang(zh-sg),
+:lang(zh-my),
+:lang(zh) {
+  --ui-font-family: -apple-system, system-ui, 'PingFang SC', 'Hiragino Sans GB',
+    'Noto Sans CJK SC', 'Noto Sans SC', 'Noto Sans', 'Microsoft Yahei UI',
+    'Microsoft YaHei New', 'Microsoft Yahei', '微软雅黑', SimSun, '宋体',
+    STXihei, '华文细黑', sans-serif;
 }
 
-:lang(zh-tw), :lang(zh-hk), :lang(zh-mo){
-  --ui-font-family: -apple-system, system-ui, 
-    "Noto Sans",
-    "Microsoft JhengHei UI", "Microsoft JhengHei", 
-    "微軟正黑體", "新細明體", "PMingLiU", "細明體", "MingLiU", sans-serif;
-  font-size: 24px;
-  line-height: 1.7;
+:lang(zh-tw),
+:lang(zh-hk),
+:lang(zh-mo) {
+  --ui-font-family: -apple-system, system-ui, 'Noto Sans',
+    'Microsoft JhengHei UI', 'Microsoft JhengHei', '微軟正黑體', '新細明體',
+    'PMingLiU', '細明體', 'MingLiU', sans-serif;
 }
 
-:lang(ja), :lang(ja-jp), :lang(ja-jp-mac){
-  --ui-font-family: -apple-system, system-ui, 
-    "Hiragino Sans", "Hiragino Kaku Gothic ProN", 
-    "Noto Sans CJK JP", "Noto Sans JP", "Noto Sans", 
-    "游ゴシック", "游ゴシック体", YuGothic, "Yu Gothic", "メイリオ", Meiryo,
-    "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
-  font-size: 24px;
-  line-height: 1.7;
+:lang(ja),
+:lang(ja-jp),
+:lang(ja-jp-mac) {
+  --ui-font-family: -apple-system, system-ui, 'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Noto Sans JP', 'Noto Sans',
+    '游ゴシック', '游ゴシック体', YuGothic, 'Yu Gothic', 'メイリオ', Meiryo,
+    'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
 }
 
-:lang(ko), :lang(ko-kr), :lang(ko-kr-std){
-  --ui-font-family: -apple-system, system-ui, 
-    "Noto Sans CJK KR", "Noto Sans KR", "Noto Sans", 
-    "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", 
-    "애플 SD 산돌고딕 Neo", "Apple SD 산돌고딕 Neo", 
-    "돋움", Dotum, sans-serif;
-  font-size: 24px;
-  line-height: 1.7;
+:lang(ko),
+:lang(ko-kr),
+:lang(ko-kr-std) {
+  --ui-font-family: -apple-system, system-ui, 'Noto Sans CJK KR', 'Noto Sans KR',
+    'Noto Sans', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo',
+    '애플 SD 산돌고딕 Neo', 'Apple SD 산돌고딕 Neo', '돋움', Dotum, sans-serif;
 }
 
-:lang(ko-kr-apple){
-  --ui-font-family: -apple-system, system-ui, 
-    "Noto Sans CJK KR", "Noto Sans KR", "Noto Sans", 
-    "Apple SD Gothic Neo", "애플 SD 산돌고딕 Neo", "Apple SD 산돌고딕 Neo", 
-    "돋움", Dotum, sans-serif;
-  font-size: 24px;
-  line-height: 1.7;
+:lang(ko-kr-apple) {
+  --ui-font-family: -apple-system, system-ui, 'Noto Sans CJK KR', 'Noto Sans KR',
+    'Noto Sans', 'Apple SD Gothic Neo', '애플 SD 산돌고딕 Neo',
+    'Apple SD 산돌고딕 Neo', '돋움', Dotum, sans-serif;
+}
+
+:lang(zh-cn),
+:lang(zh-sg),
+:lang(zh-my),
+:lang(zh),
+:lang(zh-tw),
+:lang(zh-hk),
+:lang(zh-mo),
+:lang(ja),
+:lang(ja-jp),
+:lang(ja-jp-mac),
+:lang(ko),
+:lang(ko-kr),
+:lang(ko-kr-std),
+:lang(ko-kr-apple) {
+  --ui-font-size: 1rem;
+  --ui-line-height: 1.7;
+  --ui-letter-spacing: 0;
+}
+
+:dir(rtl) {
+  --ui-line-height: auto;
+  --ui-letter-spacing: 0;
 }

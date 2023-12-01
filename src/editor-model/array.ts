@@ -412,7 +412,9 @@ export function setEnvironment(
       break;
   }
 
-  const arrayAtom = model.parentEnvironment!;
+  const atom = model.at(model.position);
+  const arrayAtom =
+    atom.type === 'array' ? (atom as ArrayAtom) : model.parentEnvironment!;
   arrayAtom.environmentName = environment;
   arrayAtom.leftDelim = leftDelim;
   arrayAtom.rightDelim = rightDelim;

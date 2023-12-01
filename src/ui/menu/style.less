@@ -24,7 +24,7 @@
  */
 :where(.ui-menu-container) {
   position: absolute;
-  overflow: visible;    // Important: Needed for the submenu to overflow the parent
+  overflow: visible; // Important: Needed for the submenu to overflow the parent
   width: auto;
   height: auto;
   z-index: 10000;
@@ -72,9 +72,9 @@
   color: inherit;
 
   font-family: var(--ui-font-family);
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0.007em;
+  font-size: var(--ui-font-size);
+  line-height: var(--ui-line-height);
+  letter-spacing: var(--ui-letter-spacing);
 }
 
 :where(.ui-menu-container > li > .label) {
@@ -87,10 +87,24 @@
   overflow: visible;
   border: 1px solid transparent;
   white-space: nowrap;
+  text-align: start;
+}
+
+:where(.ui-menu-container > li:has(.heading)) {
+  margin-top: 0.5em;
+}
+
+:where(.ui-menu-container > li > .label.heading) {
+  font-weight: bold;
+  opacity: 0.4;
+}
+
+:where(.ui-menu-container > li.indent > .label) {
+  margin-inline-start: 12px;
 }
 
 :where(.ui-menu-container > li > .label.indent) {
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 
 :where(.ui-menu-container > li[role='divider']) {
@@ -120,7 +134,7 @@
 }
 
 :where(.ui-menu-container > li[aria-haspopup='true'] > .label) {
-  padding-right: 0;
+  padding-inline-end: 0;
 }
 
 :where(.ui-menu-container > li[aria-haspopup='true'].active::after) {
@@ -128,20 +142,40 @@
 }
 
 /** Keyboard shortcut */
-.ui-menu-container > li > kbd {
+:where(.ui-menu-container > li > kbd) {
   font-family: var(--ui-font-family);
   opacity: 0.4;
 }
 
-.ui-right-chevron {
-  margin-left: 24px;
+:where(.ui-menu-container > li.active > kbd) {
+  opacity: 0.85;
+}
+
+.ui-trailing-chevron {
+  display: flex;
+  margin-inline-start: 24px;
   width: 10px;
   height: 10px;
   margin-bottom: 4px;
 }
+
+.ui-trailing-chevron:dir(rtl) {
+  transform: scaleX(-1);
+}
+
 .ui-checkmark {
-  margin-right: -11px;
-  margin-left: -4px;
+  display: flex;
+  margin-inline-end: -11px;
+  margin-inline-start: -4px;
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ui-mixedmark {
+  display: flex;
+  margin-inline-end: -11px;
+  margin-inline-start: -4px;
   margin-top: 2px;
   width: 16px;
   height: 16px;

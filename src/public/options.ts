@@ -423,6 +423,11 @@ export type EditingOptions = {
   placeholderSymbol: string;
 
   /**
+   * A LaTeX string displayed inside the mathfield when there is no content.
+   */
+  contentPlaceholder: string;
+
+  /**
    * If `"auto"` a popover with suggestions may be displayed when a LaTeX
    * command is input.
    *

@@ -149,6 +149,7 @@ export function getDefault(): Required<_MathfieldOptions> {
     removeExtraneousParentheses: true,
     mathModeSpace: '',
     placeholderSymbol: '▢',
+    contentPlaceholder: '',
     popoverPolicy: 'auto',
     environmentPopoverPolicy: 'off',
 

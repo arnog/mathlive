@@ -22,6 +22,7 @@ import {
   VirtualKeyboardOptions,
 } from '../public/virtual-keyboard';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { InsertOptions } from 'public/mathfield';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -62,7 +63,7 @@ function latexToMarkup(latex: string): string {
     )
   );
 
-  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__latex' }).toMarkup();
 }
 
 function normalizeLayer(
@@ -607,9 +608,9 @@ function makeLayer(
   if (layer.container) layerMarkup += `<div class='${layer.container}'>`;
 
   if (layer.rows) {
-    layerMarkup += `<div class='MLK__rows'>`;
+    layerMarkup += `<div class=MLK__rows>`;
     for (const row of layer.rows) {
-      layerMarkup += `<div dir='ltr' class=row>`;
+      layerMarkup += `<div dir='ltr' class=MLK__row>`;
       for (const keycap of row) {
         if (keycap) {
           const keycapId = keyboard.registerKeycap(keycap);
@@ -1190,8 +1191,7 @@ function handleVirtualKeyboardEvent(controller) {
                 scrollIntoView: true,
                 mode: 'math',
                 format: 'latex',
-                resetStyle: true,
-              },
+              } as InsertOptions,
             ]);
           } else executeKeycapCommand(keycap.shift);
         } else executeKeycapCommand(keycap);
@@ -1221,8 +1221,7 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
-      },
+      } as InsertOptions,
     ];
   }
   if (!command && keycap.key) {
@@ -1243,8 +1242,7 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
-      },
+      } as InsertOptions,
     ];
   }
   if (!command) {

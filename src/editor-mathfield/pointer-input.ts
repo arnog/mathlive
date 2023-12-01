@@ -171,7 +171,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
       }
 
       // Reset any user-specified style
-      mathfield.style = {};
+      mathfield.defaultStyle = {};
       // `evt.detail` contains the number of consecutive clicks
       // for double-click, triple-click, etc...
       // (note that `evt.detail` is not set when using pointerEvent)
@@ -312,7 +312,9 @@ export function offsetFromPoint(
   //
   // 1/ Check if we're inside the mathfield bounding box
   //
-  const bounds = mathfield.fieldContent?.getBoundingClientRect();
+  const bounds = mathfield.field
+    .querySelector('.ML__latex')!
+    .getBoundingClientRect();
   if (!bounds) return 0;
   if (x > bounds.right || y > bounds.bottom + 8)
     return mathfield.model.lastOffset;

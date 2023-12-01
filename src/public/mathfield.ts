@@ -66,7 +66,6 @@ export type InsertOptions = {
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
   silenceNotifications?: boolean;
-  style?: Style;
   /** If `true`, the mathfield will be focused after
    * the insertion
    */
@@ -78,11 +77,8 @@ export type InsertOptions = {
    * insertion point is visible
    */
   scrollIntoView?: boolean;
-  /** If `true`, the style after the insertion
-   * is the same as the style before. If false, the style after the
-   * insertion is the style of the last inserted atom.
-   */
-  resetStyle?: boolean;
+
+  style?: Style;
 };
 
 export type ApplyStyleOptions = {

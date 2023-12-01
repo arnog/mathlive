@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-US">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Smoke Test</title>
@@ -55,8 +55,8 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf" name="formula">
-        1+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+      <math-field id="mf" name="formula" placeholder="f(x) =">
+        \lim_{x\to0}
       </math-field>
 
       <!-- <math-field id="mf"
@@ -211,14 +211,8 @@
       //   'alphabetic',
       // ];
 
-      const mf2 = new MathfieldElement();
-      mf2.readonly = true;
-      mf2.value = "f(x) := x^2";
-      document.getElementById("container").appendChild(mf2);
-
-      mf2.style.userSelect = "none";
-
       const mf = document.getElementById("mf");
+      // MathfieldElement.locale = "he";
 
       const menuItems = mf.menuItems;
       mf.menuItems = [];
@@ -352,7 +346,11 @@
           selection.direction +
           '"<br>' +
           label("depth     ") +
-          mf.getOffsetDepth(mf.position);
+          mf.getOffsetDepth(mf.position) +
+          '"<br>' +
+          label("queryStyle") +
+          mf.queryStyle({ color: "red" });
+        // mf.queryStyle({ variant: "double-struck" });
       });
 
       document.getElementById("grow").addEventListener("click", () => {
@@ -510,7 +508,7 @@
                           overflow-x: unset;
                         }
 
-                        ${extraSpecificity} .MLK__rows .row {
+                        ${extraSpecificity} .MLK__rows .MLK__row {
                           justify-content: flex-start;
                         }
 

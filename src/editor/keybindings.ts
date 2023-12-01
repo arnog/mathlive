@@ -37,7 +37,7 @@ function matchPlatform(p: string): boolean {
  *
  */
 export function getCommandForKeybinding(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   mode: ParseMode,
   evt: KeyboardEvent
 ): Selector | [Selector, ...any[]] | '' {
@@ -84,7 +84,7 @@ function commandToString(command: string | Selector | string[]): string {
 }
 
 export function getKeybindingsForCommand(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   command: string
 ): string[] {
   let result: string[] = [];

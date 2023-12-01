@@ -35,7 +35,7 @@ function latexToMarkup(mf: _Mathfield, latex: string): string {
     )
   );
 
-  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__latex' }).toMarkup();
 }
 
 export function showSuggestionPopover(

@@ -13,12 +13,14 @@ export function onContextMenu(
   // was triggered
   //
   if (event.type === 'contextmenu') {
+    // If no items visible, don't show anything
+    if (!menu.visible) return false;
+
     const evt = event as MouseEvent;
     onTrigger?.();
     menu.show({
       target: target,
       location: { x: Math.round(evt.clientX), y: Math.round(evt.clientY) },
-      modifiers: keyboardModifiersFromEvent(evt),
     });
     event.preventDefault();
     event.stopPropagation();
@@ -35,6 +37,10 @@ export function onContextMenu(
       // Get the center of the parent
       const bounds = target?.getBoundingClientRect();
       if (bounds) {
+        // If no items visible, don't show anything
+        const modifiers = keyboardModifiersFromEvent(event);
+        menu.update(modifiers);
+        if (!menu.visible) return false;
         onTrigger?.();
         menu.show({
           target: target,
@@ -42,7 +48,6 @@ export function onContextMenu(
             x: Math.round(bounds.left + bounds.width / 2),
             y: Math.round(bounds.top + bounds.height / 2),
           },
-          modifiers: keyboardModifiersFromEvent(evt),
         });
         event.preventDefault();
         event.stopPropagation();
@@ -62,11 +67,15 @@ export function onContextMenu(
     if (!eventTarget) return false;
 
     const pt = eventLocation(event);
-    const modifiers = keyboardModifiersFromEvent(event);
     onLongPress(event, () => {
+      // If no items visible, don't show anything
+      const modifiers = keyboardModifiersFromEvent(event);
+      menu.update(modifiers);
+      if (!menu.visible) return;
+
       if (menu.state !== 'closed') return;
       onTrigger?.();
-      menu.show({ target: target, location: pt, modifiers });
+      menu.show({ target: target, location: pt });
     });
     return true;
   }

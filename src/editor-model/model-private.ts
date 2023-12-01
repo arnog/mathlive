@@ -159,24 +159,24 @@ export class ModelPrivate implements Model {
             this._anchor = this.normalizeOffset(pos - 1);
             this._position = this._anchor;
             this._selection = this.normalizeSelection(this._anchor);
-            return true;
+            return;
           }
 
           if (this.at(pos + 1)?.parentPrompt) {
             this._anchor = this.normalizeOffset(pos + 1);
             this._position = this._anchor;
             this._selection = this.normalizeSelection(this._anchor);
-            return true;
+            return;
           }
           this._anchor = 0;
           this._position = 0;
           this._selection = { ranges: [[0, 0]] };
-          return false;
+          return;
         }
         this._anchor = pos;
         this._position = pos;
         this._selection = value;
-        return false;
+        return;
       }
 
       //
@@ -206,7 +206,7 @@ export class ModelPrivate implements Model {
         this._selection = { ranges: [selRange], direction: value.direction };
 
       console.assert(this._position >= 0 && this._position <= this.lastOffset);
-      return false;
+      return;
     });
   }
 
@@ -814,6 +814,8 @@ export class ModelPrivate implements Model {
     this.silenceNotifications = save;
   }
   selectionDidChange(): void {
+    // The mathfield could be undefined if the mathfield was disposed
+    // while the selection was changing
     if (!this.mathfield) return;
     if (window.mathVirtualKeyboard.visible)
       window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
@@ -821,8 +823,6 @@ export class ModelPrivate implements Model {
     if (this.silenceNotifications) return;
     const save = this.silenceNotifications;
     this.silenceNotifications = true;
-    // The mathfield could be undefined if the mathfield was disposed
-    // while the selection was changing
     this.mathfield.onSelectionDidChange();
     this.silenceNotifications = save;
   }

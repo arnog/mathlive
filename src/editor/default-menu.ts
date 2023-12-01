@@ -1,15 +1,16 @@
-import { MenuItem } from '../ui/menu/types';
+import { MenuItem } from '../public/menu-types';
 import { convertLatexToMarkup } from 'public/mathlive-ssr';
 import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
 import { _Mathfield } from './mathfield';
 import { setEnvironment } from 'editor-model/array';
-import { TabularEnvironment, VariantStyle } from 'public/core-types';
+import { TabularEnvironment, Variant, VariantStyle } from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
 import { removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
 import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
+import { contrast } from 'ui/colors/utils';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
@@ -52,46 +53,11 @@ function validVariantStyleSelection(
 
 function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
   return [
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathbb{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Blackboard',
-      visible: () => validVariantAtom(mf, 'double-struck'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'double-struck' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathfrak{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Fraktur',
-      visible: () => validVariantAtom(mf, 'fraktur'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'fraktur' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathcal{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Caligraphic',
-      visible: () => validVariantAtom(mf, 'calligraphic'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variant: 'calligraphic' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathrm{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Roman Upright',
-      visible: () => validVariantStyleSelection(mf, 'up'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variantStyle: 'up' }, { operation: 'toggle' }),
-    },
-    {
-      label: () =>
-        convertLatexToMarkup(`\\mathbf{${getSelectionPlainString(mf)}}`),
-      tooltip: 'Bold',
-      visible: () => validVariantStyleSelection(mf, 'bold'),
-      onMenuSelect: () =>
-        mf.applyStyle({ variantStyle: 'bold' }, { operation: 'toggle' }),
-    },
+    variantMenuItem(mf, 'double-struck', 'mathbb', 'Blackboard'),
+    variantMenuItem(mf, 'fraktur', 'mathfrak', 'Fraktur'),
+    variantMenuItem(mf, 'calligraphic', 'mathcal', 'Caligraphic'),
+    variantStyleMenuItem(mf, 'up', 'mathrm', 'Roman Upright'),
+    variantStyleMenuItem(mf, 'bold', 'mathbf', 'Bold'),
   ];
 }
 
@@ -228,15 +194,18 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(BACKGROUND_COLORS)) {
     result.push({
-      class: 'menu-swatch',
+      class:
+        (contrast(BACKGROUND_COLORS[color]) === '#000'
+          ? 'dark-contrast'
+          : 'light-contrast') + ' menu-swatch',
       label: `<span style="background:${BACKGROUND_COLORS[color]} "></span>`,
+      checked: () =>
+        ({ some: 'mixed', all: true })[
+          mf.queryStyle({ backgroundColor: color }) ?? false
+        ],
       onMenuSelect: () => {
-        if (mf.model.selectionIsCollapsed) {
-          if (mf.style.backgroundColor === color)
-            mf.style.backgroundColor = undefined;
-          else mf.style.backgroundColor = color;
-        } else
-          mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
+        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
+        mf.adoptStyle = 'none';
       },
     });
   }
@@ -247,13 +216,19 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(FOREGROUND_COLORS)) {
     result.push({
-      class: 'menu-swatch',
+      class:
+        (contrast(FOREGROUND_COLORS[color]) === '#000'
+          ? 'dark-contrast'
+          : 'light-contrast') + ' menu-swatch',
       label: `<span style="background:${FOREGROUND_COLORS[color]} "></span>`,
+      type: 'radio',
+      group: 'color',
+
+      checked: () =>
+        ({ some: 'mixed', all: true })[mf.queryStyle({ color }) ?? false],
       onMenuSelect: () => {
-        if (mf.model.selectionIsCollapsed) {
-          if (mf.style.color === color) mf.style.color = undefined;
-          else mf.style.color = color;
-        } else mf.applyStyle({ color: color }, { operation: 'toggle' });
+        mf.applyStyle({ color }, { operation: 'toggle' });
+        mf.adoptStyle = 'none';
       },
     });
   }
@@ -309,19 +284,19 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: localize('menu.array.add row above'),
+      label: () => localize('menu.array.add row above')!,
       id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.add row below'),
+      label: () => localize('menu.array.add row below')!,
       id: 'add-row-below',
       onMenuSelect: () => mf.executeCommand('addRowAfter'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.add column before'),
+      label: () => localize('menu.array.add column before')!,
       id: 'add-column-before',
       onMenuSelect: () => mf.executeCommand('addColumnBefore'),
       visible: () => inMatrix(mf),
@@ -333,36 +308,36 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       },
     },
     {
-      label: localize('menu.array.add column after'),
+      label: () => localize('menu.array.add column after')!,
       id: 'add-column-after',
       onMenuSelect: () => mf.executeCommand('addColumnAfter'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.delete row'),
+      type: 'divider',
+    },
+    {
+      label: () => localize('menu.array.delete row')!,
       id: 'delete-row',
       onMenuSelect: () => mf.executeCommand('removeRow'),
       visible: () => inMatrix(mf),
     },
     {
-      label: localize('menu.array.delete column'),
+      label: () => localize('menu.array.delete column')!,
       id: 'delete-column',
       onMenuSelect: () => mf.executeCommand('removeColumn'),
       visible: () => inMatrix(mf),
     },
+    {
+      type: 'divider',
+    },
 
     {
-      label: 'Insert Matrix',
-      id: 'insert-matrix',
-      containerClass: 'menu-container-insert-matrix',
-      visible: () => mf.isSelectionEditable,
-      submenu: getInsertMatrixSubmenu(mf),
-    },
-    {
-      label: 'Borders',
+      label: () => localize('menu.borders')!,
       containerClass: 'menu-container-border',
-      visible: () => inMatrix(mf) && mf.isSelectionEditable,
-      type: 'group',
+      visible: () =>
+        (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
+      type: 'submenu',
       submenu: [
         {
           label: ' ⋱ ',
@@ -393,6 +368,13 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       type: 'divider',
+    },
+    {
+      label: () => localize('menu.insert matrix')!,
+      id: 'insert-matrix',
+      containerClass: 'menu-container-insert-matrix',
+      visible: () => mf.isSelectionEditable,
+      submenu: getInsertMatrixSubmenu(mf),
     },
     {
       label: 'Insert Text',
@@ -429,6 +411,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Color',
       id: 'color',
       containerClass: 'menu-container-swatches',
+      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getColorSubmenu(mf),
     },
@@ -436,6 +419,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Background Color',
       id: 'background-color',
       containerClass: 'menu-container-swatches',
+      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
     },
@@ -553,19 +537,18 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'copy',
       submenu: [
         {
-          label: ({ modifiers }) =>
-            modifiers?.alt ? 'COPY LATEX' : 'Copy LaTeX',
+          label: 'Copy as LaTeX',
           id: 'copy-latex',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
           keyboardShortcut: 'meta+C',
         },
         {
-          label: 'Copy ASCII Math',
+          label: 'Copy as ASCII Math',
           id: 'copy-ascii-math',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),
         },
         {
-          label: 'Copy MathML',
+          label: 'Copy as MathML',
           id: 'copy-math-ml',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'math-ml'),
         },
@@ -576,7 +559,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: 'Paste',
       id: 'paste',
       onMenuSelect: () => mf.executeCommand('pasteFromClipboard'),
-      visible: () => !mf.options.readOnly,
+      visible: () => mf.hasEditableContent,
       keyboardShortcut: 'meta+V',
     },
     {
@@ -590,6 +573,10 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 
 function inMatrix(mf: _Mathfield): boolean {
   return !!mf.model.parentEnvironment?.array;
+}
+
+function isMatrixSelected(mf: _Mathfield): boolean {
+  return mf.model.at(mf.model.position).type === 'array';
 }
 
 function shape(mf: _Mathfield): [number, number] {
@@ -627,4 +614,44 @@ function evaluate(mf: _Mathfield): string {
   if (result.isSame(expr)) result = expr.N();
 
   return result.latex;
+}
+
+function variantMenuItem(
+  mf: _Mathfield,
+  variant: Variant,
+  command: string,
+  tooltip: string
+): MenuItem {
+  return {
+    label: () =>
+      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    tooltip,
+    visible: () => validVariantAtom(mf, variant),
+    checked: () =>
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variant }) ?? false],
+    onMenuSelect: () => {
+      mf.applyStyle({ variant }, { operation: 'toggle' });
+      mf.adoptStyle = 'none';
+    },
+  };
+}
+
+function variantStyleMenuItem(
+  mf: _Mathfield,
+  variantStyle: VariantStyle,
+  command: string,
+  tooltip: string
+): MenuItem {
+  return {
+    label: () =>
+      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    tooltip,
+    visible: () => validVariantStyleSelection(mf, variantStyle),
+    checked: () =>
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle }) ?? false],
+    onMenuSelect: () => {
+      mf.applyStyle({ variantStyle }, { operation: 'toggle' });
+      mf.adoptStyle = 'none';
+    },
+  };
 }

@@ -1,190 +1,155 @@
-import { KeyboardModifiers } from 'ui/events/types';
-import { keyboardModifiersFromEvent } from 'ui/events/utils';
-import { MenuList } from './menu-list';
+import { KeyboardModifiers } from 'public/events-types';
+import { _MenuListState } from './menu-list';
 import {
-  DynamicBoolean,
-  DynamicString,
-  MenuInterface,
-  MenuItemInterface,
   MenuItem,
-  MenuSelectEvent,
+  MenuSelectEventDetail,
   MenuItemType,
-} from './types';
+  DynamicValue,
+  MenuItemProps,
+} from '../../public/menu-types';
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
+import { MenuItemState, MenuListState } from './private-types';
+import { getEdge } from 'ui/geometry/utils';
+import { getComputedDir } from 'ui/i18n/utils';
 
 const BLINK_SPEED = 80;
 
 /**
- * A single menu item.
  *
- * Menu items are grouped in a menulist, which can be a root menu or a submenu.
+ * A menu item is described by a `MenuItem<T>` object.
  *
+ * The MenuItemState object keeps track of the current state of
+ * the menu item (checked, current label given modifiers, etc...)
+ *
+ * Menu items are grouped in a menulist, which can be a root menu
+ * or a submenu.
+ *
+ * @internal
  */
-export class _MenuItem<T> implements MenuItemInterface {
-  parentMenu: MenuInterface;
+export class _MenuItemState<T> implements MenuItemState<T> {
+  parentMenu: MenuListState;
+
   /** If this menu _type is 'submenu' */
-  submenu?: MenuList;
+  submenu?: _MenuListState;
+
+  _template: MenuItem<T>;
 
   _type: MenuItemType;
-  _label?: string;
+
+  _label: string;
+  _ariaLabel?: string;
+  _ariaDetails?: string;
+  _tooltip: string | undefined;
+
   _enabled: boolean;
   _visible: boolean;
-
-  _keyboardShortcut?: string;
-
-  _class?: string;
-
-  id?: string;
-  data?: T;
-
-  ariaLabel?: string;
-  ariaDetails?: string;
-  checked: boolean;
-  onMenuSelect?: (props: {
-    modifiers: KeyboardModifiers;
-    label?: string;
-    id?: string;
-    data?: T;
-    element?: HTMLElement | null;
-  }) => void;
+  _checked: boolean | 'mixed';
 
   /** The DOM element the menu item is rendered as */
   _element: HTMLElement | null = null;
 
-  constructor(
-    template: MenuItem<T>,
-    parentMenu: MenuInterface,
-    modifiers?: KeyboardModifiers
-  ) {
+  _abortController: AbortController;
+
+  constructor(template: MenuItem<T>, parentMenu: MenuListState) {
     this.parentMenu = parentMenu;
 
-    this._visible =
-      evalToBoolean(template, template.visible, modifiers) ?? true;
-    this._enabled =
-      evalToBoolean(template, template.enabled, modifiers) ?? true;
-    this.checked =
-      evalToBoolean(template, template.checked, modifiers) ?? false;
+    this._abortController = new AbortController();
 
-    this._class = template.class;
-    this._keyboardShortcut = template.keyboardShortcut;
+    this._template = template;
 
-    this.id = template.id;
-    this._label = evalToString(template, template.label, modifiers);
-    this.ariaLabel = evalToString(template, template.ariaLabel, modifiers);
-    this.ariaDetails = evalToString(template, template.ariaDetails, modifiers);
-    if (typeof template.onMenuSelect === 'function')
-      this.onMenuSelect = template.onMenuSelect;
-
-    this.data = template.data;
-
-    if (Array.isArray(template.submenu)) {
+    if (template.submenu) {
       this._type = 'submenu';
-      this.submenu = new MenuList(template.submenu, {
+      this.submenu = new _MenuListState(template.submenu, {
         parentMenu,
         containerClass: template.containerClass,
       });
-      this.submenu.updateMenu(modifiers);
     } else if (template.type === undefined && template.checked !== undefined)
       this._type = 'checkbox';
     else this._type = template.type ?? 'command';
   }
+
+  dispose(): void {
+    this._abortController.abort();
+    this._element?.remove();
+    this._element = null;
+    if (this.submenu) this.submenu.dispose();
+  }
+
+  get menuItem(): MenuItem<T> {
+    return this._template;
+  }
+
   get type(): MenuItemType {
     return this._type;
   }
 
   get label(): string {
-    return this._label ?? this.ariaLabel ?? '';
+    return this._label ?? '';
+  }
+  set label(value: string | undefined) {
+    if (value === undefined) value = '';
+    if (value === this._label) return;
+    this._label = value;
+    this.dirty = true;
   }
 
   get visible(): boolean {
     return this._visible;
   }
   set visible(value: boolean) {
+    if (value === this._visible) return;
     this._visible = value;
-    if (this.element) this.element.hidden = !value;
+    // This could cause the parent menu to no longer be visible,
+    // so dirty it so the dirty state can propagate up
+    this.dirty = true;
   }
 
   get enabled(): boolean {
     return this._enabled;
   }
-
-  get items(): MenuItemInterface[] | undefined {
-    if (this.type === 'submenu' && this.submenu) return this.submenu.items;
-    return undefined;
+  set enabled(value: boolean) {
+    this._enabled = value;
+    if (this.element) {
+      // We can modify the state directly, so no need to dirty it
+      if (value) this.element.removeAttribute('aria-disabled');
+      else this.element.setAttribute('aria-disabled', 'true');
+    }
   }
 
-  private render(): HTMLElement | null {
-    if (!this.visible) return null;
+  get checked(): boolean | 'mixed' {
+    return this._checked;
+  }
+  set checked(value: boolean | 'mixed') {
+    this._checked = value;
+    this.dirty = true;
+  }
 
-    if (this.type === 'divider') {
-      const li = document.createElement('li');
-      if (this._class) li.className = this._class;
-      li.setAttribute('part', 'menu-divider');
-      li.setAttribute('role', 'divider');
-      return li;
-    }
+  get tooltip(): string | undefined {
+    return this._tooltip;
+  }
+  set tooltip(value: string | undefined) {
+    if (value === this._tooltip) return;
+    this._tooltip = value;
+    this.dirty = true;
+  }
 
-    if (
-      this.type !== 'command' &&
-      this.type !== 'submenu' &&
-      this.type !== 'radio' &&
-      this.type !== 'checkbox'
-    )
-      return null;
+  get ariaLabel(): string | undefined {
+    return this._ariaLabel;
+  }
+  set ariaLabel(value: string | undefined) {
+    if (value === this._ariaLabel) return;
+    this._ariaLabel = value;
+    this.dirty = true;
+  }
 
-    const li = document.createElement('li');
-    if (this._class) li.className = this._class;
-    li.setAttribute('part', 'menu-item');
-    li.setAttribute('tabindex', '-1');
-    if (this.type === 'radio') li.setAttribute('role', 'menuitemradio');
-    else if (this.type === 'checkbox')
-      li.setAttribute('role', 'menuitemcheckbox');
-    else li.setAttribute('role', 'menuitem');
-
-    if (this.checked) {
-      li.setAttribute('aria-checked', 'true');
-      li.append(icon('checkmark')!);
-    }
-
-    if (this.submenu) {
-      li.setAttribute('aria-haspopup', 'true');
-      li.setAttribute('aria-expanded', 'false');
-    }
-
-    if (this.ariaLabel) li.setAttribute('aria-label', this.ariaLabel);
-    if (this.ariaDetails) li.setAttribute('aria-details', this.ariaDetails);
-
-    if (!this.enabled) li.setAttribute('aria-disabled', 'true');
-    else {
-      li.addEventListener('pointerenter', this);
-      li.addEventListener('pointerleave', this);
-      li.addEventListener('pointerup', this);
-    }
-
-    const span = document.createElement('span');
-    span.innerHTML = this.label;
-    span.className =
-      this.parentMenu.hasCheckbox || this.parentMenu.hasRadio
-        ? 'label indent'
-        : 'label';
-    if (this.enabled) {
-      span.addEventListener('click', (ev: MouseEvent) => {
-        this.select(keyboardModifiersFromEvent(ev));
-      });
-    }
-
-    li.append(span);
-
-    if (this._keyboardShortcut) {
-      const kbd = document.createElement('kbd');
-      kbd.innerHTML = getKeybindingMarkup(this._keyboardShortcut);
-      li.append(kbd);
-    }
-
-    if (this.submenu) li.append(icon('chevron-right')!);
-
-    return li;
+  get ariaDetails(): string | undefined {
+    return this._ariaDetails;
+  }
+  set ariaDetails(value: string | undefined) {
+    if (value === this._ariaDetails) return;
+    this._ariaDetails = value;
+    this.dirty = true;
   }
 
   get active(): boolean {
@@ -193,48 +158,204 @@ export class _MenuItem<T> implements MenuItemInterface {
 
   set active(value: boolean) {
     if (!this.element) return;
+    // The active state is immediate, no need to dirty it
     if (value) this.element.classList.add('active');
     else this.element.classList.remove('active');
   }
 
+  get items(): MenuItemState[] | undefined {
+    return this.submenu?.items;
+  }
+
+  update(modifiers?: KeyboardModifiers): void {
+    const template = this._template;
+
+    if (template.type === 'divider') {
+      this.enabled = false;
+      this.checked = false;
+      return;
+    }
+
+    if (template.type === 'heading') {
+      this.enabled = false;
+      this.checked = false;
+      this.visible = true;
+    } else {
+      this.checked =
+        dynamicValue<boolean | 'mixed', T>(
+          template,
+          template.checked,
+          modifiers
+        ) ?? false;
+      this.enabled =
+        dynamicValue<boolean, T>(template, template.enabled, modifiers) ?? true;
+      this.visible =
+        dynamicValue<boolean, T>(template, template.visible, modifiers) ?? true;
+      if (this.visible && this.enabled && this.submenu) {
+        this.submenu.update(modifiers);
+        if (!this.submenu.visible) this.visible = false;
+      }
+    }
+
+    this.label = dynamicValue<string, T>(template, template.label, modifiers);
+    this.tooltip = dynamicValue<string, T>(
+      template,
+      template.tooltip,
+      modifiers
+    );
+    this.ariaLabel = dynamicValue<string, T>(
+      template,
+      template.ariaLabel,
+      modifiers
+    );
+    this.ariaDetails = dynamicValue<string, T>(
+      template,
+      template.ariaDetails,
+      modifiers
+    );
+
+    if (this._element) this.updateElement();
+  }
+
+  set dirty(value: boolean) {
+    console.assert(value === true);
+    if (value && this.parentMenu) this.parentMenu.dirty = true;
+  }
+
+  private updateElement(): void {
+    if (!this.visible || !this.element) return;
+
+    const li = this.element;
+    // Reset the content of the menu item
+    li.textContent = '';
+
+    if (!this.enabled) li.setAttribute('aria-disabled', 'true');
+    else li.removeAttribute('aria-disabled');
+
+    if (this.checked === true) {
+      li.setAttribute('aria-checked', 'true');
+      li.append(icon('checkmark')!);
+    } else if (this.checked === 'mixed') {
+      li.setAttribute('aria-checked', 'mixed');
+      li.append(icon('mixedmark')!);
+    } else li.removeAttribute('aria-checked');
+
+    //
+    // Create the label
+    //
+    if (this.ariaLabel) li.setAttribute('aria-label', this.ariaLabel);
+    if (this.ariaDetails) li.setAttribute('aria-details', this.ariaDetails);
+
+    const span = document.createElement('span');
+    span.className = this.parentMenu.hasCheck ? 'label indent' : 'label';
+
+    if (this.type === 'heading') span.classList.add('heading');
+
+    span.innerHTML = this.label;
+
+    li.append(span);
+
+    //
+    // Tooltip
+    //
+
+    if (this._tooltip) {
+      // li.setAttribute('title', this._tooltip);
+      li.setAttribute('data-tooltip', this._tooltip);
+    }
+
+    //
+    // Keyboard shortcut
+    //
+
+    if (this._template.keyboardShortcut) {
+      const kbd = document.createElement('kbd');
+      kbd.innerHTML = getKeybindingMarkup(this._template.keyboardShortcut);
+      li.append(kbd);
+    }
+
+    if (this.type === 'submenu') li.append(icon('trailing-chevron')!);
+  }
+
   get element(): HTMLElement | null {
     if (this._element) return this._element;
-    this._element = this.render();
+
+    if (this.type === 'divider') {
+      const li = document.createElement('li');
+      if (this._template.class) li.className = this._template.class;
+      li.setAttribute('part', 'menu-divider');
+      li.setAttribute('role', 'divider');
+
+      this._element = li;
+      return li;
+    }
+
+    const li = document.createElement('li');
+    this._element = li;
+    if (this._template.class) li.className = this._template.class;
+
+    li.setAttribute('part', 'menu-item');
+    li.setAttribute('tabindex', '-1');
+    if (this.type === 'radio') li.setAttribute('role', 'menuitemradio');
+    else if (this.type === 'checkbox')
+      li.setAttribute('role', 'menuitemcheckbox');
+    else li.setAttribute('role', 'menuitem');
+
+    if (this.type === 'submenu') {
+      li.setAttribute('aria-haspopup', 'true');
+      li.setAttribute('aria-expanded', 'false');
+    }
+
+    //
+    // Add event listeners
+    //
+    const signal = this._abortController.signal;
+    li.addEventListener('pointerenter', this, { signal });
+    li.addEventListener('pointerleave', this, { signal });
+    li.addEventListener('pointerup', this, { signal });
+    li.addEventListener('click', this, { signal });
+
     return this._element;
   }
 
-  /** Dispatch a menu-select event, and call the
+  /** Dispatch a `menu-select` event, and call the
    * `onMenuSelect()` hook if defined.
    */
-  dispatchSelect(modifiers?: KeyboardModifiers): void {
-    modifiers ??= { alt: false, control: false, shift: false, meta: false };
-
-    const ev = new CustomEvent<MenuSelectEvent>('menu-select', {
+  dispatchSelect(): void {
+    const ev = new CustomEvent<MenuSelectEventDetail>('menu-select', {
       cancelable: true,
       bubbles: true,
       detail: {
-        modifiers,
-        id: this.id,
+        modifiers: this.parentMenu.rootMenu.modifiers,
+        id: this._template.id,
         label: this.label,
-        data: this.data,
+        data: this._template.data,
         element: this.element ?? undefined,
       },
     });
 
     const notCanceled = this.parentMenu.dispatchEvent(ev);
 
-    if (notCanceled && typeof this.onMenuSelect === 'function') {
-      this.onMenuSelect({
-        modifiers,
+    if (notCanceled && typeof this._template.onMenuSelect === 'function') {
+      this._template.onMenuSelect({
+        modifiers: this.parentMenu.rootMenu.modifiers,
         label: this.label,
-        id: this.id,
-        data: this.data,
-        element: this.element,
+        id: this._template.id,
+        data: this._template.data,
       });
     }
   }
 
   handleEvent(event: Event): void {
+    if (!this.visible || !this.enabled) return;
+
+    if (event.type === 'click') {
+      this.select();
+      event.stopPropagation();
+      event.preventDefault();
+      return;
+    }
+
     if (event.type === 'pointerenter') {
       const ev = event as PointerEvent;
       this.parentMenu.rootMenu.cancelDelayedOperation();
@@ -248,27 +369,29 @@ export class _MenuItem<T> implements MenuItemInterface {
       ) {
         this.parentMenu.rootMenu.scheduleOperation(() => {
           this.parentMenu.activeMenuItem = this;
-          if (this.submenu) this.openSubmenu(keyboardModifiersFromEvent(ev));
+          this.openSubmenu();
         });
       } else {
         this.parentMenu.activeMenuItem = this;
-        if (this.submenu) {
-          this.openSubmenu(keyboardModifiersFromEvent(ev), {
-            withDelay: true,
-          });
-        }
+        this.openSubmenu({ withDelay: true });
       }
-    } else if (event.type === 'pointerleave') {
-      if (this.parentMenu.rootMenu.activeMenu === this.parentMenu)
+      return;
+    }
+
+    if (event.type === 'pointerleave') {
+      if (this.parentMenu.rootMenu.activeSubmenu === this.parentMenu)
         this.parentMenu.activeMenuItem = null;
-    } else if (event.type === 'pointerup') {
+      return;
+    }
+
+    if (event.type === 'pointerup') {
       // When modal, the items are activated on click,
       // so ignore mouseup
-      if (this.parentMenu.rootMenu.state !== 'modal')
-        this.select(keyboardModifiersFromEvent(event));
+      if (this.parentMenu.rootMenu.state !== 'modal') this.select();
 
       event.stopPropagation();
       event.preventDefault();
+      return;
     }
   }
 
@@ -277,11 +400,11 @@ export class _MenuItem<T> implements MenuItemInterface {
    * - either dismiss the menu and execute the command
    * - or display the submenu
    */
-  select(kbd?: KeyboardModifiers): void {
+  select(): void {
     this.parentMenu.rootMenu.cancelDelayedOperation();
 
-    if (this.submenu) {
-      this.openSubmenu(kbd);
+    if (this.type === 'submenu') {
+      this.openSubmenu();
       return;
     }
 
@@ -291,7 +414,7 @@ export class _MenuItem<T> implements MenuItemInterface {
       this.active = true;
       setTimeout(() => {
         this.parentMenu.rootMenu.hide();
-        this.dispatchSelect(kbd);
+        this.dispatchSelect();
       }, BLINK_SPEED);
     }, BLINK_SPEED);
   }
@@ -300,29 +423,29 @@ export class _MenuItem<T> implements MenuItemInterface {
    * Open the submenu of this menu item, with a delay if options.delay
    * This delay improves targeting of submenus with the mouse.
    */
-  openSubmenu(
-    modifiers?: KeyboardModifiers,
-    options?: { withDelay: boolean }
-  ): void {
-    if (!this.submenu || !this.element) return;
+  openSubmenu(options?: { withDelay: boolean }): void {
+    if (this.type !== 'submenu' || !this.element) return;
+
     if (options?.withDelay ?? false) {
-      this.parentMenu.rootMenu.scheduleOperation(() => {
-        this.openSubmenu(modifiers);
-      });
+      this.parentMenu.rootMenu.scheduleOperation(() => this.openSubmenu());
       return;
     }
 
     const bounds = this.element.getBoundingClientRect();
-    this.submenu.show({
+    const dir = getComputedDir(this.element);
+    this.submenu!.show({
       container: this.parentMenu.rootMenu.element!.parentNode!,
-      location: { x: bounds.right, y: bounds.top - 4 },
-      alternateLocation: { x: bounds.left, y: bounds.top - 4 },
-      modifiers: modifiers,
+      location: { x: getEdge(bounds, 'trailing', dir), y: bounds.top - 4 },
+      alternateLocation: {
+        x: getEdge(bounds, 'leading', dir),
+        y: bounds.top - 4,
+      },
     });
   }
 
   movingTowardSubmenu(ev: PointerEvent): boolean {
     if (!this.element) return false;
+    if (this.type !== 'submenu') return false;
     const lastEv = this.parentMenu.rootMenu.lastMoveEvent;
     if (!lastEv) return false;
 
@@ -351,41 +474,21 @@ export class _MenuItem<T> implements MenuItemInterface {
 
 function speed(dx: number, dy: number, dt: number): number {
   return Math.hypot(dx, dy) / dt;
-  // return Math.sqrt(dx * dx + dy * dy) / dt;
 }
 
-function evalToBoolean(
-  item: MenuItem,
-  value: DynamicBoolean | undefined,
+function dynamicValue<T, U>(
+  item: MenuItem<U>,
+  value: DynamicValue<T, U> | undefined,
   modifiers?: KeyboardModifiers
-): boolean | undefined {
-  if (typeof value === 'boolean') return value;
+): T | undefined {
+  if (value === undefined || typeof value !== 'function') return value;
+
   modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
-  if (typeof value === 'function') {
-    return value({
-      modifiers,
-      id: item.id,
-      data: item.data,
-    });
-  }
-  return undefined;
-}
-
-function evalToString(
-  item: MenuItem,
-  value: DynamicString | undefined,
-  modifiers?: KeyboardModifiers
-): string | undefined {
-  if (typeof value === 'string') return value;
-  modifiers ??= { alt: false, control: false, shift: false, meta: false };
-
-  if (typeof value === 'function') {
-    return value({
-      modifiers,
-      id: item.id,
-      data: item.data,
-    });
-  }
-  return undefined;
+  return (value as (props: MenuItemProps<U>) => T)({
+    modifiers,
+    id: item.id,
+    group: item.group,
+    data: item.data,
+  });
 }

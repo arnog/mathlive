@@ -1,6 +1,62 @@
 ## [Unreleased]
 
-## Improvements
+### Breaking Changes
+
+- The `setPromptContent()` method has been renamed to `setPromptValue()` for
+  consistency with the `getPromptValue()` method.
+- The `stripPromptContent()` method has been removed. Its functionality can
+  be achieved with:
+
+```js
+const prompts = mf.getPrompts();
+const values = prompts.map(id => mf.getPromptValue(id));
+prompts.forEach(id => mf.setPromptValue(id, ""));
+```
+
+### Improvements
+
+- A new `mf.getPromptRange()` method returns the selection range of a prompt.
+  This can be used for example to focus a mathfield and select a specific prompt:
+
+```js
+mf.focus();
+mf.selection = mf.getPromptRange(id);
+```
+
+- The Color, Background Color and Variant menus correctly toggle the colors 
+  and variant, and reflect their state with a checkmark or mixedmark.
+
+### New Features
+
+- **#348** Added a `placeholder` attribute, similar to the `placeholder`
+  attribute of a `<textarea>` element. This is a read-only attribute that
+  specifies a short hint as a LaTeX string that describes the expected value 
+  of the mathfield.
+  When the mathfield is empty, the placeholder text is displayed.
+  The placeholder text can be styled with the 
+  `math-field::part(placeholder)` CSS selector.
+
+### Bugs Fixed
+
+- **#2169** Changing the selection programatically will
+  now correctly update the mathfield.
+
+
+## 0.97.4 (2023-11-29)
+
+### Bugs Fixed
+
+- When a global `.row` class was defined, it would be applied to the virtual
+  keyboard rows, resulting in incorrect layout.
+
+### Improvements
+
+- Added `mf.queryStyle()` method to query the style of a selection or the
+  current style if no selection.
+
+## 0.97.3 (2023-11-28)
+
+### Improvements
 
 - The `mode-change` event is now dispatched more consistently when the mode
   changes.
@@ -9,14 +65,20 @@
   losing focus.
 - Changing the `user-select` CSS property before inserting the mathfield 
   in the DOM would not always be respected.
-- Use the Popover API when available, which should ensure menus are displayed on top of other elements.
-- Added support for accented characters in the virtual keyboard (press and hold a vowel on an alphabetic keyboard to get accented variants), including a modified AZERTY layout (shift+digits to get common accented characters).
+- Use the DOM Popover API when available, which should ensure menus are 
+  displayed on top of other elements more consistently.
+- Added support for accented characters in the virtual keyboard (press and 
+  hold a vowel on an alphabetic keyboard to get accented variants), 
+  including a modified AZERTY layout (<kbd>SHIFT</kbd>+digits to get common 
+  accented characters).
+- Improved rendering of the menu for CJK and LTR languages.
 
 ### Bugs Fixed
 
-- If there were multiple mathfield elements on the page, only
-  the last one would display tooltips.
-- **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank) would not move to the next prompt
+- If there were multiple mathfield elements on the page, only the last one 
+  would display tooltips.
+- **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank)
+   would not move to the next prompt
 - **#2183** The MathML serialization of factorial was incorrect.
 - **#2181** The MathML serialization of limits was incorrect.
 

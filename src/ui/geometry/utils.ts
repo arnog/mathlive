@@ -43,10 +43,10 @@ function getEffectivePos(
   if (placement === 'middle') return pos - length / 2;
 
   if (
-    (placement === 'start' && dir === 'ltr') ||
-    (placement === 'end' && dir === 'rtl') ||
+    (placement === 'start' && dir === 'rtl') ||
+    (placement === 'end' && dir === 'ltr') ||
     placement === 'top' ||
-    placement === 'left'
+    placement === 'right'
   )
     return Math.max(0, pos - length);
 
@@ -65,7 +65,7 @@ export function getOppositeEffectivePos(
     (placement === 'start' && dir === 'ltr') ||
     (placement === 'end' && dir === 'rtl') ||
     placement === 'top' ||
-    placement === 'left'
+    placement === 'right'
   )
     return pos;
 
@@ -98,7 +98,6 @@ export function fitInViewport(
   const dir = getComputedDir(element) ?? 'ltr';
 
   // Reset any location, so we can get the natural width/height
-  // element.style.display = 'unset';
   element.style.position = 'absolute';
   element.style.left = '';
   element.style.top = '';
@@ -108,8 +107,6 @@ export function fitInViewport(
   element.style.width = '';
 
   const elementBounds = element.getBoundingClientRect();
-
-  const computedStyle = getComputedStyle(element);
 
   //
   // Vertical positioning
@@ -187,7 +184,11 @@ export function fitInViewport(
 
   width = Math.min(left! + width, window.innerWidth - 8) - left!;
 
-  element.style.left = `${Math.ceil(left!).toString()}px`;
+  if (dir === 'rtl') {
+    element.style.right = `${Math.ceil(
+      window.innerWidth - left! - width
+    ).toString()}px`;
+  } else element.style.left = `${Math.ceil(left!).toString()}px`;
   element.style.top = `${Math.ceil(top!).toString()}px`;
   if (height !== elementBounds.height)
     element.style.height = `${Math.ceil(height).toString()}px`;

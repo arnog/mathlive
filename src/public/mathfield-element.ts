@@ -20,6 +20,7 @@ import type {
   Keybinding,
   MathfieldOptions,
 } from './options';
+import { MenuItem } from './menu-types';
 
 import {
   get as getOptions,
@@ -41,7 +42,6 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
-import { MenuItem } from '../ui/menu/types';
 
 export declare type Expression =
   | number
@@ -240,6 +240,10 @@ export interface MathfieldElementAttributes {
   'inline-shortcut-timeout': string;
 
   'script-depth': string;
+
+  /** When the mathfield is empty, display this placeholder LaTeX string
+   *  instead */
+  'placeholder': string;
 
   /**
    * - `"auto"`: the virtual keyboard is triggered when a
@@ -519,9 +523,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * If adding a 'boolean' attribute, add its default value to getOptionsFromAttributes
    * @internal
    */
-  static get optionsAttributes(): Record<
-    string,
-    'number' | 'boolean' | 'string' | 'on/off'
+  static get optionsAttributes(): Readonly<
+    Record<string, 'number' | 'boolean' | 'string' | 'on/off'>
   > {
     return {
       'default-mode': 'string',
@@ -537,6 +540,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'smart-superscript': 'on/off',
       'inline-shortcut-timeout': 'string',
       'script-depth': 'string',
+      'placeholder': 'string',
       'virtual-keyboard-target-origin': 'string',
       'math-virtual-keyboard-policy': 'string',
     };
@@ -546,7 +550,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * Custom elements lifecycle hooks
    * @internal
    */
-  static get observedAttributes(): string[] {
+  static get observedAttributes(): readonly string[] {
     return [
       ...Object.keys(this.optionsAttributes),
       'contenteditable', // Global attribute
@@ -670,12 +674,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * audio file in the `soundsDirectory` directory or `null` to suppress the sound.
    * @category Virtual Keyboard
    */
-  static get keypressSound(): {
+  static get keypressSound(): Readonly<{
     spacebar: null | string;
     return: null | string;
     delete: null | string;
     default: null | string;
-  } {
+  }> {
     return this._keypressSound;
   }
   static set keypressSound(
@@ -868,7 +872,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * options for the SRE engine are documented
    * {@link https://github.com/zorkow/speech-rule-engine | here}
    */
-  static get textToSpeechRulesOptions(): Record<string, string> {
+  static get textToSpeechRulesOptions(): Readonly<Record<string, string>> {
     return this._textToSpeechRulesOptions;
   }
   static set textToSpeechRulesOptions(value: Record<string, string>) {
@@ -925,7 +929,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   *
   * @category Localization
   */
-  static get strings(): Record<string, Record<string, string>> {
+  static get strings(): Readonly<Record<string, Record<string, string>>> {
     return l10n.strings;
   }
   static set strings(value: Record<string, Record<string, string>>) {
@@ -1265,6 +1269,35 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.getPromptValue(placeholderId, format) ?? '';
   }
 
+  /**
+   * @inheritdoc Mathfield.setPromptValue
+   * @category Prompts
+   * */
+  setPromptValue(
+    id: string,
+    content: string,
+    insertOptions: Omit<InsertOptions, 'insertionMode'>
+  ): void {
+    this._mathfield?.setPromptValue(id, content, insertOptions);
+  }
+
+  /**
+   * Return the selection range for the specified prompt.
+   *
+   * This can be used for example to select the content of the prompt.
+   *
+   * ```js
+   * mf.selection = mf.getPromptRange('my-prompt-id');
+   * ```
+   *
+   * @category Prompts
+   *
+   */
+
+  getPromptRange(id: string): Range | null {
+    return this._mathfield?.getPromptRange(id) ?? null;
+  }
+
   /** Return the id of the prompts matching the filter.
    * @category Prompts
    */
@@ -1344,7 +1377,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
-  get errors(): LatexSyntaxError[] {
+  get errors(): readonly LatexSyntaxError[] {
     return this._mathfield?.errors ?? [];
   }
 
@@ -1650,17 +1683,25 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Accessing and changing the content
    */
   applyStyle(
-    style: Style,
+    style: Readonly<Style>,
     options?: Range | { range?: Range; operation?: 'set' | 'toggle' }
   ): void {
     return this._mathfield?.applyStyle(style, options);
   }
 
   /**
+   *
+   * @category Accessing and changing the content
+   */
+  queryStyle(style: Readonly<Style>): 'some' | 'all' | 'none' {
+    return this._mathfield?.queryStyle(style) ?? 'none';
+  }
+
+  /**
    * @inheritdoc Mathfield.getCaretPoint
    * @category Selection
    */
-  get caretPoint(): null | { x: number; y: number } {
+  get caretPoint(): null | Readonly<{ x: number; y: number }> {
     return this._mathfield?.getCaretPoint() ?? null;
   }
 
@@ -2038,7 +2079,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc LayoutOptions.macros
    */
-  get macros(): MacroDictionary {
+  get macros(): Readonly<MacroDictionary> {
     return this._getOption('macros');
   }
   set macros(value: MacroDictionary) {
@@ -2048,7 +2089,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc Registers
    */
-  get registers(): Registers {
+  get registers(): Readonly<Registers> {
     const that = this;
     return new Proxy(
       {},
@@ -2207,8 +2248,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Customization
    */
 
-  get menuItems(): MenuItem[] {
-    return this._mathfield?.menu.menuItems ?? [];
+  get menuItems(): readonly MenuItem[] {
+    return this._mathfield?.menu._menuItems.map((x) => x.menuItem) ?? [];
   }
   set menuItems(menuItems: MenuItem[]) {
     if (this._mathfield?.menu) {
@@ -2236,7 +2277,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc EditingOptions.inlineShortcuts
    */
-  get inlineShortcuts(): InlineShortcutDefinitions {
+  get inlineShortcuts(): Readonly<InlineShortcutDefinitions> {
     return this._getOption('inlineShortcuts');
   }
   set inlineShortcuts(value: InlineShortcutDefinitions) {
@@ -2256,7 +2297,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc EditingOptions.keybindings
    */
-  get keybindings(): Keybinding[] {
+  get keybindings(): readonly Keybinding[] {
     return this._getOption('keybindings');
   }
   set keybindings(value: Keybinding[]) {
@@ -2318,26 +2359,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.getPromptState(id) ?? [undefined, true];
   }
 
-  /** @category Prompts */
-  setPromptContent(
-    id: string,
-    content: string,
-    insertOptions: Omit<InsertOptions, 'insertionMode'>
-  ): void {
-    this._mathfield?.setPromptValue(id, content, insertOptions);
-  }
-
-  /** Remove the contents of all prompts, and return an object with the prompt contents
-   * @category Prompts
-   */
-  stripPromptContent(filter?: {
-    id?: string;
-    locked?: boolean;
-    correctness?: 'correct' | 'incorrect' | 'undefined';
-  }): Record<string, string> {
-    return this._mathfield?.stripPromptContent(filter) ?? {};
-  }
-
   /** @category Virtual Keyboard */
   get virtualKeyboardTargetOrigin(): string {
     return this._getOption('virtualKeyboardTargetOrigin');
@@ -2355,7 +2376,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    *
    */
-  get selection(): Selection {
+  get selection(): Readonly<Selection> {
     if (this._mathfield) return this._mathfield.model.selection;
 
     if (gDeferredState.has(this)) return gDeferredState.get(this)!.selection;
@@ -2372,6 +2393,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (this._mathfield) {
       this._mathfield.model.selection = sel;
+      requestUpdate(this._mathfield);
       return;
     }
 
@@ -2421,7 +2443,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    */
   set position(offset: Offset) {
-    if (this._mathfield) this._mathfield.model.position = offset;
+    if (this._mathfield) {
+      this._mathfield.model.position = offset;
+      requestUpdate(this._mathfield);
+    }
 
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
@@ -2474,12 +2499,14 @@ function toCamelCase(s: string): string {
 function getOptionsFromAttributes(
   mfe: MathfieldElement
 ): Partial<MathfieldOptions> {
-  const result = { readOnly: false };
+  const result: Partial<MathfieldOptions> = { readOnly: false };
   const attribs = MathfieldElement.optionsAttributes;
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {
       const value = mfe.getAttribute(x);
-      if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
+
+      if (x === 'placeholder') result.contentPlaceholder = value ?? '';
+      else if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
       else if (attribs[x] === 'on/off') {
         if (value === 'on') result[toCamelCase(x)] = true;
         else if (value === 'off') result[toCamelCase(x)] = false;
