@@ -42,7 +42,8 @@ mf.selection = mf.getPromptRange(id);
 
 - **#2169** Changing the selection programatically will
   now correctly update the mathfield.
-
+- **#2189** If the decimal separator is set to `,`, the virtual keyboard
+  will now correctly display the decimal separator as a comma.
 
 ## 0.97.4 (2023-11-29)
 

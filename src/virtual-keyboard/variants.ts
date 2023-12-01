@@ -33,6 +33,7 @@ const VARIANTS: {
   '8': ['\\frac{1}{8}', '#@^8'],
   '9': ['\\frac{1}{9}', '#@^9'],
   '.': ['.', ',', ';', '\\colon'],
+  ',': ['{,}', '.', ';', '\\colon'],
   'a': [
     { latex: '\\aleph', aside: 'aleph' },
     { latex: '\\forall', aside: 'for all' },
@@ -313,6 +314,7 @@ function getVariants(
   id: string | (string | Partial<VirtualKeyboardKeycap>)[]
 ): (string | Partial<VirtualKeyboardKeycap>)[] {
   if (typeof id !== 'string') return id;
+
   if (!VARIANTS[id]) VARIANTS[id] = makeVariants(id) ?? [];
   return VARIANTS[id];
 }

@@ -1814,8 +1814,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     const computedStyle = window.getComputedStyle(this);
     const shadowRoot = this.shadowRoot!;
     const userSelect = computedStyle.userSelect !== 'none';
-    (shadowRoot.firstElementChild! as HTMLElement).style.pointerEvents =
-      userSelect ? 'none' : 'auto';
 
     if (userSelect) shadowRoot.host.addEventListener('pointerdown', this, true);
     else {
