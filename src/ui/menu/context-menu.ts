@@ -1,26 +1,36 @@
-import { eventLocation, keyboardModifiersFromEvent } from 'ui/events/utils';
-import { Menu } from './menu';
-import { onLongPress } from 'ui/events/longpress';
+import { eventLocation, keyboardModifiersFromEvent } from '../events/utils';
+import { onLongPress } from '../events/longpress';
 
-export function onContextMenu(
+import { Menu } from './menu';
+
+/**
+ * Return `true` if the context menu was triggered by the event.
+ *
+ * The function is asynchronous because it may need to wait for a long press
+ * to complete.
+ *
+ * @param event
+ * @param target
+ * @param menu
+ * @returns
+ */
+export async function onContextMenu(
   event: Event,
   target: Element,
-  menu: Menu,
-  onTrigger?: () => void
-): boolean {
+  menu: Menu
+): Promise<boolean> {
   //
   // The context menu gesture (right-click, control-click, etc..)
-  // was triggered
+  // may have been triggered
   //
   if (event.type === 'contextmenu') {
     // If no items visible, don't show anything
     if (!menu.visible) return false;
 
     const evt = event as MouseEvent;
-    onTrigger?.();
     menu.show({
       target: target,
-      location: { x: Math.round(evt.clientX), y: Math.round(evt.clientY) },
+      location: { x: Math.ceil(evt.clientX), y: Math.ceil(evt.clientY) },
     });
     event.preventDefault();
     event.stopPropagation();
@@ -41,12 +51,11 @@ export function onContextMenu(
         const modifiers = keyboardModifiersFromEvent(event);
         menu.update(modifiers);
         if (!menu.visible) return false;
-        onTrigger?.();
         menu.show({
           target: target,
           location: {
-            x: Math.round(bounds.left + bounds.width / 2),
-            y: Math.round(bounds.top + bounds.height / 2),
+            x: Math.ceil(bounds.left + bounds.width / 2),
+            y: Math.ceil(bounds.top + bounds.height / 2),
           },
         });
         event.preventDefault();
@@ -72,11 +81,10 @@ export function onContextMenu(
     if (!menu.visible) return false;
 
     const pt = eventLocation(event);
-    onLongPress(event, () => {
-      if (menu.state !== 'closed') return;
-      onTrigger?.();
+    if (await onLongPress(event)) {
+      if (menu.state !== 'closed') return false;
       menu.show({ target: target, location: pt });
-    });
+    }
     return true;
   }
 

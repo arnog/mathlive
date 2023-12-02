@@ -790,7 +790,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
    * would create a new function that would have to be kept track of
    * to be able to properly remove the event handler later.
    */
-  handleEvent(evt: Event): void {
+  async handleEvent(evt: Event): Promise<void> {
     if (!isValidMathfield(this)) return;
     if (isVirtualKeyboardMessage(evt)) {
       if (!validateOrigin(evt.origin, this.options.originValidator ?? 'none')) {
@@ -835,12 +835,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
           if ((evt as PointerEvent).shiftKey === false) {
             const modifiers = keyboardModifiersFromEvent(evt);
             this._menu.update(modifiers);
-            onContextMenu(
-              evt,
-              this.element!.querySelector<HTMLElement>('[part=container')!,
-              this._menu,
-              () => stopTrackingPointer(this)
-            );
+            if (
+              await onContextMenu(
+                evt,
+                this.element!.querySelector<HTMLElement>('[part=container')!,
+                this._menu
+              )
+            )
+              stopTrackingPointer(this);
           }
         }
         break;
@@ -853,12 +855,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
           const modifiers = keyboardModifiersFromEvent(evt);
           this._menu.update(modifiers);
 
-          onContextMenu(
-            evt,
-            this.element!.querySelector<HTMLElement>('[part=container')!,
-            this._menu,
-            () => stopTrackingPointer(this)
-          );
+          if (
+            await onContextMenu(
+              evt,
+              this.element!.querySelector<HTMLElement>('[part=container')!,
+              this._menu
+            )
+          )
+            stopTrackingPointer(this);
         }
         break;
 

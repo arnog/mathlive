@@ -1,59 +1,42 @@
 import { distance } from 'ui/geometry/utils';
 import { eventLocation } from './utils';
 
-// We use a class to encapsulate the state that needs to be tracked and,
-// more importantly, to avoid memory leaks by using the `handleEvent()` hook
-// to ensure proper disposal of event handlers
-export class LongPressDetector {
-  static DELAY = 300; // In ms
-  static DISTANCE = 10; // In pixels
-
-  private readonly startPoint?: { x: number; y: number };
-  private lastPoint?: { x: number; y: number };
-
-  private timer = 0;
-
-  constructor(triggerEvent: Event, onLongPress: () => void) {
-    const location = eventLocation(triggerEvent);
-    if (!location) return;
-
-    this.startPoint = location;
-    this.lastPoint = location;
-
-    this.timer = setTimeout(() => {
-      this.dispose();
-      const delta = distance(this.lastPoint!, this.startPoint!);
-      if (delta < LongPressDetector.DISTANCE) onLongPress();
-    }, LongPressDetector.DELAY);
-    for (const evt of ['pointermove', 'pointerup', 'pointercancel'])
-      window.addEventListener(evt, this, { passive: true });
-  }
-
-  dispose(): void {
-    clearTimeout(this.timer);
-    this.timer = 0;
-
-    for (const evt of ['pointermove', 'pointerup', 'pointercancel'])
-      window.removeEventListener(evt, this);
-  }
-
-  handleEvent(event: Event): void {
-    if (event.type === 'pointerup' || event.type === 'pointercancel') {
-      this.dispose();
-      event.stopPropagation();
-    } else if (event.type === 'pointermove') {
-      const location = eventLocation(event);
-      if (location) {
-        this.lastPoint = location;
-        event.stopPropagation();
-      }
-    }
-  }
+export class LongPress {
+  static DELAY = 300; // Amount of time before showing the context menu, in ms
+  static MAX_DISTANCE = 10; // Maximum distance between the start and end of the gesture, in pixels
 }
 
-export function onLongPress(
-  triggerEvent: Event,
-  onLongPress: () => void
-): LongPressDetector {
-  return new LongPressDetector(triggerEvent, onLongPress);
+export function onLongPress(triggerEvent: Event): Promise<boolean> {
+  return new Promise((resolve, _reject) => {
+    const startPoint = eventLocation(triggerEvent);
+    if (!startPoint) resolve(false);
+
+    let lastPoint = startPoint!;
+
+    const timer = setTimeout(() => {
+      // Remove the event listeners
+      controller.abort();
+      resolve(distance(lastPoint, startPoint!) < LongPress.MAX_DISTANCE);
+    }, LongPress.DELAY);
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    for (const eventType of ['pointermove', 'pointerup', 'pointercancel']) {
+      window.addEventListener(
+        eventType,
+        (evt) => {
+          if (evt.type === 'pointerup' || evt.type === 'pointercancel') {
+            clearTimeout(timer);
+            controller.abort();
+            resolve(false);
+          } else if (evt.type === 'pointermove') {
+            const location = eventLocation(evt);
+            if (location) lastPoint = location;
+          }
+        },
+        { passive: true, signal }
+      );
+    }
+  });
 }
