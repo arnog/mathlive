@@ -23,14 +23,13 @@ import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
   getMacroDefinition,
   getMacros,
-} from '../core-definitions/definitions-utils';
-import { LatexGroupAtom } from '../core-atoms/latex';
+} from '../latex-commands/definitions-utils';
+import { LatexGroupAtom } from '../atoms/latex';
 import { parseLatex, validateLatex } from '../core/parser';
 import { getDefaultRegisters } from '../core/registers';
 
-import { deleteRange, getMode, isRange, ModelPrivate } from '../editor/model';
 import { applyStyle } from '../editor-model/styling';
-import { range } from '../editor-model/selection-utils';
+import { getMode, isRange, range } from '../editor-model/selection-utils';
 import {
   removeComposition,
   updateComposition,
@@ -61,7 +60,7 @@ import {
   getDefault as getDefaultOptions,
   get as getOptions,
   effectiveMode,
-} from '../editor/options';
+} from './options';
 import { normalizeKeybindings } from '../editor/keybindings';
 import {
   setKeyboardLayoutLocale,
@@ -69,7 +68,6 @@ import {
   gKeyboardLayout,
   getDefaultKeyboardLayout,
 } from '../editor/keyboard-layout';
-import { ModelState } from '../editor-model/model-private';
 
 import { onInput, onKeystroke } from './keyboard-input';
 import { complete } from './autocomplete';
@@ -80,7 +78,6 @@ import {
   contentMarkup,
 } from './render';
 
-import '../core-definitions/definitions';
 import './commands';
 import './styling';
 import {
@@ -104,7 +101,7 @@ import './mode-editor-text';
 
 import { validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
-import { PromptAtom } from '../core-atoms/prompt';
+import { PromptAtom } from '../atoms/prompt';
 import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
 import '../public/mathfield-element';
 
@@ -128,6 +125,13 @@ import { Menu } from 'ui/menu/menu';
 import { onContextMenu } from 'ui/menu/context-menu';
 import { keyboardModifiersFromEvent } from 'ui/events/utils';
 import { getDefaultMenuItems } from 'editor/default-menu';
+import type { ModelState } from 'editor-model/types';
+import { _Model } from 'editor-model/model-private';
+import { deleteRange } from 'editor-model/delete';
+
+import 'editor-model/commands-delete';
+import 'editor-model/commands-move';
+import 'editor-model/commands-select';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="width: 21px;"  viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -139,7 +143,7 @@ const MENU_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="height: 18px;
 
 /** @internal */
 export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
-  readonly model: ModelPrivate;
+  readonly model: _Model;
 
   readonly undoManager: UndoManager;
 
@@ -276,7 +280,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
       body: parseLatex(elementText, { context: this.context }),
     });
 
-    this.model = new ModelPrivate(this, mode, root);
+    this.model = new _Model(this, mode, root);
 
     // Prepare to manage undo/redo
     this.undoManager = new UndoManager(this.model);

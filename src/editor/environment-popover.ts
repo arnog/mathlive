@@ -4,12 +4,15 @@ import {
   isCasesEnvironment,
   isMatrixEnvironment,
   isTabularEnvironment,
-} from '../core-definitions/environment-types';
+} from '../latex-commands/environment-types';
 import { SelectorPrivate } from './types';
-import { _Mathfield } from './mathfield';
-import { getSharedElement, releaseSharedElement } from './shared-element';
+import {
+  getSharedElement,
+  releaseSharedElement,
+} from '../common/shared-element';
 
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
+import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
 const padding = 4;
 const radius = 20;

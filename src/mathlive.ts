@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
-import type { AutoRenderOptions } from './public/options';
+import type { StaticRenderOptions } from './public/options';
 export * from './public/mathlive';
 
 import {
-  AutoRenderOptionsPrivate,
-  autoRenderMathInElement,
-} from './addons/auto-render';
-export * from './addons/auto-render';
+  StaticRenderOptionsPrivate,
+  _renderMathInElement,
+} from './addons/static-render';
+export * from './addons/static-render';
 
 import './virtual-keyboard/commands';
 
@@ -84,7 +84,7 @@ export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
  * @keywords render, document, autorender
  */
 
-export function renderMathInDocument(options?: AutoRenderOptions): void {
+export function renderMathInDocument(options?: StaticRenderOptions): void {
   renderMathInElement(document.body, options);
 }
 
@@ -121,16 +121,16 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
 
 export function renderMathInElement(
   element: string | HTMLElement,
-  options?: AutoRenderOptions
+  options?: StaticRenderOptions
 ): void {
   const el = getElement(element);
   if (!el) return;
-  const optionsPrivate: AutoRenderOptionsPrivate = options ?? {};
+  const optionsPrivate: StaticRenderOptionsPrivate = options ?? {};
   optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
   optionsPrivate.renderToMathML ??= convertLatexToMathMl;
   optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
   optionsPrivate.serializeToLatex ??= convertMathJsonToLatex;
-  autoRenderMathInElement(el, optionsPrivate);
+  _renderMathInElement(el, optionsPrivate);
 }
 
 /**

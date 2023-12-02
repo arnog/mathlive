@@ -1,4 +1,4 @@
-import { KeyboardModifiers } from '../../public/events-types';
+import { KeyboardModifiers } from '../../public/ui-events-types';
 
 export function eventLocation(
   evt: Event

@@ -1,9 +1,4 @@
-import type {
-  ParseMode,
-  Style,
-  FontSize,
-  LatexValue,
-} from '../public/core-types';
+import type { ParseMode, Style, FontSize } from '../public/core-types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { boxType, Box } from './box';
@@ -11,33 +6,23 @@ import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
 import { Mode } from './modes-utils';
 import {
-  Argument,
   getDefinition,
   unicodeCharToLatex,
-} from '../core-definitions/definitions-utils';
+} from '../latex-commands/definitions-utils';
 
 import { Context } from './context';
-import { PrivateStyle, BoxType } from './types';
-
-/**
- * This data type is used as a serialized representation of the atom tree.
- * This is used by the Undo Manager to store the state of the mathfield.
- * While in many cases the LaTeX representation of the mathfield could be used
- * there are a few cases where the atom will carry additional information
- * that is difficult/impossible to represent in pure LaTeX, for example
- * the state/content of empty branches.
- */
-export type AtomJson = { type?: AtomType; [key: string]: any };
-
-/**
- * Each atom can have one or more "branches" of child atoms.
- */
-export type BranchName =
-  | 'body'
-  | 'above'
-  | 'below'
-  | 'superscript'
-  | 'subscript';
+import type {
+  PrivateStyle,
+  BoxType,
+  AtomJson,
+  AtomOptions,
+  AtomType,
+  Branches,
+  ToLatexOptions,
+  BranchName,
+  Branch,
+} from './types';
+import type { Argument } from 'latex-commands/types';
 
 /**
  * The order of these branches specify the default keyboard navigation order.
@@ -50,12 +35,6 @@ export const NAMED_BRANCHES: BranchName[] = [
   'superscript',
   'subscript',
 ];
-
-/**
- * In addition to a "named" branch, a branch can also be identified as a cell
- * in a tabular atom (matrix, etc...) with a row and column number.
- */
-export type Branch = BranchName | [row: number, col: number];
 
 /**
  * A _branch_ is a set of children of an atom.
@@ -73,107 +52,6 @@ export function isNamedBranch(branch: Branch): branch is BranchName {
 export function isCellBranch(branch?: Branch): branch is [number, number] {
   return branch !== undefined && Array.isArray(branch) && branch.length === 2;
 }
-
-export type Branches = {
-  [branch in BranchName]?: Atom[];
-};
-
-export type ToLatexOptions = {
-  // Replace macros with their definitions
-  expandMacro?: boolean;
-
-  // Don't emit color, backgroundcolor, fontsize commands
-  skipStyles?: boolean;
-
-  // Replace placeholders with their content
-  skipPlaceholders?: boolean;
-
-  // Don't emit unnecessary style shift commands: you can assume we're in
-  // this default mode.
-  defaultMode: 'text' | 'math' | 'inline-math';
-};
-
-// IMPORTANT: when adding a new atom type, add its constructor to `toJson()`
-// atom.ts
-export type AtomType =
-  | 'accent'
-  | 'array' // A group, which has children arranged in rows. Used
-  // by environments such as `matrix`, `cases`, etc...
-  | 'box' // A border drawn around an expression and change its background color
-  | 'chem' // A chemical formula (mhchem)
-  | 'choice' // A \\mathchoice command
-  | 'composition' // IME composition area
-  | 'delim'
-  | 'enclose'
-  | 'extensible-symbol' // Commands such as `\int`, `\sum`, etc...
-  | 'error' //  An unknown command, for example `\xyzy`. The text  is displayed with a wavy red underline in the editor.
-  | 'first' // A special, empty, atom put as the first atom in math lists in
-  // order to be able to position the caret before the first element. Aside from
-  // the caret, they display nothing.
-  | 'genfrac' // A generalized fraction: a numerator and denominator, separated
-  // by an optional line, and surrounded by optional fences
-  | 'group' // A simple group of atoms, for example from a `{...}`
-  | 'latex' // A raw latex atom
-  | 'latexgroup' // A string of raw latex atoms
-  | 'leftright' // Used by the `\left` and `\right` commands
-  | 'line' // Used by `\overline` and `\underline`
-  | 'macro'
-  | 'macro-argument'
-  | 'subsup' // A carrier for a superscript/subscript
-  | 'operator' // A function, including special functions, `\sin`
-  | 'overlap' // Display a symbol _over_ another
-  | 'overunder' // Displays an annotation above or below a symbol
-  | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
-  | 'phantom'
-  | 'root' // A group, which has no parent (only one per formula)
-  | 'rule' // Draw a line, for the `\rule` command
-  | 'sizeddelim' // A delimiter that can grow
-  | 'space'
-  | 'spacing'
-  | 'surd' // Aka square root, nth root
-  | 'text' // Text mode atom;
-  | 'tooltip' // For `\mathtip` and `\texttip`
-  | 'prompt'
-  /** The types below confound atom type and box type. They are all indicating
-   * a probable Atom class, but with a different boxType (inter-atom spacing)
-   */
-  | 'mbin' // Binary operator: `+`, `*`, etc...
-  | 'mclose' // Closing fence: `)`, `\rangle`, etc...
-  | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
-  | 'mop' // `mop`: symbols with some space around them
-  | 'mopen' // Opening fence: `(`, `\langle`, etc...
-  | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
-  | 'mpunct' // Punctuation: `,`, `:`, etc...
-  | 'mrel'; // Relational operator: `=`, `\ne`, etc...
-
-export type BBoxParameter = {
-  backgroundcolor?: LatexValue;
-  padding?: LatexValue;
-  border?: string;
-};
-
-export type CreateAtomOptions<
-  T extends (Argument | null)[] = (Argument | null)[],
-> = {
-  mode?: ParseMode;
-  command?: string;
-  style?: Style;
-  args?: T;
-};
-
-export type AtomOptions<T extends (Argument | null)[] = (Argument | null)[]> =
-  CreateAtomOptions<T> & {
-    verbatimLatex?: string | null;
-
-    type?: AtomType;
-    value?: string;
-    body?: Atom[];
-    isFunction?: boolean;
-    limits?: 'auto' | 'over-under' | 'adjacent';
-    displayContainsHighlight?: boolean;
-    captureSelection?: boolean;
-    skipBoundary?: boolean;
-  };
 
 /**
  * An atom is an object encapsulating an elementary mathematical unit,
@@ -410,9 +288,9 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     if (this._branches) {
       for (const branch of Object.keys(this._branches)) {
         if (this._branches[branch]) {
-          result[branch] = this._branches[branch]
-            .filter((x) => x.type !== 'first')
-            .map((x) => x.toJson());
+          result[branch] = this._branches[branch]!.filter(
+            (x) => x.type !== 'first'
+          ).map((x) => x.toJson());
         }
       }
     }

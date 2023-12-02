@@ -14,35 +14,32 @@ import type { ParseMode } from '../public/core-types';
 
 import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
-import { AtomJson, BranchName, fromJson } from '../core/atom';
+import { fromJson } from '../core/atom';
 
-import { toMathML } from '../addons/math-ml';
+import { toMathML } from '../formats/atom-to-math-ml';
 
-import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
-import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
+import { atomToAsciiMath } from '../formats/atom-to-ascii-math';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { defaultAnnounceHook } from '../editor/a11y';
 
-import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
-import { compareSelection, range } from './selection-utils';
-import type { ArrayAtom } from '../core-atoms/array';
-import { LatexAtom } from '../core-atoms/latex';
+import {
+  compareSelection,
+  isOffset,
+  isRange,
+  isSelection,
+  range,
+} from './selection-utils';
+import type { ArrayAtom } from '../atoms/array';
+import { LatexAtom } from '../atoms/latex';
 import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
 import '../virtual-keyboard/global';
-
-export type ModelState = {
-  content: AtomJson;
-  selection: Selection;
-  mode: ParseMode;
-};
-
-export type GetAtomOptions = {
-  includeChildren?: boolean;
-};
+import type { ModelState, GetAtomOptions, AnnounceVerb } from './types';
+import type { BranchName, ToLatexOptions } from 'core/types';
 
 /** @internal */
-export class ModelPrivate implements Model {
+export class _Model implements Model {
   readonly mathfield: _Mathfield;
 
   // Note: in most cases, use mf.switchMode() instead.
@@ -831,7 +828,7 @@ export class ModelPrivate implements Model {
 }
 
 function atomIsInRange(
-  model: ModelPrivate,
+  model: _Model,
   atom: Atom,
   first: Offset,
   last: Offset
@@ -850,11 +847,7 @@ function atomIsInRange(
   return false;
 }
 
-function childrenInRange(
-  model: ModelPrivate,
-  atom: Atom,
-  range: Range
-): boolean {
+function childrenInRange(model: _Model, atom: Atom, range: Range): boolean {
   if (!atom?.hasChildren) return false;
   const [start, end] = range;
   const first = model.offsetOf(atom.firstChild);

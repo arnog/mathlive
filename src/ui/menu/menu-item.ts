@@ -1,4 +1,4 @@
-import { KeyboardModifiers } from 'public/events-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
 import { _MenuListState } from './menu-list';
 import {
   MenuItem,
@@ -6,7 +6,7 @@ import {
   MenuItemType,
   DynamicValue,
   MenuItemProps,
-} from '../../public/menu-types';
+} from '../../public/ui-menu-types';
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
 import { MenuItemState, MenuListState } from './private-types';

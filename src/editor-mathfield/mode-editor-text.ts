@@ -3,14 +3,14 @@ import type { InsertOptions } from '../public/mathfield';
 
 import { parseLatex } from '../core/core';
 import { Atom } from '../core/atom-class';
-import { ModelPrivate } from '../editor-model/model-private';
+import { _Model } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 
 import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
-import { ContextInterface } from 'core/types';
+import type { ContextInterface } from 'core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
@@ -45,11 +45,7 @@ export class TextModeEditor extends ModeEditor {
     return false;
   }
 
-  insert(
-    model: ModelPrivate,
-    text: string,
-    options: InsertOptions = {}
-  ): boolean {
+  insert(model: _Model, text: string, options: InsertOptions = {}): boolean {
     if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';

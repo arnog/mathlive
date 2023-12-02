@@ -13,8 +13,7 @@
  *
  */
 import CHARACTER_METRICS_MAP from './font-metrics-data';
-// import { gFontsState } from './fonts';
-import { FontMetrics } from './types';
+import type { FontMetrics, FontName } from './types';
 
 // This CHARACTER_METRICS_MAP contains a mapping from font name and character
 // code to character metrics, including height, depth, italic correction, and
@@ -148,7 +147,7 @@ export const DEFAULT_FONT_SIZE = 5;
 // descenders we prefer approximations with ascenders, primarily to prevent
 // the fraction bar or root line from intersecting the glyph.
 // TODO(kevinb) allow union of multiple glyph metrics for better accuracy.
-const extraCharacterMap = {
+const EXTRA_CHARACTER_MAP = {
   '\u00A0': '\u0020', // NON-BREAKING SPACE is like space
   '\u200B': '\u0020', // ZERO WIDTH SPACE is like space
   // Latin-1
@@ -227,24 +226,6 @@ const extraCharacterMap = {
   'ю': 'm',
   'я': 'r',
 };
-
-export type FontName =
-  | 'Main-Regular'
-  | 'Main-Italic'
-  | 'Main-Bold'
-  | 'Main-BoldItalic'
-  | 'Typewriter-Regular'
-  | 'Math-Italic'
-  | 'Math-BoldItalic'
-  | 'AMS-Regular'
-  | 'SansSerif-Regular'
-  | 'Caligraphic-Regular'
-  | 'Script-Regular'
-  | 'Fraktur-Regular'
-  | 'Size1-Regular'
-  | 'Size2-Regular'
-  | 'Size3-Regular'
-  | 'Size4-Regular';
 
 // const CSS_FONT = {
 //   'Main-Regular': '1000px KaTeX_Main',
@@ -363,8 +344,8 @@ export function getCharacterMetrics(
 
   const char = String.fromCodePoint(codepoint);
 
-  if (char in extraCharacterMap)
-    codepoint = extraCharacterMap[char].codePointAt(0);
+  if (char in EXTRA_CHARACTER_MAP)
+    codepoint = EXTRA_CHARACTER_MAP[char].codePointAt(0);
   else if (CJK_REGEX.test(char)) {
     codepoint = 77; // 'M'.codepointAt(0);
     return {

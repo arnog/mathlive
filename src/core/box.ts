@@ -1,13 +1,19 @@
 import { isArray } from '../common/types';
 
-import { FontName, getCharacterMetrics } from './font-metrics';
+import { getCharacterMetrics } from './font-metrics';
 import { svgBodyToMarkup, svgBodyHeight } from './svg-box';
 import { Context } from './context';
 import { highlight } from './color';
 import { BoxCSSProperties, ParseMode } from '../public/core-types';
 import { Mode } from './modes-utils';
-import { BoxInterface, BoxOptions, BoxType } from './types';
-import { Atom, AtomType } from './atom-class';
+import type {
+  AtomType,
+  BoxInterface,
+  BoxOptions,
+  BoxType,
+  FontName,
+} from './types';
+import { Atom } from './atom-class';
 
 export function boxType(type: AtomType | undefined): BoxType | undefined {
   if (!type) return undefined;

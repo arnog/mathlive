@@ -1,8 +1,7 @@
-import { MenuItem } from '../public/menu-types';
+import { MenuItem } from '../public/ui-menu-types';
 import { convertLatexToMarkup } from 'public/mathlive-ssr';
 import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
-import { _Mathfield } from './mathfield';
 import { setEnvironment } from 'editor-model/array';
 import { TabularEnvironment, Variant, VariantStyle } from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
@@ -11,6 +10,7 @@ import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
 import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
 import { contrast } from 'ui/colors/utils';
+import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)

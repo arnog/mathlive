@@ -2,7 +2,7 @@ import type {
   InlineShortcutDefinition,
   InlineShortcutDefinitions,
 } from '../public/options';
-import { LETTER } from '../core-definitions/definitions-utils';
+import { LETTER } from '../latex-commands/definitions-utils';
 import type { Atom } from '../core/atom';
 
 export { InlineShortcutDefinition, InlineShortcutDefinitions };

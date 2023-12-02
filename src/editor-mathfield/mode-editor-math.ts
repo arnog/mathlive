@@ -9,20 +9,21 @@ import { requestUpdate } from './render';
 import { LEFT_DELIM } from '../core/delimiters';
 import { parseLatex } from '../core/parser';
 import { fromJson } from '../core/atom';
-import { Atom, AtomJson } from '../core/atom-class';
-import { ArrayAtom } from '../core-atoms/array';
-import { LeftRightAtom } from '../core-atoms/leftright';
+import { Atom } from '../core/atom-class';
+import { ArrayAtom } from '../atoms/array';
+import { LeftRightAtom } from '../atoms/leftright';
 
 import { range } from '../editor-model/selection-utils';
-import { ModelPrivate } from '../editor-model/model-private';
+import { _Model } from '../editor-model/model-private';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import {
   parseMathString,
   trimModeShiftCommand,
-} from '../editor/parse-math-string';
+} from '../formats/parse-math-string';
 
 import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
+import type { AtomJson } from 'core/types';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -167,7 +168,7 @@ export class MathModeEditor extends ModeEditor {
     return false;
   }
 
-  insert(model: ModelPrivate, input: string, options: InsertOptions): boolean {
+  insert(model: _Model, input: string, options: InsertOptions): boolean {
     const data =
       typeof input === 'string'
         ? input
@@ -335,7 +336,7 @@ export class MathModeEditor extends ModeEditor {
 }
 
 function convertStringToAtoms(
-  model: ModelPrivate,
+  model: _Model,
   s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions
@@ -465,7 +466,7 @@ function simplifyParen(atoms: Atom[]): void {
  * end, the implicit arg offset would be after the plus. As a result,
  * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
  */
-function getImplicitArgOffset(model: ModelPrivate): Offset {
+function getImplicitArgOffset(model: _Model): Offset {
   let atom = model.at(model.position);
   if (atom.mode === 'text') {
     while (!atom.isFirstSibling && atom.mode === 'text')

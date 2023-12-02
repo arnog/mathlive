@@ -17,7 +17,10 @@ import { getKeybindingsForCommand } from './keybindings';
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
-import { getSharedElement, releaseSharedElement } from './shared-element';
+import {
+  getSharedElement,
+  releaseSharedElement,
+} from '../common/shared-element';
 
 function latexToMarkup(mf: _Mathfield, latex: string): string {
   const context = new Context({ from: mf.context });

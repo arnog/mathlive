@@ -1,14 +1,14 @@
 /* eslint-disable no-new */
 import { Offset, Range, InsertOptions } from '../public/mathfield';
-import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
+import { LatexAtom, LatexGroupAtom } from '../atoms/latex';
 import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';
-import { ModelPrivate } from '../editor-model/model-private';
+import { _Model } from '../editor-model/model-private';
 
 import { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
-import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions-utils';
+import { COMMAND_MODE_CHARACTERS } from '../latex-commands/definitions-utils';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {
@@ -48,7 +48,7 @@ export class LatexModeEditor extends ModeEditor {
     return false;
   }
 
-  insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
+  insert(model: _Model, text: string, options?: InsertOptions): boolean {
     if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options) options = {};
@@ -116,18 +116,18 @@ export class LatexModeEditor extends ModeEditor {
   }
 }
 
-export function getLatexGroup(model: ModelPrivate): LatexGroupAtom | undefined {
+export function getLatexGroup(model: _Model): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
-export function getLatexGroupBody(model: ModelPrivate): LatexAtom[] {
+export function getLatexGroupBody(model: _Model): LatexAtom[] {
   const atom = model.atoms.find((x) => x.type === 'latexgroup');
   if (!atom) return [];
   return (atom.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }
 
 export function getCommandSuggestionRange(
-  model: ModelPrivate,
+  model: _Model,
   options?: { before: Offset }
 ): Range | [undefined, undefined] {
   let start = 0;

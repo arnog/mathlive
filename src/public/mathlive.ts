@@ -18,7 +18,7 @@
 
 import type { VirtualKeyboardOptions } from './virtual-keyboard';
 import type { VirtualKeyboardInterface } from './virtual-keyboard';
-import type { AutoRenderOptions } from './options';
+import type { StaticRenderOptions } from './options';
 
 export * from './commands';
 export * from './core-types';
@@ -32,11 +32,13 @@ export declare function makeSharedVirtualKeyboard(
   options?: Partial<VirtualKeyboardOptions>
 ): VirtualKeyboardInterface & EventTarget;
 
-export declare function renderMathInDocument(options?: AutoRenderOptions): void;
+export declare function renderMathInDocument(
+  options?: StaticRenderOptions
+): void;
 
 export declare function renderMathInElement(
   element: string | HTMLElement,
-  options?: AutoRenderOptions
+  options?: StaticRenderOptions
 ): void;
 
 export declare const version: {

@@ -1,4 +1,4 @@
-import { KeyboardModifiers } from 'public/events-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
 import {
   keyboardModifiersFromEvent,
   equalKeyboardModifiers,
@@ -6,7 +6,7 @@ import {
 } from 'ui/events/utils';
 import { Scrim } from 'ui/utils/scrim';
 import { _MenuListState } from './menu-list';
-import { MenuItem } from '../../public/menu-types';
+import { MenuItem } from '../../public/ui-menu-types';
 import { RootMenuState, MenuListState } from './private-types';
 
 /**

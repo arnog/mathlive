@@ -1,5 +1,5 @@
-import { KeyboardModifiers } from 'public/events-types';
-import { MenuItem, MenuItemType } from '../../public/menu-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
+import { MenuItem, MenuItemType } from '../../public/ui-menu-types';
 
 /** @internal */
 export interface MenuItemState<T = unknown> {

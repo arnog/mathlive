@@ -1,22 +1,20 @@
-import { Atom, BBoxParameter } from './atom-class';
+import { Atom } from './atom-class';
 
 import {
-  Argument,
-  FunctionDefinition,
   argAtoms,
   getDefinition,
   getEnvironmentDefinition,
-} from '../core-definitions/definitions-utils';
-import type { ColumnFormat } from '../core-atoms/array';
+} from '../latex-commands/definitions-utils';
+import type { ColumnFormat } from '../atoms/array';
 
-import { ErrorAtom } from '../core-atoms/error';
-import { GroupAtom } from '../core-atoms/group';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { MacroAtom } from '../core-atoms/macro';
-import { PromptAtom } from '../core-atoms/prompt';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { SubsupAtom } from '../core-atoms/subsup';
-import { TextAtom } from '../core-atoms/text';
+import { ErrorAtom } from '../atoms/error';
+import { GroupAtom } from '../atoms/group';
+import { LeftRightAtom } from '../atoms/leftright';
+import { MacroAtom } from '../atoms/macro';
+import { PromptAtom } from '../atoms/prompt';
+import { PlaceholderAtom } from '../atoms/placeholder';
+import { SubsupAtom } from '../atoms/subsup';
+import { TextAtom } from '../atoms/text';
 
 import { Mode } from './modes-utils';
 import { joinLatex, tokenize, tokensToString } from './tokenizer';
@@ -33,8 +31,13 @@ import type {
   LatexValue,
   DimensionUnit,
 } from '../public/core-types';
-import type { ContextInterface, PrivateStyle } from '../core/types';
+import type {
+  BBoxParameter,
+  ContextInterface,
+  PrivateStyle,
+} from '../core/types';
 import { Context } from './context';
+import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 
 //
 // - Literal (character token): a letter, digit or punctuation
@@ -927,7 +930,7 @@ export class Parser {
     // To handle infix commands, we'll keep track of their prefix
     // (tokens coming before them) and their arguments
     let infix: Token = '';
-    let infixInfo: FunctionDefinition<[Atom[], Atom[]]> | null = null;
+    let infixInfo: LatexCommandDefinition<[Atom[], Atom[]]> | null = null;
     let infixArgs: Atom[][] = [];
     let prefix: Atom[] | null = null;
     while (!this.end() && !done(this.peek()!)) {
@@ -939,7 +942,7 @@ export class Parser {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant
         // for the parseMode
-        infixInfo = getDefinition(infix, 'math') as FunctionDefinition<
+        infixInfo = getDefinition(infix, 'math') as LatexCommandDefinition<
           [Atom[], Atom[]]
         >;
         if (infixInfo) infixArgs = this.scanArguments(infixInfo)[1] as [Atom[]];
@@ -1219,7 +1222,7 @@ export class Parser {
   }
 
   scanArguments(
-    info: Partial<FunctionDefinition>
+    info: Partial<LatexCommandDefinition>
   ): [ParseMode | undefined, (null | Argument)[]] {
     if (!info?.params) return [undefined, []];
     let deferredArg: ParseMode | undefined = undefined;

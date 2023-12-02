@@ -1,5 +1,5 @@
+import type { Selector } from './commands';
 import type { ParseMode, Style } from './core-types';
-import { Selector } from './commands';
 
 /**
  *
@@ -22,8 +22,7 @@ import { Selector } from './commands';
 import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
    *
-
-*/
+   */
 export type OutputFormat =
   | 'ascii-math'
   | 'latex'

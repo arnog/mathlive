@@ -1,8 +1,8 @@
 import type { ParseMode } from '../public/core-types';
-import { TextAtom } from '../core-atoms/text';
-import { ModelPrivate } from '../editor-model/model-private';
+import { TextAtom } from '../atoms/text';
+import { _Model } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
-import { MODE_SHIFT_COMMANDS } from '../editor/parse-math-string';
+import { MODE_SHIFT_COMMANDS } from '../formats/parse-math-string';
 import { InsertOptions, OutputFormat, Range } from '../public/mathfield';
 import { _Mathfield } from './mathfield-private';
 
@@ -179,7 +179,7 @@ export class ModeEditor {
   }
 
   static insert(
-    model: ModelPrivate,
+    model: _Model,
     text: string,
     options: InsertOptions = {}
   ): boolean {
@@ -195,11 +195,7 @@ export class ModeEditor {
     return false;
   }
 
-  insert(
-    _model: ModelPrivate,
-    _text: string,
-    _options: InsertOptions
-  ): boolean {
+  insert(_model: _Model, _text: string, _options: InsertOptions): boolean {
     return false;
   }
 }

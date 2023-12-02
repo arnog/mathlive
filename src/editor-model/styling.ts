@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom';
-import type { ModelPrivate } from './model-private';
+import type { _Model } from './model-private';
 import { Range } from '../public/mathfield';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
@@ -44,7 +44,7 @@ export function applyStyleToUnstyledAtoms(
  */
 
 export function applyStyle(
-  model: ModelPrivate,
+  model: _Model,
   range: Range,
   style: PrivateStyle,
   options: { operation: 'set' | 'toggle' }

@@ -1,9 +1,9 @@
 import { keyboardEventToChar } from '../editor/keyboard';
 import type { _Mathfield } from './mathfield-private';
 
-import { ModelPrivate } from '../editor-model/model-private';
+import { _Model } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
-import { LeftRightAtom } from '../core-atoms/leftright';
+import { LeftRightAtom } from '../atoms/leftright';
 import { joinLatex } from '../core/tokenizer';
 import { mightProducePrintableCharacter } from 'ui/events/utils';
 
@@ -14,7 +14,7 @@ import { mightProducePrintableCharacter } from 'ui/events/utils';
  * @private
  */
 function convertLastAtomsToText(
-  model: ModelPrivate,
+  model: _Model,
   count?: number | ((a: Atom) => boolean),
   until?: (a: Atom) => boolean
 ): void {
@@ -63,7 +63,7 @@ function convertLastAtomsToText(
  * @private
  */
 function convertLastAtomsToMath(
-  model: ModelPrivate,
+  model: _Model,
   count?: number,
   until?: (arg: Atom) => boolean
 ): void {
@@ -105,7 +105,7 @@ function convertLastAtomsToMath(
  * space character is found (i.e. it is surrounded by math zone),
  * remove it.
  */
-export function removeIsolatedSpace(model: ModelPrivate): void {
+export function removeIsolatedSpace(model: _Model): void {
   let i = model.position - 1;
   while (i >= 0 && model.at(i)?.mode === 'math') i -= 1;
 
@@ -137,7 +137,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
  * turned into text mode.
  * This excludes things like 'operator' (e.g. \sin)
  */
-function getTextBeforePosition(model: ModelPrivate): string {
+function getTextBeforePosition(model: _Model): string {
   // Going backwards, accumulate
   let result = '';
   let i = model.position;

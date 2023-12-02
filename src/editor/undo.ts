@@ -1,4 +1,5 @@
-import type { ModelPrivate, ModelState } from '../editor-model/model-private';
+import type { ModelState } from 'editor-model/types';
+import type { _Model } from '../editor-model/model-private';
 
 import type { Selection } from '../public/mathfield';
 
@@ -6,7 +7,7 @@ export class UndoManager {
   // Maximum number of undo/redo states
   static readonly maximumDepth = 1000;
 
-  private model: ModelPrivate;
+  private model: _Model;
 
   private recording = false;
 
@@ -24,7 +25,7 @@ export class UndoManager {
   // one.
   private lastOp: string;
 
-  constructor(model: ModelPrivate) {
+  constructor(model: _Model) {
     this.model = model;
     this.reset();
   }

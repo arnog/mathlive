@@ -20,14 +20,13 @@ import type {
   Keybinding,
   MathfieldOptions,
 } from './options';
-import { MenuItem } from './menu-types';
+import type { MenuItem } from './ui-menu-types';
 
 import {
   get as getOptions,
   getDefault as getDefaultOptions,
   update as updateOptions,
-} from '../editor/options';
-import { isOffset, isRange, isSelection } from '../editor/model';
+} from '../editor-mathfield/options';
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
@@ -42,6 +41,7 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
+import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
 
 export declare type Expression =
   | number

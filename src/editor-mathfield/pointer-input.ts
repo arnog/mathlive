@@ -1,10 +1,10 @@
 import { getAtomBounds, Rect } from './utils';
 import type { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
-import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
+import type { Offset } from 'public/mathfield';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;

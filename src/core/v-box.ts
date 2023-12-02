@@ -3,7 +3,7 @@ import { Context } from './context';
 import type { Style } from '../public/core-types';
 import { BoxType } from './types';
 
-export type VBoxElement = {
+type VBoxElement = {
   box: Box;
   marginLeft?: number;
   marginRight?: number;

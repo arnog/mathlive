@@ -1,10 +1,9 @@
 import { Atom } from '../core/atom';
-
-import type { ModelPrivate } from '../editor-model/model-private';
-import type { _Mathfield } from '../editor-mathfield/mathfield-private';
-import { AnnounceVerb } from '../editor-model/utils';
-
 import { speakableText } from './speech';
+
+import type { _Model } from '../editor-model/model-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
+import type { AnnounceVerb } from 'editor-model/types';
 
 /**
  * Given an atom, describe the relationship between the atom
@@ -105,7 +104,7 @@ export function defaultAnnounceHook(
 }
 
 function getRelationshipAsSpokenText(
-  model: ModelPrivate,
+  model: _Model,
   previousOffset?: number
 ): string {
   if (Number.isNaN(previousOffset)) return '';
@@ -130,7 +129,7 @@ function getRelationshipAsSpokenText(
  * Take into consideration the position amongst siblings to include 'start of'
  * and 'end of' if applicable.
  */
-function getNextAtomAsSpokenText(model: ModelPrivate): string {
+function getNextAtomAsSpokenText(model: _Model): string {
   if (!model.selectionIsCollapsed)
     return speakableText('', model.getAtoms(model.selection));
 
