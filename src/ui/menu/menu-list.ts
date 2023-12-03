@@ -360,7 +360,9 @@ export class _MenuListState implements MenuListState {
     options.container.appendChild(this.element);
 
     if (supportPopover()) {
+      // @ts-ignore
       this.element.popover = 'manual';
+      // @ts-ignore
       this.element.showPopover();
     }
 
@@ -392,6 +394,7 @@ export class _MenuListState implements MenuListState {
     // Notify our parent
     if (this.parentMenu) this.parentMenu.openSubmenu = null;
 
+    // @ts-ignore
     if (supportPopover() && this._element?.popover) this.element.hidePopover();
 
     this._element?.parentNode?.removeChild(this._element);

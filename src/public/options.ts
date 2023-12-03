@@ -277,7 +277,7 @@ export type ContentChangeOptions = {
 };
 
 export type KeyboardOptions = {
-  keybindings: Keybinding[];
+  keybindings: readonly Keybinding[];
 };
 
 export type InlineShortcutsOptions = {

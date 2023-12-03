@@ -733,8 +733,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     default: 'keypress-standard.wav',
   };
 
-  /** @internal */
+  /** @ignore */
   private static _plonkSound: string | null = 'plonk.wav';
+
   /**
    * Sound played to provide feedback when a command has no effect, for example
    * when pressing the spacebar at the root level.
@@ -2326,7 +2327,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   get keybindings(): readonly Keybinding[] {
     return this._getOption('keybindings');
   }
-  set keybindings(value: Keybinding[]) {
+  set keybindings(value: readonly Keybinding[]) {
     this._setOptions({ keybindings: value });
   }
 

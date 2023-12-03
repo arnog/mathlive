@@ -649,8 +649,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
    * (determined by a combination of the style of the previous atom and
    * the current style) matches the `style` argument, 'none' if it does not.
    */
-  queryStyle(style: Readonly<Style>): 'some' | 'all' | 'none' {
-    style = validateStyle(this, style);
+  queryStyle(inStyle: Readonly<Style>): 'some' | 'all' | 'none' {
+    const style = validateStyle(this, inStyle);
     if ('verbatimColor' in style) delete style.verbatimColor;
     if ('verbatimBackgroundColor' in style)
       delete style.verbatimBackgroundColor;
