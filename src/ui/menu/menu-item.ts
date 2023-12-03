@@ -157,8 +157,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   set active(value: boolean) {
     if (!this.element) return;
     // The active state is immediate, no need to dirty it
-    if (value) this.element.classList.add('active');
-    else this.element.classList.remove('active');
+    this.element.classList.toggle('active', value);
   }
 
   get items(): MenuItemState[] | undefined {

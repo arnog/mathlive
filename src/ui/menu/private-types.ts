@@ -50,8 +50,10 @@ export interface MenuItemState<T = unknown> {
 
 /** @internal */
 export interface MenuListState {
-  readonly parentMenu: MenuListState | null;
   readonly rootMenu: RootMenuState;
+
+  readonly parentMenu: MenuListState | null;
+  readonly children: MenuItemState[];
 
   readonly element: HTMLElement | null;
   isSubmenuOpen: boolean;

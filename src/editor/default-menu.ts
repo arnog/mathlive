@@ -11,6 +11,7 @@ import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
 import { contrast } from 'ui/colors/utils';
 import { _Mathfield } from 'editor-mathfield/mathfield-private';
+import { _MenuItemState } from 'ui/menu/menu-item';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
@@ -242,24 +243,53 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
   return result;
 }
 
+class InsertMatrixMenuItem extends _MenuItemState<{
+  row: number;
+  col: number;
+}> {
+  row: number;
+  col: number;
+  constructor(decl, parent, row, col) {
+    super(decl, parent);
+    this.row = row;
+    this.col = col;
+  }
+
+  set active(value: boolean) {
+    const cells = this.parentMenu.children as InsertMatrixMenuItem[];
+    if (value) {
+      // Make all the items with a smaller column or row active as well
+      for (const cell of cells) {
+        cell.element.classList.toggle(
+          'active',
+          cell.row <= this.row && cell.col <= this.col
+        );
+      }
+    } else for (const cell of cells) cell.element.classList.remove('active');
+  }
+}
+
 function getInsertMatrixSubmenu(mf: _Mathfield): MenuItem[] {
   const result: MenuItem[] = [];
 
-  for (let rows = 1; rows <= 5; rows++) {
-    for (let cols = 1; cols <= 5; cols++) {
+  for (let row = 1; row <= 5; row++) {
+    for (let col = 1; col <= 5; col++) {
       result.push({
+        createMenuItem: (decl, parent) =>
+          new InsertMatrixMenuItem(decl, parent, row, col),
         label: `☐`,
+        data: { row, col },
         onMenuSelect: () => {
           mf.insert(
-            `\\begin{pmatrix}${Array(cols)
-              .fill(Array(rows).fill('#?').join(' & '))
+            `\\begin{pmatrix}${Array(col)
+              .fill(Array(row).fill('#?').join(' & '))
               .join('\\\\')}\\end{pmatrix}`,
             {
               selectionMode: 'item',
             }
           );
         },
-      });
+      } as MenuItem);
     }
   }
 

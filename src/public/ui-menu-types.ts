@@ -133,7 +133,7 @@ export function isSubmenu(item: MenuItem): item is MenuItemSubmenu {
 export function isCommand<T>(item: MenuItem<T>): item is MenuItemCommand<T> {
   return (
     ('type' in item && item.type === 'command') ||
-    'onSelect' in item ||
+    'onMenuSelect' in item ||
     'id' in item
   );
 }

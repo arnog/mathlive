@@ -44,6 +44,10 @@ export class _MenuListState implements MenuListState {
     this.menuItems = items;
   }
 
+  get children(): MenuItemState[] {
+    return this._menuItems;
+  }
+
   /** Setting the menu items will reset this item and
    * redefine a set of _MenuItem objects
    */
@@ -54,8 +58,12 @@ export class _MenuListState implements MenuListState {
     this.parentMenu = parent;
     items = [...items];
 
-    // Create the _MenuItem objects
-    this._menuItems = items.map((x) => new _MenuItemState(x, this));
+    // Create the _MenuItemState objects
+    this._menuItems = items.map((x) =>
+      x['createMenuItem']
+        ? x['createMenuItem'](x, this)
+        : new _MenuItemState(x, this)
+    );
 
     this.hasCheck = undefined;
   }
