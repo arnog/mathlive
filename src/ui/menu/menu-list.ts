@@ -96,8 +96,8 @@ export class _MenuListState implements MenuListState {
    * Update the 'model' of this menu (i.e. list of menu items) based
    * on the state of the keyboard
    */
-  update(modifiers?: KeyboardModifiers): void {
-    this._menuItems.forEach((x) => x.update(modifiers));
+  updateState(modifiers?: KeyboardModifiers): void {
+    this._menuItems.forEach((x) => x.updateState(modifiers));
 
     //
     // 1/ Hide headings with no items
@@ -130,9 +130,7 @@ export class _MenuListState implements MenuListState {
       } else if (item.visible) wasDivider = false;
     }
 
-    this.hasCheck = this._menuItems.some(
-      (x) => x.visible && (x.type === 'checkbox' || x.type === 'radio')
-    );
+    this.hasCheck = this._menuItems.some((x) => x.visible && x.hasCheck);
 
     if (!this.activeMenuItem?.visible) this.activeMenuItem = null;
     if (

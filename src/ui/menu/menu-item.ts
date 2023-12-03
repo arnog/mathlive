@@ -2,10 +2,13 @@ import { KeyboardModifiers } from 'public/ui-events-types';
 import { _MenuListState } from './menu-list';
 import {
   MenuItem,
-  MenuSelectEventDetail,
   MenuItemType,
   DynamicValue,
   MenuItemProps,
+  isSubmenu,
+  isCommand,
+  isDivider,
+  isHeading,
 } from '../../public/ui-menu-types';
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
@@ -33,51 +36,55 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   /** If this menu _type is 'submenu' */
   submenu?: _MenuListState;
 
-  _template: MenuItem<T>;
+  readonly _declaration: MenuItem<T>;
 
   _type: MenuItemType;
 
   _label: string;
   _ariaLabel?: string;
-  _ariaDetails?: string;
   _tooltip: string | undefined;
 
   _enabled: boolean;
   _visible: boolean;
   _checked: boolean | 'mixed';
 
+  hasCheck: boolean;
+
   /** The DOM element the menu item is rendered as */
-  _element: HTMLElement | null = null;
+  private _element: HTMLElement | null = null;
 
-  _abortController: AbortController;
+  private _abortController: AbortController | undefined;
 
-  constructor(template: MenuItem<T>, parentMenu: MenuListState) {
+  constructor(declaration: MenuItem<T>, parentMenu: MenuListState) {
     this.parentMenu = parentMenu;
 
-    this._abortController = new AbortController();
+    this._declaration = declaration;
 
-    this._template = template;
-
-    if (template.submenu) {
+    if (isSubmenu(declaration)) {
       this._type = 'submenu';
-      this.submenu = new _MenuListState(template.submenu, {
+      this.submenu = new _MenuListState(declaration.submenu, {
         parentMenu,
-        containerClass: template.containerClass,
+        containerClass: declaration.containerClass,
       });
-    } else if (template.type === undefined && template.checked !== undefined)
-      this._type = 'checkbox';
-    else this._type = template.type ?? 'command';
+    } else this._type = declaration.type ?? 'command';
+
+    this.hasCheck = isCommand(declaration) && declaration.checked !== undefined;
+  }
+
+  get abortController(): AbortController {
+    if (!this._abortController) this._abortController = new AbortController();
+    return this._abortController;
   }
 
   dispose(): void {
-    this._abortController.abort();
+    this._abortController?.abort();
     this._element?.remove();
     this._element = null;
     if (this.submenu) this.submenu.dispose();
   }
 
   get menuItem(): MenuItem<T> {
-    return this._template;
+    return this._declaration;
   }
 
   get type(): MenuItemType {
@@ -143,15 +150,6 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     this.dirty = true;
   }
 
-  get ariaDetails(): string | undefined {
-    return this._ariaDetails;
-  }
-  set ariaDetails(value: string | undefined) {
-    if (value === this._ariaDetails) return;
-    this._ariaDetails = value;
-    this.dirty = true;
-  }
-
   get active(): boolean {
     return this.element?.classList.contains('active') ?? false;
   }
@@ -167,52 +165,34 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     return this.submenu?.items;
   }
 
-  update(modifiers?: KeyboardModifiers): void {
-    const template = this._template;
+  updateState(modifiers?: KeyboardModifiers): void {
+    const declaration = this._declaration;
 
-    if (template.type === 'divider') {
+    if (isDivider(declaration)) {
       this.enabled = false;
       this.checked = false;
       return;
     }
 
-    if (template.type === 'heading') {
+    if (isHeading(declaration)) {
       this.enabled = false;
       this.checked = false;
       this.visible = true;
     } else {
       this.checked =
-        dynamicValue<boolean | 'mixed', T>(
-          template,
-          template.checked,
-          modifiers
-        ) ?? false;
-      this.enabled =
-        dynamicValue<boolean, T>(template, template.enabled, modifiers) ?? true;
-      this.visible =
-        dynamicValue<boolean, T>(template, template.visible, modifiers) ?? true;
+        isCommand(declaration) &&
+        (dynamicValue(declaration.checked, modifiers) ?? false);
+      this.enabled = dynamicValue(declaration.enabled, modifiers) ?? true;
+      this.visible = dynamicValue(declaration.visible, modifiers) ?? true;
       if (this.visible && this.enabled && this.submenu) {
-        this.submenu.update(modifiers);
+        this.submenu.updateState(modifiers);
         if (!this.submenu.visible) this.visible = false;
       }
     }
 
-    this.label = dynamicValue<string, T>(template, template.label, modifiers);
-    this.tooltip = dynamicValue<string, T>(
-      template,
-      template.tooltip,
-      modifiers
-    );
-    this.ariaLabel = dynamicValue<string, T>(
-      template,
-      template.ariaLabel,
-      modifiers
-    );
-    this.ariaDetails = dynamicValue<string, T>(
-      template,
-      template.ariaDetails,
-      modifiers
-    );
+    this.label = dynamicValue(declaration.label, modifiers);
+    this.tooltip = dynamicValue(declaration.tooltip, modifiers);
+    this.ariaLabel = dynamicValue(declaration.ariaLabel, modifiers);
 
     if (this._element) this.updateElement();
   }
@@ -244,7 +224,6 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     // Create the label
     //
     if (this.ariaLabel) li.setAttribute('aria-label', this.ariaLabel);
-    if (this.ariaDetails) li.setAttribute('aria-details', this.ariaDetails);
 
     const span = document.createElement('span');
     span.className = this.parentMenu.hasCheck ? 'label indent' : 'label';
@@ -268,21 +247,20 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     // Keyboard shortcut
     //
 
-    if (this._template.keyboardShortcut) {
+    if (isCommand(this._declaration) && this._declaration.keyboardShortcut) {
       const kbd = document.createElement('kbd');
-      kbd.innerHTML = getKeybindingMarkup(this._template.keyboardShortcut);
+      kbd.innerHTML = getKeybindingMarkup(this._declaration.keyboardShortcut);
       li.append(kbd);
     }
 
     if (this.type === 'submenu') li.append(icon('trailing-chevron')!);
   }
 
-  get element(): HTMLElement | null {
+  get element(): HTMLElement {
     if (this._element) return this._element;
 
-    if (this.type === 'divider') {
+    if (isDivider(this._declaration)) {
       const li = document.createElement('li');
-      if (this._template.class) li.className = this._template.class;
       li.setAttribute('part', 'menu-divider');
       li.setAttribute('role', 'divider');
 
@@ -292,13 +270,11 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     const li = document.createElement('li');
     this._element = li;
-    if (this._template.class) li.className = this._template.class;
+    if (this._declaration.class) li.className = this._declaration.class;
 
     li.setAttribute('part', 'menu-item');
     li.setAttribute('tabindex', '-1');
-    if (this.type === 'radio') li.setAttribute('role', 'menuitemradio');
-    else if (this.type === 'checkbox')
-      li.setAttribute('role', 'menuitemcheckbox');
+    if (this.hasCheck) li.setAttribute('role', 'menuitemcheckbox');
     else li.setAttribute('role', 'menuitem');
 
     if (this.type === 'submenu') {
@@ -309,7 +285,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     //
     // Add event listeners
     //
-    const signal = this._abortController.signal;
+    const signal = this.abortController.signal;
     li.addEventListener('pointerenter', this, { signal });
     li.addEventListener('pointerleave', this, { signal });
     li.addEventListener('pointerup', this, { signal });
@@ -322,26 +298,24 @@ export class _MenuItemState<T> implements MenuItemState<T> {
    * `onMenuSelect()` hook if defined.
    */
   dispatchSelect(): void {
-    const ev = new CustomEvent<MenuSelectEventDetail>('menu-select', {
+    if (!isCommand(this._declaration)) return;
+    const ev = new CustomEvent<MenuItemProps>('menu-select', {
       cancelable: true,
       bubbles: true,
       detail: {
         modifiers: this.parentMenu.rootMenu.modifiers,
-        id: this._template.id,
-        label: this.label,
-        data: this._template.data,
-        element: this.element ?? undefined,
+        id: this._declaration.id,
+        data: this._declaration.data,
       },
     });
 
     const notCanceled = this.parentMenu.dispatchEvent(ev);
 
-    if (notCanceled && typeof this._template.onMenuSelect === 'function') {
-      this._template.onMenuSelect({
+    if (notCanceled && typeof this._declaration.onMenuSelect === 'function') {
+      this._declaration.onMenuSelect({
         modifiers: this.parentMenu.rootMenu.modifiers,
-        label: this.label,
-        id: this._template.id,
-        data: this._template.data,
+        id: this._declaration.id,
+        data: this._declaration.data,
       });
     }
   }
@@ -476,19 +450,13 @@ function speed(dx: number, dy: number, dt: number): number {
   return Math.hypot(dx, dy) / dt;
 }
 
-function dynamicValue<T, U>(
-  item: MenuItem<U>,
-  value: DynamicValue<T, U> | undefined,
+function dynamicValue<T>(
+  value: DynamicValue<T> | undefined,
   modifiers?: KeyboardModifiers
 ): T | undefined {
   if (value === undefined || typeof value !== 'function') return value;
 
   modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
-  return (value as (props: MenuItemProps<U>) => T)({
-    modifiers,
-    id: item.id,
-    group: item.group,
-    data: item.data,
-  });
+  return (value as (modifiers: KeyboardModifiers) => T)(modifiers);
 }

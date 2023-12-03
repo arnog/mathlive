@@ -1,66 +1,5 @@
 import type { KeyboardModifiers } from './ui-events-types';
 
-export type MenuItem<T = unknown> = {
-  /** If no type is specified, defaults to `"command"`, unless
-   * a submenu is specified, in which case the type is "submenu"
-   */
-  type?: MenuItemType;
-
-  /** User defined id string. Passed to the `onMenuSelect()` hook. */
-  id?: string;
-
-  /** User defined string identifying a set of related menu items,
-   *  for example a group of radio buttons.
-   */
-  group?: string;
-
-  /** User defined data payload. Passed to the `onMenuSelect()` hook. */
-  data?: T;
-
-  /** The label is a string of HTML markup used to describe the item */
-  label?: DynamicValue<string, T>;
-  ariaLabel?: DynamicValue<string, T>;
-  ariaDetails?: DynamicValue<string, T>;
-
-  tooltip?: DynamicValue<string, T>;
-  keyboardShortcut?: string;
-
-  /**
-   *
-   * If the menu is arranged in a custom grid, this the number of columns.
-   * This is used for keyboard navigation with the arrow keys.
-   *
-   * **Default**: 1.
-   *
-   */
-  columns?: number;
-
-  visible?: DynamicValue<boolean, T>;
-  enabled?: DynamicValue<boolean, T>;
-  checked?: DynamicValue<boolean | 'mixed', T>;
-
-  /** Optional CSS class applied to the menu item */
-  class?: string;
-
-  /** If the menu item has an associated container (e.g. submenu)
-   * this is the CSS class applied to the container.
-   */
-  containerClass?: string;
-
-  /** When the menu item is selected, a `menu-select` event is dispatched
-   * and this hook is called.
-   */
-  onMenuSelect?: (props: {
-    modifiers: KeyboardModifiers;
-    label?: string;
-    id?: string;
-    data?: T;
-  }) => void;
-
-  /** If type is `"submenu"` the child items */
-  submenu?: MenuItem[];
-};
-
 /**
  * The type of a menu item:
  * - `command`: a command that can be selected and executed
@@ -69,52 +8,22 @@ export type MenuItem<T = unknown> = {
  *   (until next divider or heading) are not visible, the heading is not
  *   visible either.
  * - `submenu`: a submenu
- * - `checkbox`: selecting the menu item toggles the checkbox
- * - `radio`: selecting the menu item selects the radio button and remove the
- *    checked state of other menu items in the same group: a group is defined
- *    as the menu items with the same `group` property.
  */
-export type MenuItemType =
-  | 'command'
-  | 'divider'
-  | 'heading'
-  | 'submenu'
-  | 'checkbox'
-  | 'radio';
+export type MenuItemType = 'command' | 'divider' | 'heading' | 'submenu';
 
 /**
- *
- * This event is dispatched when a menu item is selected.
- *
- * The `detail `property of the event is an object with the following properties:
+ * These props are passed to the `menu-select` event and `onMenuSelect` hook
  * - `id`: the `id` associated with the menu item.
- * - `group`: the `group` this menu item belongs to
  * - `data`: the `data` payload associated with the menu item
  * - `modifiers`: the keyboard modifiers that were pressed when the menu item was selected
- * - `label`: the current `label` of the menu item
- * - `element`: the DOM element of the menu item
- *
- */
-export type MenuSelectEventDetail<T = unknown> = {
-  id?: string;
-  group?: string;
-  data?: T;
-  modifiers?: KeyboardModifiers;
-  label?: string;
-  element?: HTMLElement;
-};
-
-/**
- * These props passed to the `DynamicString()` and `DynamicBoolean()` functions
  */
 export type MenuItemProps<T = unknown> = {
   id?: string;
-  group?: string;
   data?: T;
   modifiers?: KeyboardModifiers;
 };
 
-export type DynamicValue<T, U> = T | ((props: MenuItemProps<U>) => T);
+export type DynamicValue<T> = T | ((modifiers: KeyboardModifiers) => T);
 
 declare global {
   /**
@@ -122,6 +31,124 @@ declare global {
    * @internal
    */
   export interface DocumentEventMap {
-    ['menu-select']: CustomEvent<MenuSelectEventDetail>;
+    ['menu-select']: CustomEvent<MenuItemProps>;
   }
 }
+
+export type MenuItemCommand<T = unknown> = {
+  type?: 'command';
+
+  /** A string of HTML markup used to describe the item */
+  label?: DynamicValue<string>;
+
+  /** An accessible text string that describes the item.
+   * Usually not necessary, as the `label` is used for this,
+   * however if the menu item is for example a color swatch,
+   * the `ariaLabel` can be used to describe the color.
+   */
+  ariaLabel?: DynamicValue<string>;
+
+  tooltip?: DynamicValue<string>;
+
+  /** A CSS class applied to the item */
+  class?: string;
+
+  keyboardShortcut?: string;
+
+  visible?: DynamicValue<boolean>;
+  enabled?: DynamicValue<boolean>;
+  checked?: DynamicValue<boolean | 'mixed'>;
+
+  /** This id string is passed to the `onMenuSelect()` hook and with the `menu-select` event */
+  id?: string;
+
+  /** This data payload is passed to the `onMenuSelect()` hook and with the `menu-select` event  */
+  data?: T;
+
+  /** When this menu item is selected, a `menu-select` event is dispatched
+   * and this hook is called.
+   */
+  onMenuSelect?: (_: {
+    modifiers: KeyboardModifiers;
+    id?: string;
+    data?: T;
+  }) => void;
+};
+
+/** A divider is a visual separator between menu items.
+ * It is not selectable.
+ */
+export type MenuItemDivider = {
+  type: 'divider';
+};
+
+/** A heading is a menu item that is not selectable
+ * and used to group menu items.
+ *
+ * If followiung items (until next divider or heading) are not visible, the heading is not
+ *   visible either.
+ */
+export type MenuItemHeading = {
+  type: 'heading';
+
+  label?: DynamicValue<string>;
+  ariaLabel?: DynamicValue<string>;
+  tooltip?: DynamicValue<string>;
+  class?: string;
+};
+
+export type MenuItemSubmenu = {
+  type?: 'submenu';
+
+  label?: DynamicValue<string>;
+  ariaLabel?: DynamicValue<string>;
+  tooltip?: DynamicValue<string>;
+  class?: string;
+
+  submenu: MenuItem[];
+
+  visible?: DynamicValue<boolean>;
+  enabled?: DynamicValue<boolean>;
+
+  /**
+   *
+   * If the menu is arranged in a custom grid, this is the number of columns.
+   *
+   * This property is used for keyboard navigation with the arrow keys.
+   *
+   * **Default**: 1.
+   *
+   */
+  columns?: number;
+
+  /** The class applied to the submenu container.
+   */
+  containerClass?: string;
+};
+
+export function isSubmenu(item: MenuItem): item is MenuItemSubmenu {
+  return 'submenu' in item;
+}
+
+export function isCommand<T>(item: MenuItem<T>): item is MenuItemCommand<T> {
+  return (
+    ('type' in item && item.type === 'command') ||
+    'onSelect' in item ||
+    'id' in item
+  );
+}
+
+export function isDivider(item: MenuItem): item is MenuItemDivider {
+  return 'type' in item && item.type === 'divider';
+}
+
+export function isHeading(item: MenuItem): item is MenuItemHeading {
+  return 'type' in item && item.type === 'heading';
+}
+
+/** Declaration of a menu item */
+export type MenuItem<T = unknown> =
+  | MenuItemDivider
+  | MenuItemHeading
+  | MenuItemSubmenu
+  | MenuItemCommand<T>;

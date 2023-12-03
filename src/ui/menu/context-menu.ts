@@ -49,7 +49,7 @@ export async function onContextMenu(
       if (bounds) {
         // If no items visible, don't show anything
         const modifiers = keyboardModifiersFromEvent(event);
-        menu.update(modifiers);
+        menu.updateState(modifiers);
         if (!menu.visible) return false;
         menu.show({
           target: target,
@@ -77,7 +77,7 @@ export async function onContextMenu(
 
     // If no items visible, don't show anything
     const modifiers = keyboardModifiersFromEvent(event);
-    menu.update(modifiers);
+    menu.updateState(modifiers);
     if (!menu.visible) return false;
 
     const pt = eventLocation(event);

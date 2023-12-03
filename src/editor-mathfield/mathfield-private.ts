@@ -417,7 +417,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (this._menu.state !== 'closed') return;
         this.element!.classList.add('tracking');
         const bounds = menuToggle.getBoundingClientRect();
-        this._menu.update(keyboardModifiersFromEvent(ev));
+        this._menu.updateState(keyboardModifiersFromEvent(ev));
         this._menu.show({
           target: menuToggle,
           location: { x: bounds.left, y: bounds.bottom },
@@ -834,7 +834,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           // Firefox convention: holding the shift key disables custom context menu
           if ((evt as PointerEvent).shiftKey === false) {
             const modifiers = keyboardModifiersFromEvent(evt);
-            this._menu.update(modifiers);
+            this._menu.updateState(modifiers);
             if (
               await onContextMenu(
                 evt,
@@ -853,7 +853,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           (evt as PointerEvent).shiftKey === false
         ) {
           const modifiers = keyboardModifiersFromEvent(evt);
-          this._menu.update(modifiers);
+          this._menu.updateState(modifiers);
 
           if (
             await onContextMenu(

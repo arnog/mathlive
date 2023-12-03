@@ -6,7 +6,12 @@ import {
 } from 'ui/events/utils';
 import { Scrim } from 'ui/utils/scrim';
 import { _MenuListState } from './menu-list';
-import { MenuItem } from '../../public/ui-menu-types';
+import {
+  MenuItem,
+  isCommand,
+  isDivider,
+  isSubmenu,
+} from '../../public/ui-menu-types';
 import { RootMenuState, MenuListState } from './private-types';
 
 /**
@@ -17,6 +22,14 @@ import { RootMenuState, MenuListState } from './private-types';
  *
  */
 export class Menu extends _MenuListState implements RootMenuState {
+  /**
+   * Delay (in milliseconds) before displaying a submenu.
+   * Prevents distracting "flashing" of submenus when moving through the
+   * options in a menu.
+   */
+
+  static SUBMENU_DELAY = 120;
+
   /**
    * - 'closed': the menu is not visible
    * - 'open': the menu is visible as long as the mouse button is pressed
@@ -92,10 +105,10 @@ export class Menu extends _MenuListState implements RootMenuState {
     }
   }
 
-  update(modifiers?: KeyboardModifiers): void {
+  updateState(modifiers?: KeyboardModifiers): void {
     this._updating = true;
     this.modifiers = modifiers ?? this.modifiers;
-    super.update(this.modifiers);
+    super.updateState(this.modifiers);
     this._updating = false;
   }
 
@@ -103,7 +116,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     if (this.isDynamic) {
       const newModifiers = keyboardModifiersFromEvent(ev);
       if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.update(newModifiers);
+        this.updateState(newModifiers);
     }
     // Capture any keyup event to prevent ancestors from handling it
     ev.stopImmediatePropagation();
@@ -120,7 +133,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     if (this.isDynamic) {
       const newModifiers = keyboardModifiersFromEvent(ev);
       if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.update(newModifiers);
+        this.updateState(newModifiers);
     }
 
     let handled = true;
@@ -314,7 +327,7 @@ export class Menu extends _MenuListState implements RootMenuState {
   scheduleOperation(fn: () => void): void {
     this.cancelDelayedOperation();
 
-    const delay = this.submenuHysteresis;
+    const delay = Menu.SUBMENU_DELAY;
     if (delay <= 0) {
       fn();
       return;
@@ -332,30 +345,27 @@ export class Menu extends _MenuListState implements RootMenuState {
       this.hysteresisTimer = 0;
     }
   }
-
-  /**
-   * Delay (in milliseconds) before displaying a submenu.
-   * Prevents distracting "flashing" of submenus when moving through the
-   * options in a menu.
-   */
-  get submenuHysteresis(): number {
-    return 120;
-  }
 }
 
 function isDynamic(item: MenuItem): boolean {
+  if (isDivider(item)) return false;
+
   if (
-    typeof item.enabled === 'function' ||
-    typeof item.visible === 'function' ||
-    typeof item.checked === 'function' ||
     typeof item.label === 'function' ||
-    typeof item.ariaDetails === 'function' ||
     typeof item.ariaLabel === 'function' ||
     typeof item.tooltip === 'function'
   )
     return true;
 
-  if (item.submenu) return item.submenu.some(isDynamic);
+  if (
+    (isCommand(item) || isSubmenu(item)) &&
+    (typeof item.enabled === 'function' || typeof item.visible === 'function')
+  )
+    return true;
+
+  if (isCommand(item) && typeof item.checked === 'function') return true;
+
+  if (isSubmenu(item)) return item.submenu.some(isDynamic);
 
   return false;
 }

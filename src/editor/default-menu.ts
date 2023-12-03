@@ -198,11 +198,16 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
         (contrast(BACKGROUND_COLORS[color]) === '#000'
           ? 'dark-contrast'
           : 'light-contrast') + ' menu-swatch',
+
       label: `<span style="background:${BACKGROUND_COLORS[color]} "></span>`,
+
+      ariaLabel: color,
+
       checked: () =>
         ({ some: 'mixed', all: true })[
           mf.queryStyle({ backgroundColor: color }) ?? false
         ],
+
       onMenuSelect: () => {
         mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
         mf.adoptStyle = 'none';
@@ -220,12 +225,14 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
         (contrast(FOREGROUND_COLORS[color]) === '#000'
           ? 'dark-contrast'
           : 'light-contrast') + ' menu-swatch',
+
       label: `<span style="background:${FOREGROUND_COLORS[color]} "></span>`,
-      type: 'radio',
-      group: 'color',
+
+      ariaLabel: color,
 
       checked: () =>
         ({ some: 'mixed', all: true })[mf.queryStyle({ color }) ?? false],
+
       onMenuSelect: () => {
         mf.applyStyle({ color }, { operation: 'toggle' });
         mf.adoptStyle = 'none';
@@ -337,7 +344,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       containerClass: 'menu-container-border',
       visible: () =>
         (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
-      type: 'submenu',
       submenu: [
         {
           label: ' ⋱ ',
