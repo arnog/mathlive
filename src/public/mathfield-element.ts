@@ -108,13 +108,13 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
-    'mode-change': Event;
+    'mode-change': CustomEvent;
     'mount': Event;
-    'move-out': CustomEvent<MoveOutEvent>;
     'unmount': Event;
+    'move-out': CustomEvent<MoveOutEvent>;
     'read-aloud-status-change': Event;
     'selection-change': Event;
-    'undo-state-change': Event;
+    'undo-state-change': CustomEvent;
     'before-virtual-keyboard-toggle': Event;
     'virtual-keyboard-toggle': Event;
   }
@@ -494,18 +494,19 @@ const DEPRECATED_OPTIONS = {
  * | Event Name  | Description |
  * |:---|:---|
  * | `beforeinput` | The value of the mathfield is about to be modified.  |
- * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
+ * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield. The `evt.data` property includes a copy of `evt.inputType`. See `InputEvent` |
  * | `change` | The user has committed the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
  * | `selection-change` | The selection (or caret position) in the mathfield has changed |
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
- * | `undo-state-change` |  The state of the undo stack has changed |
+ * | `undo-state-change` |  The state of the undo stack has changed. The `evt.detail.type` indicate if a snapshot was taken or an undo performed. |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
- * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change.  |
+ * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change. The `evt.detail.visible` property indicate if the keyboard will be visible or not. Listen for this event on `window.mathVirtualKeyboard` |
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. Listen for this event on `window.mathVirtualKeyboard` |
+ * | `geometrychange` | The geometry of the virtual keyboard has changed. The `evt.detail.boundingRect` property is the new bounding rectangle of the virtual keyboard. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
- * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
+ * | `keypress` | The user pressed a physical keyboard key |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
  *
