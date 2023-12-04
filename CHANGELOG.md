@@ -29,6 +29,8 @@ mf.selection = mf.getPromptRange(id);
 - Setting the `mf.menuItems` property before the mathfield is inserted in the
   DOM will now correctly update the menu items. 
 
+- Correctly display tooltips in the menu when invoked via the menu icon.
+
 ### New Features
 
 - **#348** Added a `placeholder` attribute, similar to the `placeholder`

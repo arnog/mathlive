@@ -353,11 +353,12 @@ menu .ML__base {
 
 /** Don't display if we're tracking, i.e. have the pointer down */
 .tracking [data-tooltip]:hover::after {
-  display: none;
+  /* Use visibility, not display. Display will remove the after from the DOM, and the override below will not work */
+  visibility: hidden;
 }
 
-
-.tracking menu [data-tooltip]:hover::after, 
+/** But do display if tracking and inside a menu */
+.tracking menu li[data-tooltip]:hover::after, 
 [data-tooltip]:hover::after {
   visibility: visible; // Visible triggers the animation...
   opacity: 1; // ... but we start fully transparent to
@@ -369,11 +370,6 @@ menu .ML__base {
   transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
 }
 
-
-/** But do display if we're inside a menu */
-.tracking menu li[data-tooltip]:hover::after {
-  display: visible;
-}
 
 
 
@@ -421,9 +417,11 @@ menu .ML__base {
 }
 
 .menu-container-insert-matrix {
-  column-count: 5;
-  column-gap: 0;
-  padding: 8px;
+    display: grid;
+    padding: 8px;
+    align-content: center;
+    justify-content: center;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .menu-container-insert-matrix [part=menu-item] {
