@@ -257,8 +257,8 @@ export class _MenuListState implements MenuListState {
       if (value) value.active = true;
     }
 
-    if (value) value.element?.focus();
-    else this._element?.focus();
+    if (value) value.element?.focus({ preventScroll: true });
+    else this._element?.focus({ preventScroll: true });
   }
 
   /** First activable menu item */
@@ -380,14 +380,22 @@ export class _MenuListState implements MenuListState {
 
     if (options.location) {
       fitInViewport(this.element, {
-        location: options.location,
-        alternateLocation: options.alternateLocation,
+        location: {
+          x: options.location.x + window.scrollX,
+          y: options.location.y + window.scrollY,
+        },
+        alternateLocation: options.alternateLocation
+          ? {
+              x: options.alternateLocation.x + window.scrollX,
+              y: options.alternateLocation.y + window.scrollY,
+            }
+          : options.alternateLocation,
         verticalPos: 'bottom',
         horizontalPos: 'start',
       });
     }
 
-    this.element.focus();
+    this.element.focus({ preventScroll: true });
 
     // Notify our parent we have opened
     // (so the parent can close any other open submenu and/or

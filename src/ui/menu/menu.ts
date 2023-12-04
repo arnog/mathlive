@@ -52,7 +52,6 @@ export class Menu extends _MenuListState implements RootMenuState {
 
   private typingBufferResetTimer = 0;
   private typingBuffer: string;
-  private readonly _scrim: Scrim;
   private _openTimestamp?: number;
   private _onDismiss?: () => void;
   private hysteresisTimer = 0;
@@ -76,8 +75,6 @@ export class Menu extends _MenuListState implements RootMenuState {
     };
     this.typingBuffer = '';
     this.state = 'closed';
-
-    this._scrim = new Scrim({ onClose: () => this.hide() });
   }
 
   get modifiers(): KeyboardModifiers {
@@ -256,7 +253,7 @@ export class Menu extends _MenuListState implements RootMenuState {
   }
 
   get scrim(): Element {
-    return this._scrim.element;
+    return Scrim.element;
   }
 
   private connectScrim(target?: Node | null): void {
@@ -269,7 +266,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.addEventListener('keyup', this);
     scrim.addEventListener('pointermove', this);
 
-    this._scrim.open({ root: target });
+    Scrim.open({ root: target });
   }
 
   private disconnectScrim(): void {
@@ -281,7 +278,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.removeEventListener('keydown', this);
     scrim.removeEventListener('keyup', this);
     scrim.removeEventListener('pointermove', this);
-    if (this._scrim.state === 'open') this._scrim.close();
+    if (Scrim.state === 'open') Scrim.scrim.close();
   }
 
   get rootMenu(): Menu {
@@ -289,6 +286,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     return this;
   }
 
+  /** Locations are in viewport coordinate */
   show(options?: {
     target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };

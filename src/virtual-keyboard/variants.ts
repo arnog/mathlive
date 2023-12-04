@@ -169,8 +169,7 @@ export function showVariantsPanel(
   //
   // Create the scrim and attach the variants panel to it
   //
-  if (!Scrim.scrim) Scrim.scrim = new Scrim();
-  Scrim.scrim.open({
+  Scrim.open({
     root: keyboard?.container?.querySelector('.ML__keyboard'),
     child: variantPanel,
   });
@@ -269,7 +268,7 @@ export function showVariantsPanel(
 export function hideVariantsPanel(): void {
   gVariantPanelController?.abort();
   gVariantPanelController = null;
-  Scrim.scrim?.close();
+  Scrim.close();
 }
 
 function makeVariants(

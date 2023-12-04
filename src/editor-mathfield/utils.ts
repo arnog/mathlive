@@ -33,7 +33,7 @@ function findElementWithCaret(element: Element): Element | null {
 }
 
 /**
- * Return the (x,y) client coordinates of the caret
+ * Return the (x,y) client coordinates of the caret in viewport coordinates
  */
 export function getCaretPoint(
   element: Element

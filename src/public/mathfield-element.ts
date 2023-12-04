@@ -1804,9 +1804,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /** @internal */
   handleEvent(evt: Event): void {
-    // If the scrim is open (variant panel), ignore events
+    // If the scrim for the variant panel or the menu is
+    // open, ignore events.
     // Otherwise we may end up disconecting from the VK
-    if (Scrim.scrim && Scrim.scrim.state !== 'closed') return;
+    if (Scrim.state !== 'closed') return;
 
     // Also, if the menu is open
     if (this._mathfield?.menu?.state !== 'closed') return;

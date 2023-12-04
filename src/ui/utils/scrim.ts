@@ -1,37 +1,45 @@
 import { deepActiveElement } from 'ui/events/utils';
 
 export class Scrim {
-  static scrim: Scrim;
+  private static _scrim: Scrim | undefined;
+  static get scrim(): Scrim {
+    if (!Scrim._scrim) Scrim._scrim = new Scrim();
+    return Scrim._scrim;
+  }
+  static open(options: { root?: Node | null; child?: HTMLElement }): void {
+    Scrim.scrim.open(options);
+  }
+  static close(): void {
+    Scrim.scrim.close();
+  }
+  static get state(): 'closed' | 'opening' | 'open' | 'closing' {
+    return Scrim.scrim.state;
+  }
+  static get element(): HTMLElement {
+    return Scrim.scrim.element;
+  }
+
+  state: 'closed' | 'opening' | 'open' | 'closing';
+
+  private readonly lightDismiss: boolean;
+  private readonly translucent: boolean;
 
   private _element?: HTMLElement;
-
-  private readonly preventOverlayClose: boolean;
-  private readonly onClose?: () => void;
 
   private savedOverflow?: string;
   private savedMarginRight?: string;
 
   private savedActiveElement?: HTMLOrSVGElement | null;
 
-  state: 'closed' | 'opening' | 'open' | 'closing';
-
-  private readonly translucent: boolean;
-
   /**
-   * - If `options.preventOverlayClose` is false, the scrim is closed if the
+   * - If `lightDismiss` is true, the scrim is closed if the
    * user clicks on the scrim. That's the behavior for menus, for example.
    * When you need a fully modal situation until the user has made an
    * explicit choice (validating cookie usage, for example), set
-   * `preventOverlayClose` to true.
-   * - `onClose()` is called when the scrim is being closed
-   * -
+   * `lightDismiss` to fallse.
    */
-  constructor(options?: {
-    translucent?: boolean;
-    preventOverlayClose?: boolean;
-    onClose?: () => void;
-  }) {
-    this.preventOverlayClose = options?.preventOverlayClose ?? false;
+  constructor(options?: { translucent?: boolean; lightDismiss?: boolean }) {
+    this.lightDismiss = options?.lightDismiss ?? true;
     this.translucent = options?.translucent ?? false;
 
     this.state = 'closed';
@@ -102,8 +110,6 @@ export class Scrim {
     }
     this.state = 'closing';
 
-    if (typeof this.onClose === 'function') this.onClose();
-
     const { element } = this;
     element.removeEventListener('click', this);
     document.removeEventListener('touchmove', this, false);
@@ -125,7 +131,7 @@ export class Scrim {
   }
 
   handleEvent(ev: Event): void {
-    if (!this.preventOverlayClose) {
+    if (this.lightDismiss) {
       if (ev.target === this._element && ev.type === 'click') {
         this.close();
         ev.preventDefault();

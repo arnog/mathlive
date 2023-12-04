@@ -4,6 +4,9 @@
 
 - Added `mf.showMenu()` method to programmatically show the context menu.
 
+### Bugs Fixed
+
+- Correctly position the menu when the document has been scrolled.
 
 ## 0.98.0 (2023-12-03)
 

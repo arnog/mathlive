@@ -78,10 +78,10 @@ export async function onContextMenu(
     // If no items visible, don't show anything
     if (!menu.visible) return false;
 
-    const pt = eventLocation(event);
+    const location = eventLocation(event);
     if (await onLongPress(event)) {
       if (menu.state !== 'closed') return false;
-      menu.show({ target: target, location: pt });
+      menu.show({ target, location });
     }
     return true;
   }
