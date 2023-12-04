@@ -31,6 +31,8 @@ mf.selection = mf.getPromptRange(id);
 
 - Correctly display tooltips in the menu when invoked via the menu icon.
 
+- Localized menu items in the context menu.
+
 ### New Features
 
 - **#348** Added a `placeholder` attribute, similar to the `placeholder`
