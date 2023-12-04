@@ -24,17 +24,18 @@ export async function onContextMenu(
   // may have been triggered
   //
   if (event.type === 'contextmenu') {
-    // If no items visible, don't show anything
-    if (!menu.visible) return false;
-
     const evt = event as MouseEvent;
-    menu.show({
-      target: target,
-      location: { x: Math.ceil(evt.clientX), y: Math.ceil(evt.clientY) },
-    });
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
+    if (
+      menu.show({
+        target: target,
+        location: eventLocation(evt),
+        modifiers: keyboardModifiersFromEvent(evt),
+      })
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    }
   }
 
   //
@@ -46,18 +47,17 @@ export async function onContextMenu(
       // Shift+F10 = context menu
       // Get the center of the parent
       const bounds = target?.getBoundingClientRect();
-      if (bounds) {
-        // If no items visible, don't show anything
-        const modifiers = keyboardModifiersFromEvent(event);
-        menu.updateState(modifiers);
-        if (!menu.visible) return false;
+      if (
+        bounds &&
         menu.show({
           target: target,
           location: {
             x: Math.ceil(bounds.left + bounds.width / 2),
             y: Math.ceil(bounds.top + bounds.height / 2),
           },
-        });
+          modifiers: keyboardModifiersFromEvent(evt),
+        })
+      ) {
         event.preventDefault();
         event.stopPropagation();
         return true;
@@ -68,7 +68,7 @@ export async function onContextMenu(
   //
   // This might be a long press...
   //
-  if (event.type === 'pointerdown') {
+  if (event.type === 'pointerdown' && (event as PointerEvent).button === 0) {
     // Are we inside the target element?
     let eventTarget = event.target as HTMLElement;
     while (eventTarget && target !== eventTarget)
@@ -76,8 +76,6 @@ export async function onContextMenu(
     if (!eventTarget) return false;
 
     // If no items visible, don't show anything
-    const modifiers = keyboardModifiersFromEvent(event);
-    menu.updateState(modifiers);
     if (!menu.visible) return false;
 
     const pt = eventLocation(event);

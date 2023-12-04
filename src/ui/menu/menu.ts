@@ -24,8 +24,9 @@ import { RootMenuState, MenuListState } from './private-types';
 export class Menu extends _MenuListState implements RootMenuState {
   /**
    * Delay (in milliseconds) before displaying a submenu.
-   * Prevents distracting "flashing" of submenus when moving through the
-   * options in a menu.
+   *
+   * Prevents distracting flashing of submenus when moving quickly
+   * through the options in a menu.
    */
 
   static SUBMENU_DELAY = 120;
@@ -33,8 +34,8 @@ export class Menu extends _MenuListState implements RootMenuState {
   /**
    * - 'closed': the menu is not visible
    * - 'open': the menu is visible as long as the mouse button is pressed
-   * - 'modal': the menu is visible until dismissed, even with the mouse button
-   * released
+   * - 'modal': the menu is visible until dismissed, even with
+   *   the mouse button released
    */
   state: 'closed' | 'open' | 'modal' = 'closed';
 
@@ -47,7 +48,7 @@ export class Menu extends _MenuListState implements RootMenuState {
   lastMoveEvent?: PointerEvent;
 
   /** @private */
-  modifiers: KeyboardModifiers;
+  _modifiers: KeyboardModifiers;
 
   private typingBufferResetTimer = 0;
   private typingBuffer: string;
@@ -67,7 +68,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     super(menuItems);
     this._host = options?.host ?? null;
     this.isDynamic = menuItems.some(isDynamic);
-    this.modifiers = {
+    this._modifiers = {
       shift: false,
       control: false,
       alt: false,
@@ -77,6 +78,16 @@ export class Menu extends _MenuListState implements RootMenuState {
     this.state = 'closed';
 
     this._scrim = new Scrim({ onClose: () => this.hide() });
+  }
+
+  get modifiers(): KeyboardModifiers {
+    return this._modifiers;
+  }
+
+  set modifiers(value: KeyboardModifiers) {
+    if (equalKeyboardModifiers(this._modifiers, value)) return;
+    this._modifiers = value;
+    this.dirty = true;
   }
 
   /**
@@ -96,10 +107,11 @@ export class Menu extends _MenuListState implements RootMenuState {
 
     console.assert(value === true);
     if (this._dirty === value) return;
+
+    this._dirty = true;
     if (value) {
-      this._dirty = true;
       setTimeout(() => {
-        this._dirty = false;
+        this.updateState(this.modifiers);
         this.updateElement();
       });
     }
@@ -113,11 +125,8 @@ export class Menu extends _MenuListState implements RootMenuState {
   }
 
   handleKeyupEvent(ev: KeyboardEvent): void {
-    if (this.isDynamic) {
-      const newModifiers = keyboardModifiersFromEvent(ev);
-      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.updateState(newModifiers);
-    }
+    if (this.isDynamic) this.modifiers = keyboardModifiersFromEvent(ev);
+
     // Capture any keyup event to prevent ancestors from handling it
     ev.stopImmediatePropagation();
   }
@@ -130,11 +139,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     }
 
     // Update menu if the keyboard modifiers have changed
-    if (this.isDynamic) {
-      const newModifiers = keyboardModifiersFromEvent(ev);
-      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.updateState(newModifiers);
-    }
+    if (this.isDynamic) this.modifiers = keyboardModifiersFromEvent(ev);
 
     let handled = true;
     const menu = this.activeSubmenu;
@@ -288,9 +293,16 @@ export class Menu extends _MenuListState implements RootMenuState {
     target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
+    modifiers?: KeyboardModifiers;
     onDismiss?: () => void;
   }): boolean {
     this._onDismiss = options?.onDismiss;
+
+    if (options?.modifiers) this.modifiers = options.modifiers;
+
+    // On first showing, always update the state to account not only
+    // for the keyboard modifiers, but the state of the environment
+    this.updateState();
 
     // Connect the scrim now, so that the menu can be measured and placed
     this.connectScrim(options?.target);

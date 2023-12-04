@@ -5,7 +5,7 @@ import { ModeEditor } from 'editor-mathfield/mode-editor';
 import { setEnvironment } from 'editor-model/array';
 import { TabularEnvironment, Variant, VariantStyle } from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
-import { removeSuggestion } from 'editor-mathfield/autocomplete';
+import { complete, removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
 import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
@@ -54,11 +54,12 @@ function validVariantStyleSelection(
 
 function getVariantSubmenu(mf: _Mathfield): MenuItem[] {
   return [
-    variantMenuItem(mf, 'double-struck', 'mathbb', 'Blackboard'),
-    variantMenuItem(mf, 'fraktur', 'mathfrak', 'Fraktur'),
-    variantMenuItem(mf, 'calligraphic', 'mathcal', 'Caligraphic'),
-    variantStyleMenuItem(mf, 'up', 'mathrm', 'Roman Upright'),
-    variantStyleMenuItem(mf, 'bold', 'mathbf', 'Bold'),
+    variantMenuItem(mf, 'double-struck', 'mathbb', 'tooltip.blackboard'),
+    variantMenuItem(mf, 'fraktur', 'mathfrak', 'tooltip.fraktur'),
+    variantMenuItem(mf, 'calligraphic', 'mathcal', 'tooltip.caligraphic'),
+    variantStyleMenuItem(mf, 'up', 'mathrm', 'tooltip.roman-upright'),
+    variantStyleMenuItem(mf, 'bold', 'mathbf', 'tooltip.bold'),
+    variantStyleMenuItem(mf, 'italic', 'mathit', 'tooltip.italic'),
   ];
 }
 
@@ -202,7 +203,7 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
 
       label: `<span style="background:${BACKGROUND_COLORS[color]} "></span>`,
 
-      ariaLabel: color,
+      ariaLabel: () => localize(color) ?? color,
 
       checked: () =>
         ({ some: 'mixed', all: true })[
@@ -229,7 +230,7 @@ function getColorSubmenu(mf: _Mathfield): MenuItem[] {
 
       label: `<span style="background:${FOREGROUND_COLORS[color]} "></span>`,
 
-      ariaLabel: color,
+      ariaLabel: () => localize(color) ?? color,
 
       checked: () =>
         ({ some: 'mixed', all: true })[mf.queryStyle({ color }) ?? false],
@@ -275,14 +276,15 @@ function getInsertMatrixSubmenu(mf: _Mathfield): MenuItem[] {
   for (let row = 1; row <= 5; row++) {
     for (let col = 1; col <= 5; col++) {
       result.push({
-        createMenuItem: (decl, parent) =>
+        onCreate: (decl, parent) =>
           new InsertMatrixMenuItem(decl, parent, row, col),
         label: `☐`,
+        tooltip: () => localize('tooltip.row-by-col', row, col)!,
         data: { row, col },
         onMenuSelect: () => {
           mf.insert(
-            `\\begin{pmatrix}${Array(col)
-              .fill(Array(row).fill('#?').join(' & '))
+            `\\begin{pmatrix}${Array(row)
+              .fill(Array(col).fill('#?').join(' & '))
               .join('\\\\')}\\end{pmatrix}`,
             {
               selectionMode: 'item',
@@ -298,19 +300,19 @@ function getInsertMatrixSubmenu(mf: _Mathfield): MenuItem[] {
 
 export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
   return [
-    // // {
-    // //   label: 'Show Virtual Keyboard',
-    // //   onMenuSelect: () => window.mathVirtualKeyboard.show({ animate: true }),
-    // //   visible: () => window.mathVirtualKeyboard.visible === false,
-    // // },
-    // // {
-    // //   label: 'Hide Virtual Keyboard',
-    // //   onMenuSelect: () => window.mathVirtualKeyboard.hide({ animate: true }),
-    // //   visible: () => window.mathVirtualKeyboard.visible === true,
-    // // },
     // {
-    //   type: 'divider',
+    //   label: 'Show Virtual Keyboard',
+    //   onMenuSelect: () => window.mathVirtualKeyboard.show({ animate: true }),
+    //   visible: () => window.mathVirtualKeyboard.visible === false,
     // },
+    // {
+    //   label: 'Hide Virtual Keyboard',
+    //   onMenuSelect: () => window.mathVirtualKeyboard.hide({ animate: true }),
+    //   visible: () => window.mathVirtualKeyboard.visible === true,
+    // },
+    {
+      type: 'divider',
+    },
     {
       label: 'Return to Math Mode',
       id: 'return-to-math-mode',
@@ -413,38 +415,60 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       submenu: getInsertMatrixSubmenu(mf),
     },
     {
-      label: 'Insert Text',
-      id: 'insert-text',
-      onMenuSelect: () => mf.executeCommand(['switchMode', 'text']),
-      visible: () => mf.isSelectionEditable && mf.model.mode === 'math',
+      label: () => localize('menu.mode')!,
+      id: 'mode',
+      visible: () => mf.isSelectionEditable,
+      submenu: [
+        {
+          label: () => localize('menu.mode-math')!,
+          onMenuSelect: () => {
+            complete(mf, 'accept-all');
+            mf.executeCommand(['switchMode', 'math']);
+          },
+          checked: () => mf.model.mode === 'math',
+        },
+        {
+          label: () => localize('menu.mode-text')!,
+          onMenuSelect: () => {
+            complete(mf, 'accept-all');
+            mf.executeCommand(['switchMode', 'text']);
+          },
+          checked: () => mf.model.mode === 'text',
+        },
+        {
+          label: () => localize('menu.mode-latex')!,
+          onMenuSelect: () => mf.executeCommand(['switchMode', 'latex']),
+          checked: () => mf.model.mode === 'latex',
+        },
+      ],
     },
 
     {
       type: 'divider',
     },
     {
-      label: 'Variant',
+      label: () => localize('menu.font-style')!,
       id: 'variant',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getVariantSubmenu(mf),
     },
     {
-      label: 'Accent',
+      label: () => localize('menu.accent')!,
       id: 'accent',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getAccentSubmenu(mf),
     },
     {
-      label: 'Decoration',
+      label: () => localize('menu.decoration')!,
       id: 'decoration',
       containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
       submenu: getDecorationSubmenu(mf),
     },
     {
-      label: 'Color',
+      label: () => localize('menu.color')!,
       id: 'color',
       containerClass: 'menu-container-swatches',
       columns: 4,
@@ -452,7 +476,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       submenu: getColorSubmenu(mf),
     },
     {
-      label: 'Background Color',
+      label: () => localize('menu.background-color')!,
       id: 'background-color',
       containerClass: 'menu-container-swatches',
       columns: 4,
@@ -463,7 +487,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: 'Evaluate',
+      label: () => localize('menu.evaluate')!,
       id: 'ce-evaluate',
       visible: () =>
         mf.isSelectionEditable &&
@@ -489,7 +513,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       },
     },
     {
-      label: 'Simplify',
+      label: () => localize('menu.simplify')!,
       id: 'ce-simplify',
       visible: () =>
         mf.isSelectionEditable &&
@@ -523,9 +547,11 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: () => {
+        if (window.MathfieldElement.computeEngine === null) return '';
         const unknown = mf.expression?.unknowns[0];
-        if (unknown) return 'Solve for ' + convertLatexToMarkup(unknown);
-        return 'Solve';
+        if (unknown)
+          return localize('menu.solve-for', convertLatexToMarkup(unknown))!;
+        return localize('menu.solve')!;
       },
       id: 'ce-solve',
       visible: () =>
@@ -559,7 +585,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: 'Cut',
+      label: () => localize('menu.cut')!,
       onMenuSelect: () => mf.executeCommand('cutToClipboard'),
       visible: () => !mf.options.readOnly && mf.isSelectionEditable,
       keyboardShortcut: 'meta+X',
@@ -569,22 +595,22 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     //   onMenuSelect: () => mf.executeCommand('copyToClipboard'),
     // },
     {
-      label: 'Copy',
+      label: () => localize('menu.copy')!,
       id: 'copy',
       submenu: [
         {
-          label: 'Copy as LaTeX',
+          label: () => localize('menu.copy-as-latex')!,
           id: 'copy-latex',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'latex'),
           keyboardShortcut: 'meta+C',
         },
         {
-          label: 'Copy as ASCII Math',
+          label: () => localize('menu.copy-as-ascii-math')!,
           id: 'copy-ascii-math',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),
         },
         {
-          label: 'Copy as MathML',
+          label: () => localize('menu.copy-as-mathml')!,
           id: 'copy-math-ml',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'math-ml'),
         },
@@ -592,14 +618,14 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
 
     {
-      label: 'Paste',
+      label: () => localize('menu.paste')!,
       id: 'paste',
       onMenuSelect: () => mf.executeCommand('pasteFromClipboard'),
       visible: () => mf.hasEditableContent,
       keyboardShortcut: 'meta+V',
     },
     {
-      label: 'Select All',
+      label: () => localize('menu.select-all')!,
       id: 'select-all',
       keyboardShortcut: 'meta+A',
       onMenuSelect: () => mf.executeCommand('selectAll'),
@@ -661,7 +687,7 @@ function variantMenuItem(
   return {
     label: () =>
       convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
-    tooltip,
+    tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantAtom(mf, variant),
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variant }) ?? false],
@@ -681,7 +707,7 @@ function variantStyleMenuItem(
   return {
     label: () =>
       convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
-    tooltip,
+    tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantStyleSelection(mf, variantStyle),
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle }) ?? false],

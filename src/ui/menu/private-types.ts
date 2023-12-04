@@ -3,6 +3,7 @@ import { MenuItem, MenuItemType } from '../../public/ui-menu-types';
 
 /** @internal */
 export interface MenuItemState<T = unknown> {
+  readonly rootMenu: RootMenuState;
   readonly parentMenu: MenuListState;
 
   active: boolean;
@@ -51,9 +52,8 @@ export interface MenuItemState<T = unknown> {
 /** @internal */
 export interface MenuListState {
   readonly rootMenu: RootMenuState;
-
   readonly parentMenu: MenuListState | null;
-  readonly children: MenuItemState[];
+  readonly children: readonly MenuItemState[];
 
   readonly element: HTMLElement | null;
   isSubmenuOpen: boolean;

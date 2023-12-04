@@ -18,7 +18,7 @@ export class _MenuListState implements MenuListState {
 
   hasCheck?: boolean; // If true, has at least one checkbox or radio menu item
 
-  _menuItems: MenuItemState[];
+  _menuItems: readonly MenuItemState[];
 
   private _element: HTMLElement | null = null;
   private _activeMenuItem: MenuItemState | null = null;
@@ -27,10 +27,10 @@ export class _MenuListState implements MenuListState {
 
   private _abortController?: AbortController;
 
-  protected _dirty = false;
+  protected _dirty = true;
 
   constructor(
-    items: MenuItem[],
+    items: readonly MenuItem[],
     options?: {
       parentMenu?: MenuListState;
       containerClass?: string;
@@ -44,14 +44,14 @@ export class _MenuListState implements MenuListState {
     this.menuItems = items;
   }
 
-  get children(): MenuItemState[] {
+  get children(): readonly MenuItemState[] {
     return this._menuItems;
   }
 
   /** Setting the menu items will reset this item and
    * redefine a set of _MenuItem objects
    */
-  set menuItems(items: Readonly<MenuItem[]>) {
+  set menuItems(items: readonly MenuItem[]) {
     // Clear any existing menu items
     const parent = this.parentMenu;
     this.dispose();
@@ -60,12 +60,11 @@ export class _MenuListState implements MenuListState {
 
     // Create the _MenuItemState objects
     this._menuItems = items.map((x) =>
-      x['createMenuItem']
-        ? x['createMenuItem'](x, this)
-        : new _MenuItemState(x, this)
+      x['onCreate'] ? x['onCreate'](x, this) : new _MenuItemState(x, this)
     );
 
     this.hasCheck = undefined;
+    this.dirty = true;
   }
 
   dispose(): void {
@@ -96,16 +95,19 @@ export class _MenuListState implements MenuListState {
     return this.parentMenu!.rootMenu;
   }
 
-  get items(): MenuItemState[] {
-    return this._menuItems;
-  }
-
   /**
-   * Update the 'model' of this menu (i.e. list of menu items) based
-   * on the state of the keyboard
+   * Update the 'model' of this menu (i.e. list of menu items)
    */
   updateState(modifiers?: KeyboardModifiers): void {
     this._menuItems.forEach((x) => x.updateState(modifiers));
+
+    const previousHasCheck = this.hasCheck;
+    this.hasCheck = this._menuItems.some((x) => x.visible && x.hasCheck);
+    if (this.hasCheck !== previousHasCheck) {
+      // If the "hasCheck" state has changed, we need to update the
+      // element to reflect the change (the label may need to be shifted)
+      this._menuItems.forEach((x) => x.updateState(modifiers));
+    }
 
     //
     // 1/ Hide headings with no items
@@ -138,14 +140,14 @@ export class _MenuListState implements MenuListState {
       } else if (item.visible) wasDivider = false;
     }
 
-    this.hasCheck = this._menuItems.some((x) => x.visible && x.hasCheck);
-
     if (!this.activeMenuItem?.visible) this.activeMenuItem = null;
     if (
       !this.activeMenuItem?.enabled &&
       this.activeMenuItem?.type === 'submenu'
     )
       this._activeMenuItem!.submenu!.hide();
+
+    this._dirty = false;
   }
 
   get enabled(): boolean {
@@ -165,6 +167,10 @@ export class _MenuListState implements MenuListState {
       this._dirty = true;
       this.parentMenu.dirty = true;
     }
+  }
+
+  updateIfDirty(): void {
+    if (this._dirty) this.updateState(this.rootMenu.modifiers);
   }
 
   /** If the element has been created, update its content to reflect
@@ -257,6 +263,7 @@ export class _MenuListState implements MenuListState {
 
   /** First activable menu item */
   get firstMenuItem(): MenuItemState | null {
+    this.updateIfDirty();
     let result = 0;
     let found = false;
     const menuItems = this._menuItems;
@@ -271,6 +278,7 @@ export class _MenuListState implements MenuListState {
 
   /** Last activable menu item */
   get lastMenuItem(): MenuItemState | null {
+    this.updateIfDirty();
     const menuItems = this._menuItems;
     let result = menuItems.length - 1;
     let found = false;
@@ -318,6 +326,8 @@ export class _MenuListState implements MenuListState {
   }
 
   findMenuItem(text: string): MenuItemState | null {
+    this.updateIfDirty();
+
     const candidates = this._menuItems.filter(
       (x) => x.type !== 'divider' && x.visible && x.enabled
     );
@@ -354,6 +364,8 @@ export class _MenuListState implements MenuListState {
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
   }): boolean {
+    this.updateIfDirty();
+
     if (!this.visible || !options.container) return false;
 
     this.updateElement();

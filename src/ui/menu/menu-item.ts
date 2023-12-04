@@ -12,7 +12,7 @@ import {
 } from '../../public/ui-menu-types';
 import { icon } from 'ui/icons/icons';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
-import { MenuItemState, MenuListState } from './private-types';
+import { MenuItemState, MenuListState, RootMenuState } from './private-types';
 import { getEdge } from 'ui/geometry/utils';
 import { getComputedDir } from 'ui/i18n/utils';
 
@@ -33,20 +33,20 @@ const BLINK_SPEED = 80;
 export class _MenuItemState<T> implements MenuItemState<T> {
   parentMenu: MenuListState;
 
+  readonly type: MenuItemType;
+
+  readonly _declaration: Readonly<MenuItem<T>>;
+
   /** If this menu _type is 'submenu' */
   submenu?: _MenuListState;
 
-  readonly _declaration: MenuItem<T>;
+  private _label: string;
+  private _ariaLabel?: string;
+  private _tooltip: string | undefined;
 
-  _type: MenuItemType;
-
-  _label: string;
-  _ariaLabel?: string;
-  _tooltip: string | undefined;
-
-  _enabled: boolean;
-  _visible: boolean;
-  _checked: boolean | 'mixed';
+  private _enabled: boolean;
+  private _visible: boolean;
+  private _checked: boolean | 'mixed';
 
   hasCheck: boolean;
 
@@ -61,14 +61,18 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     this._declaration = declaration;
 
     if (isSubmenu(declaration)) {
-      this._type = 'submenu';
+      this.type = 'submenu';
       this.submenu = new _MenuListState(declaration.submenu, {
         parentMenu,
         containerClass: declaration.containerClass,
       });
-    } else this._type = declaration.type ?? 'command';
+    } else this.type = declaration.type ?? 'command';
 
     this.hasCheck = isCommand(declaration) && declaration.checked !== undefined;
+  }
+
+  get rootMenu(): RootMenuState {
+    return this.parentMenu.rootMenu;
   }
 
   get abortController(): AbortController {
@@ -78,17 +82,15 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
   dispose(): void {
     this._abortController?.abort();
+    this._abortController = undefined;
     this._element?.remove();
     this._element = null;
     if (this.submenu) this.submenu.dispose();
+    this.submenu = undefined;
   }
 
   get menuItem(): MenuItem<T> {
     return this._declaration;
-  }
-
-  get type(): MenuItemType {
-    return this._type;
   }
 
   get label(): string {
@@ -122,6 +124,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       if (value) this.element.removeAttribute('aria-disabled');
       else this.element.setAttribute('aria-disabled', 'true');
     }
+    this.dirty = true;
   }
 
   get checked(): boolean | 'mixed' {
@@ -160,11 +163,8 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     this.element.classList.toggle('active', value);
   }
 
-  get items(): MenuItemState[] | undefined {
-    return this.submenu?.items;
-  }
-
   updateState(modifiers?: KeyboardModifiers): void {
+    // console.log('updateState item', this._declaration['id'] ?? '');
     const declaration = this._declaration;
 
     if (isDivider(declaration)) {
@@ -177,10 +177,15 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       this.enabled = false;
       this.checked = false;
       this.visible = true;
-    } else {
+    }
+
+    if (isCommand(declaration)) {
       this.checked =
         isCommand(declaration) &&
         (dynamicValue(declaration.checked, modifiers) ?? false);
+    }
+
+    if (isCommand(declaration) || isSubmenu(declaration)) {
       this.enabled = dynamicValue(declaration.enabled, modifiers) ?? true;
       this.visible = dynamicValue(declaration.visible, modifiers) ?? true;
       if (this.visible && this.enabled && this.submenu) {
@@ -188,10 +193,15 @@ export class _MenuItemState<T> implements MenuItemState<T> {
         if (!this.submenu.visible) this.visible = false;
       }
     }
-
-    this.label = dynamicValue(declaration.label, modifiers);
-    this.tooltip = dynamicValue(declaration.tooltip, modifiers);
-    this.ariaLabel = dynamicValue(declaration.ariaLabel, modifiers);
+    if (
+      isCommand(declaration) ||
+      isHeading(declaration) ||
+      isSubmenu(declaration)
+    ) {
+      this.label = dynamicValue(declaration.label, modifiers);
+      this.tooltip = dynamicValue(declaration.tooltip, modifiers);
+      this.ariaLabel = dynamicValue(declaration.ariaLabel, modifiers);
+    }
 
     if (this._element) this.updateElement();
   }
@@ -269,7 +279,13 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     const li = document.createElement('li');
     this._element = li;
-    if (this._declaration.class) li.className = this._declaration.class;
+    if (
+      (isCommand(this._declaration) ||
+        isHeading(this._declaration) ||
+        isSubmenu(this._declaration)) &&
+      this._declaration.class
+    )
+      li.className = this._declaration.class;
 
     li.setAttribute('part', 'menu-item');
     li.setAttribute('tabindex', '-1');
@@ -302,7 +318,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       cancelable: true,
       bubbles: true,
       detail: {
-        modifiers: this.parentMenu.rootMenu.modifiers,
+        modifiers: this.rootMenu.modifiers,
         id: this._declaration.id,
         data: this._declaration.data,
       },
@@ -312,7 +328,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     if (notCanceled && typeof this._declaration.onMenuSelect === 'function') {
       this._declaration.onMenuSelect({
-        modifiers: this.parentMenu.rootMenu.modifiers,
+        modifiers: this.rootMenu.modifiers,
         id: this._declaration.id,
         data: this._declaration.data,
       });
@@ -331,7 +347,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     if (event.type === 'pointerenter') {
       const ev = event as PointerEvent;
-      this.parentMenu.rootMenu.cancelDelayedOperation();
+      this.rootMenu.cancelDelayedOperation();
       // If there is a submenu open, and the mouse is moving in the
       // triangle formed from the current mouse location and the two
       // adjacent corners of the open menu, schedule setting the new
@@ -340,7 +356,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
         this.parentMenu.isSubmenuOpen &&
         this.parentMenu.activeMenuItem?.movingTowardSubmenu(ev)
       ) {
-        this.parentMenu.rootMenu.scheduleOperation(() => {
+        this.rootMenu.scheduleOperation(() => {
           this.parentMenu.activeMenuItem = this;
           this.openSubmenu();
         });
@@ -352,7 +368,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     }
 
     if (event.type === 'pointerleave') {
-      if (this.parentMenu.rootMenu.activeSubmenu === this.parentMenu)
+      if (this.rootMenu.activeSubmenu === this.parentMenu)
         this.parentMenu.activeMenuItem = null;
       return;
     }
@@ -360,7 +376,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (event.type === 'pointerup') {
       // When modal, the items are activated on click,
       // so ignore mouseup
-      if (this.parentMenu.rootMenu.state !== 'modal') this.select();
+      if (this.rootMenu.state !== 'modal') this.select();
 
       event.stopPropagation();
       event.preventDefault();
@@ -374,7 +390,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
    * - or display the submenu
    */
   select(): void {
-    this.parentMenu.rootMenu.cancelDelayedOperation();
+    this.rootMenu.cancelDelayedOperation();
 
     if (this.type === 'submenu') {
       this.openSubmenu();
@@ -386,7 +402,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     setTimeout(() => {
       this.active = true;
       setTimeout(() => {
-        this.parentMenu.rootMenu.hide();
+        this.rootMenu.hide();
         this.dispatchSelect();
       }, BLINK_SPEED);
     }, BLINK_SPEED);
@@ -400,14 +416,14 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (this.type !== 'submenu' || !this.element) return;
 
     if (options?.withDelay ?? false) {
-      this.parentMenu.rootMenu.scheduleOperation(() => this.openSubmenu());
+      this.rootMenu.scheduleOperation(() => this.openSubmenu());
       return;
     }
 
     const bounds = this.element.getBoundingClientRect();
     const dir = getComputedDir(this.element);
     this.submenu!.show({
-      container: this.parentMenu.rootMenu.element!.parentNode!,
+      container: this.rootMenu.element!.parentNode!,
       location: { x: getEdge(bounds, 'trailing', dir), y: bounds.top - 4 },
       alternateLocation: {
         x: getEdge(bounds, 'leading', dir),
@@ -419,7 +435,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   movingTowardSubmenu(ev: PointerEvent): boolean {
     if (!this.element) return false;
     if (this.type !== 'submenu') return false;
-    const lastEv = this.parentMenu.rootMenu.lastMoveEvent;
+    const lastEv = this.rootMenu.lastMoveEvent;
     if (!lastEv) return false;
 
     const deltaT = ev.timeStamp - lastEv.timeStamp;
