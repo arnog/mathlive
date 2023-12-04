@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.98.0 (2023-12-03)
 
 ### Breaking Changes
 
