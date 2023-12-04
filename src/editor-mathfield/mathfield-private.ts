@@ -132,6 +132,7 @@ import { deleteRange } from 'editor-model/delete';
 import 'editor-model/commands-delete';
 import 'editor-model/commands-move';
 import 'editor-model/commands-select';
+import { KeyboardModifiers } from 'public/ui-events-types';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="width: 21px;"  viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -520,6 +521,17 @@ If you are using Vue, this may be because you are using the runtime-only build o
     window.mathVirtualKeyboard.disconnect();
     this.connectedToVirtualKeyboard = false;
     hideEnvironmentPopover();
+  }
+
+  showMenu(_?: {
+    location?: { x: number; y: number };
+    modifiers?: KeyboardModifiers;
+  }): boolean {
+    const location = _?.location ?? getCaretPoint(this.field!) ?? undefined;
+    const modifiers = _?.modifiers;
+    const target =
+      this.element!.querySelector<HTMLElement>('[part=container]')!;
+    return this._menu.show({ target, location, modifiers });
   }
 
   get colorMap(): (name: string) => string | undefined {

@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### New Features
+
+- Added `mf.showMenu()` method to programmatically show the context menu.
+
+
 ## 0.98.0 (2023-12-03)
 
 ### Breaking Changes

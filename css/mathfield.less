@@ -173,6 +173,7 @@
 
 .ML__caret::after {
   content: '';
+  visibility: hidden;
   width: 0;
 
   display: inline-block;
@@ -193,6 +194,8 @@
 
 .ML__text-caret::after {
   content: '';
+  visibility: hidden;
+
   width: 0;
 
   display: inline-block;
@@ -213,6 +216,8 @@
 .ML__latex-caret::after {
   content: '';
 
+  visibility: hidden;
+
   --_caret-width: clamp(2px, 0.08em, 10px);
   border: none;
   border-radius: calc(var(--_caret-width) / 2);
@@ -222,6 +227,12 @@
   left: -0.019em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
+}
+
+.ML__focused .ML__latex-caret::after,
+.ML__focused .ML__text-caret::after,
+.ML__focused .ML__caret::after {
+  visibility: visible;
 }
 
 

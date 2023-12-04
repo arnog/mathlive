@@ -27,7 +27,7 @@ export async function onContextMenu(
     const evt = event as MouseEvent;
     if (
       menu.show({
-        target: target,
+        target,
         location: eventLocation(evt),
         modifiers: keyboardModifiersFromEvent(evt),
       })

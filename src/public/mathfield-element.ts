@@ -42,6 +42,7 @@ import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
 import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
+import { KeyboardModifiers } from './ui-events-types';
 
 export declare type Expression =
   | number
@@ -1229,6 +1230,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);
+  }
+
+  showMenu(_: {
+    location: { x: number; y: number };
+    modifiers: KeyboardModifiers;
+  }): boolean {
+    return this._mathfield?.showMenu(_) ?? false;
   }
 
   /** @internal */

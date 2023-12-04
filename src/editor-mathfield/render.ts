@@ -125,15 +125,12 @@ export function contentMarkup(
     atom.containsCaret = false;
   }
   if (model.selectionIsCollapsed) {
-    const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
-    if (hasFocus) {
-      const atom = model.at(model.position);
-      atom.caret = mathfield.model.mode;
-      let ancestor = atom.parent;
-      while (ancestor) {
-        ancestor.containsCaret = true;
-        ancestor = ancestor.parent;
-      }
+    const atom = model.at(model.position);
+    atom.caret = mathfield.model.mode;
+    let ancestor = atom.parent;
+    while (ancestor) {
+      ancestor.containsCaret = true;
+      ancestor = ancestor.parent;
     }
   } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
