@@ -311,18 +311,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     //   visible: () => window.mathVirtualKeyboard.visible === true,
     // },
     {
-      type: 'divider',
-    },
-    {
-      label: 'Return to Math Mode',
-      id: 'return-to-math-mode',
-      onMenuSelect: () => mf.executeCommand(['switchMode', 'math']),
-      visible: () => mf.isSelectionEditable && mf.model.mode === 'text',
-    },
-    {
-      type: 'divider',
-    },
-    {
       label: () => localize('menu.array.add row above')!,
       id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
@@ -421,6 +409,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       submenu: [
         {
           label: () => localize('menu.mode-math')!,
+          id: 'mode-math',
           onMenuSelect: () => {
             complete(mf, 'accept-all');
             mf.executeCommand(['switchMode', 'math']);
@@ -429,6 +418,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
         },
         {
           label: () => localize('menu.mode-text')!,
+          id: 'mode-text',
           onMenuSelect: () => {
             complete(mf, 'accept-all');
             mf.executeCommand(['switchMode', 'text']);
@@ -437,6 +427,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
         },
         {
           label: () => localize('menu.mode-latex')!,
+          id: 'mode-latex',
           onMenuSelect: () => mf.executeCommand(['switchMode', 'latex']),
           checked: () => mf.model.mode === 'latex',
         },

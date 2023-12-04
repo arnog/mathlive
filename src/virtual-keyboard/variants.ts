@@ -116,7 +116,7 @@ const VARIANTS: {
   ],
 };
 
-let variantPanelController: AbortController | null;
+let gVariantPanelController: AbortController | null;
 
 export function showVariantsPanel(
   element: HTMLElement,
@@ -175,8 +175,8 @@ export function showVariantsPanel(
     child: variantPanel,
   });
 
-  variantPanelController = new AbortController();
-  const { signal } = variantPanelController;
+  gVariantPanelController = new AbortController();
+  const { signal } = gVariantPanelController;
 
   //
   // Position the variants panel
@@ -267,8 +267,8 @@ export function showVariantsPanel(
 }
 
 export function hideVariantsPanel(): void {
-  variantPanelController?.abort();
-  variantPanelController = null;
+  gVariantPanelController?.abort();
+  gVariantPanelController = null;
   Scrim.scrim?.close();
 }
 

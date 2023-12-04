@@ -91,7 +91,7 @@ import {
 import {
   onPointerDown,
   offsetFromPoint,
-  stopTrackingPointer,
+  PointerTracker,
 } from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
@@ -232,6 +232,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     };
 
     this.eventController = new AbortController();
+    const signal = this.eventController.signal;
 
     if (options.eventSink) this.host = options.eventSink;
 
@@ -366,25 +367,16 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.field.addEventListener(
       'click',
       (evt) => evt.stopImmediatePropagation(),
-      { capture: false, signal: this.eventController.signal }
+      { capture: false, signal }
     );
 
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
-    this.field.addEventListener('wheel', this, {
-      passive: false,
-      signal: this.eventController.signal,
-    });
+    this.field.addEventListener('wheel', this, { passive: false, signal });
 
     // Delegate pointer events
-    if ('PointerEvent' in window) {
-      this.field.addEventListener('pointerdown', this, {
-        signal: this.eventController.signal,
-      });
-    } else {
-      this.field.addEventListener('mousedown', this, {
-        signal: this.eventController.signal,
-      });
-    }
+    if ('PointerEvent' in window)
+      this.field.addEventListener('pointerdown', this, { signal });
+    else this.field.addEventListener('mousedown', this, { signal });
 
     this.element
       .querySelector<HTMLElement>('[part=virtual-keyboard-toggle]')
@@ -398,15 +390,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
             window.mathVirtualKeyboard.update(makeProxy(this));
           }
         },
-        { signal: this.eventController.signal }
+        { signal }
       );
 
     this._menu = new Menu(getDefaultMenuItems(this), { host: this.host });
 
     // Listen for contextmenu events on the field
-    this.field.addEventListener('contextmenu', this, {
-      signal: this.eventController.signal,
-    });
+    this.field.addEventListener('contextmenu', this, { signal });
 
     const menuToggle =
       this.element!.querySelector<HTMLElement>('[part=menu-toggle]')!;
@@ -426,7 +416,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         ev.preventDefault();
         ev.stopPropagation();
       },
-      { signal: this.eventController.signal }
+      { signal }
     );
 
     if (
@@ -450,12 +440,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Request notification for when the window is resized, the device
     // switched from portrait to landscape or the document is scrolled
     // to adjust the UI (popover, etc...)
-    window.addEventListener('resize', this, {
-      signal: this.eventController.signal,
-    });
-    document.addEventListener('scroll', this, {
-      signal: this.eventController.signal,
-    });
+    window.addEventListener('resize', this, { signal });
+    document.addEventListener('scroll', this, { signal });
 
     window.mathVirtualKeyboard.addEventListener(
       'virtual-keyboard-toggle',
@@ -474,7 +460,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // The mathfield container is initially set with a visibility of hidden
     // to minimize flashing during construction.
     element
-      .querySelector<HTMLElement>('[part=container')!
+      .querySelector<HTMLElement>('[part=container]')!
       .style.removeProperty('visibility');
 
     // Now start recording potentially undoable actions
@@ -821,11 +807,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.onBlur();
         break;
 
+      // Safari on iOS <= 13 and Firefox on Android
       case 'mousedown':
-        if (this.userSelect !== 'none') {
-          // iOS <=13 Safari and Firefox on Android
+        if (this.userSelect !== 'none')
           onPointerDown(this, evt as PointerEvent);
-        }
+
         break;
 
       case 'pointerdown':
@@ -836,11 +822,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
             if (
               await onContextMenu(
                 evt,
-                this.element!.querySelector<HTMLElement>('[part=container')!,
+                this.element!.querySelector<HTMLElement>('[part=container]')!,
                 this._menu
               )
             )
-              stopTrackingPointer(this);
+              PointerTracker.stop();
           }
         }
         break;
@@ -853,11 +839,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
           if (
             await onContextMenu(
               evt,
-              this.element!.querySelector<HTMLElement>('[part=container')!,
+              this.element!.querySelector<HTMLElement>('[part=container]')!,
               this._menu
             )
           )
-            stopTrackingPointer(this);
+            PointerTracker.stop();
         }
         break;
 
@@ -900,6 +886,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.keyboardDelegate.dispose();
     (this as any).keyboardDelegate = undefined;
     this.eventController.abort();
+    (this as any).eventController = undefined;
 
     window.mathVirtualKeyboard.removeEventListener(
       'virtual-keyboard-toggle',
@@ -1363,7 +1350,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       return true;
     }
     this._menu.show({
-      target: this.element!.querySelector<HTMLElement>('[part=container')!,
+      target: this.element!.querySelector<HTMLElement>('[part=container]')!,
       location: this.getCaretPoint() ?? undefined,
       onDismiss: () => this.element?.focus(),
     });

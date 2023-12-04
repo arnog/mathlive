@@ -1089,33 +1089,26 @@ function handlePointerDown(ev: PointerEvent) {
   console.assert(ev.type === 'pointerdown');
 
   const controller = new AbortController();
+  const signal = controller.signal;
 
   target.classList.add('is-pressed');
   target.addEventListener(
     'pointerenter',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointerleave',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointercancel',
     handleVirtualKeyboardEvent(controller),
-    {
-      signal: controller.signal,
-    }
+    { signal }
   );
   target.addEventListener('pointerup', handleVirtualKeyboardEvent(controller), {
-    signal: controller.signal,
+    signal,
   });
 
   // Is it the Shift key?
