@@ -110,12 +110,12 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   // for operators in `textstyle` style)
   // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
   // If `undefined`, the subsup should be placed on a separate `subsup` atom.
-  subsupPlacement: 'auto' | 'over-under' | 'adjacent' | undefined = undefined;
+  subsupPlacement: 'auto' | 'over-under' | 'adjacent' | undefined;
 
   // True if the subsupPlacement was set by `\limits`, `\nolimits` or
   // `\displaylimits`.
   // Necessary so the proper LaTeX can be output.
-  explicitSubsupPlacement = false;
+  explicitSubsupPlacement: boolean;
 
   // If true, the atom represents a function (which can be followed by
   // parentheses) e.g. "f" or "\sin"
@@ -160,13 +160,14 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     if (typeof options.value === 'string') this.value = options.value;
     this.command = options.command ?? this.value ?? '';
     this.mode = options.mode ?? 'math';
-    this.isFunction = options.isFunction ?? false;
-    this.subsupPlacement = options.limits;
+    if (options.isFunction) this.isFunction = true;
+    if (options.limits) this.subsupPlacement = options.limits;
     this.style = { ...options.style } ?? {};
     this.displayContainsHighlight = options.displayContainsHighlight ?? false;
     this.captureSelection = options.captureSelection ?? false;
     this.skipBoundary = options.skipBoundary ?? false;
-    this.verbatimLatex = options.verbatimLatex ?? undefined;
+    if (options.verbatimLatex !== undefined && options.verbatimLatex !== null)
+      this.verbatimLatex = options.verbatimLatex;
     if (options.args) this.args = options.args;
     if (options.body) this.body = options.body;
     this._changeCounter = 0;

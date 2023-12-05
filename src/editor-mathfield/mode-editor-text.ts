@@ -118,6 +118,8 @@ function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
   s = s.replace(/_/g, '\\_');
   s = s.replace(/{/g, '\\textbraceleft ');
   s = s.replace(/}/g, '\\textbraceright ');
+  s = s.replace(/lbrace/g, '\\textbraceleft ');
+  s = s.replace(/rbrace/g, '\\textbraceright ');
   s = s.replace(/\^/g, '\\textasciicircum ');
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');

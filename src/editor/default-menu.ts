@@ -445,20 +445,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       submenu: getVariantSubmenu(mf),
     },
     {
-      label: () => localize('menu.accent')!,
-      id: 'accent',
-      containerClass: 'menu-container-variant',
-      visible: () => mf.isSelectionEditable,
-      submenu: getAccentSubmenu(mf),
-    },
-    {
-      label: () => localize('menu.decoration')!,
-      id: 'decoration',
-      containerClass: 'menu-container-variant',
-      visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
-      submenu: getDecorationSubmenu(mf),
-    },
-    {
       label: () => localize('menu.color')!,
       id: 'color',
       containerClass: 'menu-container-swatches',
@@ -473,6 +459,20 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
+    },
+    {
+      label: () => localize('menu.accent')!,
+      id: 'accent',
+      containerClass: 'menu-container-variant',
+      visible: () => mf.isSelectionEditable,
+      submenu: getAccentSubmenu(mf),
+    },
+    {
+      label: () => localize('menu.decoration')!,
+      id: 'decoration',
+      containerClass: 'menu-container-variant',
+      visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
+      submenu: getDecorationSubmenu(mf),
     },
     {
       type: 'divider',

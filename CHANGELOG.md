@@ -7,6 +7,7 @@
 ### Bugs Fixed
 
 - Correctly position the menu when the document has been scrolled.
+- When serializing, do not generate a `\text` command around a `\texttt` command.
 
 ## 0.98.0 (2023-12-03)
 

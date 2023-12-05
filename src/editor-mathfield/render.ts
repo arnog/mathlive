@@ -168,10 +168,11 @@ export function render(
   // 1. Hide the virtual keyboard toggle if not applicable
   //
 
-  const toggle = mathfield.element.querySelector<HTMLElement>(
+  const keyboardToggle = mathfield.element.querySelector<HTMLElement>(
     '[part=virtual-keyboard-toggle]'
   );
-  if (toggle) toggle.style.display = mathfield.hasEditableContent ? '' : 'none';
+  if (keyboardToggle)
+    keyboardToggle.style.display = mathfield.hasEditableContent ? '' : 'none';
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -194,6 +195,19 @@ export function render(
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
   let content = contentMarkup(mathfield, renderOptions);
+
+  const menuToggle =
+    mathfield.element.querySelector<HTMLElement>('[part=menu-toggle]');
+  if (menuToggle) {
+    if (
+      mathfield.model.atoms.length <= 1 ||
+      mathfield.disabled ||
+      (mathfield.readOnly && !mathfield.hasEditableContent) ||
+      mathfield.userSelect === 'none'
+    )
+      menuToggle.style.display = 'none';
+    else menuToggle.style.display = '';
+  }
 
   //
   // 3. Render the content placeholder, if applicable
@@ -292,10 +306,10 @@ export function renderSelection(
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
         element.style.position = 'absolute';
-        element.style.left = `${bounds.left}px`;
-        element.style.top = `${bounds.top}px`;
-        element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
-        element.style.height = `${Math.ceil(bounds.bottom - bounds.top - 1)}px`;
+        element.style.left = `${bounds.left + 1}px`;
+        element.style.top = `${Math.ceil(bounds.top)}px`;
+        element.style.width = `${Math.ceil(bounds.right - bounds.left + 1)}px`;
+        element.style.height = `${Math.ceil(bounds.bottom - bounds.top)}px`;
         field.insertBefore(element, field.childNodes[0]);
       }
     }

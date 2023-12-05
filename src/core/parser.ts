@@ -1552,8 +1552,13 @@ export class Parser {
 
     // An unknown command, or a command not available in this mode
     if (!info) {
-      this.onError({ code: 'unknown-command', arg: command });
       if (this.parseMode === 'text') {
+        if (/[a-zA-Z]/.test(this.peek() ?? '')) {
+          // The following character is a letter: insert a space
+          // i.e. `\alpha x` -> `\alpha~x`
+          // (the spaces are removed by the tokenizer)
+          command += ' ';
+        }
         return [...command].map(
           (c) =>
             new Atom({
@@ -1564,6 +1569,8 @@ export class Parser {
             })
         );
       }
+
+      this.onError({ code: 'unknown-command', arg: command });
       return [new ErrorAtom(command)];
     }
 

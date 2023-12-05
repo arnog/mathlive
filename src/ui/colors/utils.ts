@@ -5,6 +5,13 @@ export type RgbColor = {
   a?: number;
 };
 
+export type OklchColor = {
+  L: number; // 0..1
+  C: number; // 0.. 0.37
+  h: number; //   0..360
+  alpha?: number; // 0..1
+};
+
 export type HslColor = {
   h: number;
   s: number;
@@ -88,15 +95,79 @@ export function rgbToHex(_: RgbColor): string {
 export function luma(color: string): number {
   const rgb = parseHex(color);
   if (!rgb) return 0;
-  let [r, g, b] = [rgb.r / 255.0, rgb.g / 255.0, rgb.b / 255.0];
+  const [r, g, b] = [rgb.r / 255.0, rgb.g / 255.0, rgb.b / 255.0];
 
   // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
 
-  r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
-  g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
-  b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+  const conv = (n: number) =>
+    n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4);
 
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return 0.2126 * conv(r) + 0.7152 * conv(g) + 0.0722 * conv(b);
+}
+
+// https://bottosson.github.io/posts/oklab/
+
+export function oklchToOklab(_: OklchColor): LabColor {
+  const [L, C, h] = [_.L, _.C, _.h];
+  const hRadians = (h * Math.PI) / 180;
+  const result: LabColor = {
+    L,
+    a: C * Math.cos(hRadians),
+    b: C * Math.sin(hRadians),
+  };
+  if (_.alpha !== undefined) result.alpha = _.alpha;
+  return result;
+}
+
+export function oklabToRgb(_: LabColor): RgbColor {
+  const [l, a, b] = [_.L, _.a, _.b];
+  // const y = (l + 0.16) / 1.16;
+  // const x = a / 1.16 + y;
+  // const z = y - b / 1.16;
+  // const r =
+  //   0.9999999984496163 * x + 0.3963377777753821 * y + 0.2158037572992955 * z;
+  // const g = 0.9999999939972972 * y + -0.105561345615017 * z;
+  // const b2 =
+  //   1.0000000088817607 * x + 2.03211193885992 * y + -0.5226657980972148 * z;
+
+  const L = Math.pow(
+    l * 0.9999999984505198 + 0.39633779217376786 * a + 0.2158037580607588 * b,
+    3
+  );
+  const M = Math.pow(
+    l * 1.00000000888176 - 0.10556134232365635 * a - 0.0638541747717059 * b,
+    3
+  );
+  const S = Math.pow(
+    l * 1.000000054672411 - 0.0894841820949657 * a - 1.2914855378640917 * b,
+    3
+  );
+
+  const r =
+    +4.076741661347994 * L - 3.307711590408193 * M + 0.230969928729428 * S;
+  const g =
+    -1.2684380040921763 * L + 2.6097574006633715 * M - 0.3413193963102197 * S;
+  const bl =
+    -0.004196086541837188 * L - 0.7034186144594493 * M + 1.7076147009309444 * S;
+
+  const conv = (n: number) => {
+    const abs = Math.abs(n);
+    if (abs > 0.0031308)
+      return (Math.sign(n) || 1) * (1.055 * Math.pow(abs, 1 / 2.4) - 0.055);
+
+    return n * 12.92;
+  };
+
+  return {
+    r: clampByte(conv(r) * 255),
+    g: clampByte(conv(g) * 255),
+    b: clampByte(conv(bl) * 255),
+    a: _.alpha,
+  };
+}
+
+export function oklchToRgb(_: OklchColor): RgbColor {
+  return oklabToRgb(oklchToOklab(_));
 }
 
 function hueToRgbChannel(t1: number, t2: number, hue: number): number {

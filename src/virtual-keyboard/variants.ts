@@ -268,7 +268,7 @@ export function showVariantsPanel(
 export function hideVariantsPanel(): void {
   gVariantPanelController?.abort();
   gVariantPanelController = null;
-  Scrim.close();
+  if (Scrim.state === 'open') Scrim.close();
 }
 
 function makeVariants(
