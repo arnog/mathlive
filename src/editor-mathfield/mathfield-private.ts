@@ -204,6 +204,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   private connectedToVirtualKeyboard: boolean;
 
   private eventController: AbortController;
+  private resizeObserver: ResizeObserver;
 
   /**
    *
@@ -444,10 +445,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // to adjust the UI (popover, etc...)
     window.addEventListener('resize', this, { signal });
     document.addEventListener('scroll', this, { signal });
+    this.resizeObserver = new ResizeObserver(() => requestUpdate(this));
+    this.resizeObserver.observe(this.field);
 
     window.mathVirtualKeyboard.addEventListener(
       'virtual-keyboard-toggle',
-      this
+      this,
+      { signal }
     );
 
     if (gKeyboardLayout && !l10n.locale.startsWith(gKeyboardLayout.locale))
@@ -900,6 +904,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     (this as any).keyboardDelegate = undefined;
     this.eventController.abort();
     (this as any).eventController = undefined;
+
+    this.resizeObserver.disconnect();
 
     window.mathVirtualKeyboard.removeEventListener(
       'virtual-keyboard-toggle',
@@ -1705,7 +1711,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               )
                 this.focus({ preventScroll: true });
             },
-            { once: true }
+            { once: true, signal }
           );
         }
       },
