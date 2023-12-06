@@ -58,6 +58,8 @@ export interface MenuListState {
   readonly element: HTMLElement | null;
   isSubmenuOpen: boolean;
 
+  readonly columnCount: number;
+
   activeMenuItem: MenuItemState | null;
   readonly firstMenuItem: MenuItemState | null;
   readonly lastMenuItem: MenuItemState | null;
@@ -81,8 +83,9 @@ export interface MenuListState {
     alternateLocation?: { x: number; y: number };
     modifiers?: KeyboardModifiers;
   }): boolean;
-  nextMenuItem(dir: number): MenuItemState | null;
+  nextMenuItem(stride: number): MenuItemState | null;
   findMenuItem(text: string): MenuItemState | null;
+  getMenuItemColumn(menuItem: MenuItemState): number;
   dispatchEvent(ev: Event): boolean;
 }
 

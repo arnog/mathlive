@@ -23,21 +23,25 @@ export class _MenuListState implements MenuListState {
   private _element: HTMLElement | null = null;
   private _activeMenuItem: MenuItemState | null = null;
 
-  private _containerClass?: string;
+  private _submenuClass?: string;
 
   private _abortController?: AbortController;
 
   protected _dirty = true;
 
+  readonly columnCount: number;
+
   constructor(
     items: readonly MenuItem[],
     options?: {
       parentMenu?: MenuListState;
-      containerClass?: string;
+      submenuClass?: string;
+      columnCount?: number;
     }
   ) {
     this.parentMenu = options?.parentMenu ?? null;
-    this._containerClass = options?.containerClass;
+    this._submenuClass = options?.submenuClass;
+    this.columnCount = options?.columnCount ?? 1;
 
     this.isSubmenuOpen = false;
 
@@ -207,7 +211,7 @@ export class _MenuListState implements MenuListState {
     menu.setAttribute('aria-orientation', 'vertical');
     menu.setAttribute('part', 'ui-menu-container');
 
-    if (this._containerClass) menu.classList.add(this._containerClass);
+    if (this._submenuClass) menu.classList.add(this._submenuClass);
     menu.classList.add('ui-menu-container');
 
     if (!this._abortController) this._abortController = new AbortController();
@@ -291,27 +295,38 @@ export class _MenuListState implements MenuListState {
     return found ? menuItems[result + 1] : null;
   }
 
-  nextMenuItem(dir: number): MenuItemState | null {
-    if (!this._activeMenuItem && dir > 0) return this.firstMenuItem;
-    if (!this._activeMenuItem && dir < 0) return this.lastMenuItem;
+  nextMenuItem(stride: number): MenuItemState | null {
+    if (stride === 0) return this._activeMenuItem;
+
+    if (!this._activeMenuItem)
+      return stride > 0 ? this.firstMenuItem : this.lastMenuItem;
+
     if (!this.firstMenuItem || !this.lastMenuItem || !this._activeMenuItem)
       return null;
 
     const first = this._menuItems.indexOf(this.firstMenuItem);
     const last = this._menuItems.indexOf(this.lastMenuItem);
-    let found = false;
-    let result = this._menuItems.indexOf(this._activeMenuItem) + dir;
-    while (!found && result >= first && result <= last) {
-      const item = this._menuItems[result];
-      found = item.type !== 'divider' && item.visible && item.enabled;
-      result += dir;
+    let index = this._menuItems.indexOf(this._activeMenuItem);
+    let count = 1;
+    while (index >= first && index <= last) {
+      index += stride > 0 ? 1 : -1;
+      const item = this._menuItems[index];
+      if (!item) break;
+      if (item.visible && item.enabled) {
+        if (count === Math.abs(stride)) return this._menuItems[index];
+        count += 1;
+      }
     }
 
-    return found
-      ? this._menuItems[result - dir]
-      : dir > 0
-        ? this.lastMenuItem
-        : this.firstMenuItem;
+    return stride > 0 ? this.lastMenuItem : this.firstMenuItem;
+  }
+
+  getMenuItemColumn(menu: MenuItemState): number {
+    // Return the column of the item in the menu
+    const visibleItems = this._menuItems.filter((x) => x.visible && x.enabled);
+    const index = visibleItems.indexOf(menu);
+    if (index < 0) return -1;
+    return index % this.columnCount;
   }
 
   private static _collator: Intl.Collator;

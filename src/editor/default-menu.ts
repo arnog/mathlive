@@ -257,7 +257,8 @@ class InsertMatrixMenuItem extends _MenuItemState<{
   }
 
   set active(value: boolean) {
-    const cells = this.parentMenu.children as InsertMatrixMenuItem[];
+    const cells = this.parentMenu
+      .children as unknown as readonly InsertMatrixMenuItem[];
     if (value) {
       // Make all the items with a smaller column or row active as well
       for (const cell of cells) {
@@ -361,7 +362,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 
     {
       label: () => localize('menu.borders')!,
-      containerClass: 'menu-container-border',
       visible: () =>
         (isMatrixSelected(mf) || inMatrix(mf)) && mf.isSelectionEditable,
       submenu: [
@@ -391,6 +391,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
           onMenuSelect: () => performSetEnvironment(mf, 'Bmatrix'),
         },
       ],
+      submenuClass: 'border-submenu',
     },
     {
       type: 'divider',
@@ -398,9 +399,10 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: () => localize('menu.insert matrix')!,
       id: 'insert-matrix',
-      containerClass: 'menu-container-insert-matrix',
       visible: () => mf.isSelectionEditable,
       submenu: getInsertMatrixSubmenu(mf),
+      submenuClass: 'insert-matrix-submenu',
+      columnCount: 5,
     },
     {
       label: () => localize('menu.mode')!,
@@ -440,39 +442,39 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: () => localize('menu.font-style')!,
       id: 'variant',
-      containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getVariantSubmenu(mf),
+      submenuClass: 'variant-submenu',
     },
     {
       label: () => localize('menu.color')!,
       id: 'color',
-      containerClass: 'menu-container-swatches',
-      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getColorSubmenu(mf),
+      columnCount: 4,
+      submenuClass: 'swatches-submenu',
     },
     {
       label: () => localize('menu.background-color')!,
       id: 'background-color',
-      containerClass: 'menu-container-swatches',
-      columns: 4,
       visible: () => mf.isSelectionEditable,
       submenu: getBackgroundColorSubmenu(mf),
+      columnCount: 4,
+      submenuClass: 'swatches-submenu',
     },
     {
       label: () => localize('menu.accent')!,
       id: 'accent',
-      containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable,
       submenu: getAccentSubmenu(mf),
+      submenuClass: 'variant-submenu',
     },
     {
       label: () => localize('menu.decoration')!,
       id: 'decoration',
-      containerClass: 'menu-container-variant',
       visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
       submenu: getDecorationSubmenu(mf),
+      submenuClass: 'variant-submenu',
     },
     {
       type: 'divider',

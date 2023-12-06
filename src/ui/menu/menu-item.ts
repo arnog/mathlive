@@ -64,7 +64,8 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       this.type = 'submenu';
       this.submenu = new _MenuListState(declaration.submenu, {
         parentMenu,
-        containerClass: declaration.containerClass,
+        submenuClass: declaration.submenuClass,
+        columnCount: declaration.columnCount,
       });
     } else this.type = declaration.type ?? 'command';
 

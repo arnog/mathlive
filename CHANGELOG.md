@@ -9,6 +9,10 @@
 - Correctly position the menu when the document has been scrolled.
 - When serializing, do not generate a `\text` command around a `\texttt` command.
 
+### Improvements
+
+- Keyboard navigate submenus with a grid layout
+
 ## 0.98.0 (2023-12-03)
 
 ### Breaking Changes

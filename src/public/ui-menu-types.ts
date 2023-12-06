@@ -119,11 +119,11 @@ export type MenuItemSubmenu = {
    * **Default**: 1.
    *
    */
-  columns?: number;
+  columnCount?: number;
 
   /** The class applied to the submenu container.
    */
-  containerClass?: string;
+  submenuClass?: string;
 };
 
 export function isSubmenu(item: MenuItem): item is MenuItemSubmenu {

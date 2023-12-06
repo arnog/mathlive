@@ -148,41 +148,60 @@ export class Menu extends _MenuListState implements RootMenuState {
       case 'Enter':
         menuItem?.select(keyboardModifiersFromEvent(ev));
         break;
+
       case 'ArrowRight':
         if (menuItem?.type === 'submenu') {
           menuItem.select(keyboardModifiersFromEvent(ev));
           this.activeSubmenu.activeMenuItem = this.activeSubmenu.firstMenuItem;
         } else if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
-
+        else {
+          const col = menu.getMenuItemColumn(menuItem) ?? -1;
+          if (col >= 0 && col < (menu.columnCount ?? 1) - 1) {
+            const next = menu.nextMenuItem(1);
+            if (next) menu.activeMenuItem = next;
+          }
+        }
         break;
+
       case 'ArrowLeft':
         if (menu === this.rootMenu) {
           if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
         } else {
-          menu.hide();
-          const activeMenu = menu.parentMenu!.activeMenuItem;
-          if (activeMenu) {
-            const { element } = activeMenu;
-            element?.focus();
-            element?.classList.remove('is-submenu-open');
+          const col = menuItem ? menu.getMenuItemColumn(menuItem) ?? -1 : -1;
+          if (col <= 0 || !menuItem) {
+            menu.hide();
+            const activeMenu = menu.parentMenu!.activeMenuItem;
+            if (activeMenu) {
+              const { element } = activeMenu;
+              element?.focus();
+              element?.classList.remove('is-submenu-open');
+            }
+          } else {
+            const next = menu.nextMenuItem(-1);
+            if (next) menu.activeMenuItem = next;
           }
         }
 
         break;
+
       case 'ArrowDown':
-        menu.activeMenuItem = menu.nextMenuItem(+1);
+        menu.activeMenuItem = menu.nextMenuItem(menu.columnCount);
         break;
+
       case 'ArrowUp':
-        menu.activeMenuItem = menu.nextMenuItem(-1);
+        menu.activeMenuItem = menu.nextMenuItem(-menu.columnCount);
         break;
+
       case 'Home':
       case 'PageUp':
         menu.activeMenuItem = menu.firstMenuItem;
         break;
+
       case 'End':
       case 'PageDown':
         menu.activeMenuItem = menu.lastMenuItem;
         break;
+
       case 'Backspace':
         if (this.typingBuffer) {
           this.typingBuffer = this.typingBuffer.slice(0, -1);
@@ -196,8 +215,8 @@ export class Menu extends _MenuListState implements RootMenuState {
             }, 500);
           }
         }
-
         break;
+
       default:
         if (mightProducePrintableCharacter(ev)) {
           if (isFinite(this.typingBufferResetTimer))

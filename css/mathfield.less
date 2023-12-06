@@ -152,6 +152,7 @@
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
+  line-height: 0;
 }
 
 [part="placeholder"] {
@@ -417,19 +418,19 @@ menu .ML__base {
   box-shadow: 0 0 5px var(--_incorrect-color);
 }
 
-.menu-container-variant {
+.variant-submenu {
   display: flex;
   flex-direction: column;
   padding: 8px;
 }
 
-.menu-container-variant [part=menu-item] {
+.variant-submenu [part=menu-item] {
   font-size: 2rem;
   text-align: center;
   margin: 0;
 }
 
-.menu-container-insert-matrix {
+.insert-matrix-submenu {
     display: grid;
     padding: 8px;
     align-content: center;
@@ -437,7 +438,7 @@ menu .ML__base {
     grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-.menu-container-insert-matrix [part=menu-item] {
+.insert-matrix-submenu [part=menu-item] {
   font-size: 21px;
   // color: transparent;
   border: none;
@@ -448,14 +449,14 @@ menu .ML__base {
   margin: 0;
   }
 
-.menu-container-border [part=menu-item] {
+.border-submenu [part=menu-item] {
   font-size: 2rem;
   line-height: 1.2;
   text-align: center;
 }
 
 
-.menu-container-swatches {
+.swatches-submenu {
   --_swatch-size: 2rem;
   --_columns: 4;
   display: flex;
@@ -491,7 +492,7 @@ menu .ML__base {
     border-radius: 50%;
   }
 
-  &:hover {
+  &.active {
     background: var(--neutral-100);
     scale: 1.4;
     & > .label > span {
