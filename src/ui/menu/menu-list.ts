@@ -376,6 +376,8 @@ export class _MenuListState implements MenuListState {
   }
 
   /**
+   * @param location: in viewport coordinates
+   * @param alternateLocation: in viewport coordinates
    * @param container: where the menu should be attached
    * @return false if no menu to show
    */
@@ -384,8 +386,6 @@ export class _MenuListState implements MenuListState {
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
   }): boolean {
-    this.updateIfDirty();
-
     if (!this.visible || !options.container) return false;
 
     this.updateElement();
@@ -400,16 +400,8 @@ export class _MenuListState implements MenuListState {
 
     if (options.location) {
       fitInViewport(this.element, {
-        location: {
-          x: options.location.x + window.scrollX,
-          y: options.location.y + window.scrollY,
-        },
-        alternateLocation: options.alternateLocation
-          ? {
-              x: options.alternateLocation.x + window.scrollX,
-              y: options.alternateLocation.y + window.scrollY,
-            }
-          : options.alternateLocation,
+        location: options.location,
+        alternateLocation: options.alternateLocation,
         verticalPos: 'bottom',
         horizontalPos: 'start',
       });

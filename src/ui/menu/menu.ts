@@ -305,7 +305,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     return this;
   }
 
-  /** Locations are in viewport coordinate */
+  /** Locations are in viewport coordinate. */
   show(options?: {
     target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
