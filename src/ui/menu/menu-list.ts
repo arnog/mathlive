@@ -155,12 +155,14 @@ export class _MenuListState implements MenuListState {
   }
 
   get enabled(): boolean {
+    this.updateIfDirty();
     return this._menuItems.some(
       (x) => x.type !== 'divider' && x.visible && x.enabled
     );
   }
 
   get visible(): boolean {
+    this.updateIfDirty();
     return this._menuItems.some((x) => x.type !== 'divider' && x.visible);
   }
 
@@ -304,6 +306,8 @@ export class _MenuListState implements MenuListState {
     if (!this.firstMenuItem || !this.lastMenuItem || !this._activeMenuItem)
       return null;
 
+    this.updateIfDirty();
+
     const first = this._menuItems.indexOf(this.firstMenuItem);
     const last = this._menuItems.indexOf(this.lastMenuItem);
     let index = this._menuItems.indexOf(this._activeMenuItem);
@@ -322,6 +326,7 @@ export class _MenuListState implements MenuListState {
   }
 
   getMenuItemColumn(menu: MenuItemState): number {
+    this.updateIfDirty();
     // Return the column of the item in the menu
     const visibleItems = this._menuItems.filter((x) => x.visible && x.enabled);
     const index = visibleItems.indexOf(menu);
