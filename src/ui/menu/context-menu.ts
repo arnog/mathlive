@@ -82,8 +82,8 @@ export async function onContextMenu(
     if (await onLongPress(event)) {
       if (menu.state !== 'closed') return false;
       menu.show({ target, location });
+      return true;
     }
-    return true;
   }
 
   return false;
