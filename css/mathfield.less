@@ -273,9 +273,15 @@ with this style */
 }
 
 .ML__contains-highlight {
-  background: var(--_contains-highlight-background-color);
   box-sizing: border-box;
+  background: transparent;
 }
+
+
+.ML__focused .ML__contains-highlight {
+  background: var(--_contains-highlight-background-color);
+}
+
 
 .ML__raw-latex {
   font-family: @monospace;

@@ -1,3 +1,16 @@
+## [Unreleased]
+
+
+### Improvements
+- In some rare cases, the menu was not positioned correctly or would not 
+  display at all.
+- When dynamically changing the layout of the mathfield, for example
+  when using a font-size attribute based on viewport units, correctly
+  redraw the selection
+- Selection while dragging would stop after a few milliseconds
+- Do not display the "contains highlight" indicator when the mathfield
+  is not focused or outside of a prompt.
+
 ## 0.98.1 (2023-12-05)
 
 ### New Features

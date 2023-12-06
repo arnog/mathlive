@@ -287,7 +287,11 @@ export function renderSelection(
     // 1.2. Display the 'contains' highlight
     //
     let atom = model.at(model.position);
-    while (atom && !(atom.containsCaret && atom.displayContainsHighlight))
+    while (
+      atom &&
+      atom.type !== 'prompt' &&
+      !(atom.containsCaret && atom.displayContainsHighlight)
+    )
       atom = atom.parent!;
 
     if (atom?.containsCaret && atom.displayContainsHighlight) {
