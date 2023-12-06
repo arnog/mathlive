@@ -152,7 +152,7 @@
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
-  line-height: 0;
+  line-height: .5;  /* On Chromium, if this is 0, no keyboard events are received */
 }
 
 [part="placeholder"] {
