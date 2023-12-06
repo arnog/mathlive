@@ -21,6 +21,7 @@
         width: 100%;
         position: relative;
         z-index: 1;
+        font-size: clamp(1rem, 1.5vw, 4rem);
       }
       @media (prefers-color-scheme: dark) {
         math-field {
@@ -55,8 +56,9 @@
       </ul>
     </header>
     <main>
+      <!-- <div style="transform: scale(2) translate(30%, 30%)"> -->
       <math-field id="mf" name="formula"> </math-field>
-
+      <!-- </div> -->
       <!-- <math-field id="mf"
         >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
       > -->

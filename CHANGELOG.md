@@ -1,6 +1,5 @@
 ## [Unreleased]
 
-
 ### Improvements
 - In some rare cases, the menu was not positioned correctly or would not 
   display at all.
@@ -10,6 +9,11 @@
 - Selection while dragging would stop after a few milliseconds
 - Do not display the "contains highlight" indicator when the mathfield
   is not focused or outside of a prompt.
+
+### Bugs Fixed
+
+- **#2195** If the mathfield had a variable width the selection
+  would not be displayed correctly.
 
 ## 0.98.1 (2023-12-05)
 
