@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.98.2 (2023-12-06)
 
 ### Improvements
 - In some rare cases, the menu was not positioned correctly or would not 
