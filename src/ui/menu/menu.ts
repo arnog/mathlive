@@ -250,9 +250,9 @@ export class Menu extends _MenuListState implements RootMenuState {
         Number.isFinite(this.rootMenu._openTimestamp!) &&
         Date.now() - this.rootMenu._openTimestamp! < 120
       ) {
-        // Hold mode...
+        // "modal" = pointerdown + pointerup within 120ms : keep menu open
         this.state = 'modal';
-      } else {
+      } else if (this.state === 'modal') {
         // Cancel
         this.hide();
       }

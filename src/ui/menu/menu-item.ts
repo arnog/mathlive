@@ -340,7 +340,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (!this.visible || !this.enabled) return;
 
     if (event.type === 'click') {
-      this.select();
+      if (this.rootMenu.state === 'modal') this.select();
       event.stopPropagation();
       event.preventDefault();
       return;

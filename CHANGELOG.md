@@ -14,6 +14,8 @@
 
 - **#2195** If the mathfield had a variable width the selection
   would not be displayed correctly.
+- **#2190** Under some circumstances, commands selected from the menu 
+  could be executed twice.
 
 ## 0.98.1 (2023-12-05)
 
