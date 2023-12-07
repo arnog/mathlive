@@ -285,7 +285,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.addEventListener('keyup', this);
     scrim.addEventListener('pointermove', this);
 
-    Scrim.open({ root: target });
+    Scrim.open({ root: target, onDismiss: () => this.hide() });
   }
 
   private disconnectScrim(): void {

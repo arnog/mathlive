@@ -6,7 +6,11 @@ export class Scrim {
     if (!Scrim._scrim) Scrim._scrim = new Scrim();
     return Scrim._scrim;
   }
-  static open(options: { root?: Node | null; child?: HTMLElement }): void {
+  static open(options: {
+    root?: Node | null;
+    child?: HTMLElement;
+    onDismiss?: () => void;
+  }): void {
     Scrim.scrim.open(options);
   }
   static close(): void {
@@ -23,6 +27,7 @@ export class Scrim {
 
   private readonly lightDismiss: boolean;
   private readonly translucent: boolean;
+  private onDismiss?: () => void;
 
   private _element?: HTMLElement;
 
@@ -68,9 +73,14 @@ export class Scrim {
     return element;
   }
 
-  open(options: { root?: Node | null; child?: HTMLElement }): void {
+  open(options: {
+    root?: Node | null;
+    child?: HTMLElement;
+    onDismiss?: () => void;
+  }): void {
     if (this.state !== 'closed') return;
     this.state = 'opening';
+    this.onDismiss = options?.onDismiss;
 
     // Remember the previously focused element. We'll restore it when we close.
     this.savedActiveElement = deepActiveElement();
@@ -109,6 +119,9 @@ export class Scrim {
       return;
     }
     this.state = 'closing';
+
+    if (typeof this.onDismiss === 'function') this.onDismiss();
+    this.onDismiss = undefined;
 
     const { element } = this;
     element.removeEventListener('click', this);

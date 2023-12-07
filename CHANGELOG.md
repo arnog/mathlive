@@ -9,6 +9,7 @@
 - Selection while dragging would stop after a few milliseconds
 - Do not display the "contains highlight" indicator when the mathfield
   is not focused or outside of a prompt.
+- **#2194** Ignore long press events when the pointer is a mouse.
 
 ### Bugs Fixed
 

@@ -68,7 +68,11 @@ export async function onContextMenu(
   //
   // This might be a long press...
   //
-  if (event.type === 'pointerdown' && (event as PointerEvent).button === 0) {
+  if (
+    event.type === 'pointerdown' &&
+    (event as PointerEvent).pointerType !== 'mouse' &&
+    (event as PointerEvent).button === 0
+  ) {
     // Are we inside the target element?
     let eventTarget = event.target as HTMLElement;
     while (eventTarget && target !== eventTarget)
