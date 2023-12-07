@@ -407,7 +407,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: () => localize('menu.mode')!,
       id: 'mode',
-      visible: () => mf.isSelectionEditable,
+      visible: () => mf.isSelectionEditable && mf.model.selectionIsCollapsed,
       submenu: [
         {
           label: () => localize('menu.mode-math')!,
@@ -472,7 +472,8 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: () => localize('menu.decoration')!,
       id: 'decoration',
-      visible: () => mf.isSelectionEditable && getSelectionAtoms(mf).length > 0,
+      visible: () =>
+        mf.isSelectionEditable && getSelectionPlainString(mf).length === 1,
       submenu: getDecorationSubmenu(mf),
       submenuClass: 'variant-submenu',
     },
@@ -550,7 +551,8 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       visible: () =>
         mf.isSelectionEditable &&
         window.MathfieldElement.computeEngine !== null &&
-        mf.expression?.unknowns.length === 1,
+        mf.expression?.unknowns.length === 1 &&
+        mf.expression.unknowns[0] !== 'Nothing',
       onMenuSelect: () => {
         const expr = mf.expression!;
         const unknown = expr?.unknowns[0];
