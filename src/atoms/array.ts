@@ -553,7 +553,7 @@ export class ArrayAtom extends Atom {
     // appropriate left and right delimiters
     const innerHeight = inner.height;
     const innerDepth = inner.depth;
-    const result = this.bind(
+    const base = this.bind(
       context,
       new Box(
         [
@@ -584,10 +584,12 @@ export class ArrayAtom extends Atom {
         { type: 'ord' }
       )
     );
-    if (!result) return null;
-    if (this.caret) result.caret = this.caret;
+    if (!base) return null;
 
-    return this.bind(context, this.attachSupsub(context, { base: result }));
+    base.setStyle('display', 'inline-block');
+    if (this.caret) base.caret = this.caret;
+
+    return this.bind(context, this.attachSupsub(context, { base: base }));
   }
 
   _serialize(options: ToLatexOptions): string {

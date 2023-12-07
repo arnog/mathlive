@@ -243,6 +243,16 @@ export class GenfracAtom extends Atom {
           },
         ],
       }).wrap(fracContext);
+
+      // console.log('denom', denomBox.height, denomBox.depth);
+      // console.log('fracline', fracLine.height, fracLine.depth);
+      // console.log('numer', numerBox.height, numerBox.depth);
+      // console.log('frac', frac.height, frac.depth);
+      // console.log(
+      //   'expected',
+      //   denomBox.height + denomBox.depth + fracLine.height,
+      //   numerBox.height + numerBox.depth + fracLine.depth
+      // );
     }
 
     // Rule 15e of Appendix G

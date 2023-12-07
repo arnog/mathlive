@@ -315,7 +315,7 @@ export function renderSelection(
         element.style.position = 'absolute';
         element.style.left = `${bounds.left + 1}px`;
         element.style.top = `${Math.ceil(bounds.top)}px`;
-        element.style.width = `${Math.ceil(bounds.right - bounds.left + 1)}px`;
+        element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
         element.style.height = `${Math.ceil(bounds.bottom - bounds.top)}px`;
         field.insertBefore(element, field.childNodes[0]);
       }
