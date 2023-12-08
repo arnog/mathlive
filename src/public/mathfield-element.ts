@@ -1180,7 +1180,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           'color:#db1111; font-size: 1.1rem'
         );
         console.warn(
-          `Some of the options passed to \`new MathFieldElement(...)\` are invalid. 
+          `Some of the options passed to \`new MathfieldElement(...)\` are invalid. 
           See https://cortexjs.io/mathlive/changelog/ for details.`
         );
         for (const warning of warnings) console.warn(warning);

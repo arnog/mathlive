@@ -34,6 +34,7 @@ import {
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
 import { Style } from '../public/core-types';
+import { deepActiveElement } from 'ui/events/utils';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -283,36 +284,31 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.addEventListener('message', this);
     }
 
+    // Listen for when a mathfield gets focused, and show
+    // the virtual keyboard if needed
     document.body.addEventListener('focusin', (event: FocusEvent) => {
       const target = event.target as HTMLElement;
-      if (
-        target?.isConnected &&
-        target.tagName?.toLowerCase() === 'math-field' &&
-        isTouchCapable()
-      ) {
-        const mf = target as MathfieldElement;
-        if (mf.mathVirtualKeyboardPolicy === 'auto' && !mf.readOnly)
+      if (!target?.isConnected) return;
+      setTimeout(() => {
+        const mf = focusedMathfield();
+        if (
+          mf &&
+          !mf.readOnly &&
+          mf.mathVirtualKeyboardPolicy === 'auto' &&
+          isTouchCapable()
+        )
           this.show({ animate: true });
-      }
+      }, 300);
     });
 
     document.addEventListener('focusout', (evt) => {
       const target = evt.target as MathfieldElement;
       if (target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
-        // a mathfield (or there is no active element),
-        // hide the virtual keyboard
+        // a mathfield (or there is no active element), hide the virtual keyboard
+
         setTimeout(() => {
-          let target = document.activeElement;
-          let focusedMathfield = false;
-          while (target) {
-            if (target.tagName?.toLowerCase() === 'math-field') {
-              focusedMathfield = true;
-              break;
-            }
-            target = target.shadowRoot?.activeElement ?? null;
-          }
-          if (!focusedMathfield) this.hide();
+          if (!focusedMathfield()) this.hide();
         }, 300);
       }
     });
@@ -865,4 +861,20 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     window.removeEventListener('blur', this);
     window.removeEventListener('message', this);
   }
+}
+
+function focusedMathfield(): MathfieldElement | null {
+  let target: Node | null = deepActiveElement() as Node | null;
+  let mf: MathfieldElement | null = null;
+  while (target) {
+    if (
+      'host' in target &&
+      (target.host as HTMLElement)?.tagName?.toLowerCase() === 'math-field'
+    ) {
+      mf = target.host as MathfieldElement;
+      break;
+    }
+    target = target.parentNode;
+  }
+  return mf;
 }

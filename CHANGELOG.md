@@ -12,6 +12,9 @@
 - **#2194** Ignore long press events when the pointer is a mouse.
 - Improved contrast calculation for the checkmarks over color swatches, now
   using APCA.
+- In some situations, the virtual keyboard would not be displayed when
+  the mathfield was focused and the `mathVirtualKeyboardPolicy` was set
+  to `"auto"`.
 
 ### Bugs Fixed
 
