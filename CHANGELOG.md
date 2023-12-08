@@ -1,3 +1,13 @@
+## [Unreleased]
+
+### Improvements
+- Improved contrast calculation for the checkmarks over color swatches, now
+  using APCA.
+- In some situations, the virtual keyboard would not be displayed when
+  the mathfield was focused and the `mathVirtualKeyboardPolicy` was set
+  to `"auto"`.
+
+
 ## 0.98.2 (2023-12-06)
 
 ### Improvements
@@ -7,14 +17,9 @@
   when using a font-size attribute based on viewport units, correctly
   redraw the selection
 - Selection while dragging would stop after a few milliseconds
-- Do not display the "contains highlight" indicator when the mathfield
-  is not focused or outside of a prompt.
+- The "contains highlight" indicator is no longer displayed when the mathfield
+  is not focused or when the indicator is outside of a prompt.
 - **#2194** Ignore long press events when the pointer is a mouse.
-- Improved contrast calculation for the checkmarks over color swatches, now
-  using APCA.
-- In some situations, the virtual keyboard would not be displayed when
-  the mathfield was focused and the `mathVirtualKeyboardPolicy` was set
-  to `"auto"`.
 
 ### Bugs Fixed
 
