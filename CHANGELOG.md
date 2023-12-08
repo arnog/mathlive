@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.98.3 (2023-12-07)
 
 ### Improvements
 - Improved contrast calculation for the checkmarks over color swatches, now
