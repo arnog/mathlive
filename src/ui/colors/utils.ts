@@ -1,26 +1,30 @@
-// RGB color in the sRGB color space
-export type RgbColor = {
-  r: number; // 0..255
-  g: number; // 0..255
-  b: number; // 0..255
-  alpha?: number; // 0..1
-};
+import { RgbColor, OklchColor, OklabColor } from './types';
 
-// Perceptual uniform color, can represent colors outside the sRGB gamut
-export type OklchColor = {
-  L: number; // perceived lightness 0..1
-  C: number; // chroma 0.. 0.37
-  H: number; // hue 0..360
-  alpha?: number; // 0..1
-};
+export function asOklch(
+  color: string | RgbColor | OklchColor | OklabColor
+): OklchColor {
+  if (typeof color === 'string') {
+    const parsed = parseHex(color);
+    if (!parsed) throw new Error(`Invalid color: ${color}`);
+    return rgbToOklch(parsed);
+  }
+  if ('C' in color) return color;
+  if ('a' in color) return oklabToOklch(color);
+  return rgbToOklch(color);
+}
 
-// Perceptual uniform color, can represent colors outside the sRGB gamut
-export type OklabColor = {
-  L: number; // perceived lightness 0..1
-  a: number; // green <-> red -0.4..0.4
-  b: number; // blue <-> yellow -0.4..0.4
-  alpha?: number; // 0..1
-};
+export function asRgb(
+  color: string | RgbColor | OklchColor | OklabColor
+): RgbColor {
+  if (typeof color === 'string') {
+    const parsed = parseHex(color);
+    if (!parsed) throw new Error(`Invalid color: ${color}`);
+    return parsed;
+  }
+  if ('C' in color) return oklchToRgb(color);
+  if ('a' in color) return oklabToRgb(color);
+  return color;
+}
 
 export function clampByte(v: number): number {
   if (v < 0) return 0;
@@ -50,70 +54,6 @@ export function parseHex(hex: string): RgbColor | undefined {
   }
   if (result && typeof result.a === 'undefined') result.a = 1.0;
   return result;
-}
-
-export function rgbToHex(_: RgbColor): string {
-  let hexString = (
-    (1 << 24) +
-    (clampByte(_.r) << 16) +
-    (clampByte(_.g) << 8) +
-    clampByte(_.b)
-  )
-    .toString(16)
-    .slice(1);
-
-  if (_.alpha !== undefined && _.alpha < 1.0)
-    hexString += ('00' + Math.round(_.alpha * 255).toString(16)).slice(-2);
-
-  // Compress hex from hex-6 or hex-8 to hex-3 or hex-4 if possible
-  if (
-    hexString[0] === hexString[1] &&
-    hexString[2] === hexString[3] &&
-    hexString[4] === hexString[5] &&
-    hexString[6] === hexString[7]
-  ) {
-    hexString =
-      hexString[0] +
-      hexString[2] +
-      hexString[4] +
-      (_.alpha !== undefined && _.alpha < 1.0 ? hexString[6] : '');
-  }
-
-  return '#' + hexString;
-}
-
-/**  Generate CSS string for a color */
-export function css(_: string | RgbColor | OklabColor | OklchColor): string {
-  if (typeof _ === 'string') return _;
-  if ('r' in _) return rgbToHex(_);
-  if ('a' in _) {
-    const lab = _ as OklabColor;
-    if ('alpha' in lab && typeof lab.alpha === 'number') {
-      return `lab(${Math.round(lab.L * 1000) / 10}% ${
-        Math.round(lab.a * 100) / 100
-      } ${Math.round(lab.b * 100) / 100} / ${
-        Math.round(lab.alpha * 100) / 100
-      }%)`;
-    }
-    return `lab(${Math.round(lab.L * 1000) / 10}% ${
-      Math.round(lab.a * 100) / 100
-    } ${Math.round(lab.b * 100) / 100})`;
-  }
-
-  // L is a percentage, C is a number < 0.4, H is a number 0..360
-  // Alpha could be 0..1 or n% (0..100)
-  const oklch = _ as OklchColor;
-  if ('alpha' in oklch && typeof oklch.alpha === 'number') {
-    return `oklch(${Math.round(oklch.L * 1000) / 10}% ${
-      Math.round(oklch.C * 1000) / 1000
-    } ${Math.round(oklch.H * 10) / 10} / ${
-      Math.round(oklch.alpha * 100) / 100
-    }%)`;
-  }
-
-  return `oklch(${Math.round(oklch.L * 1000) / 10}% ${
-    Math.round(oklch.C * 1000) / 1000
-  } ${Math.round(oklch.H * 10) / 10})`;
 }
 
 // oklab and oklch:
@@ -270,101 +210,4 @@ export function rgbToOklab(_: RgbColor): OklabColor {
 
 export function rgbToOklch(_: RgbColor): OklchColor {
   return oklabToOklch(rgbToOklab(_));
-}
-
-/** Of two foreground colors, return the one with the highest
- *  contrast ratio with the background
- */
-export function contrast(
-  background: string,
-  dark?: string,
-  light?: string
-): string {
-  light ??= '#fff';
-  dark ??= '#000';
-
-  const bgColor = parseHex(background)!;
-  const lightContrast = apca(bgColor, parseHex(light)!);
-  const darkContrast = apca(bgColor, parseHex(dark)!);
-
-  return Math.abs(lightContrast) > Math.abs(darkContrast) ? light : dark;
-}
-
-/**
- * Return a more accurate measure of contrast between a foreground color
- * and a background color than WCAG2.0.
- *
- * If the result is negative, the foreground is lighter than the
- * background
- *
- * Range about -108..108
- * If abs(result) > 90, suitable for all cases
- * If abs(result) < 60, large text
- * If abs(result) < 44, spot and non-text
- * If abs(result) < 30, minimum contrast for any text
- *
- * See https://www.myndex.com/APCA/
- */
-export function apca(background: RgbColor, foreground: RgbColor): number {
-  // exponents
-  const normBG = 0.56;
-  const normTXT = 0.57;
-  const revTXT = 0.62;
-  const revBG = 0.65;
-
-  // clamps
-  const blkThrs = 0.022;
-  const blkClmp = 1.414;
-  const loClip = 0.1;
-  const deltaYmin = 0.0005;
-
-  // scalers
-  // see https://github.com/w3c/silver/issues/645
-  const scaleBoW = 1.14;
-  const loBoWoffset = 0.027;
-  const scaleWoB = 1.14;
-  const loWoBoffset = 0.027;
-
-  function fclamp(Y: number) {
-    return Y >= blkThrs ? Y : Y + (blkThrs - Y) ** blkClmp;
-  }
-
-  function linearize(val: number) {
-    const sign = val < 0 ? -1 : 1;
-    return sign * Math.pow(Math.abs(val), 2.4);
-  }
-
-  // Calculates "screen luminance" with non-standard simple gamma EOTF
-  // weights should be from CSS Color 4, not the ones here which are via Myndex and copied from Lindbloom
-  const Yfg = fclamp(
-    linearize(foreground.r / 255) * 0.2126729 +
-      linearize(foreground.g / 255) * 0.7151522 +
-      linearize(foreground.b / 255) * 0.072175
-  );
-
-  const Ybg = fclamp(
-    linearize(background.r / 255) * 0.2126729 +
-      linearize(background.g / 255) * 0.7151522 +
-      linearize(background.b / 255) * 0.072175
-  );
-
-  let S: number, C: number, Sapc: number;
-
-  if (Math.abs(Ybg - Yfg) < deltaYmin) C = 0;
-  else {
-    if (Ybg > Yfg) {
-      // dark foreground on light background
-      S = Ybg ** normBG - Yfg ** normTXT;
-      C = S * scaleBoW;
-    } else {
-      // light foreground on dark background
-      S = Ybg ** revBG - Yfg ** revTXT;
-      C = S * scaleWoB;
-    }
-  }
-  if (Math.abs(C) < loClip) Sapc = 0;
-  else if (C > 0) Sapc = C - loWoBoffset;
-  else Sapc = C + loBoWoffset;
-
-  return Sapc * 100;
 }

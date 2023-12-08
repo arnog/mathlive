@@ -9,9 +9,10 @@ import { complete, removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
 import { Atom } from 'core/atom-class';
 import { VARIANT_REPERTOIRE } from 'core/modes-math';
-import { contrast } from 'ui/colors/utils';
 import { _Mathfield } from 'editor-mathfield/mathfield-private';
 import { _MenuItemState } from 'ui/menu/menu-item';
+import { contrast } from 'ui/colors/contrast';
+import { asHexColor } from 'ui/colors/css';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
@@ -197,7 +198,7 @@ function getBackgroundColorSubmenu(mf: _Mathfield): MenuItem[] {
   for (const color of Object.keys(BACKGROUND_COLORS)) {
     result.push({
       class:
-        (contrast(BACKGROUND_COLORS[color]) === '#000'
+        (asHexColor(contrast(BACKGROUND_COLORS[color])) === '#000'
           ? 'dark-contrast'
           : 'light-contrast') + ' menu-swatch',
 
