@@ -10,6 +10,8 @@
 - Do not display the "contains highlight" indicator when the mathfield
   is not focused or outside of a prompt.
 - **#2194** Ignore long press events when the pointer is a mouse.
+- Improved contrast calculation for the checkmarks over color swatches, now
+  using APCA.
 
 ### Bugs Fixed
 
