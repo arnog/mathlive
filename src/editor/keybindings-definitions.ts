@@ -290,6 +290,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   },
   {
     key: 'alt+shift+/',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
     command: ['insert', '/'],
   },
