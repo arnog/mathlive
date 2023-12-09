@@ -134,7 +134,7 @@
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/prettier-config": "^1.1.1",
     "@playwright/test": "^1.32.3",
-    "@types/css-font-loading-module": "0.0.8",
+    "@types/css-font-loading-module": "0.0.12",
     "@types/jest": "^29.5.1",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
