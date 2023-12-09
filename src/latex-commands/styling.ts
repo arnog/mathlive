@@ -845,7 +845,6 @@ defineFunction(
           } as const
         )[options.command!],
         body: argAtoms(options.args![0]),
-        captureSelection: true,
       }),
   }
 );
