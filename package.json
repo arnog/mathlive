@@ -153,7 +153,7 @@
     "postcss-cli": "^10.1.0",
     "prettier": "^3.0.3",
     "ts-jest": "^29.0.5",
-    "typescript": "^5.0.3"
+    "typescript": "^5.3.3"
   },
   "keywords": [
     "math",
