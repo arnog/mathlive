@@ -13,13 +13,17 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'shift+[ArrowDown]', command: 'extendSelectionDownward' },
 
   { key: '[Backspace]', command: 'deleteBackward' },
+
   { key: '[Delete]', command: 'deleteForward' },
+  { key: 'shift+[Backspace]', command: 'deleteForward' },
 
   { key: 'alt+[Backspace]', command: 'deletePreviousWord' },
   { key: 'alt+[Delete]', command: 'deleteNextWord' },
 
   { key: 'ctrl+[Backspace]', command: 'deleteToGroupStart' },
+
   { key: 'ctrl+[Delete]', command: 'deleteToGroupEnd' },
+  { key: 'ctrl+shift+[Backspace]', command: 'deleteToGroupEnd' },
 
   { key: 'alt+[ArrowLeft]', command: 'moveToPreviousWord' },
   { key: 'alt+[ArrowRight]', command: 'moveToNextWord' },
@@ -379,6 +383,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   },
   {
     key: 'shift+[Delete]',
+    ifMode: 'math',
+    command: 'removeRow',
+  },
+  {
+    key: 'shift+alt+[Backspace]',
     ifMode: 'math',
     command: 'removeRow',
   },
