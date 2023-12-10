@@ -1,4 +1,4 @@
-import { KeyboardModifiers } from 'public/events-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
 import {
   keyboardModifiersFromEvent,
   equalKeyboardModifiers,
@@ -6,7 +6,12 @@ import {
 } from 'ui/events/utils';
 import { Scrim } from 'ui/utils/scrim';
 import { _MenuListState } from './menu-list';
-import { MenuItem } from '../../public/menu-types';
+import {
+  MenuItem,
+  isCommand,
+  isDivider,
+  isSubmenu,
+} from '../../public/ui-menu-types';
 import { RootMenuState, MenuListState } from './private-types';
 
 /**
@@ -18,10 +23,19 @@ import { RootMenuState, MenuListState } from './private-types';
  */
 export class Menu extends _MenuListState implements RootMenuState {
   /**
+   * Delay (in milliseconds) before displaying a submenu.
+   *
+   * Prevents distracting flashing of submenus when moving quickly
+   * through the options in a menu.
+   */
+
+  static SUBMENU_DELAY = 120;
+
+  /**
    * - 'closed': the menu is not visible
    * - 'open': the menu is visible as long as the mouse button is pressed
-   * - 'modal': the menu is visible until dismissed, even with the mouse button
-   * released
+   * - 'modal': the menu is visible until dismissed, even with
+   *   the mouse button released
    */
   state: 'closed' | 'open' | 'modal' = 'closed';
 
@@ -34,11 +48,10 @@ export class Menu extends _MenuListState implements RootMenuState {
   lastMoveEvent?: PointerEvent;
 
   /** @private */
-  modifiers: KeyboardModifiers;
+  _modifiers: KeyboardModifiers;
 
   private typingBufferResetTimer = 0;
   private typingBuffer: string;
-  private readonly _scrim: Scrim;
   private _openTimestamp?: number;
   private _onDismiss?: () => void;
   private hysteresisTimer = 0;
@@ -54,7 +67,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     super(menuItems);
     this._host = options?.host ?? null;
     this.isDynamic = menuItems.some(isDynamic);
-    this.modifiers = {
+    this._modifiers = {
       shift: false,
       control: false,
       alt: false,
@@ -62,8 +75,16 @@ export class Menu extends _MenuListState implements RootMenuState {
     };
     this.typingBuffer = '';
     this.state = 'closed';
+  }
 
-    this._scrim = new Scrim({ onClose: () => this.hide() });
+  get modifiers(): KeyboardModifiers {
+    return this._modifiers;
+  }
+
+  set modifiers(value: KeyboardModifiers) {
+    if (equalKeyboardModifiers(this._modifiers, value)) return;
+    this._modifiers = value;
+    this.dirty = true;
   }
 
   /**
@@ -83,28 +104,26 @@ export class Menu extends _MenuListState implements RootMenuState {
 
     console.assert(value === true);
     if (this._dirty === value) return;
+
+    this._dirty = true;
     if (value) {
-      this._dirty = true;
       setTimeout(() => {
-        this._dirty = false;
+        this.updateState(this.modifiers);
         this.updateElement();
       });
     }
   }
 
-  update(modifiers?: KeyboardModifiers): void {
+  updateState(modifiers?: KeyboardModifiers): void {
     this._updating = true;
     this.modifiers = modifiers ?? this.modifiers;
-    super.update(this.modifiers);
+    super.updateState(this.modifiers);
     this._updating = false;
   }
 
   handleKeyupEvent(ev: KeyboardEvent): void {
-    if (this.isDynamic) {
-      const newModifiers = keyboardModifiersFromEvent(ev);
-      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.update(newModifiers);
-    }
+    if (this.isDynamic) this.modifiers = keyboardModifiersFromEvent(ev);
+
     // Capture any keyup event to prevent ancestors from handling it
     ev.stopImmediatePropagation();
   }
@@ -117,11 +136,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     }
 
     // Update menu if the keyboard modifiers have changed
-    if (this.isDynamic) {
-      const newModifiers = keyboardModifiersFromEvent(ev);
-      if (!equalKeyboardModifiers(this.modifiers, newModifiers))
-        this.update(newModifiers);
-    }
+    if (this.isDynamic) this.modifiers = keyboardModifiersFromEvent(ev);
 
     let handled = true;
     const menu = this.activeSubmenu;
@@ -133,41 +148,60 @@ export class Menu extends _MenuListState implements RootMenuState {
       case 'Enter':
         menuItem?.select(keyboardModifiersFromEvent(ev));
         break;
+
       case 'ArrowRight':
         if (menuItem?.type === 'submenu') {
           menuItem.select(keyboardModifiersFromEvent(ev));
           this.activeSubmenu.activeMenuItem = this.activeSubmenu.firstMenuItem;
         } else if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
-
+        else {
+          const col = menu.getMenuItemColumn(menuItem) ?? -1;
+          if (col >= 0 && col < (menu.columnCount ?? 1) - 1) {
+            const next = menu.nextMenuItem(1);
+            if (next) menu.activeMenuItem = next;
+          }
+        }
         break;
+
       case 'ArrowLeft':
         if (menu === this.rootMenu) {
           if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
         } else {
-          menu.hide();
-          const activeMenu = menu.parentMenu!.activeMenuItem;
-          if (activeMenu) {
-            const { element } = activeMenu;
-            element?.focus();
-            element?.classList.remove('is-submenu-open');
+          const col = menuItem ? menu.getMenuItemColumn(menuItem) ?? -1 : -1;
+          if (col <= 0 || !menuItem) {
+            menu.hide();
+            const activeMenu = menu.parentMenu!.activeMenuItem;
+            if (activeMenu) {
+              const { element } = activeMenu;
+              element?.focus();
+              element?.classList.remove('is-submenu-open');
+            }
+          } else {
+            const next = menu.nextMenuItem(-1);
+            if (next) menu.activeMenuItem = next;
           }
         }
 
         break;
+
       case 'ArrowDown':
-        menu.activeMenuItem = menu.nextMenuItem(+1);
+        menu.activeMenuItem = menu.nextMenuItem(menu.columnCount);
         break;
+
       case 'ArrowUp':
-        menu.activeMenuItem = menu.nextMenuItem(-1);
+        menu.activeMenuItem = menu.nextMenuItem(-menu.columnCount);
         break;
+
       case 'Home':
       case 'PageUp':
         menu.activeMenuItem = menu.firstMenuItem;
         break;
+
       case 'End':
       case 'PageDown':
         menu.activeMenuItem = menu.lastMenuItem;
         break;
+
       case 'Backspace':
         if (this.typingBuffer) {
           this.typingBuffer = this.typingBuffer.slice(0, -1);
@@ -181,8 +215,8 @@ export class Menu extends _MenuListState implements RootMenuState {
             }, 500);
           }
         }
-
         break;
+
       default:
         if (mightProducePrintableCharacter(ev)) {
           if (isFinite(this.typingBufferResetTimer))
@@ -216,9 +250,9 @@ export class Menu extends _MenuListState implements RootMenuState {
         Number.isFinite(this.rootMenu._openTimestamp!) &&
         Date.now() - this.rootMenu._openTimestamp! < 120
       ) {
-        // Hold mode...
+        // "modal" = pointerdown + pointerup within 120ms : keep menu open
         this.state = 'modal';
-      } else {
+      } else if (this.state === 'modal') {
         // Cancel
         this.hide();
       }
@@ -238,7 +272,7 @@ export class Menu extends _MenuListState implements RootMenuState {
   }
 
   get scrim(): Element {
-    return this._scrim.element;
+    return Scrim.element;
   }
 
   private connectScrim(target?: Node | null): void {
@@ -251,7 +285,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.addEventListener('keyup', this);
     scrim.addEventListener('pointermove', this);
 
-    this._scrim.open({ root: target });
+    Scrim.open({ root: target, onDismiss: () => this.hide() });
   }
 
   private disconnectScrim(): void {
@@ -263,7 +297,7 @@ export class Menu extends _MenuListState implements RootMenuState {
     scrim.removeEventListener('keydown', this);
     scrim.removeEventListener('keyup', this);
     scrim.removeEventListener('pointermove', this);
-    if (this._scrim.state === 'open') this._scrim.close();
+    if (Scrim.state === 'open') Scrim.scrim.close();
   }
 
   get rootMenu(): Menu {
@@ -271,13 +305,21 @@ export class Menu extends _MenuListState implements RootMenuState {
     return this;
   }
 
+  /** Locations are in viewport coordinate. */
   show(options?: {
     target?: Node | null; // Where the menu should attach
     location?: { x: number; y: number };
     alternateLocation?: { x: number; y: number };
+    modifiers?: KeyboardModifiers;
     onDismiss?: () => void;
   }): boolean {
     this._onDismiss = options?.onDismiss;
+
+    if (options?.modifiers) this.modifiers = options.modifiers;
+
+    // On first showing, always update the state to account not only
+    // for the keyboard modifiers, but the state of the environment
+    this.updateState();
 
     // Connect the scrim now, so that the menu can be measured and placed
     this.connectScrim(options?.target);
@@ -314,7 +356,7 @@ export class Menu extends _MenuListState implements RootMenuState {
   scheduleOperation(fn: () => void): void {
     this.cancelDelayedOperation();
 
-    const delay = this.submenuHysteresis;
+    const delay = Menu.SUBMENU_DELAY;
     if (delay <= 0) {
       fn();
       return;
@@ -332,30 +374,27 @@ export class Menu extends _MenuListState implements RootMenuState {
       this.hysteresisTimer = 0;
     }
   }
-
-  /**
-   * Delay (in milliseconds) before displaying a submenu.
-   * Prevents distracting "flashing" of submenus when moving through the
-   * options in a menu.
-   */
-  get submenuHysteresis(): number {
-    return 120;
-  }
 }
 
 function isDynamic(item: MenuItem): boolean {
+  if (isDivider(item)) return false;
+
   if (
-    typeof item.enabled === 'function' ||
-    typeof item.visible === 'function' ||
-    typeof item.checked === 'function' ||
     typeof item.label === 'function' ||
-    typeof item.ariaDetails === 'function' ||
     typeof item.ariaLabel === 'function' ||
     typeof item.tooltip === 'function'
   )
     return true;
 
-  if (item.submenu) return item.submenu.some(isDynamic);
+  if (
+    (isCommand(item) || isSubmenu(item)) &&
+    (typeof item.enabled === 'function' || typeof item.visible === 'function')
+  )
+    return true;
+
+  if (isCommand(item) && typeof item.checked === 'function') return true;
+
+  if (isSubmenu(item)) return item.submenu.some(isDynamic);
 
   return false;
 }

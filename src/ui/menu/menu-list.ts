@@ -1,6 +1,6 @@
-import { KeyboardModifiers } from 'public/events-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
 import { fitInViewport } from 'ui/geometry/utils';
-import { MenuItem } from '../../public/menu-types';
+import { MenuItem } from '../../public/ui-menu-types';
 import { _MenuItemState } from './menu-item';
 import { supportPopover } from 'ui/utils/capabilities';
 import { MenuListState, MenuItemState, RootMenuState } from './private-types';
@@ -18,53 +18,63 @@ export class _MenuListState implements MenuListState {
 
   hasCheck?: boolean; // If true, has at least one checkbox or radio menu item
 
-  _menuItems: MenuItemState[];
+  _menuItems: readonly MenuItemState[];
 
   private _element: HTMLElement | null = null;
   private _activeMenuItem: MenuItemState | null = null;
 
-  private _containerClass?: string;
+  private _submenuClass?: string;
 
-  private _abortController: AbortController;
+  private _abortController?: AbortController;
 
-  protected _dirty = false;
+  protected _dirty = true;
+
+  readonly columnCount: number;
 
   constructor(
-    items: MenuItem[],
+    items: readonly MenuItem[],
     options?: {
       parentMenu?: MenuListState;
-      containerClass?: string;
+      submenuClass?: string;
+      columnCount?: number;
     }
   ) {
     this.parentMenu = options?.parentMenu ?? null;
-    this._containerClass = options?.containerClass;
+    this._submenuClass = options?.submenuClass;
+    this.columnCount = options?.columnCount ?? 1;
 
     this.isSubmenuOpen = false;
-    this._abortController = new AbortController();
 
     this.menuItems = items;
+  }
+
+  get children(): readonly MenuItemState[] {
+    return this._menuItems;
   }
 
   /** Setting the menu items will reset this item and
    * redefine a set of _MenuItem objects
    */
-  set menuItems(items: MenuItem[]) {
+  set menuItems(items: readonly MenuItem[]) {
     // Clear any existing menu items
     const parent = this.parentMenu;
     this.dispose();
     this.parentMenu = parent;
     items = [...items];
 
-    // Create the _MenuItem objects
-    this._menuItems = items.map((x) => new _MenuItemState(x, this));
+    // Create the _MenuItemState objects
+    this._menuItems = items.map((x) =>
+      x['onCreate'] ? x['onCreate'](x, this) : new _MenuItemState(x, this)
+    );
 
     this.hasCheck = undefined;
+    this.dirty = true;
   }
 
   dispose(): void {
     this.hide();
     if (this._element) this._element.remove();
-    this._abortController.abort();
+    if (this._abortController) this._abortController.abort();
     this._menuItems?.forEach((x) => x.dispose());
     this._menuItems = [];
     this._activeMenuItem = null;
@@ -89,16 +99,19 @@ export class _MenuListState implements MenuListState {
     return this.parentMenu!.rootMenu;
   }
 
-  get items(): MenuItemState[] {
-    return this._menuItems;
-  }
-
   /**
-   * Update the 'model' of this menu (i.e. list of menu items) based
-   * on the state of the keyboard
+   * Update the 'model' of this menu (i.e. list of menu items)
    */
-  update(modifiers?: KeyboardModifiers): void {
-    this._menuItems.forEach((x) => x.update(modifiers));
+  updateState(modifiers?: KeyboardModifiers): void {
+    this._menuItems.forEach((x) => x.updateState(modifiers));
+
+    const previousHasCheck = this.hasCheck;
+    this.hasCheck = this._menuItems.some((x) => x.visible && x.hasCheck);
+    if (this.hasCheck !== previousHasCheck) {
+      // If the "hasCheck" state has changed, we need to update the
+      // element to reflect the change (the label may need to be shifted)
+      this._menuItems.forEach((x) => x.updateState(modifiers));
+    }
 
     //
     // 1/ Hide headings with no items
@@ -131,25 +144,25 @@ export class _MenuListState implements MenuListState {
       } else if (item.visible) wasDivider = false;
     }
 
-    this.hasCheck = this._menuItems.some(
-      (x) => x.visible && (x.type === 'checkbox' || x.type === 'radio')
-    );
-
     if (!this.activeMenuItem?.visible) this.activeMenuItem = null;
     if (
       !this.activeMenuItem?.enabled &&
       this.activeMenuItem?.type === 'submenu'
     )
       this._activeMenuItem!.submenu!.hide();
+
+    this._dirty = false;
   }
 
   get enabled(): boolean {
+    this.updateIfDirty();
     return this._menuItems.some(
       (x) => x.type !== 'divider' && x.visible && x.enabled
     );
   }
 
   get visible(): boolean {
+    this.updateIfDirty();
     return this._menuItems.some((x) => x.type !== 'divider' && x.visible);
   }
 
@@ -160,6 +173,10 @@ export class _MenuListState implements MenuListState {
       this._dirty = true;
       this.parentMenu.dirty = true;
     }
+  }
+
+  updateIfDirty(): void {
+    if (this._dirty) this.updateState(this.rootMenu.modifiers);
   }
 
   /** If the element has been created, update its content to reflect
@@ -196,9 +213,10 @@ export class _MenuListState implements MenuListState {
     menu.setAttribute('aria-orientation', 'vertical');
     menu.setAttribute('part', 'ui-menu-container');
 
-    if (this._containerClass) menu.classList.add(this._containerClass);
+    if (this._submenuClass) menu.classList.add(this._submenuClass);
     menu.classList.add('ui-menu-container');
 
+    if (!this._abortController) this._abortController = new AbortController();
     const signal = this._abortController.signal;
     menu.addEventListener('focus', this, { signal });
     menu.addEventListener('wheel', this, { passive: true, signal });
@@ -245,12 +263,13 @@ export class _MenuListState implements MenuListState {
       if (value) value.active = true;
     }
 
-    if (value) value.element?.focus();
-    else this._element?.focus();
+    if (value) value.element?.focus({ preventScroll: true });
+    else this._element?.focus({ preventScroll: true });
   }
 
   /** First activable menu item */
   get firstMenuItem(): MenuItemState | null {
+    this.updateIfDirty();
     let result = 0;
     let found = false;
     const menuItems = this._menuItems;
@@ -265,6 +284,7 @@ export class _MenuListState implements MenuListState {
 
   /** Last activable menu item */
   get lastMenuItem(): MenuItemState | null {
+    this.updateIfDirty();
     const menuItems = this._menuItems;
     let result = menuItems.length - 1;
     let found = false;
@@ -277,27 +297,41 @@ export class _MenuListState implements MenuListState {
     return found ? menuItems[result + 1] : null;
   }
 
-  nextMenuItem(dir: number): MenuItemState | null {
-    if (!this._activeMenuItem && dir > 0) return this.firstMenuItem;
-    if (!this._activeMenuItem && dir < 0) return this.lastMenuItem;
+  nextMenuItem(stride: number): MenuItemState | null {
+    if (stride === 0) return this._activeMenuItem;
+
+    if (!this._activeMenuItem)
+      return stride > 0 ? this.firstMenuItem : this.lastMenuItem;
+
     if (!this.firstMenuItem || !this.lastMenuItem || !this._activeMenuItem)
       return null;
 
+    this.updateIfDirty();
+
     const first = this._menuItems.indexOf(this.firstMenuItem);
     const last = this._menuItems.indexOf(this.lastMenuItem);
-    let found = false;
-    let result = this._menuItems.indexOf(this._activeMenuItem) + dir;
-    while (!found && result >= first && result <= last) {
-      const item = this._menuItems[result];
-      found = item.type !== 'divider' && item.visible && item.enabled;
-      result += dir;
+    let index = this._menuItems.indexOf(this._activeMenuItem);
+    let count = 1;
+    while (index >= first && index <= last) {
+      index += stride > 0 ? 1 : -1;
+      const item = this._menuItems[index];
+      if (!item) break;
+      if (item.visible && item.enabled) {
+        if (count === Math.abs(stride)) return this._menuItems[index];
+        count += 1;
+      }
     }
 
-    return found
-      ? this._menuItems[result - dir]
-      : dir > 0
-        ? this.lastMenuItem
-        : this.firstMenuItem;
+    return stride > 0 ? this.lastMenuItem : this.firstMenuItem;
+  }
+
+  getMenuItemColumn(menu: MenuItemState): number {
+    this.updateIfDirty();
+    // Return the column of the item in the menu
+    const visibleItems = this._menuItems.filter((x) => x.visible && x.enabled);
+    const index = visibleItems.indexOf(menu);
+    if (index < 0) return -1;
+    return index % this.columnCount;
   }
 
   private static _collator: Intl.Collator;
@@ -312,6 +346,8 @@ export class _MenuListState implements MenuListState {
   }
 
   findMenuItem(text: string): MenuItemState | null {
+    this.updateIfDirty();
+
     const candidates = this._menuItems.filter(
       (x) => x.type !== 'divider' && x.visible && x.enabled
     );
@@ -340,6 +376,8 @@ export class _MenuListState implements MenuListState {
   }
 
   /**
+   * @param location: in viewport coordinates
+   * @param alternateLocation: in viewport coordinates
    * @param container: where the menu should be attached
    * @return false if no menu to show
    */
@@ -354,7 +392,9 @@ export class _MenuListState implements MenuListState {
     options.container.appendChild(this.element);
 
     if (supportPopover()) {
+      // @ts-ignore
       this.element.popover = 'manual';
+      // @ts-ignore
       this.element.showPopover();
     }
 
@@ -367,7 +407,7 @@ export class _MenuListState implements MenuListState {
       });
     }
 
-    this.element.focus();
+    this.element.focus({ preventScroll: true });
 
     // Notify our parent we have opened
     // (so the parent can close any other open submenu and/or
@@ -386,6 +426,7 @@ export class _MenuListState implements MenuListState {
     // Notify our parent
     if (this.parentMenu) this.parentMenu.openSubmenu = null;
 
+    // @ts-ignore
     if (supportPopover() && this._element?.popover) this.element.hidePopover();
 
     this._element?.parentNode?.removeChild(this._element);

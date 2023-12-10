@@ -125,15 +125,12 @@ export function contentMarkup(
     atom.containsCaret = false;
   }
   if (model.selectionIsCollapsed) {
-    const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
-    if (hasFocus) {
-      const atom = model.at(model.position);
-      atom.caret = mathfield.model.mode;
-      let ancestor = atom.parent;
-      while (ancestor) {
-        ancestor.containsCaret = true;
-        ancestor = ancestor.parent;
-      }
+    const atom = model.at(model.position);
+    atom.caret = mathfield.model.mode;
+    let ancestor = atom.parent;
+    while (ancestor) {
+      ancestor.containsCaret = true;
+      ancestor = ancestor.parent;
     }
   } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
@@ -171,10 +168,11 @@ export function render(
   // 1. Hide the virtual keyboard toggle if not applicable
   //
 
-  const toggle = mathfield.element.querySelector<HTMLElement>(
+  const keyboardToggle = mathfield.element.querySelector<HTMLElement>(
     '[part=virtual-keyboard-toggle]'
   );
-  if (toggle) toggle.style.display = mathfield.hasEditableContent ? '' : 'none';
+  if (keyboardToggle)
+    keyboardToggle.style.display = mathfield.hasEditableContent ? '' : 'none';
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -197,6 +195,19 @@ export function render(
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
   let content = contentMarkup(mathfield, renderOptions);
+
+  const menuToggle =
+    mathfield.element.querySelector<HTMLElement>('[part=menu-toggle]');
+  if (menuToggle) {
+    if (
+      mathfield.model.atoms.length <= 1 ||
+      mathfield.disabled ||
+      (mathfield.readOnly && !mathfield.hasEditableContent) ||
+      mathfield.userSelect === 'none'
+    )
+      menuToggle.style.display = 'none';
+    else menuToggle.style.display = '';
+  }
 
   //
   // 3. Render the content placeholder, if applicable
@@ -258,12 +269,15 @@ export function renderSelection(
 
   // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
   // Without this, the selection indicator will not be in the right place.
+
   // 1. Inquire how big the mathfield thinks it is
-  const supposedWidth = parseFloat(getComputedStyle(field).width);
+  const offsetWidth = field.offsetWidth;
+
   // 2. Get the actual screen width of the box
   const actualWidth = field.getBoundingClientRect().width;
+
   // 3. Divide the two to get the scale factor
-  let scaleFactor = actualWidth / supposedWidth;
+  let scaleFactor = Math.floor(actualWidth) / offsetWidth;
   scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
 
   if (model.selectionIsCollapsed) {
@@ -276,7 +290,11 @@ export function renderSelection(
     // 1.2. Display the 'contains' highlight
     //
     let atom = model.at(model.position);
-    while (atom && !(atom.containsCaret && atom.displayContainsHighlight))
+    while (
+      atom &&
+      atom.type !== 'prompt' &&
+      !(atom.containsCaret && atom.displayContainsHighlight)
+    )
       atom = atom.parent!;
 
     if (atom?.containsCaret && atom.displayContainsHighlight) {
@@ -295,10 +313,10 @@ export function renderSelection(
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
         element.style.position = 'absolute';
-        element.style.left = `${bounds.left}px`;
-        element.style.top = `${bounds.top}px`;
+        element.style.left = `${bounds.left + 1}px`;
+        element.style.top = `${Math.ceil(bounds.top)}px`;
         element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
-        element.style.height = `${Math.ceil(bounds.bottom - bounds.top - 1)}px`;
+        element.style.height = `${Math.ceil(bounds.bottom - bounds.top)}px`;
         field.insertBefore(element, field.childNodes[0]);
       }
     }

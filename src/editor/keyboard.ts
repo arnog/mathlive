@@ -235,7 +235,7 @@ export function delegateKeyboardEvents(
         return;
       }
       // If the scrim is up, ignore blur (while the variants panel is up)
-      const scrimState = Scrim.scrim?.state;
+      const scrimState = Scrim.state;
       if (scrimState === 'open' || scrimState === 'opening') {
         event.preventDefault();
         event.stopPropagation();

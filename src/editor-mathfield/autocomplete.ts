@@ -1,7 +1,7 @@
-import { LatexAtom } from '../core-atoms/latex';
-import { suggest } from '../core-definitions/definitions-utils';
+import { LatexAtom } from '../atoms/latex';
+import { suggest } from '../latex-commands/definitions-utils';
 
-import type { ModelPrivate } from '../editor-model/model-private';
+import type { _Model } from '../editor-model/model-private';
 
 import {
   hideSuggestionPopover,
@@ -100,7 +100,7 @@ export function updateAutocomplete(
   showSuggestionPopover(mathfield, suggestions);
 }
 
-export function acceptCommandSuggestion(model: ModelPrivate): boolean {
+export function acceptCommandSuggestion(model: _Model): boolean {
   const [from, to] = getCommandSuggestionRange(model, {
     before: model.position,
   });

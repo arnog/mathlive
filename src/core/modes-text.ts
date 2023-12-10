@@ -1,14 +1,14 @@
 /* eslint-disable no-new */
 
-import { TextAtom } from '../core-atoms/text';
+import { TextAtom } from '../atoms/text';
 
-import { Atom, ToLatexOptions } from './atom';
+import { Atom } from './atom';
 import { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
 import type { FontSeries, FontShape, Style } from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
-import { TokenDefinition } from '../core-definitions/definitions-utils';
-import { FontName } from './font-metrics';
+import type { TokenDefinition } from 'latex-commands/types';
+import type { ToLatexOptions, FontName } from './types';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
   return run.map((x) => x._serialize(options));
@@ -72,7 +72,11 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string[] {
   });
 }
 
-function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string[] {
+function emitFontFamilyTextRun(
+  run: Atom[],
+  options: ToLatexOptions,
+  needsWrap: boolean
+): string[] {
   return getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
     const s = emitSizeTextRun(x, options);
     const command =
@@ -85,6 +89,7 @@ function emitFontFamilyTextRun(run: Atom[], options: ToLatexOptions): string[] {
     if (x[0].style.fontFamily)
       return `{\\fontfamily{${x[0].style.fontFamily}} ${joinLatex(s)}}`;
 
+    if (needsWrap) return `\\text{${joinLatex(s)}}`;
     return joinLatex(s);
   });
 }
@@ -117,13 +122,14 @@ export class TextMode extends Mode {
   }
 
   serialize(run: Atom[], options: ToLatexOptions): string[] {
-    const result = emitFontFamilyTextRun(run, {
-      ...options,
-      defaultMode: 'text',
-    });
-
-    if (result.length === 0 || options.defaultMode === 'text') return result;
-    return ['\\text{', ...result, '}'];
+    return emitFontFamilyTextRun(
+      run,
+      {
+        ...options,
+        defaultMode: 'text',
+      },
+      options.defaultMode !== 'text'
+    );
   }
 
   /**

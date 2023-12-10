@@ -781,6 +781,13 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'big-op hide-shift',
     label: '.',
   },
+  '[,]': {
+    variants: ',',
+    command: ['performWithFeedback', 'insertDecimalSeparator'],
+    shift: '.',
+    class: 'big-op hide-shift',
+    label: ',',
+  },
   '[+]': {
     variants: [{ latex: '\\sum_{#0}^{#0}', class: 'small' }, '\\oplus'],
     latex: '+',
@@ -986,6 +993,9 @@ export function normalizeKeycap(
   keycap: string | Partial<VirtualKeyboardKeycap>
 ): Partial<VirtualKeyboardKeycap> {
   if (typeof keycap === 'string') {
+    if (keycap === '[.]' && window.MathfieldElement.decimalSeparator === ',')
+      keycap = '[,]';
+
     if (!KEYCAP_SHORTCUTS[keycap]) return { latex: keycap };
     keycap = { label: keycap };
   }
@@ -1079,33 +1089,26 @@ function handlePointerDown(ev: PointerEvent) {
   console.assert(ev.type === 'pointerdown');
 
   const controller = new AbortController();
+  const signal = controller.signal;
 
   target.classList.add('is-pressed');
   target.addEventListener(
     'pointerenter',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointerleave',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointercancel',
     handleVirtualKeyboardEvent(controller),
-    {
-      signal: controller.signal,
-    }
+    { signal }
   );
   target.addEventListener('pointerup', handleVirtualKeyboardEvent(controller), {
-    signal: controller.signal,
+    signal,
   });
 
   // Is it the Shift key?

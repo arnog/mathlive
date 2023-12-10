@@ -1,6 +1,6 @@
 import { register } from '../editor/commands';
-import type { ModelPrivate } from './model-private';
-import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
+import type { _Model } from './model-private';
+import { LETTER_AND_DIGITS } from '../latex-commands/definitions-utils';
 import { move, skip } from './commands';
 import { range } from './selection-utils';
 
@@ -10,7 +10,7 @@ import { range } from './selection-utils';
  * the selection is a superscript or subscript, the group is the supsub.
  * When the selection is in a text zone, the "group" is a word.
  */
-export function selectGroup(model: ModelPrivate): boolean {
+export function selectGroup(model: _Model): boolean {
   let [start, end] = range(model.selection);
   start = boundary(model, start, 'backward');
   end = boundary(model, end, 'forward');
@@ -40,7 +40,7 @@ export function selectGroup(model: ModelPrivate): boolean {
 
 /** Extend the position to the next boundary */
 function boundary(
-  model: ModelPrivate,
+  model: _Model,
   pos: number,
   direction: 'forward' | 'backward'
 ): number {

@@ -22,8 +22,8 @@ import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import type { ParseMode, Style } from 'public/core-types';
-import type { ModelPrivate } from 'editor-model/model-private';
-import { LeftRightAtom } from 'core-atoms/leftright';
+import type { _Model } from 'editor-model/model-private';
+import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
 import { mightProducePrintableCharacter } from 'ui/events/utils';
 
@@ -650,7 +650,7 @@ function insertMathModeChar(
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
 }
 
-function clearSelection(model: ModelPrivate) {
+function clearSelection(model: _Model) {
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
     model.mathfield.snapshot('delete');
@@ -662,7 +662,7 @@ function clearSelection(model: ModelPrivate) {
  * If not handled (because `fence` wasn't a fence), return false.
  */
 export function insertSmartFence(
-  model: ModelPrivate,
+  model: _Model,
   key: string,
   style?: Style
 ): boolean {

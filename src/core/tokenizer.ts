@@ -9,21 +9,19 @@ import { splitGraphemes } from './grapheme-splitter';
 import type { Token } from '../public/core-types';
 
 /**
- * Given a LaTeX expression represented as a character string,
- * the Lexer class will scan and return Tokens for the lexical
+ * Given a LaTeX string, the Tokenizer will return Tokens for the lexical
  * units in the string.
  *
- * @param s A string of LaTeX
+ * @param s A LaTeX string
  */
 class Tokenizer {
-  obeyspaces: boolean;
+  obeyspaces = false;
+
   private readonly s: string | string[];
-  private pos: number;
+  private pos = 0;
 
   constructor(s: string) {
     this.s = splitGraphemes(s);
-    this.pos = 0;
-    this.obeyspaces = false;
   }
 
   /**
@@ -71,6 +69,7 @@ class Tokenizer {
   next(): Token | null {
     // If we've reached the end, exit
     if (this.end()) return null;
+
     // Handle white space
     // In text mode, spaces are significant,
     // however they are coalesced unless \obeyspaces

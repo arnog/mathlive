@@ -1,4 +1,49 @@
-## [Unreleased]
+## 0.98.3 (2023-12-07)
+
+### Improvements
+- Improved contrast calculation for the checkmarks over color swatches, now
+  using APCA.
+- In some situations, the virtual keyboard would not be displayed when
+  the mathfield was focused and the `mathVirtualKeyboardPolicy` was set
+  to `"auto"`.
+
+
+## 0.98.2 (2023-12-06)
+
+### Improvements
+- In some rare cases, the menu was not positioned correctly or would not 
+  display at all.
+- When dynamically changing the layout of the mathfield, for example
+  when using a font-size attribute based on viewport units, correctly
+  redraw the selection
+- Selection while dragging would stop after a few milliseconds
+- The "contains highlight" indicator is no longer displayed when the mathfield
+  is not focused or when the indicator is outside of a prompt.
+- **#2194** Ignore long press events when the pointer is a mouse.
+
+### Bugs Fixed
+
+- **#2195** If the mathfield had a variable width the selection
+  would not be displayed correctly.
+- **#2190** Under some circumstances, commands selected from the menu 
+  could be executed twice.
+
+## 0.98.1 (2023-12-05)
+
+### New Features
+
+- Added `mf.showMenu()` method to programmatically show the context menu.
+
+### Bugs Fixed
+
+- Correctly position the menu when the document has been scrolled.
+- When serializing, do not generate a `\text` command around a `\texttt` command.
+
+### Improvements
+
+- Keyboard navigate submenus with a grid layout
+
+## 0.98.0 (2023-12-03)
 
 ### Breaking Changes
 
@@ -26,20 +71,35 @@ mf.selection = mf.getPromptRange(id);
 - The Color, Background Color and Variant menus correctly toggle the colors 
   and variant, and reflect their state with a checkmark or mixedmark.
 
+- Setting the `mf.menuItems` property before the mathfield is inserted in the
+  DOM will now correctly update the menu items. 
+
+- Correctly display tooltips in the menu when invoked via the menu icon.
+
+- Localized menu items in the context menu.
+
 ### New Features
 
 - **#348** Added a `placeholder` attribute, similar to the `placeholder`
-  attribute of a `<textarea>` element. This is a read-only attribute that
-  specifies a short hint as a LaTeX string that describes the expected value 
-  of the mathfield.
+  attribute of a `<textarea>` element. This specifies a short hint as a 
+  LaTeX string that describes the expected value of the mathfield.
   When the mathfield is empty, the placeholder text is displayed.
   The placeholder text can be styled with the 
   `math-field::part(placeholder)` CSS selector.
+
+- **#2162** Added a `"latex-without-placeholders"` format to the 
+  `getValue()` method. This format is similar to the `"latex"` 
+  format, but does not include the placeholders (for "fill-in-the-blanks").
 
 ### Bugs Fixed
 
 - **#2169** Changing the selection programatically will
   now correctly update the mathfield.
+- **#2189** If the decimal separator is set to `,`, the virtual keyboard
+  will now correctly display the decimal separator as a comma.
+- **#2139** On some keyboard layouts, <kbd>ALT</kbd>+<kbd>/</kbd> would 
+  insert a `\/` command, which is not standard. Now, the simple `/` is
+  inserted.
 
 
 ## 0.97.4 (2023-11-29)

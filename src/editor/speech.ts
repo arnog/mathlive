@@ -4,7 +4,7 @@ import type { Atom } from '../core/atom';
 
 import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
-import { atomToSpeakableText } from './atom-to-speakable-text';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
 import { isBrowser } from '../ui/utils/capabilities';

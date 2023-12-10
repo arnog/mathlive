@@ -1,29 +1,30 @@
-export type RgbColor = {
-  r: number;
-  g: number;
-  b: number;
-  a?: number;
-};
+import { RgbColor, OklchColor, OklabColor } from './types';
 
-export type HslColor = {
-  h: number;
-  s: number;
-  l: number;
-  a?: number;
-};
+export function asOklch(
+  color: string | RgbColor | OklchColor | OklabColor
+): OklchColor {
+  if (typeof color === 'string') {
+    const parsed = parseHex(color);
+    if (!parsed) throw new Error(`Invalid color: ${color}`);
+    return rgbToOklch(parsed);
+  }
+  if ('C' in color) return color;
+  if ('a' in color) return oklabToOklch(color);
+  return rgbToOklch(color);
+}
 
-export type LabColor = {
-  L: number;
-  a: number;
-  b: number;
-  alpha?: number;
-};
-
-export type XyzColor = {
-  x: number;
-  y: number;
-  z: number;
-};
+export function asRgb(
+  color: string | RgbColor | OklchColor | OklabColor
+): RgbColor {
+  if (typeof color === 'string') {
+    const parsed = parseHex(color);
+    if (!parsed) throw new Error(`Invalid color: ${color}`);
+    return parsed;
+  }
+  if ('C' in color) return oklchToRgb(color);
+  if ('a' in color) return oklabToRgb(color);
+  return color;
+}
 
 export function clampByte(v: number): number {
   if (v < 0) return 0;
@@ -55,225 +56,158 @@ export function parseHex(hex: string): RgbColor | undefined {
   return result;
 }
 
-export function rgbToHex(_: RgbColor): string {
-  let hexString = (
-    (1 << 24) +
-    (clampByte(_.r) << 16) +
-    (clampByte(_.g) << 8) +
-    clampByte(_.b)
-  )
-    .toString(16)
-    .slice(1);
+// oklab and oklch:
+// https://bottosson.github.io/posts/oklab/
 
-  if (_.a !== undefined && _.a < 1.0)
-    hexString += ('00' + Math.round(_.a * 255).toString(16)).slice(-2);
+export function oklchToOklab(_: OklchColor): OklabColor {
+  const [L, C, H] = [_.L, _.C, _.H];
+  const hRadians = (H * Math.PI) / 180;
+  const result: OklabColor = {
+    L,
+    a: C * Math.cos(hRadians),
+    b: C * Math.sin(hRadians),
+  };
+  if (_.alpha !== undefined) result.alpha = _.alpha;
+  return result;
+}
 
-  // Compress hex from hex-6 or hex-8 to hex-3 or hex-4 if possible
-  if (
-    hexString[0] === hexString[1] &&
-    hexString[2] === hexString[3] &&
-    hexString[4] === hexString[5] &&
-    hexString[6] === hexString[7]
-  ) {
-    hexString =
-      hexString[0] +
-      hexString[2] +
-      hexString[4] +
-      (_.a !== undefined && _.a < 1.0 ? hexString[6] : '');
+export function oklabToOklch(_: OklabColor): OklchColor {
+  const [L, a, b] = [_.L, _.a, _.b];
+  const C = Math.sqrt(a * a + b * b);
+  const hRadians = Math.atan2(b, a);
+  const H = (hRadians * 180) / Math.PI;
+  const result: OklchColor = { L, C, H };
+  if (_.alpha !== undefined) result.alpha = _.alpha;
+  return result;
+}
+
+export function oklabToUnclippedRgb(_: OklabColor): number[] {
+  const [l, a, b] = [_.L, _.a, _.b];
+
+  const L = Math.pow(
+    0.9999999984505198 * l + 0.39633779217376786 * a + 0.2158037580607588 * b,
+    3
+  );
+  const M = Math.pow(
+    1.00000000888176 * l - 0.10556134232365635 * a - 0.0638541747717059 * b,
+    3
+  );
+  const S = Math.pow(
+    l * 1.000000054672411 - 0.0894841820949657 * a - 1.2914855378640917 * b,
+    3
+  );
+
+  const r =
+    +4.076741661347994 * L - 3.307711590408193 * M + 0.230969928729428 * S;
+  const g =
+    -1.2684380040921763 * L + 2.6097574006633715 * M - 0.3413193963102197 * S;
+  const bl =
+    -0.004196086541837188 * L - 0.7034186144594493 * M + 1.7076147009309444 * S;
+
+  // Convert from linear RGB to sRGB
+  const conv = (n: number) => {
+    const abs = Math.abs(n);
+    if (abs <= 0.0031308) return n * 12.92;
+    return (Math.sign(n) || 1) * (1.055 * Math.pow(abs, 1 / 2.4) - 0.055);
+  };
+
+  return [conv(r), conv(g), conv(bl)];
+}
+
+function inGamut(rgb: number[]): boolean {
+  const [r, g, b] = rgb;
+  return r >= 0 && r <= 1 && g >= 0 && g <= 1 && b >= 0 && b <= 1;
+}
+
+function clampRgb(rgb: number[], alpha?: number): RgbColor {
+  let [r, g, b] = rgb;
+  r = clampByte(r * 255);
+  g = clampByte(g * 255);
+  b = clampByte(b * 255);
+  return alpha !== undefined ? { r, g, b, alpha } : { r, g, b };
+}
+
+/** Convert an oklab color to sRGB, clipping the chroma if necessary */
+export function oklabToRgb(color: OklabColor): RgbColor {
+  let [r, g, b] = oklabToUnclippedRgb(color);
+  if (inGamut([r, g, b])) return clampRgb([r, g, b], color.alpha);
+
+  // Try with chroma = 0
+  const oklch = oklabToOklch(color);
+  oklch.C = 0;
+  [r, g, b] = oklabToUnclippedRgb(oklchToOklab(oklch));
+
+  // If even chroma 0 is not in gamut, return the clamped value
+  if (!inGamut([r, g, b])) return clampRgb([r, g, b], color.alpha);
+
+  // Use a binary search to find a chroma that is in gamut
+  let low = 0;
+  let high = color.L;
+  let mid = (low + high) / 2;
+  oklch.C = mid;
+  const resolution = 0.36 / Math.pow(2, 12);
+  while (high - low > resolution) {
+    mid = (low + high) / 2;
+    oklch.C = mid;
+    [r, g, b] = oklabToUnclippedRgb(oklchToOklab(oklch));
+    if (inGamut([r, g, b])) low = mid;
+    else high = mid;
   }
-
-  return '#' + hexString;
+  return clampRgb([r, g, b], color.alpha);
 }
 
-export function luma(color: string): number {
-  const rgb = parseHex(color);
-  if (!rgb) return 0;
-  let [r, g, b] = [rgb.r / 255.0, rgb.g / 255.0, rgb.b / 255.0];
-
-  // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
-
-  r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
-  g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
-  b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
-
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+export function oklchToRgb(_: OklchColor): RgbColor {
+  return oklabToRgb(oklchToOklab(_));
 }
 
-function hueToRgbChannel(t1: number, t2: number, hue: number): number {
-  if (hue < 0) hue += 6;
-  if (hue >= 6) hue -= 6;
-
-  if (hue < 1) return (t2 - t1) * hue + t1;
-  else if (hue < 3) return t2;
-  else if (hue < 4) return (t2 - t1) * (4 - hue) + t1;
-  return t1;
-}
-
-export function hslToRgb(_: HslColor): RgbColor {
-  let [hue, sat, light] = [_.h, _.s, _.l];
-  hue = ((hue + 360) % 360) / 60.0;
-  light = Math.max(0, Math.min(light, 1.0));
-  sat = Math.max(0, Math.min(sat, 1.0));
-  const t2 = light <= 0.5 ? light * (sat + 1) : light + sat - light * sat;
-  const t1 = light * 2 - t2;
-  return {
-    r: Math.round(255 * hueToRgbChannel(t1, t2, hue + 2)),
-    g: Math.round(255 * hueToRgbChannel(t1, t2, hue)),
-    b: Math.round(255 * hueToRgbChannel(t1, t2, hue - 2)),
-  };
-}
-
-export function rgbToHsl(_: RgbColor): HslColor {
-  const [r, g, b] = [_.r / 255.0, _.g / 255.0, _.b / 255.0];
-  const min = Math.min(r, g, b);
-  const max = Math.max(r, g, b);
-
-  const delta = max - min;
-  let h = +Infinity;
-  let s: number;
-
-  if (max === min) h = 0;
-  else if (r === max) h = (g - b) / delta;
-  else if (g === max) h = 2 + (b - r) / delta;
-  else if (b === max) h = 4 + (r - g) / delta;
-
-  h = Math.min(h * 60, 360);
-
-  if (h < 0) h += 360;
-
-  const l = (min + max) / 2;
-
-  if (max === min) s = 0;
-  else if (l <= 0.5) s = delta / (max + min);
-  else s = delta / (2 - max - min);
-
-  return { h, s, l };
-}
-
-export function saturate(color: string, percent: number): string {
-  const rgb = parseHex(color);
-  if (!rgb) return color;
-  const hsl = rgbToHsl(rgb);
-  hsl.s = Math.min(1, (hsl.s * (100 + percent)) / 100);
-  return rgbToHex(hslToRgb(hsl));
-}
-
-export function lighten(color: string, percent: number): string {
-  const rgb = parseHex(color);
-  if (!rgb) return color;
-  const hsl = rgbToHsl(rgb);
-  hsl.l = Math.min(1, (hsl.l * (100 + percent)) / 100);
-  return rgbToHex(hslToRgb(hsl));
-}
-
-/**
- * L: 0..100
- * a: -128..128
- * b: -128..128
- */
-
-export function labToRgb(_: LabColor): RgbColor {
-  let [L, aStar, bStar] = [_.L, _.a, _.b];
-  L = Math.max(0, Math.min(100, L));
-  aStar = Math.max(-128, Math.min(128, aStar));
-  bStar = Math.max(-128, Math.min(128, bStar));
-  let y = (L + 16) / 116;
-  let x = aStar / 500 + y;
-  let z = y - bStar / 200;
-
-  x = 0.95047 * (x * x * x > 0.008856 ? x * x * x : (x - 16 / 116) / 7.787);
-  y = 1.0 * (y * y * y > 0.008856 ? y * y * y : (y - 16 / 116) / 7.787);
-  z = 1.08883 * (z * z * z > 0.008856 ? z * z * z : (z - 16 / 116) / 7.787);
-
-  let r = x * 3.2406 + y * -1.5372 + z * -0.4986;
-  let g = x * -0.9689 + y * 1.8758 + z * 0.0415;
-  let b = x * 0.0557 + y * -0.204 + z * 1.057;
-
-  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
-  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
-  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : 12.92 * b;
-
-  return {
-    r: clampByte(r * 255),
-    g: clampByte(g * 255),
-    b: clampByte(b * 255),
-  };
-}
-
-/**
- * r: 0..255
- * g: 0..255
- * b: 0..255
- * L: 0..100
- * a: -128..128
- * b: -128..128
- */
-export function rgbToLab(_: RgbColor): LabColor {
-  let [r, g, b] = [_.r, _.g, _.b];
-  r = clampByte(r) / 255;
-  g = clampByte(g) / 255;
-  b = clampByte(b) / 255;
-
-  r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
-  g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
-  b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
-
-  let x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
-  let y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
-  let z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
-
-  x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116;
-  y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
-  z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
-
-  return { L: 116 * y - 16, a: 500 * (x - y), b: 200 * (y - z) };
-}
-
-export function rgbToXyz(_: RgbColor): XyzColor {
+export function rgbToOklab(_: RgbColor): OklabColor {
   const [r, g, b] = [_.r, _.g, _.b];
+
+  // Convert from sRGB to linear RGB
+  const conv = (n: number) => {
+    const abs = Math.abs(n);
+    if (abs <= 0.04045) return n / 12.92;
+    return (Math.sign(n) || 1) * Math.pow((abs + 0.055) / 1.055, 2.4);
+  };
+
+  // const L =
+  //   +0.4121656129659433 * conv(r / 255) +
+  //   0.5362752080314703 * conv(g / 255) +
+  //   0.0514575650074055 * conv(b / 255);
+  // const M =
+  //   +0.21185910790086805 * conv(r / 255) +
+  //   0.6807189586533941 * conv(g / 255) +
+  //   0.1074065798455032 * conv(b / 255);
+  // const S =
+  //   +0.08830979477771493 * conv(r / 255) +
+  //   0.28184741736157754 * conv(g / 255) +
+  //   0.6302613617667958 * conv(b / 255);
+
+  const L =
+    0.41222147079999993 * conv(r / 255) +
+    0.5363325363 * conv(g / 255) +
+    0.0514459929 * conv(b / 255);
+  const M =
+    0.2119034981999999 * conv(r / 255) +
+    0.6806995450999999 * conv(g / 255) +
+    0.1073969566 * conv(b / 255);
+  const S =
+    0.08830246189999998 * conv(r / 255) +
+    0.2817188376 * conv(g / 255) +
+    0.6299787005000002 * conv(b / 255);
+
+  const L3 = Math.cbrt(L);
+  const M3 = Math.cbrt(M);
+  const S3 = Math.cbrt(S);
+
   return {
-    x: 0.430574 * r + 0.34155 * g + 0.178325 * b,
-    y: 0.222015 * r + 0.706655 * g + 0.07133 * b,
-    z: 0.020183 * r + 0.129553 * g + 0.93918 * b,
+    L: 0.2104542553 * L3 + 0.793617785 * M3 - 0.0040720468 * S3,
+    a: 1.9779984951 * L3 - 2.428592205 * M3 + 0.4505937099 * S3,
+    b: 0.0259040371 * L3 + 0.7827717662 * M3 - 0.808675766 * S3,
+    alpha: _.alpha,
   };
 }
 
-export function xyzToRgb(_: XyzColor): { r: number; g: number; b: number } {
-  const [x, y, z] = [_.x, _.y, _.z];
-  return {
-    r: 3.063218 * x - 1.393325 * y - 0.475802 * z,
-    g: -0.969243 * x + 1.875966 * y + 0.041555 * z,
-    b: 0.067871 * x - 0.228834 * y + 1.069251 * z,
-  };
-}
-
-/**
- * Return either dark (default #000) or light (default #fff) depending on
- * the contrast ratio (as per WCAG 2.0 spec)
- * WCAG 2.0
- * - AA
- *     - small text: contrast ratio > 4.5:1
- *     - large text (18px, bold): contrast ratio > 3.1
- * - AAA
- *     - small text: contrast ratio > 7:1
- *     - large text (18px, bold): contrast ratio > 4.5.1
- */
-export function contrast(base: string, dark?: string, light?: string): string {
-  let darkContrast, lightContrast;
-  dark ??= '#000';
-  light ??= '#fff';
-
-  // Calculate contrast ratios for each color
-  // See https://www.w3.org/TR/WCAG20/#contrast-ratiodef
-  const baseLuma = luma(base);
-  const darkLuma = luma(dark);
-  const lightLuma = luma(light);
-  if (baseLuma > darkLuma) darkContrast = (baseLuma + 0.05) / (darkLuma + 0.05);
-  else darkContrast = (darkLuma + 0.05) / (baseLuma + 0.05);
-
-  if (baseLuma > lightLuma)
-    lightContrast = (baseLuma + 0.05) / (lightLuma + 0.05);
-  else lightContrast = (lightLuma + 0.05) / (baseLuma + 0.05);
-
-  return darkContrast > lightContrast ? dark : light;
+export function rgbToOklch(_: RgbColor): OklchColor {
+  return oklabToOklch(rgbToOklab(_));
 }

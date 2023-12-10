@@ -20,14 +20,13 @@ import type {
   Keybinding,
   MathfieldOptions,
 } from './options';
-import { MenuItem } from './menu-types';
+import type { MenuItem } from './ui-menu-types';
 
 import {
   get as getOptions,
   getDefault as getDefaultOptions,
   update as updateOptions,
-} from '../editor/options';
-import { isOffset, isRange, isSelection } from '../editor/model';
+} from '../editor-mathfield/options';
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
@@ -42,6 +41,8 @@ import type { ComputeEngine } from '@cortex-js/compute-engine';
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
+import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
+import { KeyboardModifiers } from './ui-events-types';
 
 export declare type Expression =
   | number
@@ -108,13 +109,13 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
-    'mode-change': Event;
+    'mode-change': CustomEvent;
     'mount': Event;
-    'move-out': CustomEvent<MoveOutEvent>;
     'unmount': Event;
+    'move-out': CustomEvent<MoveOutEvent>;
     'read-aloud-status-change': Event;
     'selection-change': Event;
-    'undo-state-change': Event;
+    'undo-state-change': CustomEvent;
     'before-virtual-keyboard-toggle': Event;
     'virtual-keyboard-toggle': Event;
   }
@@ -133,6 +134,7 @@ const gDeferredState = new WeakMap<
     value: string | undefined;
     selection: Selection;
     options: Partial<MathfieldOptions>;
+    menuItems: Readonly<MenuItem[]> | undefined;
   }
 >();
 
@@ -493,18 +495,19 @@ const DEPRECATED_OPTIONS = {
  * | Event Name  | Description |
  * |:---|:---|
  * | `beforeinput` | The value of the mathfield is about to be modified.  |
- * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
+ * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield. The `evt.data` property includes a copy of `evt.inputType`. See `InputEvent` |
  * | `change` | The user has committed the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
  * | `selection-change` | The selection (or caret position) in the mathfield has changed |
  * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
- * | `undo-state-change` |  The state of the undo stack has changed |
+ * | `undo-state-change` |  The state of the undo stack has changed. The `evt.detail.type` indicate if a snapshot was taken or an undo performed. |
  * | `read-aloud-status-change` | The status of a read aloud operation has changed |
- * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change.  |
+ * | `before-virtual-keyboard-toggle` | The visibility of the virtual keyboard panel is about to change. The `evt.detail.visible` property indicate if the keyboard will be visible or not. Listen for this event on `window.mathVirtualKeyboard` |
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed. Listen for this event on `window.mathVirtualKeyboard` |
+ * | `geometrychange` | The geometry of the virtual keyboard has changed. The `evt.detail.boundingRect` property is the new bounding rectangle of the virtual keyboard. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
  * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
- * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
+ * | `keypress` | The user pressed a physical keyboard key |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
  *
@@ -731,8 +734,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     default: 'keypress-standard.wav',
   };
 
-  /** @internal */
+  /** @ignore */
   private static _plonkSound: string | null = 'plonk.wav';
+
   /**
    * Sound played to provide feedback when a command has no effect, for example
    * when pressing the spacebar at the root level.
@@ -1176,7 +1180,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           'color:#db1111; font-size: 1.1rem'
         );
         console.warn(
-          `Some of the options passed to \`new MathFieldElement(...)\` are invalid. 
+          `Some of the options passed to \`new MathfieldElement(...)\` are invalid. 
           See https://cortexjs.io/mathlive/changelog/ for details.`
         );
         for (const warning of warnings) console.warn(warning);
@@ -1194,10 +1198,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     this.attachShadow({ mode: 'open', delegatesFocus: true });
 
-    const computedStyle = window.getComputedStyle(this);
-    const pointerEvents = computedStyle.userSelect === 'none' ? 'none' : 'auto';
-    const shadowRootMarkup = `<span style="pointer-events:${pointerEvents}"></span><slot style="display:none"></slot>`;
-
     if (this.shadowRoot && 'adoptedStyleSheets' in this.shadowRoot) {
       // @ts-ignore
       this.shadowRoot!.adoptedStyleSheets = [
@@ -1207,9 +1207,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheet('ui'),
         getStylesheet('menu'),
       ];
+
       // @ts-ignore
-      this.shadowRoot!.innerHTML = shadowRootMarkup;
+      this.shadowRoot!.appendChild(document.createElement('span'));
+
+      const slot = document.createElement('slot');
+      slot.style.display = 'none';
+      // @ts-ignore
+      this.shadowRoot!.appendChild(slot);
     } else {
+      // @ts-ignore
       this.shadowRoot!.innerHTML =
         '<style>' +
         getStylesheetContent('core') +
@@ -1218,11 +1225,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         getStylesheetContent('ui') +
         getStylesheetContent('menu') +
         '</style>' +
-        shadowRootMarkup;
+        '<span></span><slot style="display:none"></slot>';
     }
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);
+  }
+
+  showMenu(_: {
+    location: { x: number; y: number };
+    modifiers: KeyboardModifiers;
+  }): boolean {
+    return this._mathfield?.showMenu(_) ?? false;
   }
 
   /** @internal */
@@ -1508,6 +1522,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         value: undefined,
         selection: { ranges: [[0, 0]] },
         options,
+        menuItems: undefined,
       });
     }
 
@@ -1614,6 +1629,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           direction: 'forward',
         },
         options,
+        menuItems: undefined,
       });
       return;
     }
@@ -1626,6 +1642,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         direction: 'forward',
       },
       options: attrOptions,
+      menuItems: undefined,
     });
   }
 
@@ -1787,9 +1804,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /** @internal */
   handleEvent(evt: Event): void {
-    // If the scrim is open (variant panel), ignore events
+    // If the scrim for the variant panel or the menu is
+    // open, ignore events.
     // Otherwise we may end up disconecting from the VK
-    if (Scrim.scrim && Scrim.scrim.state !== 'closed') return;
+    if (Scrim.state !== 'closed') return;
 
     // Also, if the menu is open
     if (this._mathfield?.menu?.state !== 'closed') return;
@@ -1805,19 +1823,17 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
   connectedCallback(): void {
     const computedStyle = window.getComputedStyle(this);
+    const shadowRoot = this.shadowRoot!;
     const userSelect = computedStyle.userSelect !== 'none';
-    (this.shadowRoot!.firstElementChild! as HTMLElement).style.pointerEvents =
-      userSelect ? 'none' : 'auto';
 
-    if (userSelect)
-      this.shadowRoot!.host.addEventListener('pointerdown', this, true);
-
-    const span = this.shadowRoot?.querySelector('span');
-    span!.style.pointerEvents = userSelect ? 'auto' : 'none';
-
+    if (userSelect) shadowRoot.host.addEventListener('pointerdown', this, true);
+    else {
+      const span = shadowRoot.querySelector('span');
+      span!.style.pointerEvents = 'none';
+    }
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
-    this.shadowRoot!.host.addEventListener('focus', this, true);
-    this.shadowRoot!.host.addEventListener('blur', this, true);
+    shadowRoot.host.addEventListener('focus', this, true);
+    shadowRoot.host.addEventListener('blur', this, true);
 
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
@@ -1834,29 +1850,30 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     // focus the mathfield
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
-    const slot =
-      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
-    try {
-      this._style = slot!
-        .assignedElements()
-        .filter((x) => x.tagName.toLowerCase() === 'style')
-        .map((x) => x.textContent)
-        .join('');
-    } catch (error: unknown) {
-      console.error(error);
+    const slot = shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
+    if (slot) {
+      try {
+        this._style = slot
+          .assignedElements()
+          .filter((x) => x.tagName.toLowerCase() === 'style')
+          .map((x) => x.textContent)
+          .join('');
+      } catch (error: unknown) {
+        console.error(error);
+      }
     }
     // Add shadowed stylesheet if one was provided
     // (this is important to support the `\class{}{}` command)
     if (this._style) {
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
-      this.shadowRoot!.appendChild(styleElement);
+      shadowRoot.appendChild(styleElement);
     }
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value
     // of the mathfield from it
-    if (this.hasAttribute('value')) value = this.getAttribute('value') ?? '';
+    if (this.hasAttribute('value')) value = this.getAttribute('value')!;
     else {
       value =
         slot
@@ -1867,11 +1884,10 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     this._mathfield = new _Mathfield(
-      this.shadowRoot!.querySelector(':host > span')!,
+      shadowRoot.querySelector(':host > span')!,
       {
-        ...(gDeferredState.has(this)
-          ? gDeferredState.get(this)!.options
-          : getOptionsFromAttributes(this)),
+        ...(gDeferredState.get(this)?.options ??
+          getOptionsFromAttributes(this)),
         eventSink: this,
         value,
       }
@@ -1891,16 +1907,18 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     }
 
     if (gDeferredState.has(this)) {
-      this._mathfield.model.deferNotifications(
-        { content: false, selection: false },
-        () => {
-          const value = gDeferredState.get(this)!.value;
-          if (value !== undefined) this._mathfield!.setValue(value);
-          this._mathfield!.model.selection =
-            gDeferredState.get(this)!.selection;
-          gDeferredState.delete(this);
-        }
-      );
+      const mf = this._mathfield!;
+      const state = gDeferredState.get(this)!;
+      const menuItems = state.menuItems;
+      mf.model.deferNotifications({ content: false, selection: false }, () => {
+        const value = state.value;
+        if (value !== undefined) mf.setValue(value);
+        mf.model.selection = state.selection;
+
+        gDeferredState.delete(this);
+      });
+
+      if (menuItems) this.menuItems = menuItems;
     }
 
     // Notify listeners that we're mounted and ready
@@ -1947,6 +1965,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.model.selection,
+      menuItems: this._mathfield.menu?.menuItems ?? undefined,
       options,
     });
 
@@ -2249,16 +2268,33 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    */
 
   get menuItems(): readonly MenuItem[] {
-    return this._mathfield?.menu._menuItems.map((x) => x.menuItem) ?? [];
+    if (this._mathfield)
+      return this._mathfield.menu._menuItems.map((x) => x.menuItem) ?? [];
+
+    return gDeferredState.get(this)?.menuItems ?? [];
   }
-  set menuItems(menuItems: MenuItem[]) {
-    if (this._mathfield?.menu) {
+  set menuItems(menuItems: Readonly<MenuItem[]>) {
+    if (this._mathfield) {
       const btn =
         this._mathfield.element?.querySelector<HTMLElement>(
           '[part=menu-toggle]'
         );
       if (btn) btn.style.display = menuItems.length === 0 ? 'none' : '';
       this._mathfield.menu.menuItems = menuItems;
+    }
+
+    if (gDeferredState.has(this)) {
+      gDeferredState.set(this, {
+        ...gDeferredState.get(this)!,
+        menuItems,
+      });
+    } else {
+      gDeferredState.set(this, {
+        value: undefined,
+        selection: { ranges: [[0, 0]] },
+        options: getOptionsFromAttributes(this),
+        menuItems,
+      });
     }
   }
 
@@ -2300,7 +2336,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   get keybindings(): readonly Keybinding[] {
     return this._getOption('keybindings');
   }
-  set keybindings(value: Keybinding[]) {
+  set keybindings(value: readonly Keybinding[]) {
     this._setOptions({ keybindings: value });
   }
 
@@ -2409,6 +2445,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       value: undefined,
       selection: sel,
       options: getOptionsFromAttributes(this),
+      menuItems: undefined,
     });
   }
 
@@ -2460,6 +2497,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       value: undefined,
       selection: { ranges: [[offset, offset]] },
       options: getOptionsFromAttributes(this),
+      menuItems: undefined,
     });
   }
 

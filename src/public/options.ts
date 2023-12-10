@@ -277,7 +277,7 @@ export type ContentChangeOptions = {
 };
 
 export type KeyboardOptions = {
-  keybindings: Keybinding[];
+  keybindings: readonly Keybinding[];
 };
 
 export type InlineShortcutsOptions = {
@@ -629,7 +629,7 @@ export declare function setKeyboardLayout(
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
-export type AutoRenderOptions = {
+export type StaticRenderOptions = {
   /** An array of tag names whose content will
    *  not be scanned for delimiters (unless their class matches the `processClass`
    * pattern below.

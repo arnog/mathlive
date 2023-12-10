@@ -5,7 +5,7 @@ import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
 import {
   getSharedElement,
   releaseSharedElement,
-} from '../editor/shared-element';
+} from '../common/shared-element';
 import { getKeybindingMarkup } from 'ui/events/keyboard';
 
 export function showKeystroke(mathfield: _Mathfield, keystroke: string): void {

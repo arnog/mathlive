@@ -79,6 +79,8 @@ export function getOppositeEffectivePos(
  * If it overflows and there is an alternate location, use the alternate
  * location to fit the topright at the alternate location.
  *
+ * The locations are in viewport coordinates.
+ *
  * If the element still overflows, adjust its location moving it up and to the
  * left as necessary until it fits (and adjusting its width/height as a result)
  */
@@ -98,7 +100,7 @@ export function fitInViewport(
   const dir = getComputedDir(element) ?? 'ltr';
 
   // Reset any location, so we can get the natural width/height
-  element.style.position = 'absolute';
+  element.style.position = 'fixed';
   element.style.left = '';
   element.style.top = '';
   element.style.right = '';
@@ -174,7 +176,7 @@ export function fitInViewport(
   }
 
   if (!Number.isFinite(left)) {
-    // Move element as high as possible
+    // Move element as far left as possible
     left = Math.max(8, window.innerWidth - 8 - width);
     if (8 + width > window.innerWidth - 8) {
       // Still doesn't fit, we'll clamp it

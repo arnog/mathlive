@@ -1,6 +1,6 @@
-import type { MathfieldElement } from '../../src/public/mathfield-element';
-
 import { test, expect } from '@playwright/test';
+
+import type { MathfieldElement } from '../../src/public/mathfield-element';
 
 test('double/triple click to select', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');

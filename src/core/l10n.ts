@@ -4,6 +4,7 @@ import { isBrowser } from '../ui/utils/capabilities';
 interface L10n {
   locale: string;
   strings: Record<string, Record<string, string>>;
+  readonly numberFormatter: Intl.NumberFormat;
 
   merge(
     locale: string | Record<string, Record<string, string>>,
@@ -20,6 +21,8 @@ interface L10n {
   _locale: string;
   _dirty: boolean; // True if the DOM needs to be updated
   _subscribers: (undefined | (() => void))[]; // List of subscribers to be notified when the locale changes
+
+  _numberFormatter: Intl.NumberFormat | undefined;
 }
 
 export const l10n: L10n = {
@@ -28,6 +31,7 @@ export const l10n: L10n = {
   _locale: '', //  Important! Set the locale to empty so it can be determined at runtime
   _dirty: false,
   _subscribers: [],
+  _numberFormatter: undefined,
 
   get locale(): string {
     // Use the browser defined language as the default language,
@@ -40,7 +44,15 @@ export const l10n: L10n = {
 
   set locale(value: string) {
     l10n._locale = value;
+    l10n._numberFormatter = undefined;
     l10n.dirty = true;
+  },
+
+  get numberFormatter(): Intl.NumberFormat {
+    if (!l10n._numberFormatter)
+      l10n._numberFormatter = new Intl.NumberFormat(l10n.locale);
+
+    return l10n._numberFormatter;
   },
 
   /*
@@ -131,7 +143,10 @@ export const l10n: L10n = {
 /**
  * Return a localized string for the `key`.
  */
-export function localize(key?: string): string | undefined {
+export function localize(
+  key: string,
+  ...params: (number | string)[]
+): string | undefined {
   if (key === undefined) return undefined;
 
   let result = '';
@@ -149,6 +164,30 @@ export function localize(key?: string): string | undefined {
 
   // If that didn't work, return undefined
   if (!result) return undefined;
+
+  // Now substitute any parameters in the string. Parameters have the format
+  // %@ or %1$@, where the $1 indicates the index of the parameter to substitute
+  // and the @ indicates that the parameter is a string
+
+  // eslint-disable-next-line no-control-regex
+  const regex = /(%@|%([0-9]+)\$@)/g;
+  let match = regex.exec(result);
+  let index = 0;
+  while (match) {
+    const parameter = params[index++];
+    if (parameter) {
+      const parameterIndex = match[2] ? parseInt(match[2], 10) - 1 : index - 1;
+
+      let repl = params[parameterIndex];
+      if (typeof repl === 'number') repl = l10n.numberFormatter.format(repl);
+
+      result = result.replace(match[1], repl);
+    }
+    match = regex.exec(result);
+  }
+
+  // Now substitute any `%%` with `%`
+  result = result.replace(/%%/g, '%');
 
   return result;
 }

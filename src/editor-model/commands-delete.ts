@@ -1,22 +1,22 @@
 import { register } from '../editor/commands';
-import type { ModelPrivate } from './model-private';
+import type { _Model } from './model-private';
 import { deleteForward, deleteBackward, deleteRange } from './delete';
 import { skip } from './commands';
 
 register(
   {
-    deleteAll: (model: ModelPrivate): boolean =>
+    deleteAll: (model: _Model): boolean =>
       model.contentWillChange({ inputType: 'deleteContent' }) &&
       deleteRange(model, [0, -1], 'deleteContent'),
-    deleteForward: (model: ModelPrivate): boolean => deleteForward(model),
-    deleteBackward: (model: ModelPrivate): boolean => deleteBackward(model),
-    deleteNextWord: (model: ModelPrivate): boolean =>
+    deleteForward: (model: _Model): boolean => deleteForward(model),
+    deleteBackward: (model: _Model): boolean => deleteBackward(model),
+    deleteNextWord: (model: _Model): boolean =>
       model.contentWillChange({ inputType: 'deleteWordForward' }) &&
       skip(model, 'forward', { delete: true }),
-    deletePreviousWord: (model: ModelPrivate): boolean =>
+    deletePreviousWord: (model: _Model): boolean =>
       model.contentWillChange({ inputType: 'deleteWordBackward' }) &&
       skip(model, 'backward', { delete: true }),
-    deleteToGroupStart: (model: ModelPrivate): boolean => {
+    deleteToGroupStart: (model: _Model): boolean => {
       if (!model.contentWillChange({ inputType: 'deleteSoftLineBackward' }))
         return false;
       const pos = model.offsetOf(model.at(model.position).firstSibling);
@@ -32,7 +32,7 @@ register(
       model.position = pos;
       return true;
     },
-    deleteToGroupEnd: (model: ModelPrivate): boolean => {
+    deleteToGroupEnd: (model: _Model): boolean => {
       if (!model.contentWillChange({ inputType: 'deleteSoftLineForward' }))
         return false;
       const pos = model.offsetOf(model.at(model.position).lastSibling);
@@ -47,10 +47,10 @@ register(
       );
       return true;
     },
-    deleteToMathFieldStart: (model: ModelPrivate): boolean =>
+    deleteToMathFieldStart: (model: _Model): boolean =>
       model.contentWillChange({ inputType: 'deleteHardLineBackward' }) &&
       deleteRange(model, [model.anchor, 0], 'deleteHardLineBackward'),
-    deleteToMathFieldEnd: (model: ModelPrivate): boolean =>
+    deleteToMathFieldEnd: (model: _Model): boolean =>
       model.contentWillChange({ inputType: 'deleteHardLineForward' }) &&
       deleteRange(model, [model.anchor, -1], 'deleteHardLineForward'),
   },

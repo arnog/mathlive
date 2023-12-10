@@ -96,7 +96,7 @@
 
 :where(.ui-menu-container > li > .label.heading) {
   font-weight: bold;
-  opacity: 0.4;
+  opacity: 0.4; // @todo: should be a color
 }
 
 :where(.ui-menu-container > li.indent > .label) {
@@ -119,7 +119,7 @@
 }
 
 :where(.ui-menu-container > li[aria-disabled='true']) {
-  opacity: 0.5;
+  opacity: 0.5; // @todo should be a color
 }
 
 :where(.ui-menu-container > li.active) {
@@ -138,17 +138,18 @@
 }
 
 :where(.ui-menu-container > li[aria-haspopup='true'].active::after) {
-  color: white;
+  color: var(--ui-menu-text-active);
 }
 
 /** Keyboard shortcut */
 :where(.ui-menu-container > li > kbd) {
   font-family: var(--ui-font-family);
-  opacity: 0.4;
+  margin-inline-start: 12px;
+  opacity: 0.4; // @todo: should be a color
 }
 
 :where(.ui-menu-container > li.active > kbd) {
-  opacity: 0.85;
+  opacity: 0.85;  // @todo: should be a color
 }
 
 .ui-trailing-chevron {

@@ -1,4 +1,4 @@
-import { Atom, ToLatexOptions } from './atom-class';
+import { Atom } from './atom-class';
 import type { Box } from './box';
 import type {
   FontSeries,
@@ -9,12 +9,10 @@ import type {
   Variant,
   VariantStyle,
 } from '../public/core-types';
-import {
-  TokenDefinition,
-  getDefinition,
-} from '../core-definitions/definitions-utils';
+import { getDefinition } from '../latex-commands/definitions-utils';
 import { joinLatex, latexCommand } from './tokenizer';
-import { FontName } from './font-metrics';
+import type { TokenDefinition } from 'latex-commands/types';
+import type { FontName, ToLatexOptions } from './types';
 
 export abstract class Mode {
   static _registry: Record<string, Mode> = {};

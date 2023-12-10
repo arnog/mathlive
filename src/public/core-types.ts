@@ -184,6 +184,7 @@ export interface Style {
   fontShape?: FontShape;
   fontSeries?: FontSeries;
 }
+
 /**
  * **See Also**
  * * [[`MacroDictionary`]]

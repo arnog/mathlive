@@ -33,6 +33,7 @@ const VARIANTS: {
   '8': ['\\frac{1}{8}', '#@^8'],
   '9': ['\\frac{1}{9}', '#@^9'],
   '.': ['.', ',', ';', '\\colon'],
+  ',': ['{,}', '.', ';', '\\colon'],
   'a': [
     { latex: '\\aleph', aside: 'aleph' },
     { latex: '\\forall', aside: 'for all' },
@@ -115,7 +116,7 @@ const VARIANTS: {
   ],
 };
 
-let variantPanelController: AbortController | null;
+let gVariantPanelController: AbortController | null;
 
 export function showVariantsPanel(
   element: HTMLElement,
@@ -168,14 +169,13 @@ export function showVariantsPanel(
   //
   // Create the scrim and attach the variants panel to it
   //
-  if (!Scrim.scrim) Scrim.scrim = new Scrim();
-  Scrim.scrim.open({
+  Scrim.open({
     root: keyboard?.container?.querySelector('.ML__keyboard'),
     child: variantPanel,
   });
 
-  variantPanelController = new AbortController();
-  const { signal } = variantPanelController;
+  gVariantPanelController = new AbortController();
+  const { signal } = gVariantPanelController;
 
   //
   // Position the variants panel
@@ -266,9 +266,9 @@ export function showVariantsPanel(
 }
 
 export function hideVariantsPanel(): void {
-  variantPanelController?.abort();
-  variantPanelController = null;
-  Scrim.scrim?.close();
+  gVariantPanelController?.abort();
+  gVariantPanelController = null;
+  if (Scrim.state === 'open') Scrim.close();
 }
 
 function makeVariants(
@@ -313,6 +313,7 @@ function getVariants(
   id: string | (string | Partial<VirtualKeyboardKeycap>)[]
 ): (string | Partial<VirtualKeyboardKeycap>)[] {
   if (typeof id !== 'string') return id;
+
   if (!VARIANTS[id]) VARIANTS[id] = makeVariants(id) ?? [];
   return VARIANTS[id];
 }

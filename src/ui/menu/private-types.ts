@@ -1,26 +1,29 @@
-import { KeyboardModifiers } from 'public/events-types';
-import { MenuItem, MenuItemType } from '../../public/menu-types';
+import { KeyboardModifiers } from 'public/ui-events-types';
+import { MenuItem, MenuItemType } from '../../public/ui-menu-types';
 
 /** @internal */
 export interface MenuItemState<T = unknown> {
-  parentMenu: MenuListState;
+  readonly rootMenu: RootMenuState;
+  readonly parentMenu: MenuListState;
 
   active: boolean;
   visible: boolean;
 
+  readonly hasCheck: boolean;
+
   readonly type: MenuItemType;
   readonly label: string;
-  readonly enabled: boolean;
-  readonly checked: boolean | 'mixed';
-  readonly submenu?: MenuListState;
-  readonly items?: MenuItemState[]; // if a list of items
-  readonly id?: string;
-  readonly data?: T;
   readonly ariaLabel?: string;
-  readonly ariaDetails?: string;
   readonly tooltip?: string;
 
-  readonly element: HTMLElement | null;
+  readonly enabled: boolean;
+  readonly checked: boolean | 'mixed';
+
+  readonly submenu?: MenuListState;
+  readonly id?: string;
+  readonly data?: T;
+
+  readonly element: HTMLElement;
 
   readonly menuItem: MenuItem<T>;
 
@@ -29,7 +32,7 @@ export interface MenuItemState<T = unknown> {
 
   dispose(): void;
 
-  update(modifiers?: KeyboardModifiers): void;
+  updateState(modifiers?: KeyboardModifiers): void;
 
   /**
    * Open the submenu of this menu item, with a delay if options.delay
@@ -48,11 +51,14 @@ export interface MenuItemState<T = unknown> {
 
 /** @internal */
 export interface MenuListState {
-  parentMenu: MenuListState | null;
   readonly rootMenu: RootMenuState;
+  readonly parentMenu: MenuListState | null;
+  readonly children: readonly MenuItemState[];
 
   readonly element: HTMLElement | null;
   isSubmenuOpen: boolean;
+
+  readonly columnCount: number;
 
   activeMenuItem: MenuItemState | null;
   readonly firstMenuItem: MenuItemState | null;
@@ -77,8 +83,9 @@ export interface MenuListState {
     alternateLocation?: { x: number; y: number };
     modifiers?: KeyboardModifiers;
   }): boolean;
-  nextMenuItem(dir: number): MenuItemState | null;
+  nextMenuItem(stride: number): MenuItemState | null;
   findMenuItem(text: string): MenuItemState | null;
+  getMenuItemColumn(menuItem: MenuItemState): number;
   dispatchEvent(ev: Event): boolean;
 }
 

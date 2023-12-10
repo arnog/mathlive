@@ -1,13 +1,14 @@
-import type { ModelPrivate } from './model-private';
-import { _Mathfield, getLocalDOMRect } from '../editor/mathfield';
+import type { _Model } from './model-private';
 import { Atom } from '../core/atom-class';
-import { ArrayAtom } from '../core-atoms/array';
-import { LatexAtom } from '../core-atoms/latex';
-import { TextAtom } from '../core-atoms/text';
-import { LETTER_AND_DIGITS } from '../core-definitions/definitions-utils';
+import { ArrayAtom } from '../atoms/array';
+import { LatexAtom } from '../atoms/latex';
+import { TextAtom } from '../atoms/text';
+import { LETTER_AND_DIGITS } from '../latex-commands/definitions-utils';
 import type { Offset, Selection } from '../public/mathfield';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
-import { PromptAtom } from '../core-atoms/prompt';
+import { PromptAtom } from '../atoms/prompt';
+import { getLocalDOMRect } from 'editor-mathfield/utils';
+import { _Mathfield } from 'editor-mathfield/mathfield-private';
 import { deleteRange } from './delete';
 
 /*
@@ -41,7 +42,7 @@ import { deleteRange } from './delete';
  *
  */
 export function wordBoundaryOffset(
-  model: ModelPrivate,
+  model: _Model,
   offset: Offset,
   direction: 'forward' | 'backward'
 ): number {
@@ -120,7 +121,7 @@ export function wordBoundaryOffset(
  * @todo array
  */
 export function skip(
-  model: ModelPrivate,
+  model: _Model,
   direction: 'forward' | 'backward',
   options?: { extend?: boolean; delete?: boolean }
 ): boolean {
@@ -303,7 +304,7 @@ export function skip(
  * Handle keyboard navigation (arrow keys)
  */
 export function move(
-  model: ModelPrivate,
+  model: _Model,
   direction: 'forward' | 'backward' | 'upward' | 'downward',
   options?: { extend: boolean }
 ): boolean {
@@ -369,7 +370,7 @@ export function move(
 }
 
 function nextValidPosition(
-  model: ModelPrivate,
+  model: _Model,
   pos: number,
   direction: 'forward' | 'backward'
 ): number {
@@ -383,7 +384,7 @@ function nextValidPosition(
   return pos;
 }
 
-function isValidPosition(model: ModelPrivate, pos: number): boolean {
+function isValidPosition(model: _Model, pos: number): boolean {
   const atom = model.at(pos);
 
   // If we're inside a captureSelection, that's not a valid position
@@ -424,7 +425,7 @@ function getClosestAtomToXPosition(
 }
 
 function moveToClosestAtomVertically(
-  model: ModelPrivate,
+  model: _Model,
   fromAtom: Atom,
   toAtoms: Atom[],
   extend: boolean,
@@ -471,10 +472,7 @@ function moveToClosestAtomVertically(
   model.announce(`move ${direction}`);
 }
 
-function moveUpward(
-  model: ModelPrivate,
-  options?: { extend: boolean }
-): boolean {
+function moveUpward(model: _Model, options?: { extend: boolean }): boolean {
   const extend = options?.extend ?? false;
 
   if (!extend) model.collapseSelection('backward');
@@ -547,10 +545,7 @@ function moveUpward(
   return true;
 }
 
-function moveDownward(
-  model: ModelPrivate,
-  options?: { extend: boolean }
-): boolean {
+function moveDownward(model: _Model, options?: { extend: boolean }): boolean {
   const extend = options?.extend ?? false;
 
   if (!extend) model.collapseSelection('forward');

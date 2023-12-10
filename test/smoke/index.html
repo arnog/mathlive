@@ -9,6 +9,9 @@
     />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="data:," />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.11/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.11/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.11/mode/xml/xml.min.js"></script>
     <style>
       math-field {
         border: 1px solid var(--editable-border);
@@ -21,6 +24,7 @@
         width: 100%;
         position: relative;
         z-index: 1;
+        font-size: clamp(1rem, 1.5vw, 4rem);
       }
       @media (prefers-color-scheme: dark) {
         math-field {
@@ -55,10 +59,18 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf" name="formula" placeholder="f(x) =">
-        \lim_{x\to0}
+      <!-- <div style="transform: scale(2) translate(30%, 30%)"> -->
+      <math-field id="mf" name="formula"
+        >$$
+        \textcolor{red}{asd}\textcolor{orange}{asd}\textcolor{yellow}{asd}\textcolor{lime}{asd}\textcolor{green}{asd}\textcolor{teal}{asd}\textcolor{blue}{asd}\textcolor{cyan}{asd}\textcolor{indigo}{asd}\textcolor{purple}{s}\textcolor{magenta}{s}\textcolor{black}{s}s\textcolor{grey}{d}dd\textcolor{white}{d}dd\textcolor{dark-grey}{asd}\textcolor{light-grey}{asd}
+        $$
       </math-field>
-
+      <code-playground>
+        <pre slot="html">
+&lt;math-field&gt;x=\frac{-b\pm \sqrt{b^2-4ac}}{2a}&lt;/math-field&gt;</pre
+        >
+      </code-playground>
+      <!-- </div> -->
       <!-- <math-field id="mf"
         >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
       > -->
@@ -106,6 +118,8 @@
         <button id="grow">Grow</button>
         <button id="shrink">Shrink</button>
       </div>
+
+      <div style="height: 800px"></div>
     </main>
 
     <script type="module">
@@ -116,6 +130,8 @@
         convertLatexToMarkup,
         convertLatexToSpeakableText,
       } from "/dist/mathlive.mjs";
+
+      import "https://unpkg.com/@ui-js/code-playground";
 
       import {
         ComputeEngine,
@@ -212,11 +228,12 @@
       // ];
 
       const mf = document.getElementById("mf");
+
       // MathfieldElement.locale = "he";
 
-      const menuItems = mf.menuItems;
-      mf.menuItems = [];
-      mf.menuItems = menuItems;
+      // const menuItems = mf.menuItems;
+      // mf.menuItems = [];
+      // mf.menuItems = menuItems;
 
       MathfieldElement.computeEngine.notation = "scientific";
 

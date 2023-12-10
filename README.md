@@ -49,22 +49,35 @@ And the best part? It's easy to customize to your needs!
 
 ## 🚀 Getting Started
 
-Using MathLive is easy! Simply add a `<math-field>` tag to your page, and it
-works just like a `<textarea>` or `<button>` element. You can manipulate the
-mathfield using methods of the element and listen for events to be notified when
-its internal state changes.
+Using MathLive is easy! Simply add a `<math-field>` tag to your page. It
+initializes automatically and works just like a `<textarea>` or `<button>`
+element. You can manipulate the mathfield using methods of the element and
+listen for events to be notified when its internal state changes.
+
+`npm install mathlive`
+
+```javascript
+import 'mathlive';
+```
 
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
-    <script src="https://unpkg.com/mathlive"></script>
-  </head>
   <body>
     <math-field>f(x)=</math-field>
   </body>
 </html>
 ```
+
+You can also add it using CDN
+```html
+<head>
+    <script src="https://unpkg.com/mathlive"></script>
+</head>
+```
+
+Check documentation for [React](https://cortexjs.io/mathlive/guides/react/) and
+[interaction with Mathfield](https://cortexjs.io/mathlive/guides/interacting/). 
 
 ## 📖 Documentation
 

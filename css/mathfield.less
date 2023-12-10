@@ -30,7 +30,7 @@
   align-items: flex-end;
   min-height: 39px; /* Need some room for the virtual keyboard toggle */
   width: 100%;
-
+  
   /* Encourage browsers to consider allocating a hardware accelerated
    layer for this element. */
   isolation: isolate;
@@ -92,7 +92,7 @@
   align-self: center;
   position: relative;
   overflow: hidden;
-  padding: 2px 0 2px 1px;
+  padding: 2px 3px 2px 1px;
   width: 100%;
 }
 
@@ -135,6 +135,8 @@
 }
 
 
+
+
 /* The invisible element used to capture keyboard events. We're just trying
  really hard to make sure it doesn't show. */
 .ML__keyboard-sink {
@@ -150,6 +152,7 @@
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
+  line-height: .5;  /* On Chromium, if this is 0, no keyboard events are received */
 }
 
 [part="placeholder"] {
@@ -173,6 +176,7 @@
 
 .ML__caret::after {
   content: '';
+  visibility: hidden;
   width: 0;
 
   display: inline-block;
@@ -193,6 +197,8 @@
 
 .ML__text-caret::after {
   content: '';
+  visibility: hidden;
+
   width: 0;
 
   display: inline-block;
@@ -213,6 +219,8 @@
 .ML__latex-caret::after {
   content: '';
 
+  visibility: hidden;
+
   --_caret-width: clamp(2px, 0.08em, 10px);
   border: none;
   border-radius: calc(var(--_caret-width) / 2);
@@ -222,6 +230,12 @@
   left: -0.019em;
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
+}
+
+.ML__focused .ML__latex-caret::after,
+.ML__focused .ML__text-caret::after,
+.ML__focused .ML__caret::after {
+  visibility: visible;
 }
 
 
@@ -259,9 +273,15 @@ with this style */
 }
 
 .ML__contains-highlight {
-  background: var(--_contains-highlight-background-color);
   box-sizing: border-box;
+  background: transparent;
 }
+
+
+.ML__focused .ML__contains-highlight {
+  background: var(--_contains-highlight-background-color);
+}
+
 
 .ML__raw-latex {
   font-family: @monospace;
@@ -353,11 +373,12 @@ menu .ML__base {
 
 /** Don't display if we're tracking, i.e. have the pointer down */
 .tracking [data-tooltip]:hover::after {
-  display: none;
+  /* Use visibility, not display. Display will remove the after from the DOM, and the override below will not work */
+  visibility: hidden;
 }
 
-
-.tracking menu [data-tooltip]:hover::after, 
+/** But do display if tracking and inside a menu */
+.tracking menu li[data-tooltip]:hover::after, 
 [data-tooltip]:hover::after {
   visibility: visible; // Visible triggers the animation...
   opacity: 1; // ... but we start fully transparent to
@@ -369,11 +390,6 @@ menu .ML__base {
   transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
 }
 
-
-/** But do display if we're inside a menu */
-.tracking menu li[data-tooltip]:hover::after {
-  display: visible;
-}
 
 
 
@@ -408,43 +424,45 @@ menu .ML__base {
   box-shadow: 0 0 5px var(--_incorrect-color);
 }
 
-.menu-container-variant {
+.variant-submenu {
   display: flex;
   flex-direction: column;
   padding: 8px;
 }
 
-.menu-container-variant [part=menu-item] {
+.variant-submenu [part=menu-item] {
   font-size: 2rem;
   text-align: center;
   margin: 0;
 }
 
-.menu-container-insert-matrix {
-  column-count: 5;
-  column-gap: 0;
-  padding: 8px;
+.insert-matrix-submenu {
+    display: grid;
+    padding: 8px;
+    align-content: center;
+    justify-content: center;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-.menu-container-insert-matrix [part=menu-item] {
+.insert-matrix-submenu [part=menu-item] {
   font-size: 21px;
   // color: transparent;
   border: none;
-  border-radius: 2px;
-  line-height: 1;
+  border-radius: 0;
+  line-height: 21px;
   text-align: center;
-  padding: 4px;
+  padding: 0;
   margin: 0;
-}
+  }
 
-.menu-container-border [part=menu-item] {
+.border-submenu [part=menu-item] {
   font-size: 2rem;
   line-height: 1.2;
   text-align: center;
 }
 
 
-.menu-container-swatches {
+.swatches-submenu {
   --_swatch-size: 2rem;
   --_columns: 4;
   display: flex;
@@ -480,7 +498,7 @@ menu .ML__base {
     border-radius: 50%;
   }
 
-  &:hover {
+  &.active {
     background: var(--neutral-100);
     scale: 1.4;
     & > .label > span {

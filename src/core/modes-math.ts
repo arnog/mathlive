@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
-import { Atom, ToLatexOptions } from './atom';
+import { Atom } from './atom';
 import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import type { Box } from './box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
-import { mathVariantToUnicode } from '../core-definitions/unicode';
-import type { TokenDefinition } from '../core-definitions/definitions-utils';
-import { FontName } from './font-metrics';
+import { mathVariantToUnicode } from '../latex-commands/unicode';
+import type { TokenDefinition } from 'latex-commands/types';
+import type { FontName, ToLatexOptions } from './types';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible

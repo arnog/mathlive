@@ -236,7 +236,7 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
  * - keybindings that don't apply to the current platform are removed
  */
 export function normalizeKeybindings(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   layout: KeyboardLayout
 ): [result: Keybinding[], errors: string[]] {
   const errors: string[] = [];

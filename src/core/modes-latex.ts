@@ -1,8 +1,9 @@
 /* eslint-disable no-new */
 import { Mode } from './modes-utils';
-import { Atom, ToLatexOptions } from './atom';
+import { Atom } from './atom';
 
-import { LatexAtom } from '../core-atoms/latex';
+import { LatexAtom } from '../atoms/latex';
+import type { ToLatexOptions } from './types';
 
 export class LatexMode extends Mode {
   constructor() {

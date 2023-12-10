@@ -2,111 +2,109 @@ import { Atom } from '../core/atom';
 
 import { register as registerCommand } from '../editor/commands';
 
-import type { ModelPrivate } from './model-private';
-import { arrayIndex, arrayCell } from './array-utils';
-import { ArrayAtom } from '../core-atoms/array';
-import type { Style } from '../public/core-types';
+import type { _Model } from './model-private';
+import { ArrayAtom } from '../atoms/array';
 import { Environment, TabularEnvironment } from '../public/core-types';
-import { makeEnvironment } from '../core-definitions/environments';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { LeftRightAtom } from '../core-atoms/leftright';
+import { makeEnvironment } from '../latex-commands/environments';
+import { PlaceholderAtom } from '../atoms/placeholder';
+import { LeftRightAtom } from '../atoms/leftright';
 export * from './array-utils';
 
 /**
  * Join all the cells at the indicated row into a single list of atoms
  */
-export function arrayJoinColumns(
-  row: Atom[][],
-  separator = ',',
-  style?: Style
-): Atom[] {
-  if (!row) return [];
-  const result: Atom[] = [new Atom({ type: 'first' })];
-  let sep: Atom | null = null;
-  for (let cell of row) {
-    // Remove the 'first' atom, if present
-    if (cell?.length > 0 && cell[0].type === 'first') cell = cell.slice(1);
+// function arrayJoinColumns(
+//   row: Atom[][],
+//   separator = ',',
+//   style?: Style
+// ): Atom[] {
+//   if (!row) return [];
+//   const result: Atom[] = [new Atom({ type: 'first' })];
+//   let sep: Atom | null = null;
+//   for (let cell of row) {
+//     // Remove the 'first' atom, if present
+//     if (cell?.length > 0 && cell[0].type === 'first') cell = cell.slice(1);
 
-    if (cell?.length > 0) {
-      if (sep) result.push(sep);
-      else sep = new Atom({ type: 'mpunct', value: separator, style });
+//     if (cell?.length > 0) {
+//       if (sep) result.push(sep);
+//       else sep = new Atom({ type: 'mpunct', value: separator, style });
 
-      result.push(...cell);
-    }
-  }
+//       result.push(...cell);
+//     }
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 /**
  * Join all the rows into a single atom list
  */
-export function arrayJoinRows(
-  array: Atom[][][],
-  separators = [';', ','],
-  style?: Style
-): Atom[] {
-  const result: Atom[] = [new Atom({ type: 'first' })];
-  let sep: Atom | null = null;
-  for (const row of array) {
-    if (sep) result.push(sep);
-    else sep = new Atom({ type: 'mpunct', value: separators[0], style });
+// export function arrayJoinRows(
+//   array: Atom[][][],
+//   separators = [';', ','],
+//   style?: Style
+// ): Atom[] {
+//   const result: Atom[] = [new Atom({ type: 'first' })];
+//   let sep: Atom | null = null;
+//   for (const row of array) {
+//     if (sep) result.push(sep);
+//     else sep = new Atom({ type: 'mpunct', value: separators[0], style });
 
-    result.push(...arrayJoinColumns(row, separators[1]));
-  }
+//     result.push(...arrayJoinColumns(row, separators[1]));
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 /**
  * Return the number of non-empty cells in that column
  */
-export function arrayColumnCellCount(array: Atom[][][], col: number): number {
-  let result = 0;
-  const colRow = { col, row: 0 };
-  while (colRow.row < array.length) {
-    const cell = arrayCell(array, colRow);
-    if (cell && cell.length > 0) {
-      let cellLength = cell.length;
-      if (cell[0].type === 'first') cellLength -= 1;
-      if (cellLength > 0) result += 1;
-    }
+// export function arrayColumnCellCount(array: Atom[][][], col: number): number {
+//   let result = 0;
+//   const colRow = { col, row: 0 };
+//   while (colRow.row < array.length) {
+//     const cell = arrayCell(array, colRow);
+//     if (cell && cell.length > 0) {
+//       let cellLength = cell.length;
+//       if (cell[0].type === 'first') cellLength -= 1;
+//       if (cellLength > 0) result += 1;
+//     }
 
-    colRow.row += 1;
-  }
+//     colRow.row += 1;
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 /**
  * Remove the indicated column from the array
  */
-export function arrayRemoveColumn(array: Atom[][][], col: number): void {
-  let row = 0;
-  while (row < array.length) {
-    if (array[row][col]) array[row].splice(col, 1);
+// export function arrayRemoveRow(array: Atom[][][], col: number): void {
+//   let row = 0;
+//   while (row < array.length) {
+//     if (array[row][col]) array[row].splice(col, 1);
 
-    row += 1;
-  }
-}
+//     row += 1;
+//   }
+// }
 
 /**
  * Remove the indicated row from the array
  */
-export function arrayRemoveRow(array: Atom[][][], row: number): void {
-  array.splice(row, 1);
-}
+//  function arrayRemoveRow(array: Atom[][][], row: number): void {
+//   array.splice(row, 1);
+// }
 
 /**
  * Return the first non-empty cell, row by row
  */
-export function arrayFirstCellByRow(array: Atom[][][]): string {
-  const colRow = { col: 0, row: 0 };
-  while (colRow.row < array.length && !arrayCell(array, colRow))
-    colRow.row += 1;
+// function arrayFirstCellByRow(array: Atom[][][]): string {
+//   const colRow = { col: 0, row: 0 };
+//   while (colRow.row < array.length && !arrayCell(array, colRow))
+//     colRow.row += 1;
 
-  return arrayCell(array, colRow) ? `cell${arrayIndex(array, colRow)}` : '';
-}
+//   return arrayCell(array, colRow) ? `cell${arrayIndex(array, colRow)}` : '';
+// }
 
 /**
  * If we're inside an array, return that parent array.
@@ -124,7 +122,7 @@ export function arrayFirstCellByRow(array: Atom[][][]): string {
  * If inside a leftright, use the content of the leftright as the initial cell
  */
 function parentArray(
-  model: ModelPrivate,
+  model: _Model,
   where: 'after row' | 'before row' | 'after column' | 'before column'
 ): [ArrayAtom | undefined, [row: number, col: number]] {
   let atom: Atom | undefined = model.at(model.position);
@@ -253,7 +251,7 @@ function isPlaceholderCell(
 }
 
 function cellRange(
-  model: ModelPrivate,
+  model: _Model,
   array: ArrayAtom,
   row: number,
   column: number
@@ -264,7 +262,7 @@ function cellRange(
 }
 
 function selectCell(
-  model: ModelPrivate,
+  model: _Model,
   array: ArrayAtom,
   row: number,
   column: number
@@ -274,7 +272,7 @@ function selectCell(
 }
 
 function setPositionInCell(
-  model: ModelPrivate,
+  model: _Model,
   array: ArrayAtom,
   row: number,
   column: number,
@@ -292,7 +290,7 @@ function setPositionInCell(
  * Insert an array if necessary.
  */
 function addCell(
-  model: ModelPrivate,
+  model: _Model,
   where: 'after row' | 'before row' | 'after column' | 'before column'
 ): void {
   const [arrayAtom, [row, column]] = parentArray(model, where);
@@ -329,28 +327,28 @@ function addCell(
   }
 }
 
-export function addRowAfter(model: ModelPrivate): boolean {
+export function addRowAfter(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'after row');
   model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
-export function addRowBefore(model: ModelPrivate): boolean {
+export function addRowBefore(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'before row');
   model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
-export function addColumnAfter(model: ModelPrivate): boolean {
+export function addColumnAfter(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'after column');
   model.contentDidChange({ inputType: 'insertText' });
   return true;
 }
 
-export function addColumnBefore(model: ModelPrivate): boolean {
+export function addColumnBefore(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'insertText' })) return false;
   addCell(model, 'before column');
   model.contentDidChange({ inputType: 'insertText' });
@@ -358,7 +356,7 @@ export function addColumnBefore(model: ModelPrivate): boolean {
 }
 
 export function setEnvironment(
-  model: ModelPrivate,
+  model: _Model,
   environment: TabularEnvironment
 ): boolean {
   if (!model.contentWillChange({})) return false;
@@ -425,7 +423,7 @@ export function setEnvironment(
 /**
  * Internal primitive to remove a column/row in a matrix
  */
-function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
+function removeCell(model: _Model, where: 'row' | 'column'): void {
   // This command is only applicable if we're in an ArrayAtom
   let atom = model.at(model.position);
 
@@ -466,14 +464,14 @@ function removeCell(model: ModelPrivate, where: 'row' | 'column'): void {
   }
 }
 
-export function removeRow(model: ModelPrivate): boolean {
+export function removeRow(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'deleteContent' })) return false;
   removeCell(model, 'row');
   model.contentDidChange({ inputType: 'deleteContent' });
   return true;
 }
 
-export function removeColumn(model: ModelPrivate): boolean {
+export function removeColumn(model: _Model): boolean {
   if (!model.contentWillChange({ inputType: 'deleteContent' })) return false;
   removeCell(model, 'column');
   model.contentDidChange({ inputType: 'deleteContent' });
