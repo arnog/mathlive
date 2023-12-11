@@ -6,7 +6,6 @@ import type {
   ArgumentType,
   ParseMode,
   Variant,
-  MathstyleName,
   LatexValue,
   Environment,
   Dimension,
@@ -21,6 +20,7 @@ import type {
 } from '../core/types';
 import type { Context } from 'core/context';
 import type { Box } from 'core/box';
+import type { Parser } from 'core/parser';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -34,13 +34,6 @@ export type Argument =
   | ColumnFormat[]
   | { group: Atom[] }
   | Atom[];
-
-export type ParseResult =
-  | Atom
-  | PrivateStyle
-  | ParseMode
-  | MathstyleName
-  | { error: string };
 
 export type TokenDefinition = LatexSymbolDefinition | LatexCommandDefinition;
 
@@ -89,7 +82,11 @@ export type LatexCommandDefinition<T extends Argument[] = Argument[]> = {
 
   /**  */
   applyMode?: ParseMode;
+
+  parse?: (parser: Parser) => Argument[];
+
   createAtom?: (options: CreateAtomOptions<T>) => Atom;
+
   applyStyle?: (
     command: string,
     args: (null | Argument)[],

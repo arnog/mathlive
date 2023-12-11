@@ -593,7 +593,11 @@ export class ArrayAtom extends Atom {
   }
 
   _serialize(options: ToLatexOptions): string {
-    const result = [`\\begin{${this.environmentName}}`];
+    const result: string[] = [];
+
+    if (this.environmentName === 'lines') result.push(`{\\displaylines`);
+    else result.push(`\\begin{${this.environmentName}}`);
+
     if (this.environmentName === 'array') {
       result.push('{');
       if (this.colFormat !== undefined) {
@@ -625,7 +629,8 @@ export class ArrayAtom extends Atom {
       }
     }
 
-    result.push(`\\end{${this.environmentName}}`);
+    if (this.environmentName === 'lines') result.push(`}`);
+    else result.push(`\\end{${this.environmentName}}`);
 
     return joinLatex(result);
   }

@@ -1,29 +1,14 @@
 import type {
-  ArgumentType,
   BoxCSSProperties,
   LatexValue,
   MacroDefinition,
-  NormalizedMacroDictionary,
   ParseMode,
   Registers,
   Style,
-  Token,
 } from '../public/core-types';
 import type { Atom } from '../core/atom-class';
 import type { Context } from '../core/context';
 import type { Argument } from 'latex-commands/types';
-
-export interface ParseTokensOptions {
-  macros: NormalizedMacroDictionary;
-  smartFence: boolean;
-  style: Style;
-  args: (arg: string) => string;
-  parse: (
-    mode: ArgumentType,
-    tokens: Token[],
-    options: ParseTokensOptions
-  ) => [Atom[], Token[]];
-}
 
 // See http://www.ntg.nl/maps/38/03.pdf for an explanation of the metrics
 // and how they relate to the OpenFont math metrics

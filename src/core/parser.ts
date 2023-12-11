@@ -1611,9 +1611,12 @@ export class Parser {
       const savedMode = this.parseMode;
       if (info.applyMode) this.parseMode = info.applyMode;
 
-      const [deferredArg, args] = this.scanArguments(info);
-      this.parseMode = savedMode;
+      let deferredArg: ParseMode | undefined = undefined;
+      let args: (null | Argument)[] = [];
+      if (info.parse) args = info.parse(this);
+      else [deferredArg, args] = this.scanArguments(info);
 
+      this.parseMode = savedMode;
       if (info.applyMode && !info.applyStyle && !info.createAtom)
         return argAtoms(args[0]);
 

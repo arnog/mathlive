@@ -6,9 +6,11 @@ import { ArrayAtom, ColumnFormat } from '../atoms/array';
 
 import {
   defineEnvironment,
+  defineFunction,
   defineTabularEnvironment,
 } from './definitions-utils';
 import type { Argument } from './types';
+import { Parser } from 'core/parser';
 
 /*
 The star at the end of the name of a displayed math environment causes that
@@ -32,6 +34,38 @@ in a parenthesis
 defineEnvironment(['math', 'displaymath'], makeEnvironment);
 
 defineEnvironment('center', makeEnvironment);
+
+defineFunction('displaylines', '', {
+  parse: (parser: Parser) => {
+    const lines: Atom[][][] = [];
+    let line: Atom[] = [];
+    parser.beginContext({ tabular: true });
+    do {
+      if (parser.end()) break;
+      if (parser.match('<}>')) break;
+      if (parser.matchColumnSeparator() || parser.matchRowSeparator()) {
+        lines.push([line]);
+        line = [];
+      } else {
+        line.push(
+          ...parser.scan((token) =>
+            ['<}>', '&', '\\cr', '\\\\', '\\tabularnewline'].includes(token)
+          )
+        );
+      }
+    } while (true);
+    parser.endContext();
+    lines.push([line]);
+    return lines as Argument[];
+  },
+  createAtom: (options) =>
+    new ArrayAtom('lines', options.args as Atom[][][], [], {
+      // arraystretch: 1.2,
+      leftDelim: '.',
+      rightDelim: '.',
+      columns: [{ align: 'l' }],
+    }),
+});
 
 defineTabularEnvironment(
   'array',

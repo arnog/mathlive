@@ -31,6 +31,7 @@ import type {
   LatexSymbolDefinition,
   TokenDefinition,
 } from './types';
+import type { Parser } from 'core/parser';
 
 export function argAtoms(arg: Argument | null | undefined): Atom[] {
   if (!arg) return [];
@@ -833,6 +834,7 @@ export function defineFunction(
     applyMode?: ParseMode;
     infix?: boolean;
     isFunction?: boolean;
+    parse?: (parser: Parser) => Argument[];
     createAtom?: (options: CreateAtomOptions) => Atom;
     applyStyle?: (
       name: string,
@@ -857,6 +859,7 @@ export function defineFunction(
     isFunction: options.isFunction ?? false,
     applyMode: options.applyMode,
     infix: options.infix ?? false,
+    parse: options.parse,
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
     serialize: options.serialize,
