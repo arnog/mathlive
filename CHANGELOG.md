@@ -2,7 +2,7 @@
 
 ## Isues Resolved
 
-- **#2000** A mathfield with multiple lines now generate correct LaTeX
+- **#2000**, **#2063** A mathfield with multiple lines now generate correct LaTeX
   using the `\displaylines` command.
 
 ## 0.98.3 (2023-12-07)
