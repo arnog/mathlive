@@ -7,6 +7,7 @@
 
 import { splitGraphemes } from './grapheme-splitter';
 import type { Token } from '../public/core-types';
+import { unicodeToLatex } from './unicode';
 
 /**
  * Given a LaTeX string, the Tokenizer will return Tokens for the lexical
@@ -279,18 +280,18 @@ export function tokenize(
   args: null | ((arg: string) => string | undefined) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  const stream: string[] = [];
+  const lines: string[] = [];
   let sep = '';
   for (const line of s.toString().split(/\r?\n/)) {
-    if (sep) stream.push(sep);
+    if (sep) lines.push(sep);
     sep = ' ';
     // Remove everything after a % (comment marker)
     // (but \% should be preserved...)
     const m = line.match(/((?:\\%)|[^%])*/);
-    if (m !== null) stream.push(m[0]);
+    if (m !== null) lines.push(m[0]);
   }
 
-  const tokenizer = new Tokenizer(stream.join(''));
+  const tokenizer = new Tokenizer(unicodeToLatex(lines.join('')));
   const result: Token[] = [];
   do result.push(...expand(tokenizer, args));
   while (!tokenizer.end());

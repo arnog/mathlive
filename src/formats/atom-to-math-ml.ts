@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom-class';
+import { mathVariantToUnicode } from '../core/unicode';
 import { MacroAtom } from '../atoms/macro';
-import { mathVariantToUnicode } from '../latex-commands/unicode';
 import { LeftRightAtom } from '../atoms/leftright';
 
 type MathMLStream = {

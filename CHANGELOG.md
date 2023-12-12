@@ -4,6 +4,8 @@
 
 - **#2000**, **#2063** A mathfield with multiple lines now generate correct LaTeX
   using the `\displaylines` command.
+- When typing Unicode characters such as `²` or `ℂ`, correctly interpret them
+  as their LaTeX equivalent. This also affects parsing of the `value` property.
 
 ## 0.98.3 (2023-12-07)
 

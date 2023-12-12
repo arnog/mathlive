@@ -4,7 +4,7 @@ import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import type { Box } from './box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
-import { mathVariantToUnicode } from '../latex-commands/unicode';
+import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
 
