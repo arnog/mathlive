@@ -566,7 +566,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
   // Use hasEditableContent instead to take into account readonly and disabled
   // states.
   get contentEditable(): boolean {
-    return this.host?.getAttribute('contenteditable') !== 'false' ?? true;
+    if (!this.host) return false;
+    return this.host.getAttribute('contenteditable') !== 'false';
   }
 
   // This reflect the `user-select` CSS property
@@ -1294,7 +1295,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.onFocus();
       this.model.announce('line');
     }
-    if (!options?.preventScroll ?? false) this.scrollIntoView();
+    if (!(options?.preventScroll ?? false)) this.scrollIntoView();
   }
 
   blur(): void {

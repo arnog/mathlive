@@ -5,10 +5,7 @@ import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
 import { Mode } from './modes-utils';
-import {
-  getDefinition,
-  unicodeCharToLatex,
-} from '../latex-commands/definitions-utils';
+import { getDefinition } from '../latex-commands/definitions-utils';
 
 import { Context } from './context';
 import type {
@@ -162,7 +159,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     this.mode = options.mode ?? 'math';
     if (options.isFunction) this.isFunction = true;
     if (options.limits) this.subsupPlacement = options.limits;
-    this.style = { ...options.style } ?? {};
+    this.style = { ...options.style };
     this.displayContainsHighlight = options.displayContainsHighlight ?? false;
     this.captureSelection = options.captureSelection ?? false;
     this.skipBoundary = options.skipBoundary ?? false;
@@ -369,7 +366,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     // 5/ A string value (which is a unicode character)
     if (!this.value || this.value === '\u200B') return '';
 
-    return this.command ?? unicodeCharToLatex(this.mode, this.value);
+    return this.command;
   }
 
   bodyToLatex(options: ToLatexOptions): string {
@@ -962,7 +959,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
           {
             box: subBox,
             marginRight: scriptspace,
-            marginLeft: this.isCharacterBox() ? -base.italic ?? 0 : 0,
+            marginLeft: this.isCharacterBox() ? -base.italic : 0,
           },
         ],
       });

@@ -2506,10 +2506,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    */
   getOffsetDepth(offset: Offset): number {
-    if (this._mathfield)
-      return this._mathfield.model.at(offset)?.treeDepth - 2 ?? 0;
-
-    return 0;
+    if (!this._mathfield) return 0;
+    return (this._mathfield.model.at(offset)?.treeDepth ?? 2) - 2;
   }
 
   /**
