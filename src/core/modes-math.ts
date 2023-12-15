@@ -109,6 +109,11 @@ export class MathMode extends Mode {
         style,
       });
     }
+
+    const isFunction = window.MathfieldElement.isFunction(
+      info.command ?? command
+    );
+
     if (info.definitionType === 'symbol') {
       const result = new Atom({
         type: info.type ?? 'mord',
@@ -117,7 +122,7 @@ export class MathMode extends Mode {
         value: String.fromCodePoint(info.codepoint),
         style,
       });
-      if (info.isFunction ?? false) result.isFunction = true;
+      if (isFunction) result.isFunction = true;
 
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
@@ -129,8 +134,7 @@ export class MathMode extends Mode {
       value: command,
       style,
     });
-    if (info.isFunction ?? false) result.isFunction = true;
-
+    if (isFunction) result.isFunction = true;
     if (command.startsWith('\\')) result.verbatimLatex = command;
 
     return result;

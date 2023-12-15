@@ -47,9 +47,6 @@ export type LatexSymbolDefinition = {
   codepoint: number;
   variant?: Variant;
 
-  /** For "f", "g" and "h" */
-  isFunction?: boolean;
-
   /** Note: symbols never have serialize or render functions. They are here because a TokenDefinition
    * expect it.
    */

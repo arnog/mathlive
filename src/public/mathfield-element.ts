@@ -1039,6 +1039,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private static _computeEngine: ComputeEngine | null;
 
+  /** @internal */
+  private static _isFunction: (command: string) => boolean = (command) => {
+    const ce = window.MathfieldElement.computeEngine;
+    return ce?.parse(command).domain?.isFunction ?? false;
+  };
+
+  static get isFunction(): (command: string) => boolean {
+    if (typeof this._isFunction !== 'function') return () => false;
+    return this._isFunction;
+  }
+
+  static set isFunction(value: (command: string) => boolean) {
+    this._isFunction = value;
+  }
+
   static async loadSound(
     sound: 'plonk' | 'keypress' | 'spacebar' | 'delete' | 'return'
   ): Promise<void> {

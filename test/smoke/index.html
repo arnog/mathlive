@@ -106,7 +106,7 @@
         <button id="grow">Grow</button>
         <button id="shrink">Shrink</button>
       </div>
-
+      <div>$$f(x) = \sin(x)$$</div>
       <div style="height: 800px"></div>
     </main>
 
@@ -126,7 +126,8 @@
 
       const MAX_LINE_LENGTH = 74;
 
-      renderMathInDocument();
+      // renderMathInDocument({ renderAccessibleContent: false });
+      renderMathInDocument({ renderAccessibleContent: false });
 
       // const ce = new ComputeEngine({
       //   latexDictionary: [
@@ -157,6 +158,8 @@
         parseUnknownIdentifier: (s) =>
           /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
       };
+
+      MathfieldElement.computeEngine.declare("f", "Functions");
 
       // mathVirtualKeyboard.layouts = [
       //   {

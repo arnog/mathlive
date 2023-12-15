@@ -278,7 +278,10 @@ export class MathModeEditor extends ModeEditor {
     if (
       insertingFraction &&
       implicitArgumentOffset >= 0 &&
-      model.at(model.position).isFunction
+      typeof model.mathfield.options.isImplicitFunction === 'function' &&
+      model.mathfield.options.isImplicitFunction(
+        model.at(model.position).command
+      )
     ) {
       // If this is a fraction, and the implicit argument is a function,
       // try again, but without the implicit argument
