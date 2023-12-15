@@ -189,15 +189,19 @@ export class MathModeEditor extends ModeEditor {
     model.silenceNotifications = true;
 
     //
-    // Save the content of the selection, if any
+    // 1/ Calculate the arguments (#0, #@, #?)
     //
-    const args: Record<string, string> = {};
+
+    const args: Record<string, string> = {
+      '?': '\\placeholder{}',
+      '@': '\\placeholder{}',
+    };
+
+    // 1.1/ Save the content of the selection, if any
     args[0] =
       options.insertionMode === 'replaceAll'
         ? ''
         : model.getValue(model.selection, 'latex-unstyled');
-    args['?'] = '\\placeholder{}';
-    args['@'] = args['?'];
 
     //
     // Delete any selected items
@@ -232,19 +236,27 @@ export class MathModeEditor extends ModeEditor {
     //
     // Calculate the implicit argument (#@)
     //
+    let implicitArgumentOffset = -1;
     if (args[0]) {
       // There was a selection, we'll use it for #@
       args['@'] = args[0];
     } else if (typeof input === 'string' && /(^|[^\\])#@/.test(input)) {
-      // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
-      const offset = getImplicitArgOffset(model);
-      if (offset >= 0) {
-        args['@'] = model.getValue(offset, model.position, 'latex');
-        model.deleteAtoms([offset, model.position]);
+      // We'll use the preceding `mord`s for it (implicit argument)
+      implicitArgumentOffset = getImplicitArgOffset(model);
+      if (implicitArgumentOffset >= 0) {
+        args['@'] = model.getValue(
+          implicitArgumentOffset,
+          model.position,
+          'latex'
+        );
       }
     }
 
     if (!args[0]) args[0] = args['?'];
+
+    //
+    // 2/ Make atoms for the input
+    //
 
     let usedArg = false;
     const argFunction = (arg: string): string => {
@@ -252,7 +264,7 @@ export class MathModeEditor extends ModeEditor {
       return args[arg];
     };
 
-    const [format, newAtoms] = convertStringToAtoms(
+    let [format, newAtoms] = convertStringToAtoms(
       model,
       input,
       argFunction,
@@ -260,19 +272,45 @@ export class MathModeEditor extends ModeEditor {
     );
     if (!newAtoms) return false;
 
+    const insertingFraction =
+      newAtoms.length === 1 && newAtoms[0].type === 'genfrac';
+
+    if (
+      insertingFraction &&
+      implicitArgumentOffset >= 0 &&
+      model.at(model.position).isFunction
+    ) {
+      // If this is a fraction, and the implicit argument is a function,
+      // try again, but without the implicit argument
+      // If `\sin` and a fraction is inserted, we want `\sin \frac{}{}`,
+      // not `\frac{\sin{}}{}`
+      args['@'] = args['?'];
+      usedArg = false;
+      [format, newAtoms] = convertStringToAtoms(
+        model,
+        input,
+        argFunction,
+        options
+      );
+    } else if (implicitArgumentOffset >= 0) {
+      // Remove implicit argument
+      model.deleteAtoms([implicitArgumentOffset, model.position]);
+    }
+
     //
-    // Insert the new atoms
+    // 3/ Insert the new atoms
     //
     const { parent } = model.at(model.position);
+    const hadEmptyBody = parent!.hasEmptyBranch('body');
+
     // Are we inserting a fraction inside a leftright?
     if (
+      insertingFraction &&
       format !== 'latex' &&
       model.mathfield.options.removeExtraneousParentheses &&
       parent instanceof LeftRightAtom &&
       parent.leftDelim === '(' &&
-      parent.hasEmptyBranch('body') &&
-      newAtoms.length === 1 &&
-      newAtoms[0].type === 'genfrac'
+      hadEmptyBody
     ) {
       // Remove the leftright
       // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
@@ -282,7 +320,6 @@ export class MathModeEditor extends ModeEditor {
       newParent.setChildren(newAtoms, branch);
     }
 
-    const hadEmptyBody = parent!.hasEmptyBranch('body');
     const cursor = model.at(model.position);
     cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
@@ -297,8 +334,10 @@ export class MathModeEditor extends ModeEditor {
         parent!.verbatimLatex = input;
     }
 
-    // Prepare to dispatch notifications
+    //
+    // 4/ Prepare to dispatch notifications
     // (for selection changes, then content change)
+    //
     model.silenceNotifications = contentWasChanging;
 
     const lastNewAtom = newAtoms[newAtoms.length - 1];
@@ -464,7 +503,7 @@ function simplifyParen(atoms: Atom[]): void {
  *
  * For example with '1+\sin(x)', if the insertion point is at the
  * end, the implicit arg offset would be after the plus. As a result,
- * inserting a fraction after the sin would yield: '1+\frac{\sin(c)}{\placeholder{}}'
+ * inserting a fraction after the sin would yield: '1+\frac{\sin(x)}{\placeholder{}}'
  */
 function getImplicitArgOffset(model: _Model): Offset {
   let atom = model.at(model.position);
@@ -540,8 +579,7 @@ function isImplicitArg(atom: Atom): boolean {
   ) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;
-    // Exclude trig functions (they can be written as `\sin \frac\pi3` without parens)
-    if (atom.isFunction) return false;
+
     return true;
   }
 
