@@ -473,7 +473,8 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     {
       label: () => localize('menu.decoration')!,
       id: 'decoration',
-      visible: () => mf.isSelectionEditable,
+      visible: () =>
+        mf.isSelectionEditable && getSelectionPlainString(mf).length > 0,
       submenu: getDecorationSubmenu(mf),
       submenuClass: 'variant-submenu',
     },
