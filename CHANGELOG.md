@@ -2,26 +2,28 @@
 
 ## Isues Resolved
 
+- **#2214** When typing Unicode characters such as `²` or `ℂ`, correctly interpret them
+  as their LaTeX equivalent. This also affects parsing of the `value` property.
 - **#2000**, **#2063** A mathfield with multiple lines now generate correct LaTeX
   using the `\displaylines` command.
-- When typing Unicode characters such as `²` or `ℂ`, correctly interpret them
-  as their LaTeX equivalent. This also affects parsing of the `value` property.
 - When typing a superscript after `f`, `g` or some other function, correctly
   interpret the superscript as an exponent, not as a function argument.
+- When a superscript or subscript is attached to a function, correctly position
+  a following `\left...\right` command closer to the function.
 - **#787**, **#1869** The `f`, `g` and `h` symbols are no longer hardcoded as
-  functions. 
+  symbols representing functions.
   
   Whether a symbol is considered a function affects the layout of a formula,
   specifically the amount of space between the symbol and a subsequent delimiter
   such as a parenthesis.
 
-  Now whether a symbol should be treated as a function is
-  determined by the `MathfieldElement.isFunctions` hook. 
+  Now whether a symbol should be treated as a function is determined by the 
+  `MathfieldElement.isFunction` hook. 
   
   By the default, this hook uses the `MathfieldElement.computeEngine` to 
   determine if the domain of a symbol is a function. 
   
-  This can be customized by setting the `isFunctions` property of the 
+  This can be customized by setting the `isFunction` property of the 
   mathfield or by declaring a symbol as a function using the `declare()` 
   method of the compute engine. For example:
 
@@ -29,14 +31,14 @@
   MathfieldElement.computeEngine.declare("f", "Functions");
   ``` 
 
-  In addition, a new `isImplicitFunction` option has been added which 
+  In addition, a new `isImplicitFunction` hook has been added which 
   can be used to indicate which symbols or commands are expected
   to be followed by an implicit argument. For example, the `\sin` function
   can be followed by an implicit argument without parentheses, as in 
   `\sin \frac{\pi}{2}`. This affects the editing behavior when typing a `/`
-  after the symbol. If an implicit function, the `/` will be interpreted as
+  after the function. If an implicit function, the `/` will be interpreted as
   an argument to the function, otherwise it will be interpreted as a fraction
-  with the symbol as the numerator.
+  with the function as the numerator.
 
 
 ## 0.98.3 (2023-12-07)
