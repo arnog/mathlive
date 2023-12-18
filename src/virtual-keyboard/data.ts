@@ -243,7 +243,7 @@ export const LAYOUTS: Partial<
           shift: '\\Delta',
         },
         {
-          label: '<i>&phi;</i>',
+          latex: '\\phi',
           class: 'MLK__tex hide-shift',
           insert: '\\phi',
           aside: 'phi',

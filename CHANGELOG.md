@@ -40,6 +40,8 @@
   an argument to the function, otherwise it will be interpreted as a fraction
   with the function as the numerator.
 
+- The "phi" keycap in the virtual keyboard was incorrectly displaying
+  the `\varphi` symbol. It now displays the `\phi` symbol.
 
 ## 0.98.3 (2023-12-07)
 
