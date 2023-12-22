@@ -1245,6 +1245,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);
+
+    this.shadowRoot!.addEventListener('slotchange', () => {
+      const slot =
+        this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+      this.value =
+        slot
+          ?.assignedNodes()
+          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+          .join('')
+          .trim() ?? '';
+    });
   }
 
   showMenu(_: {
