@@ -43,6 +43,11 @@
 - The "phi" keycap in the virtual keyboard was incorrectly displaying
   the `\varphi` symbol. It now displays the `\phi` symbol.
 
+- **#2227** Updating the content of the mathfield with `mf.innerText` 
+  will now correctly update the value of the mathfield.
+- **#2225** For consistency with `<textarea>`, when setting the
+  value change the selection to be at the end of the mathfield.
+
 ## 0.98.3 (2023-12-07)
 
 ### Improvements

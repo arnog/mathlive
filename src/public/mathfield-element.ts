@@ -1650,10 +1650,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       const options = gDeferredState.get(this)!.options;
       gDeferredState.set(this, {
         value,
-        selection: {
-          ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
-          direction: 'forward',
-        },
+        selection: { ranges: [[-1, -1]], direction: 'forward' },
         options,
         menuItems: undefined,
       });
@@ -1663,10 +1660,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
       value,
-      selection: {
-        ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
-        direction: 'forward',
-      },
+      selection: { ranges: [[-1, -1]], direction: 'forward' },
       options: attrOptions,
       menuItems: undefined,
     });
