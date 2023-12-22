@@ -181,6 +181,15 @@ export function convertLatexToSpeakableText(latex: string): string {
 
 let gComputeEngine: ComputeEngine;
 
+/**
+ * Convert a MathJSON expression to a LaTeX string.
+ *
+ * ```js
+ * convertMathJsonToLatex(["Add", 1, 2]);
+ * // -> "1 + 2"
+ * ```
+ * @category Converting
+ */
 export function convertMathJsonToLatex(json: Expression): string {
   if (!gComputeEngine) {
     const ComputeEngineCtor =
@@ -200,6 +209,14 @@ export function convertMathJsonToLatex(json: Expression): string {
   return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
 }
 
+/** Convert a LaTeX string to a string of AsciiMath.
+ *
+ * ```js
+ * convertLatexToAsciiMath("\\frac{1}{2}");
+ * // -> "1/2"
+ * ```
+ * @category Converting
+ */
 export function convertLatexToAsciiMath(
   latex: string,
   parseMode: ParseMode = 'math'
@@ -209,6 +226,15 @@ export function convertLatexToAsciiMath(
   );
 }
 
+/**
+ * Convert an AsciiMath string to a LaTeX string.
+ *
+ * ```js
+ * convertAsciiMathToLatex("1/2");
+ * // -> "\\frac{1}{2}"
+ * ```
+ * @category Converting
+ */
 export function convertAsciiMathToLatex(ascii: string): string {
   return parseMathString(ascii, { format: 'ascii-math' })[1];
 }
