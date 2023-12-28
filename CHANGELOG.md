@@ -1,6 +1,9 @@
-## 0.98.5 (2023-12-27)
+## [Unreleased]
 
-## Isues Resolved
+
+## 0.98.5 _2023-12-27_
+
+### Isues Resolved
 
 - When a font size command is inside a `\left...\right` command, apply the 
   font size to the content of the command. As a result `\frac34 + \left( \scriptstyle \frac12 \right)` will now render as expected.
@@ -52,7 +55,7 @@
 - **#2225** For consistency with `<textarea>`, when setting the
   value change the selection to be at the end of the mathfield.
 
-## 0.98.3 (2023-12-07)
+## 0.98.3 _2023-12-07_
 
 ### Improvements
 - Improved contrast calculation for the checkmarks over color swatches, now
@@ -62,7 +65,7 @@
   to `"auto"`.
 
 
-## 0.98.2 (2023-12-06)
+## 0.98.2 _2023-12-06_
 
 ### Improvements
 - In some rare cases, the menu was not positioned correctly or would not 
@@ -82,7 +85,7 @@
 - **#2190** Under some circumstances, commands selected from the menu 
   could be executed twice.
 
-## 0.98.1 (2023-12-05)
+## 0.98.1 _2023-12-05_
 
 ### New Features
 
@@ -97,7 +100,7 @@
 
 - Keyboard navigate submenus with a grid layout
 
-## 0.98.0 (2023-12-03)
+## 0.98.0 _2023-12-03_
 
 ### Breaking Changes
 
@@ -156,7 +159,7 @@ mf.selection = mf.getPromptRange(id);
   inserted.
 
 
-## 0.97.4 (2023-11-29)
+## 0.97.4 _2023-11-29_
 
 ### Issues Resolved
 
@@ -168,7 +171,7 @@ mf.selection = mf.getPromptRange(id);
 - Added `mf.queryStyle()` method to query the style of a selection or the
   current style if no selection.
 
-## 0.97.3 (2023-11-28)
+## 0.97.3 _2023-11-28_
 
 ### Improvements
 
@@ -196,13 +199,13 @@ mf.selection = mf.getPromptRange(id);
 - **#2183** The MathML serialization of factorial was incorrect.
 - **#2181** The MathML serialization of limits was incorrect.
 
-## 0.97.2 (2023-11-21)
+## 0.97.2 _2023-11-21_
 
 ### Issues Resolved
 
 - Keybindings for German Linux keyboard layout were not working correctly.
 
-## 0.97.1 (2023-11-20)
+## 0.97.1 _2023-11-20_
 
 ### Issues Resolved
 
@@ -211,7 +214,7 @@ mf.selection = mf.getPromptRange(id);
   cases.
 - Improved dark mode appearance of context menu
 
-## 0.97.0 (2023-11-20)
+## 0.97.0 _2023-11-20_
 
 ### New Features
 
@@ -253,7 +256,7 @@ mf.selection = mf.getPromptRange(id);
   were not parsed correctly.
 
 
-## 0.96.2 (2023-11-16)
+## 0.96.2 _2023-11-16_
 
 ### Issues Resolved
 
@@ -275,7 +278,7 @@ mf.selection = mf.getPromptRange(id);
 - **#2102** The mathfield element now respects the `user-select` CSS property.
   If it is set to `none`, the mathfield will not be selectable.
 
-## 0.96.1 (2023-11-15)
+## 0.96.1 _2023-11-15_
 
 ### Improvements
 
@@ -296,7 +299,7 @@ mf.selection = mf.getPromptRange(id);
 - **#2161** When the virtual keyboard is hidden, a `geometrychange` event is 
   dispatched.
 
-## 0.96.0 (2023-11-14)
+## 0.96.0 _2023-11-14_
 
 ### Breaking Changes
 
@@ -343,7 +346,7 @@ mf.selection = mf.getPromptRange(id);
 - Avoid runtime error if the mathfield gets deleted during a selection change
   event.
 
-## 0.95.5 (2023-08-18)
+## 0.95.5 _2023-08-18_
 
 ### Issues Resolved
 
@@ -372,7 +375,7 @@ mf.selection = mf.getPromptRange(id);
 - When a `command` attribute is associated with a keycap, a `math-virtual-keyboard-command` event is dispatched when the keycap is pressed.
 
 
-## 0.95.4 (2023-08-11)
+## 0.95.4 _2023-08-11_
 
 ### Issues Resolved
 
@@ -383,7 +386,7 @@ mf.selection = mf.getPromptRange(id);
 - **#2089** Added `x^{#?}` in the virtual keyboard variant panel for `x`
 - **#2082** The shortcut for `\int` was triggered with `sint`. Note that in case of similar conflicts, pressing the spacebar will prevent the shorcuts from taking effect, i.e. "sin t".
 - 
-## 0.95.2 (2023-08-09)
+## 0.95.2 _2023-08-09_
 
 ### Improvements
 
@@ -391,7 +394,7 @@ mf.selection = mf.getPromptRange(id);
   virtual keyboard keys.
 - **#2086** When navigation a root with an index, the index is now navigater first.
 
-## 0.95.1 (2023-07-25)
+## 0.95.1 _2023-07-25_
 
 ### Improvements
 
@@ -406,7 +409,7 @@ mf.selection = mf.getPromptRange(id);
 - **#2067** When setting up the virtual keyboard policy to `"sandboxed"` in
   a cross domain iframe, a runtime error would occur.
 
-## 0.95.0 (2023-07-04)
+## 0.95.0 _2023-07-04_
 
 
 ### Improvements
@@ -431,19 +434,19 @@ mf.selection = mf.getPromptRange(id);
 - **#2000**, **#2016** Correctly handle when the root is not a group, i.e. 
   when it's a multi-line array.
 
-## 0.94.8 (2023-06-15)
+## 0.94.8 _2023-06-15_
 
-## Improvements
+### Improvements
 
 - On RTL system, do not flip the direction of the virtual keyboard keycaps rows
 
-## 0.94.7 (2023-06-08)
+## 0.94.7 _2023-06-08_
 
-## Improvements
+### Improvements
 
 - **#1989** Temporarily add back support for iOS versions older than 16.3.
 
-## 0.94.6 (2023-05-25)
+## 0.94.6 _2023-05-25_
 
 ### Issues Resolved
 
@@ -456,22 +459,22 @@ mf.selection = mf.getPromptRange(id);
 - Pressing the tab key will move to the "next group" in the mathfield, if 
   possible.
 
-## 0.94.5 (2023-05-24)
+## 0.94.5 _2023-05-24_
 
 ### Issues Resolved
 
 - The selection in read only mathfield was no longer visible.
 
-## 0.94.3 (2023-05-22)
+## 0.94.3 _2023-05-22_
 
-## Improvements
+### Improvements
 
 - The `mathVirtualKeyboard.layouts` property was a frozen array (an array 
   that cannot be modified) but that wasn't clear. Now, a runtime error is 
   produced if an attempt is made to modify the array. If using Typescript, 
   a compile-time error is also generated.
   
-## Issues Resolved
+### Issues Resolved
 
 - **#1979** Vectors were displayed with an offset
 - **#1978** Pasting or inserting some content could result in a runtime error
@@ -484,37 +487,38 @@ mf.selection = mf.getPromptRange(id);
   this situation the virtual keyboard is not available, but input via physical
   keyboard will work.
 
-## 0.94.2 (2023-05-22)
+## 0.94.2 _2023-05-22_
 
-## Issues Resolved
+### Issues Resolved
 
 - **#1976** Toggling the virtual keyboard several times would eventually not
   display the virtual keyboard.
 - Only apply smartFence in math mode (not in text or LaTeX mode).
 - **#1975** When inserting a square root, do not insert an index by default
 
-## 0.94.1 (2023-05-21)
+## 0.94.1 _2023-05-21_
 
-## Improvements
+### Improvements
 
 - Use constructable stylesheets. This results in improved performance and a
   reduction of memory consuption by 2/3 in a page with 1,000 mathfields.
 - Improved MathML serialization (**#1870**, **#1803**, **#1933**, **#1648**, **#737**, **#150**, variants: blackboard, fraktur, bold, etc...).
 
-## Issues Resolved
+### Issues Resolved
 
 - **#1963** Typing a "/" after a digit containing a french decimal (`,`) did 
   not include the digits before the decimal.
 
-## 0.94.0 (2023-05-18)
+## 0.94.0 _2023-05-18_
 
-## New Features
+### New Features
 
 - Added support for `\raise`, `\lower` and `\raisebox` commands. Those commands
   were necessary to render some chemical bonds.
 - Pressing `(`, `[` or `{` with a selection will enclose the selection with 
   this delimiter.
-## Improvements
+
+### Improvements
 
 - Improved parsing/serialization/rendering of content with a mix of text and math.
 - Various rendering improvements, mostly of edge cases.
@@ -531,7 +535,7 @@ mf.selection = mf.getPromptRange(id);
 - Improvements to smart fence behavior, including better undoability.
 
 
-## Issues Resolved
+### Issues Resolved
 
 - Selection display was incorrect when the equation included a colored 
   background.
@@ -545,9 +549,9 @@ mf.selection = mf.getPromptRange(id);
 - The caret is no longer displayed twice when placed after `\cos^2` (operators
   with a superscript).
 
-## 0.93.0 (2023-05-08)
+## 0.93.0 _2023-05-08_
 
-## New Features
+### New Features
 
 - Support for `\the` command. For example, `\the\year`. Its argument can 
   be a literal or a register, preceded by an optional factor literal.
@@ -564,7 +568,7 @@ mf.selection = mf.getPromptRange(id);
 - If no mathfield is focused the virtual keyboard will dispatch a `keydown`/`keyup`
   event pair. Add an event listener to the keyboard to receive those events.
 
-## Improvements
+### Improvements
 - Improved performance of creation and destruction of mathfields by 50%.
 - Fixed memory and listener leaks. After creating, inserting in the DOM, then 
   removing over 100,000, the memory is back to its starting point and there
@@ -575,7 +579,7 @@ mf.selection = mf.getPromptRange(id);
 - Importing the Compute Engine and MathLive in the same projec should no 
   longer trigger a conflict.
 
-## Issues Resolved
+### Issues Resolved
 - **#1646** **mhchem**: states of aggregation is now rendered correctly. Added 
   support for the `\mskip` command
 - When editing a mathfield, after inserting both a superscript and 
@@ -591,16 +595,16 @@ mf.selection = mf.getPromptRange(id);
   indicator that the caret was inside the argument of the command.
 
 
-## 0.92.1 (2023-04-19)
+## 0.92.1 _2023-04-19_
 
-## Improvements
+### Improvements
 - Replaced the `(x)` ASCIIMath inline shortcut with `(*)`
 - Correctly parse empty sub/superscripts, i.e. `x^{}`
 - Fixed serialization of macros (regression)
 
-## 0.92.0 (2023-04-18)
+## 0.92.0 _2023-04-18_
 
-## Improvements
+### Improvements
 
 - In LaTeX, `\not{\in}`, `\not{}\in` and `\not\in` all render differently.
   Previously they were all rendered as `\not\in`. They now render as in LaTeX.
@@ -656,13 +660,13 @@ mf.selection = mf.getPromptRange(id);
   handle atoms that should be treated as a unit, for example `\dot{\vec{v}}`.
   In general, various edge cases were not handled correctly.
   
-## 0.91.2 (2023-04-06)
+## 0.91.2 _2023-04-06_
 
 ### Issues Resolved
 - Update editing toolbar when virtual keyboard is made visible
 - **#1919** Correctly position the popover panel above or below the mathfield based on the space available. Allow for more suggestions to be displayed, and include a scrollbar when necessary.
   
-## 0.91.1 (2023-04-05)
+## 0.91.1 _2023-04-05_
 
 ### Issues Resolved
 
@@ -671,7 +675,7 @@ mf.selection = mf.getPromptRange(id);
 - When showing the virtual keyboard if the virtual keyboard obscures the 
   mathfield, adjust the position of the mathfield to be visible
   
-## 0.91.0 (2023-04-04)
+## 0.91.0 _2023-04-04_
 
 In this release the UI of the virtual keyboards has been significantly updated.
 This includes new virtual keyboards as well as updated layout for existing
@@ -739,20 +743,20 @@ virtual keyboards and support for shift key modifier for many keycaps.
 - The variants keycap work on iOS devices
 - The keyboard is correctly offset from the bottom on iOS devices
 
-## 0.90.11 (2023-03-31)
+## 0.90.11 _2023-03-31_
 
 ### Issues Resolveded
 
 - The up and down arrow did not move the cursor, when in a fraction for example.
 
-## 0.90.9 (2023-03-28)
+## 0.90.9 _2023-03-28_
 
 ### Issues Resolveded
 
 - **#1890** Attempt to fix a remaining Typescript declaration issue when using
   MathLive without the Compute Engine
 
-## 0.90.8 (2023-03-27)
+## 0.90.8 _2023-03-27_
 
 ### Issues Resolved
 
@@ -775,14 +779,14 @@ virtual keyboards and support for shift key modifier for many keycaps.
   `originValidator` property of the `mathVirtualKeyboard` and any mathfield to
   `"same-origin"`.
 
-## 0.90.7 (2023-03-24)
+## 0.90.7 _2023-03-24_
 
 ### Issues Resolveded
 
 - **#1861** In Firefox, an apparently focused mathfield would not always accept
   keyboard input.
 
-## 0.90.6 (2023-03-23)
+## 0.90.6 _2023-03-23_
 
 ### Issues Resolved
 
@@ -793,7 +797,7 @@ virtual keyboards and support for shift key modifier for many keycaps.
 - In some cases, using `mf.insert()` to replace a selection would do nothing
 - Some mathfield properties (for example `mf.macros`) were missing.
 
-## 0.90.0 (2023-03-19)
+## 0.90.0 _2023-03-19_
 
 ### Breaking Changes
 
@@ -1127,14 +1131,14 @@ MathfieldElement.soundsDirectory = null;
 - **#1048** Virtual keyboard inside a custom container is now displayed
   correctly.
 
-## 0.89.4 (2023-02-27)
+## 0.89.4 _2023-02-27_
 
 ### Issues Resolved
 
 - Fix an issue where the virtual keyboard would not activate when not using a
   shared virtual keyboard.
 
-## 0.89.3 (2023-02-27)
+## 0.89.3 _2023-02-27_
 
 ### Issues Resolved
 
@@ -1162,7 +1166,7 @@ MathfieldElement.soundsDirectory = null;
   property as the `data` property of `"input"` and `"beforeinput"` events.
   WebKit/Safari erroneously strip the `inputType` property.
 
-## 0.89.2 (2023-02-17)
+## 0.89.2 _2023-02-17_
 
 ### Improvements
 
@@ -1187,7 +1191,7 @@ MathfieldElement.soundsDirectory = null;
     support for UMD is re-introduced by implementing it manually in MathLive,
     rather than relying on the bundler.
 
-## 0.89.0 (2023-02-12)
+## 0.89.0 _2023-02-12_
 
 ### Improvements
 
@@ -1201,7 +1205,7 @@ MathfieldElement.soundsDirectory = null;
 
 - **#1802** MathML markup for expressions like `a(b)^2` was invalid.
 
-## 0.87.1 (2023-01-26)
+## 0.87.1 _2023-01-26_
 
 ### Improvements
 
@@ -1223,7 +1227,7 @@ MathfieldElement.soundsDirectory = null;
   the user pressed the **RETURN** or **ENTER** key. Also dispatch a `focusin`
   and `focusout` event when applicable.
 
-## 0.87.0 (2023-01-20)
+## 0.87.0 _2023-01-20_
 
 ### Improvements
 
@@ -1241,7 +1245,7 @@ MathfieldElement.soundsDirectory = null;
 - The MathML serialization for superscripts and subscripts was invalid in some
   cases.
 
-## 0.86.1 (2023-01-18)
+## 0.86.1 _2023-01-18_
 
 ### Issues Resolved
 
@@ -1260,7 +1264,7 @@ MathfieldElement.soundsDirectory = null;
   some cases if the `z-index` of the expression they decorated had certain
   values.
 
-## 0.86.0 (2022-12-02)
+## 0.86.0 _2022-12-02_
 
 ### Breaking Changes
 
@@ -1303,11 +1307,11 @@ a format on the clipboard,
 - Fill-in-the-blank (placeholder) nested mathfields now line up with the
   baseline. They also inherit the font-size of their parent container.
 
-## 0.85.1 (2022-11-18)
+## 0.85.1 _2022-11-18_
 
 - Updated to Compute Engine 0.11.0
 
-## 0.85.0 (2022-11-15)
+## 0.85.0 _2022-11-15_
 
 ### New Features
 
@@ -1339,7 +1343,7 @@ a format on the clipboard,
 - **#1715**, **#1716**: fill-in-the-blank placeholders inside a `<math-field>`
   did not inherit the options from their parent container.
 
-## 0.84.0 (2022-10-19)
+## 0.84.0 _2022-10-19_
 
 ### New Features
 
@@ -1364,7 +1368,7 @@ a format on the clipboard,
   Allow `null` as a value for `fontsDirectory` and `soundDirectory` to prevent
   any attempt to resolve these values.
 
-## 0.83.0 (2022-10-02)
+## 0.83.0 _2022-10-02_
 
 ### Improvements
 
@@ -1391,13 +1395,13 @@ a format on the clipboard,
 - The caret after an environment without fences (e.g. `matrix`, `aligned`, etc)
   would not be displayed.
 
-## 0.82.0 (2022-09-30)
+## 0.82.0 _2022-09-30_
 
 ### Improvements
 
 - Update Compute Engine to 0.7.0
 
-## 0.81.0 (2022-09-28)
+## 0.81.0 _2022-09-28_
 
 ### Improvements
 
@@ -1413,7 +1417,7 @@ a format on the clipboard,
   superscript moves immediately out of the superscript if the input is a single
   digit. Works well for, e.g. `x^2` but is less desirable with `\sum`.
 
-## 0.80.0 (2022-09-27)
+## 0.80.0 _2022-09-27_
 
 ### Issues Resolved
 
@@ -1466,7 +1470,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1641** Support for the `\mathchoice` command.
 - **#1643** Support for the `\kern`, `\mkern` and `\mspace` command.
 
-## 0.79.0 (2022-09-06)
+## 0.79.0 _2022-09-06_
 
 ### Breaking Changes
 
@@ -1512,7 +1516,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1605** In some cases, clicking on the space between two atoms would not
   position the caret.
 
-## 0.78.2 (2022-08-18)
+## 0.78.2 _2022-08-18_
 
 ### Features
 
@@ -1530,7 +1534,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 
 - The `\ce` command would not render chemical equations (regression).
 
-## 0.78.1 (2022-08-12)
+## 0.78.1 _2022-08-12_
 
 ### Issues Resolved
 
@@ -1540,7 +1544,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1576** regression in 0.78.0: crash when entering Unicode characters with no
   special mapping, e.g. "°".
 
-## 0.78.0 (2022-08-11)
+## 0.78.0 _2022-08-11_
 
 ### Breaking Changes
 
@@ -1618,7 +1622,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1561** Last atom in group (atom with `skipBoundary` property) was skipped
   when moving forward
 
-## 0.77.0 (2022-07-05)
+## 0.77.0 _2022-07-05_
 
 ### Improvements
 
@@ -1639,14 +1643,14 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
   `document.activeElement` still being set to the mathfield.
 - **#1544** Allow physical keyboard input to be turned off.
 
-## 0.76.1 (2022-06-29)
+## 0.76.1 _2022-06-29_
 
 ### Issues Resolved
 
 - **#1521** **Regression** In some cases a vertical scrollbar unexpectedly
   appeared in the mathfield
 
-## 0.76.0 (2022-06-28)
+## 0.76.0 _2022-06-28_
 
 ### Improvements
 
@@ -1704,7 +1708,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
   an error to the console. Long press on the backspace key is now a shortcut to
   clear the entire mathfield.
 
-## 0.75.0 (2022-06-21)
+## 0.75.0 _2022-06-21_
 
 ### Features
 
@@ -1744,7 +1748,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1513** Using the virtual keyboard to apply underline or overline to the
   selection resulted in a placeholder being inserted instead.
 
-## 0.74.0 (2022-06-06)
+## 0.74.0 _2022-06-06_
 
 ### Improvements
 
@@ -1775,7 +1779,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 
 - **#1477** Undo/redo did not generate an `input` event
 
-## 0.73.7 (2022-05-29)
+## 0.73.7 _2022-05-29_
 
 ### Improvements
 
@@ -1791,7 +1795,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1475** Copying a formula containing a matrix could render the mathfield
   unresponsive
 
-## 0.73.6 (2022-05-28)
+## 0.73.6 _2022-05-28_
 
 ### Issues Resolved
 
@@ -1801,7 +1805,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
   followed by an auto-complete suggestion would render the mathfield
   unresponsive
 
-## 0.73.4 (2022-05-27)
+## 0.73.4 _2022-05-27_
 
 ### Issues Resolved
 
@@ -1818,7 +1822,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - **#1443** On mobile, prevent the focus from changing while the alternate key
   panel is up
 
-## 0.73.1 (2022-05-24)
+## 0.73.1 _2022-05-24_
 
 ### Issues Resolved
 
@@ -1826,7 +1830,7 @@ mf.addEventListener('mode-change', (ev) => ev.preventDefault(), {
 - The virtual keyboard could become invisible when re-focusing a mathfield
 - Typing a `,` (comma) would be rendered as a `.` (dot)
 
-## 0.73.0 (2022-05-23)
+## 0.73.0 _2022-05-23_
 
 ### Breaking Changes
 
@@ -1955,7 +1959,7 @@ in order to preserve the same settings, you would now use:
 - **#1462** When copying and pasting an expression that could not be parsed with
   the Compute Engine, the resulting pasted content was displayed as an error.
 
-## 0.72.2 (2022-04-30)
+## 0.72.2 _2022-04-30_
 
 ### Issues Resolved
 
@@ -1975,7 +1979,7 @@ in order to preserve the same settings, you would now use:
   result, getting the MathLive library ready, especially when using a CDN and a
   slow network, is an order of magnitude faster.
 
-## 0.72.0 (2022-04-18)
+## 0.72.0 _2022-04-18_
 
 ### Issues Resolved
 
@@ -2005,7 +2009,7 @@ in order to preserve the same settings, you would now use:
 - Use more standard `\mathbb{N}`, etc... for `NN` shortcut
 - Improved display of command popover when editing raw LaTeX
 
-## 0.71.0 (2022-04-12)
+## 0.71.0 _2022-04-12_
 
 ### Breaking Changes
 
@@ -2039,7 +2043,7 @@ in order to preserve the same settings, you would now use:
 - **#1387** A matrix with an empty cell would result in error messages in the
   console in some cases
 
-## 0.70.0 (2022-04-05)
+## 0.70.0 _2022-04-05_
 
 ### Features
 
@@ -2070,7 +2074,7 @@ in order to preserve the same settings, you would now use:
 - Improved visual appearance when using dark mode. Also, added more CSS
   variables to customize the appearance of the mathfield.
 
-## 0.69.10 (2022-02-23)
+## 0.69.10 _2022-02-23_
 
 ### Features
 
@@ -2087,7 +2091,7 @@ in order to preserve the same settings, you would now use:
 - **#1357** Alternate (shifted) layers described in the virtual keyboard defined
   with an object literal would not trigger.
 
-## 0.69.9 (2022-01-06)
+## 0.69.9 _2022-01-06_
 
 ### Features
 
@@ -2101,7 +2105,7 @@ in order to preserve the same settings, you would now use:
   applied to the keyboard, resulting in some elements overlaping the virtual
   keyboard in some situations.
 
-## 0.69.8 (2021-11-08)
+## 0.69.8 _2021-11-08_
 
 ### Issues Resolved
 
@@ -2123,13 +2127,13 @@ in order to preserve the same settings, you would now use:
 - Use `serve-http` instead of `http-serve` for improved Linux compatibility
   (contributed by @AceGentile)
 
-## 0.69.7 (2021-09-13)
+## 0.69.7 _2021-09-13_
 
 ### New Feature
 
 - **#1138** **PR#163** "Fill in the blank"
 
-## 0.69.6 (2021-08-31)
+## 0.69.6 _2021-08-31_
 
 ### Improvements
 
@@ -2156,7 +2160,7 @@ in order to preserve the same settings, you would now use:
 - **#1117** and **#1118** Replacing a subset of a mathfield with a pattern that
   contains the target led to an infinite loop
 
-## 0.69.5 (2021-08-05)
+## 0.69.5 _2021-08-05_
 
 ### Improvements
 
@@ -2167,7 +2171,7 @@ in order to preserve the same settings, you would now use:
 
 - Updated localization strings
 
-## 0.69.4 (2021-06-22)
+## 0.69.4 _2021-06-22_
 
 ### Improvements
 
@@ -2179,7 +2183,7 @@ in order to preserve the same settings, you would now use:
   fail.
 - Updated various localizations (contributed by @physedo).
 
-## 0.69.3 (2021-06-10)
+## 0.69.3 _2021-06-10_
 
 ### Improvements
 
@@ -2192,13 +2196,13 @@ in order to preserve the same settings, you would now use:
 - In some page layouts, the virtual keyboard could be displayed at an incorrect
   location, or scroll with the page.
 
-## 0.69.1 (2021-06-09)
+## 0.69.1 _2021-06-09_
 
 ### Improvements
 
 - Attempt to fix installation of the npm package on some Windows configurations
 
-## 0.69.0 (2021-06-09)
+## 0.69.0 _2021-06-09_
 
 ### Breaking Changes
 
@@ -2314,7 +2318,7 @@ or:
   incorrectly affected.
 - **#974** With non-US keyboard layout, always map the "/" key to a fraction.
 
-## 0.68.1 (2021-06-02)
+## 0.68.1 _2021-06-02_
 
 ### Improvements
 
@@ -2334,7 +2338,7 @@ or:
   correctly even in non-git environments.
 - **#968** navigating with arrow keys cannot navigate past a macro
 
-## 0.68.0 (2021-05-31)
+## 0.68.0 _2021-05-31_
 
 ### Breaking Changes
 
@@ -2406,7 +2410,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 - In MathML serialization, `2^3` was not serializing the superscript (**#951** )
   and subscripts were not serialized for various constructs( **#534**).
 
-## 0.67.0 (2021-05-21)
+## 0.67.0 _2021-05-21_
 
 ### New Features
 
@@ -2430,7 +2434,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 - If the mathlive module was loaded before the `<math-field>` element was parsed
   in the document, the attributes of the mathfield would be ignored.
 
-## 0.66.1 (2021-05-21)
+## 0.66.1 _2021-05-21_
 
 ### Issues Resolved
 
@@ -2444,7 +2448,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
   font size 1 (tiny).
 - Macro packages were incorrectly parsed
 
-## 0.66.0 (2021-05-20)
+## 0.66.0 _2021-05-20_
 
 ### Breaking Changes
 
@@ -2583,7 +2587,7 @@ for more details.
 - Color specified with the `rgb()` function would not render correctly if the
   arguments contained some spaces, e.g.`rgb ( 255 , 255 , 255 )`.
 
-## 0.65.0 (2021-05-14)
+## 0.65.0 _2021-05-14_
 
 ### Breaking Changes
 
@@ -2615,7 +2619,7 @@ for more details.
   fraction of a pixel when moving the caret.
 - In LaTeX mode with nested expressions, the edited LaTeX was incorrect.
 
-## 0.64.0 (2021-05-09)
+## 0.64.0 _2021-05-09_
 
 ### Breaking Changes
 
@@ -2770,7 +2774,7 @@ for more details.
 - Rules (e.g. from `\rule{}{}`) were not clickable and did not appear selected.
 - Correctly roundtrip `\char` command when using `latex-expanded` format.
 
-## 0.63.1 (2021-04-24)
+## 0.63.1 _2021-04-24_
 
 ### Issues Resolved
 
@@ -2780,7 +2784,7 @@ for more details.
   `IntlBackslash`, while the other, visually identical `\` key, is the
   `Backslash` key.
 
-## 0.63.0 (2021-04-24)
+## 0.63.0 _2021-04-24_
 
 ### New Features
 
@@ -2800,7 +2804,7 @@ for more details.
   when using a CDN to load MathLive.
 - Correctly focus the mathfield when the virtual keyboard is invoked.
 
-## 0.62.0 (2021-04-23)
+## 0.62.0 _2021-04-23_
 
 ### Improvements
 
@@ -2821,7 +2825,7 @@ for more details.
 - **#910** Fixed an issue introduced in 0.61.0 where some content would not get
   rendered when calling `renderMathInElement()` or `renderMathInDocument()`.
 
-## 0.61.0 (2021-04-22)
+## 0.61.0 _2021-04-22_
 
 ### Breaking Changes
 
@@ -2904,7 +2908,7 @@ for more details.
 - The `cases` environment should be in inline mode (`textstyle`) by default.
 - Fixed keyboard navigation of `\overbrace`, `\underbrace`, etc...
 
-## 0.60.1 (2021-04-13)
+## 0.60.1 _2021-04-13_
 
 ### New Features
 
@@ -2922,7 +2926,7 @@ for more details.
 - When changing options with `setOptions()` avoid changing the selection unless
   necessary (react-mathlive issue #4).
 
-## 0.60.0 (2021-04-12)
+## 0.60.0 _2021-04-12_
 
 ### Breaking Change
 
@@ -3154,14 +3158,14 @@ for more details.
   Rewrote the unit tests to use Jest snapshots for more comprehensive
   validation.
 
-## 0.59.0 (2020-11-04)
+## 0.59.0 _2020-11-04_
 
 ### Issues Resolved
 
 - **#685** Virtual keyboard event listeners were not properly released when the
   mathfield was removed from the DOM
 
-## 0.58.0 (2020-10-11)
+## 0.58.0 _2020-10-11_
 
 ### New Features
 
@@ -3201,7 +3205,7 @@ for more details.
   as if they had an invisible boundary, resulting in the cursor being positioned
   incorrectly when navigating with the keyboard.
 
-## 0.57.0 (2020-10-09)
+## 0.57.0 _2020-10-09_
 
 ### Major New Feature
 
@@ -3397,7 +3401,7 @@ The following functions have been renamed:
 - Thanks to `@stefnotch` for contributing several of the improvements in this
   release
 
-## 0.56.0 (2020-08-22)
+## 0.56.0 _2020-08-22_
 
 ### New Features
 
@@ -3405,7 +3409,7 @@ The following functions have been renamed:
 - **#182** Added support for the mhchem package, with the commands `\ce` and
   `\pu`, to display chemical equations
 
-## 0.55.0 (2020-08-17)
+## 0.55.0 _2020-08-17_
 
 ### New Features
 
@@ -3443,7 +3447,7 @@ The following functions have been renamed:
       - `import` and CDN
       - `import` and local file
 
-## 0.54.0 (2020-06-24)
+## 0.54.0 _2020-06-24_
 
 ### Issues Resolved
 
@@ -3461,7 +3465,7 @@ The following functions have been renamed:
 
 - **#503** Dynamic styles were not applied inside of shadow DOM
 
-## 0.53.3 (2020-06-24)
+## 0.53.3 _2020-06-24_
 
 ### Issues Resolved
 
@@ -3517,7 +3521,7 @@ The following functions have been renamed:
 <link rel="stylesheet" href="dist/mathlive-fonts.css" />
 ```
 
-## 0.53.2 (2020-06-10)
+## 0.53.2 _2020-06-10_
 
 ### Issues Resolved
 
@@ -3527,7 +3531,7 @@ The following functions have been renamed:
 - **#492** Typing "/" to insert as fraction when some items were selected would
   result in an erroneous output.
 
-## 0.53.1 (2020-06-01)
+## 0.53.1 _2020-06-01_
 
 ### Issues Resolved
 
@@ -3535,7 +3539,7 @@ The following functions have been renamed:
 - Better vertical alignment of extensible arrows
 - Don't display a double caret after a `\leftright`
 
-## 0.53.0 (2020-05-31)
+## 0.53.0 _2020-05-31_
 
 ### Breaking Change / New Feature
 
@@ -3624,7 +3628,7 @@ The following functions have been renamed:
 - The sizing commands (`\huge`, `\small`, `\tiny`, etc...) should not apply in
   'math' mode.
 
-## 0.52 (2020-05-23)
+## 0.52 _2020-05-23_
 
 ### New Feature
 
@@ -3657,7 +3661,7 @@ The following functions have been renamed:
   'overunder' atom would also not display correctly if the width of the atom was
   below a minimal threshold.
 
-## 0.51.0 (2020-05-19)
+## 0.51.0 _2020-05-19_
 
 ### New Features
 
@@ -3700,7 +3704,7 @@ The following functions have been renamed:
 - After completing a command in command mode (i.e. pressing the return key), the
   mode did not switch not math mode and remained in command mode.
 
-## 0.50.8 (2020-05-13)
+## 0.50.8 _2020-05-13_
 
 ### Improvements
 
@@ -3733,15 +3737,15 @@ The following functions have been renamed:
 - Fixed an issue on iOS 12 and Firefox/Android where the mathfield could not be
   focused (fix contributed by (https://github.com/beneater)
 
-## 0.50.7 (2020-05-11)
+## 0.50.7 _2020-05-11_
 
 - **Fix #448**: Fix an issue where the "^" keyboard shortcut would not work
 
-## 0.50.6 (2020-05-11)
+## 0.50.6 _2020-05-11_
 
 - Fix date stamping of declaration files
 
-## 0.50.5 (2020-05-10)
+## 0.50.5 _2020-05-10_
 
 - **Fix #311** Before making a build, check the correct version of node and npm
   are installed
@@ -3749,7 +3753,7 @@ The following functions have been renamed:
 - Do not update /dist on each push
 - When using a UMD module, do not export 'default'
 
-## 0.50.4 (2020-05-09)
+## 0.50.4 _2020-05-09_
 
 ### Issues Resolved
 
@@ -3760,13 +3764,13 @@ The following functions have been renamed:
 - Updated the build system to automatically add the lastest entry from the
   CHANGELOG to the GitHub release note.
 
-## 0.50.3 (2020-05-08)
+## 0.50.3 _2020-05-08_
 
 ### New Features
 
 - Added a `MathLive.version` string
 
-## 0.50.2 (2020-05-07)
+## 0.50.2 _2020-05-07_
 
 ### Issues Resolved
 
@@ -3784,7 +3788,7 @@ The following functions have been renamed:
 
 ### New Feature
 
-## 0.50.1 (2020-05-06)
+## 0.50.1 _2020-05-06_
 
 ### New Feature
 
@@ -4113,7 +4117,7 @@ mf.setConfig({
 });
 ```
 
-## 0.35.0 (2020-03-24)
+## 0.35.0 _2020-03-24_
 
 ### New Features
 
@@ -4230,7 +4234,7 @@ mf.setConfig({
 - Removal of default export for some modules. Need to complete it for all the
   remaining modules.
 
-## 0.34.0 (2020-02-05)
+## 0.34.0 _2020-02-05_
 
 ### Issues Resolved
 
@@ -4267,7 +4271,7 @@ mf.setConfig({
   can be selected (so it can be copied), but it cannot be modified by the user.
   Progammatic modification is still possible.
 
-## 0.33 (2019-12-19)
+## 0.33 _2019-12-19_
 
 ### Issues Resolved
 
@@ -4276,25 +4280,25 @@ mf.setConfig({
 - Fix #275: Selection improvements (use centerpoint to calculate nearest atom)
   and make delimiters selection eligible.
 
-## 0.32.3 (2019-10-29)
+## 0.32.3 _2019-10-29_
 
 ### Issues Resolved
 
 - Fix #286 `\mathbb{}`s are missing in the LaTeX output
 
-## 0.32.2 (2019-09-24)
+## 0.32.2 _2019-09-24_
 
 ### Issues Resolved
 
 - Fixed an issue where some keys in the virtual keyboard would be unresponsive
 
-## 0.30.1 (2019-07-30)
+## 0.30.1 _2019-07-30_
 
 ### Features / Improvements
 
 - Added Typescript type definition
 
-## 0.30 (2019-07-18)
+## 0.30 _2019-07-18_
 
 ### Non-backward compatible changes
 
@@ -4327,7 +4331,7 @@ mf.setConfig({
 - #202: use numeric character references instead of named entities in MathML
   output
 
-## 0.29.1 (2019-05-19)
+## 0.29.1 _2019-05-19_
 
 ### Issues Resolved
 
@@ -4340,7 +4344,7 @@ mf.setConfig({
 - Fixed issues with enclose layout
 - Avoid triggering spurious notifications while inserting an inline shortcut
 
-## 0.29 (2019-05-09)
+## 0.29 _2019-05-09_
 
 ### Major New Features
 
@@ -4392,7 +4396,7 @@ mf.setConfig({
 - Fixed #177: custom localization strings are now handled correctly.
 - Fixed some issues toggling style when selection is empty.
 
-## 0.28 (2019-04-22)
+## 0.28 _2019-04-22_
 
 This release contains some small Issues Resolved and improvements.
 
@@ -4419,7 +4423,7 @@ This release contains some small Issues Resolved and improvements.
   of debugging (some features, such as using JavaScript native modules, require
   a local server)
 
-## 0.27 (2019-04-08)
+## 0.27 _2019-04-08_
 
 ### Breaking Changes
 
@@ -4672,7 +4676,7 @@ the values match, the shortcut will be applicable. Possible values are:
 - #118. Improved navigating out of inferior limits
 - Improve visual blinking when selecting with the mouse to the left
 
-## 0.26 (2019-02-04)
+## 0.26 _2019-02-04_
 
 ### Breaking Changes
 
@@ -4718,7 +4722,7 @@ the values match, the shortcut will be applicable. Possible values are:
   of sounds and some other resources.
 - Moved some modules to classes.
 
-## 0.25 (2018-12-29)
+## 0.25 _2018-12-29_
 
 ### Major New Features
 
@@ -4729,7 +4733,7 @@ the values match, the shortcut will be applicable. Possible values are:
 - #104 - Numeric keypard "/" was ignored.
 - #91 - Handling of '~' as an operator and a shortcut.
 
-## 0.24 (2018-12-16)
+## 0.24 _2018-12-16_
 
 ### Breaking Changes
 
@@ -4842,7 +4846,7 @@ MathLive.makeMathField(/*...*/);
 - Fix issue #114. Incorrect selection when shift-select at the end.
 - Fix issue #78. Cross-out positioning issue
 
-## 0.22 (2018-04-11)
+## 0.22 _2018-04-11_
 
 ### Major New Features
 
@@ -4900,7 +4904,7 @@ MathLive.makeMathField(/*...*/);
 - Moved operator precedence and canonical names from Definitions to MASTON.
 - Improved rendering performance by eliminating hotspots through profiling.
 
-## 0.21 (2018-03-30)
+## 0.21 _2018-03-30_
 
 ### Major New Features
 
@@ -4946,7 +4950,7 @@ MathLive.makeMathField(/*...*/);
 - Refactored the Popover code into `Popover.js`
 - Moved some content from `Definitions.js` and into `Popover.js`
 
-## 0.20 (2018-03-24)
+## 0.20 _2018-03-24_
 
 ### Major New Features
 
@@ -4963,7 +4967,7 @@ MathLive.makeMathField(/*...*/);
 - MASTON: improved parsing of numbers
 - Handle Unicode pseudo-superscript characters as exponents
 
-## 0.19 (2018-03-19)
+## 0.19 _2018-03-19_
 
 ### Major New Features
 
@@ -5009,7 +5013,7 @@ MathLive.makeMathField(/*...*/);
   spans.
 - Updated fonts from KaTeX
 
-## 0.18 (2018-03-04)
+## 0.18 _2018-03-04_
 
 ### Issues Resolved
 
@@ -5020,7 +5024,7 @@ MathLive.makeMathField(/*...*/);
 - Reverted back to WebPack 3
 - Simplified CSS and streamlined markup for `vlist` spans.
 
-## 0.0.17 (2018-02-27)
+## 0.0.17 _2018-02-27_
 
 ### New Features
 
@@ -5043,7 +5047,7 @@ MathLive.makeMathField(/*...*/);
 - Improved handling of undo.
 - New implementation of \enclose notations.
 
-## 0.0.16 (2017-09-13)
+## 0.0.16 _2017-09-13_
 
 ### Deprecated Features
 
@@ -5059,7 +5063,7 @@ MathLive.makeMathField(/*...*/);
 - Perform a snapshot with the undo manager when invoking `MathField.insert()`.
 - Documentation improvements.
 
-## 0.0.15 (2017-07-01)
+## 0.0.15 _2017-07-01_
 
 ### New Features
 
