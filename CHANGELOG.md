@@ -2,6 +2,8 @@
 
 ## Isues Resolved
 
+- When a font size command is inside a `\left...\right` command, apply the 
+  font size to the content of the command. As a result `\frac34 + \left( \scriptstyle \frac12 \right)` will now render as expected.
 - **#2214** Typing the `^` key on a German Linux or Windows keyboard now inserts
   a `^` character.
 - **#2214** When typing Unicode characters such as `²` or `ℂ`, correctly interpret them

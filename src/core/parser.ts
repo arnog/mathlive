@@ -1234,9 +1234,15 @@ export class Parser {
       if (parameter.type === 'rest') {
         args.push(
           this.scan((token) =>
-            ['<}>', '&', '\\end', '\\cr', '\\\\', '\\tabularnewline'].includes(
-              token
-            )
+            [
+              '<}>',
+              '&',
+              '\\end',
+              '\\cr',
+              '\\\\',
+              '\\tabularnewline',
+              '\\right',
+            ].includes(token)
           )
         );
       } else if (parameter.isOptional)
