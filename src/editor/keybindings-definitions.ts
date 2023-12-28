@@ -422,6 +422,18 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '^2'],
   },
+  {
+    key: '[Backquote]',
+    ifLayout: ['windows.german', 'linux.german'],
+    ifMode: 'math',
+    command: ['insert', '^'],
+  },
+  {
+    key: '[IntlBackslash]',
+    ifLayout: ['apple.german'],
+    ifMode: 'math',
+    command: ['insert', '^'],
+  },
 ];
 
 /**

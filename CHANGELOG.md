@@ -2,6 +2,8 @@
 
 ## Isues Resolved
 
+- **#2214** Typing the `^` key on a German Linux or Windows keyboard now inserts
+  a `^` character.
 - **#2214** When typing Unicode characters such as `²` or `ℂ`, correctly interpret them
   as their LaTeX equivalent. This also affects parsing of the `value` property.
 - **#2000**, **#2063** A mathfield with multiple lines now generate correct LaTeX
