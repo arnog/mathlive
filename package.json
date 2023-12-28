@@ -145,7 +145,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-no-unsanitized": "^4.0.2",
-    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-prettier": "^5.1.2",
     "jest": "^29.4.1",
     "jest-silent-reporter": "^0.5.0",
     "less": "^4.1.3",
