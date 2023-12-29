@@ -417,7 +417,7 @@ function makeSyntheticKeycap(element: HTMLElement): void {
   // Display
   if (!element.innerHTML) {
     const [markup, _] = renderKeycap(keycap);
-    element.innerHTML = window.MathfieldElement.createHTML(markup);
+    element.innerHTML = globalThis.MathfieldElement.createHTML(markup);
   }
 }
 
@@ -510,7 +510,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   const plate = document.createElement('div');
   plate.className = 'MLK__plate';
-  plate.innerHTML = window.MathfieldElement.createHTML(
+  plate.innerHTML = globalThis.MathfieldElement.createHTML(
     SVG_ICONS +
       keyboard.normalizedLayouts
         .map((x, i) => makeLayout(keyboard, x, i))
@@ -993,7 +993,10 @@ export function normalizeKeycap(
   keycap: string | Partial<VirtualKeyboardKeycap>
 ): Partial<VirtualKeyboardKeycap> {
   if (typeof keycap === 'string') {
-    if (keycap === '[.]' && window.MathfieldElement.decimalSeparator === ',')
+    if (
+      keycap === '[.]' &&
+      globalThis.MathfieldElement.decimalSeparator === ','
+    )
       keycap = '[,]';
 
     if (!KEYCAP_SHORTCUTS[keycap]) return { latex: keycap };
@@ -1017,7 +1020,7 @@ export function normalizeKeycap(
   }
   if (shortcut) {
     if (shortcut.command === 'insertDecimalSeparator')
-      shortcut.label = window.MathfieldElement.decimalSeparator ?? '.';
+      shortcut.label = globalThis.MathfieldElement.decimalSeparator ?? '.';
 
     if (keycap.label === '[action]') {
       shortcut = {
