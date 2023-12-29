@@ -17,7 +17,7 @@ export function showKeystroke(mathfield: _Mathfield, keystroke: string): void {
   const bounds = mathfield.element!.getBoundingClientRect();
   vb.style.left = `${bounds.left}px`;
   vb.style.top = `${bounds.top - 64}px`;
-  vb.innerHTML = window.MathfieldElement.createHTML(
+  vb.innerHTML = globalThis.MathfieldElement.createHTML(
     '<span>' +
       (getKeybindingMarkup(keystroke) || keystroke) +
       '</span>' +

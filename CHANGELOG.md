@@ -1,22 +1,27 @@
 ## [Unreleased]
 
+### Issues Resolved
+
+- When using some APIs such as `renderToMarkup()` or `renderToMathML()`
+  in a server-side environment, a runtime error would occur.
 
 ## 0.98.5 _2023-12-27_
 
-### Isues Resolved
+### Issues Resolved
 
 - When a font size command is inside a `\left...\right` command, apply the 
   font size to the content of the command. As a result `\frac34 + \left( \scriptstyle \frac12 \right)` will now render as expected.
-- **#2214** Typing the `^` key on a German Linux or Windows keyboard now inserts
-  a `^` character.
-- **#2214** When typing Unicode characters such as `²` or `ℂ`, correctly interpret them
-  as their LaTeX equivalent. This also affects parsing of the `value` property.
+- **#2214** When using Linux or Windows with a German keyboard layout, typing 
+  the `^` key will now switch to superscript.
+- **#2214** When typing Unicode characters such as `²` or `ℂ`, correctly 
+  interpret them as their LaTeX equivalent. This also affects parsing of the 
+  `value` property.
 - **#2000**, **#2063** A mathfield with multiple lines now generate correct LaTeX
   using the `\displaylines` command.
-- When typing a superscript after `f`, `g` or some other function, correctly
-  interpret the superscript as an exponent, not as a function argument.
 - When a superscript or subscript is attached to a function, correctly position
   a following `\left...\right` command closer to the function.
+- When typing a superscript after `f`, `g` or some other function, correctly
+  interpret the superscript as an exponent, not as a function argument.
 - **#787**, **#1869** The `f`, `g` and `h` symbols are no longer hardcoded as
   symbols representing functions.
   
@@ -52,14 +57,17 @@
 
 - **#2227** Updating the content of the mathfield with `mf.innerText` 
   will now correctly update the value of the mathfield.
+
 - **#2225** For consistency with `<textarea>`, when setting the
   value change the selection to be at the end of the mathfield.
 
 ## 0.98.3 _2023-12-07_
 
 ### Improvements
+
 - Improved contrast calculation for the checkmarks over color swatches, now
   using APCA.
+
 - In some situations, the virtual keyboard would not be displayed when
   the mathfield was focused and the `mathVirtualKeyboardPolicy` was set
   to `"auto"`.
@@ -68,20 +76,26 @@
 ## 0.98.2 _2023-12-06_
 
 ### Improvements
+
 - In some rare cases, the menu was not positioned correctly or would not 
   display at all.
+
 - When dynamically changing the layout of the mathfield, for example
   when using a font-size attribute based on viewport units, correctly
   redraw the selection
+
 - Selection while dragging would stop after a few milliseconds
+
 - The "contains highlight" indicator is no longer displayed when the mathfield
   is not focused or when the indicator is outside of a prompt.
+
 - **#2194** Ignore long press events when the pointer is a mouse.
 
 ### Issues Resolved
 
 - **#2195** If the mathfield had a variable width the selection
   would not be displayed correctly.
+
 - **#2190** Under some circumstances, commands selected from the menu 
   could be executed twice.
 
@@ -94,6 +108,7 @@
 ### Issues Resolved
 
 - Correctly position the menu when the document has been scrolled.
+
 - When serializing, do not generate a `\text` command around a `\texttt` command.
 
 ### Improvements
@@ -104,9 +119,10 @@
 
 ### Breaking Changes
 
-- The `setPromptContent()` method has been renamed to `setPromptValue()` for
-  consistency with the `getPromptValue()` method.
-- The `stripPromptContent()` method has been removed. Its functionality can
+- The `mf.setPromptContent()` method has been renamed to `mf.setPromptValue()` for
+  consistency with the `mf.getPromptValue()` method.
+
+- The `mf.stripPromptContent()` method has been removed. Its functionality can
   be achieved with:
 
 ```js
@@ -152,8 +168,10 @@ mf.selection = mf.getPromptRange(id);
 
 - **#2169** Changing the selection programatically will
   now correctly update the mathfield.
+
 - **#2189** If the decimal separator is set to `,`, the virtual keyboard
   will now correctly display the decimal separator as a comma.
+
 - **#2139** On some keyboard layouts, <kbd>ALT</kbd>+<kbd>/</kbd> would 
   insert a `\/` command, which is not standard. Now, the simple `/` is
   inserted.
@@ -177,26 +195,34 @@ mf.selection = mf.getPromptRange(id);
 
 - The `mode-change` event is now dispatched more consistently when the mode
   changes.
+
 - When the mathfield loses focus, if some of the content is in LaTeX mode, 
   it remains in LaTeX mode. Previously, it would switch to math mode when
   losing focus.
+
 - Changing the `user-select` CSS property before inserting the mathfield 
   in the DOM would not always be respected.
+
 - Use the DOM Popover API when available, which should ensure menus are 
   displayed on top of other elements more consistently.
+
 - Added support for accented characters in the virtual keyboard (press and 
   hold a vowel on an alphabetic keyboard to get accented variants), 
   including a modified AZERTY layout (<kbd>SHIFT</kbd>+digits to get common 
   accented characters).
+
 - Improved rendering of the menu for CJK and LTR languages.
 
 ### Issues Resolved
 
 - If there were multiple mathfield elements on the page, only the last one 
   would display tooltips.
+
 - **#2184** Pressing the <kbd>TAB</kbd> key when in a prompt (fill-in-the-blank)
    would not move to the next prompt
+
 - **#2183** The MathML serialization of factorial was incorrect.
+
 - **#2181** The MathML serialization of limits was incorrect.
 
 ## 0.97.2 _2023-11-21_
@@ -212,6 +238,7 @@ mf.selection = mf.getPromptRange(id);
 - **#2180** Allow the context menu to get turned off by setting `mf.menuItems = []`
 - Fixed a layout issue with the positioning of the context menu in some
   cases.
+
 - Improved dark mode appearance of context menu
 
 ## 0.97.0 _2023-11-20_
@@ -294,7 +321,8 @@ mf.selection = mf.getPromptRange(id);
 
 - **#2159** Runtime error in sandboxed mode when in an iframe from different 
   origin
-- **#2175** Addressed some rendering issues with Safar where a fraction inside a `\left...\right` was vertically offset.
+- **#2175** Addressed some rendering issues with Safar where a fraction inside 
+  a `\left...\right` was vertically offset.
 - **#2176** Using the `[hide-keyboard]` virtual keycap would cause a runtime error.
 - **#2161** When the virtual keyboard is hidden, a `geometrychange` event is 
   dispatched.

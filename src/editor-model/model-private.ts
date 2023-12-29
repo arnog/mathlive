@@ -461,10 +461,11 @@ export class _Model implements Model {
     if (format === 'spoken') return atomToSpeakableText(atom);
 
     if (format === 'spoken-text') {
-      const saveTextToSpeechMarkup = window.MathfieldElement.textToSpeechMarkup;
-      window.MathfieldElement.textToSpeechMarkup = '';
+      const saveTextToSpeechMarkup =
+        globalThis.MathfieldElement.textToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = '';
       const result = atomToSpeakableText(atom);
-      window.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
       return result;
     }
 
@@ -472,14 +473,15 @@ export class _Model implements Model {
       format === 'spoken-ssml' ||
       format === 'spoken-ssml-with-highlighting'
     ) {
-      const saveTextToSpeechMarkup = window.MathfieldElement.textToSpeechMarkup;
+      const saveTextToSpeechMarkup =
+        globalThis.MathfieldElement.textToSpeechMarkup;
       // Const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
-      window.MathfieldElement.textToSpeechMarkup = 'ssml';
+      globalThis.MathfieldElement.textToSpeechMarkup = 'ssml';
       // If (format === 'spoken-ssml-with-highlighting') {     // @revisit
       //     this.config.atomIdsSettings = { seed: 'random' };
       // }
       const result = atomToSpeakableText(atom);
-      window.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
       return result;
     }
@@ -531,7 +533,7 @@ export class _Model implements Model {
     format ??= 'latex';
 
     if (format === 'math-json') {
-      if (!window.MathfieldElement.computeEngine) {
+      if (!globalThis.MathfieldElement.computeEngine) {
         if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
           console.error(
             'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
@@ -541,7 +543,7 @@ export class _Model implements Model {
       }
       const latex = this.getValue({ ranges }, 'latex-unstyled');
       try {
-        const expr = window.MathfieldElement.computeEngine.parse(latex);
+        const expr = globalThis.MathfieldElement.computeEngine.parse(latex);
         return JSON.stringify(expr.json);
       } catch (e) {
         return JSON.stringify(['Error', `'${e.toString()}'`]);

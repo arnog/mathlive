@@ -110,7 +110,7 @@ export class MathMode extends Mode {
       });
     }
 
-    const isFunction = window.MathfieldElement.isFunction(
+    const isFunction = globalThis.MathfieldElement.isFunction(
       info.command ?? command
     );
 

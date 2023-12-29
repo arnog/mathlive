@@ -486,7 +486,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'ce-evaluate',
       visible: () =>
         mf.isSelectionEditable &&
-        window.MathfieldElement.computeEngine !== null,
+        globalThis.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
         const latex = evaluate(mf);
         if (!latex) {
@@ -512,7 +512,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'ce-simplify',
       visible: () =>
         mf.isSelectionEditable &&
-        window.MathfieldElement.computeEngine !== null,
+        globalThis.MathfieldElement.computeEngine !== null,
       onMenuSelect: () => {
         if (mf.model.selectionIsCollapsed) {
           const result = mf.expression?.simplify();
@@ -526,7 +526,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
             selectionMode: 'item',
           });
         } else {
-          const result = window.MathfieldElement.computeEngine
+          const result = globalThis.MathfieldElement.computeEngine
             ?.parse(mf.getValue(mf.model.selection))
             .simplify();
           if (!result) {
@@ -542,7 +542,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: () => {
-        if (window.MathfieldElement.computeEngine === null) return '';
+        if (globalThis.MathfieldElement.computeEngine === null) return '';
         const unknown = mf.expression?.unknowns[0];
         if (unknown)
           return localize('menu.solve-for', convertLatexToMarkup(unknown))!;
@@ -551,7 +551,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'ce-solve',
       visible: () =>
         mf.isSelectionEditable &&
-        window.MathfieldElement.computeEngine !== null &&
+        globalThis.MathfieldElement.computeEngine !== null &&
         mf.expression?.unknowns.length === 1 &&
         mf.expression.unknowns[0] !== 'Nothing',
       onMenuSelect: () => {
@@ -657,11 +657,11 @@ function performSetEnvironment(mf: _Mathfield, env: TabularEnvironment): void {
 function evaluate(mf: _Mathfield): string {
   let expr: any;
   if (mf.model.selectionIsCollapsed) {
-    expr = window.MathfieldElement.computeEngine?.parse(mf.getValue(), {
+    expr = globalThis.MathfieldElement.computeEngine?.parse(mf.getValue(), {
       canonical: false,
     });
   } else {
-    expr = window.MathfieldElement.computeEngine?.parse(
+    expr = globalThis.MathfieldElement.computeEngine?.parse(
       mf.getValue(mf.model.selection),
       { canonical: false }
     );

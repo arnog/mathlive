@@ -198,7 +198,7 @@ function atomToSpeakableFragment(
   atom: undefined | Atom | Atom[]
 ): string {
   function letter(c: string): string {
-    if (!window.MathfieldElement.textToSpeechMarkup) {
+    if (!globalThis.MathfieldElement.textToSpeechMarkup) {
       if (/[a-z]/.test(c)) return " '" + c.toUpperCase() + "'";
       if (/[A-Z]/.test(c)) return " 'capital " + c.toUpperCase() + "'";
       return c;
@@ -680,38 +680,33 @@ function atomToSpeakableFragment(
  * @param  atoms The atoms to represent as speakable text.
  */
 export function atomToSpeakableText(atoms: Atom | Atom[]): string {
-  if (
-    window.MathfieldElement.textToSpeechRules === 'sre' &&
-    ('sre' in window || 'SRE' in window)
-  ) {
+  const mfe = globalThis.MathfieldElement;
+  if (mfe.textToSpeechRules === 'sre' && ('sre' in window || 'SRE' in window)) {
     const mathML = toMathML(atoms);
     if (mathML) {
-      if (window.MathfieldElement.textToSpeechMarkup) {
-        window.MathfieldElement.textToSpeechRulesOptions =
-          window.MathfieldElement.textToSpeechRulesOptions ?? {};
-        window.MathfieldElement.textToSpeechRulesOptions = {
-          ...window.MathfieldElement.textToSpeechRulesOptions,
-          markup: window.MathfieldElement.textToSpeechMarkup,
+      if (mfe.textToSpeechMarkup) {
+        mfe.textToSpeechRulesOptions = mfe.textToSpeechRulesOptions ?? {};
+        mfe.textToSpeechRulesOptions = {
+          ...mfe.textToSpeechRulesOptions,
+          markup: mfe.textToSpeechMarkup,
         };
-        if (
-          window.MathfieldElement.textToSpeechRulesOptions.markup === 'ssml'
-        ) {
-          window.MathfieldElement.textToSpeechRulesOptions = {
-            ...window.MathfieldElement.textToSpeechRulesOptions,
+        if (mfe.textToSpeechRulesOptions.markup === 'ssml') {
+          mfe.textToSpeechRulesOptions = {
+            ...mfe.textToSpeechRulesOptions,
             markup: 'ssml_step',
           };
         }
 
-        window.MathfieldElement.textToSpeechRulesOptions = {
-          ...window.MathfieldElement.textToSpeechRulesOptions,
-          rate: window.MathfieldElement.speechEngineRate,
+        mfe.textToSpeechRulesOptions = {
+          ...mfe.textToSpeechRulesOptions,
+          rate: mfe.speechEngineRate,
         };
       }
 
-      const SRE = window['SRE'] ?? window.sre.System.getInstance();
+      const SRE = window['SRE'] ?? globalThis.sre.System.getInstance();
 
-      if (window.MathfieldElement.textToSpeechRulesOptions)
-        SRE.setupEngine(window.MathfieldElement.textToSpeechRulesOptions);
+      if (mfe.textToSpeechRulesOptions)
+        SRE.setupEngine(mfe.textToSpeechRulesOptions);
 
       let result = '';
       try {
@@ -731,12 +726,11 @@ export function atomToSpeakableText(atoms: Atom | Atom[]): string {
 
   let result = atomToSpeakableFragment('math', atoms);
 
-  if (window.MathfieldElement.textToSpeechMarkup === 'ssml') {
+  if (mfe.textToSpeechMarkup === 'ssml') {
     let prosody = '';
-    if (window.MathfieldElement.speechEngineRate) {
-      prosody =
-        '<prosody rate="' + window.MathfieldElement.speechEngineRate + '">';
-    }
+    if (mfe.speechEngineRate)
+      prosody = '<prosody rate="' + mfe.speechEngineRate + '">';
+
     result =
       `<?xml version="1.0"?><speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` +
       '<amazon:auto-breaths>' +
@@ -747,10 +741,7 @@ export function atomToSpeakableText(atoms: Atom | Atom[]): string {
       (prosody ? '</prosody>' : '') +
       '</amazon:auto-breaths>' +
       '</speak>';
-  } else if (
-    window.MathfieldElement.textToSpeechMarkup === 'mac' &&
-    osPlatform() === 'macos'
-  ) {
+  } else if (mfe.textToSpeechMarkup === 'mac' && osPlatform() === 'macos') {
     // Convert SSML to Mac markup
     result = result
       .replace(/<mark([^/]*)\/>/g, '')

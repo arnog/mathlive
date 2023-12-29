@@ -121,13 +121,13 @@ export class MathModeEditor extends ModeEditor {
     // 2/ Try to get a MathJSON data type
     //
     json = typeof data !== 'string' ? data.getData('application/json') : '';
-    if (json && window.MathfieldElement.computeEngine) {
+    if (json && globalThis.MathfieldElement.computeEngine) {
       try {
         const expr = JSON.parse(json);
         if (typeof expr === 'object' && 'latex' in expr && expr.latex)
           text = expr.latex;
         if (!text) {
-          const box = window.MathfieldElement.computeEngine.box(expr);
+          const box = globalThis.MathfieldElement.computeEngine.box(expr);
           if (box && !box.has('Error')) text = box.latex;
         }
         if (!text) format = 'latex';
@@ -172,7 +172,7 @@ export class MathModeEditor extends ModeEditor {
     const data =
       typeof input === 'string'
         ? input
-        : window.MathfieldElement.computeEngine?.box(input).latex ?? '';
+        : globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '';
     if (
       !options.silenceNotifications &&
       !model.contentWillChange({ data, inputType: 'insertText' })
@@ -387,7 +387,7 @@ function convertStringToAtoms(
   let result: Atom[] = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
-    const ce = window.MathfieldElement.computeEngine;
+    const ce = globalThis.MathfieldElement.computeEngine;
     if (!ce) return ['math-json', []];
 
     [format, s] = ['latex', ce.box(s as Expression).latex as string];

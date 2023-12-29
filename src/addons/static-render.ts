@@ -229,7 +229,7 @@ function createMathMLNode(
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
       options.renderToMathML!(latex) +
       '</math>';
-    span.innerHTML = window.MathfieldElement.createHTML(html);
+    span.innerHTML = globalThis.MathfieldElement.createHTML(html);
   } catch (error: unknown) {
     console.error(
       `MathLive {{SDK_VERSION}}:  Could not convert "${latex}"' to MathML with ${error}`
@@ -264,7 +264,7 @@ function createMarkupNode(
       mathstyle === 'displaystyle' ? 'flex' : 'inline-flex';
     element.setAttribute('aria-hidden', 'true');
     element.setAttribute('translate', 'no');
-    element.innerHTML = window.MathfieldElement.createHTML(html);
+    element.innerHTML = globalThis.MathfieldElement.createHTML(html);
     return element;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
@@ -303,7 +303,7 @@ function createAccessibleMarkupPair(
       span.setAttribute('translate', 'no');
 
       const html = options.renderToSpeakableText(latex);
-      span.innerHTML = window.MathfieldElement.createHTML(html);
+      span.innerHTML = globalThis.MathfieldElement.createHTML(html);
       span.className = 'ML__sr-only';
       fragment.append(span);
     }

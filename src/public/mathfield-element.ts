@@ -1041,7 +1041,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /** @internal */
   private static _isFunction: (command: string) => boolean = (command) => {
-    const ce = window.MathfieldElement.computeEngine;
+    const ce = globalThis.MathfieldElement.computeEngine;
     return ce?.parse(command).domain?.isFunction ?? false;
   };
 
@@ -2599,6 +2599,6 @@ if (isBrowser() && !window.customElements?.get('math-field')) {
   const global = window[Symbol.for('io.cortexjs.mathlive')];
   global.version = '{{SDK_VERSION}}';
 
-  window.MathfieldElement = MathfieldElement;
+  globalThis.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }

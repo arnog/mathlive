@@ -222,7 +222,7 @@ export function render(
     }
   }
 
-  field.innerHTML = window.MathfieldElement.createHTML(content);
+  field.innerHTML = globalThis.MathfieldElement.createHTML(content);
 
   //
   // 4. Render the selection/caret

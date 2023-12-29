@@ -344,7 +344,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     // );
     markup.push('</span>');
 
-    this.element.innerHTML = window.MathfieldElement.createHTML(
+    this.element.innerHTML = globalThis.MathfieldElement.createHTML(
       markup.join('')
     );
     if (!this.element.children) {
@@ -1004,7 +1004,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   get expression(): Readonly<BoxedExpression> | null {
-    const ce = window.MathfieldElement.computeEngine;
+    const ce = globalThis.MathfieldElement.computeEngine;
     if (!ce) {
       console.error(
         `MathLive {{SDK_VERSION}}:  no compute engine available. Make sure the Compute Engine library is loaded.`
@@ -1135,10 +1135,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (options.focus) this.focus();
 
     if (options.feedback) {
-      if (window.MathfieldElement.keypressVibration && canVibrate())
+      if (globalThis.MathfieldElement.keypressVibration && canVibrate())
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
 
-      window.MathfieldElement.playSound('keypress');
+      globalThis.MathfieldElement.playSound('keypress');
     }
 
     if (s === '\\\\') {
