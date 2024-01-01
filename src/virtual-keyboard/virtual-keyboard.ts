@@ -302,6 +302,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     });
 
     document.addEventListener('focusout', (evt) => {
+      if ((evt.target as HTMLElement)?.tagName?.toLowerCase() !== 'math-field') return;
       const target = evt.target as MathfieldElement;
       if (target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
