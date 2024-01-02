@@ -17,7 +17,7 @@ import type {
 import type { OriginValidator } from '../public/options';
 import type { MathfieldElement } from '../public/mathfield-element';
 
-import { isTouchCapable } from '../common/capabilities';
+import { isTouchCapable } from '../ui/utils/capabilities';
 import { isArray } from '../common/types';
 import { validateOrigin } from '../editor-mathfield/utils';
 import { getCommandTarget, COMMANDS } from '../editor/commands';
@@ -34,6 +34,7 @@ import {
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
 import { Style } from '../public/core-types';
+import { deepActiveElement } from 'ui/events/utils';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -72,64 +73,29 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       newActive.classList.add('is-visible');
     }
 
-    if (this.isShifted) this.render();
+    this.render();
   }
 
-  private _isCapslock = false;
-  get isCapslock(): boolean {
-    return this._isCapslock;
-  }
-  set isCapslock(val: boolean) {
-    this._element?.classList.toggle('is-caps-lock', this.shiftPressCount === 2);
-
-    if (val === this._isCapslock) return;
-
-    this._isCapslock = val;
-    this.isShifted = val;
-  }
-
-  /** `0`: not pressed
-   *
+  /**
+   * `0`: not pressed
    * `1`: Shift is locked for next char only
-   *
    * `2`: Shift is locked for all characters
    */
   private _shiftPressCount: 0 | 1 | 2 = 0;
 
-  get shiftPressCount(): 0 | 1 | 2 {
+  get shiftPressCount(): typeof this._shiftPressCount {
     return this._shiftPressCount;
   }
 
-  /** Increments `_shiftPressCount` by `1`, and handle the appropriate related behavior for each val */
-  incrementShiftPress(): void {
-    if (++this._shiftPressCount > 2) this.resetShiftPress();
-    else this.isCapslock = true;
-  }
-
-  /** Decrements `_shiftPressCount` by `1`, and sets `isCapslock` to `false` if reaches `0` */
-  decrementShiftPress(): void {
-    this._shiftPressCount = Math.max(--this._shiftPressCount, 0) as 0 | 1 | 2;
-    if (this._shiftPressCount === 0) this.isCapslock = false;
-  }
-
-  /** Resets `_shiftPressCount` to `0`, and sets `isCapslock` to `false` */
-  resetShiftPress(): void {
-    this._shiftPressCount = 0;
-    this.isCapslock = false;
-  }
-
-  private _isShifted = false;
-  get isShifted(): boolean {
-    return this._isShifted;
-  }
-
-  set isShifted(shifted: boolean) {
-    if (this._isCapslock) shifted = true;
-    if (this._isShifted === shifted) return;
-
-    this._isShifted = shifted;
+  set shiftPressCount(count: typeof this._shiftPressCount) {
+    this._shiftPressCount = count > 2 || count < 0 ? 0 : count;
+    this._element?.classList.toggle('is-caps-lock', this.shiftPressCount === 2);
 
     this.render();
+  }
+
+  get isShifted(): boolean {
+    return this._shiftPressCount > 0;
   }
 
   resetKeycapRegistry(): void {
@@ -310,38 +276,40 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     this.listeners = {};
 
-    window.top?.addEventListener('message', this);
+    try {
+      window.top?.addEventListener('message', this);
+    } catch (e) {
+      // We are in an iframe and the parent document is not accessible
+      // (different domains)
+      window.addEventListener('message', this);
+    }
 
+    // Listen for when a mathfield gets focused, and show
+    // the virtual keyboard if needed
     document.body.addEventListener('focusin', (event: FocusEvent) => {
       const target = event.target as HTMLElement;
-      if (
-        target?.isConnected &&
-        target.tagName?.toLowerCase() === 'math-field' &&
-        isTouchCapable()
-      ) {
-        const mf = target as MathfieldElement;
-        if (mf.mathVirtualKeyboardPolicy === 'auto' && !mf.readOnly)
+      if (!target?.isConnected) return;
+      setTimeout(() => {
+        const mf = focusedMathfield();
+        if (
+          mf &&
+          !mf.readOnly &&
+          mf.mathVirtualKeyboardPolicy === 'auto' &&
+          isTouchCapable()
+        )
           this.show({ animate: true });
-      }
+      }, 300);
     });
 
     document.addEventListener('focusout', (evt) => {
+      if ((evt.target as HTMLElement)?.tagName?.toLowerCase() !== 'math-field') return;
       const target = evt.target as MathfieldElement;
       if (target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
-        // a mathfield (or there is no active element),
-        // hide the virtual keyboard
+        // a mathfield (or there is no active element), hide the virtual keyboard
+
         setTimeout(() => {
-          let target = document.activeElement;
-          let focusedMathfield = false;
-          while (target) {
-            if (target.tagName?.toLowerCase() === 'math-field') {
-              focusedMathfield = true;
-              break;
-            }
-            target = target.shadowRoot?.activeElement ?? null;
-          }
-          if (!focusedMathfield) this.hide();
+          if (!focusedMathfield()) this.hide();
         }, 300);
       }
     });
@@ -363,7 +331,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       if (typeof x === 'function') x(event);
       else x?.handleEvent(event);
     });
-
     return !event.defaultPrevented;
   }
 
@@ -404,7 +371,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     if (this.container === document.body) {
       this._element?.style.setProperty(
         '--_keyboard-height',
-        `calc(${h}px + env(safe-area-inset-bottom, 0))`
+        `calc(${h}px + var(--_padding-top) + var(--_padding-bottom) + env(safe-area-inset-bottom, 0))`
       );
       const keyboardHeight = h - 1;
       this.container!.style.paddingBottom = this.originalContainerBottomPadding
@@ -464,7 +431,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       const keycap = this.getKeycap(keycapElement.id);
       if (keycap) {
         const [markup, cls] = renderKeycap(keycap, { shifted: this.isShifted });
-        keycapElement.innerHTML = window.MathfieldElement.createHTML(markup);
+        keycapElement.innerHTML =
+          globalThis.MathfieldElement.createHTML(markup);
         keycapElement.className = cls;
       }
     }
@@ -505,14 +473,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.addEventListener('keydown', this, { capture: true });
       window.addEventListener('keyup', this, { capture: true });
 
-      this.currentLayer = this.latentLayer;
-
-      this.render();
-
       this._element?.classList.toggle(
         'is-caps-lock',
         this.shiftPressCount === 2
       );
+
+      this.currentLayer = this.latentLayer;
     }
 
     this._visible = true;
@@ -600,7 +566,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.container?.appendChild(this.element);
   }
 
-  handleEvent(evt: Event): void {
+  handleEvent(
+    evt:
+      | (MessageEvent<VirtualKeyboardMessage> & { type: 'message' })
+      | (PointerEvent & { type: 'contextmenu' | 'mouseup' })
+      | (KeyboardEvent & { type: 'keydown' | 'keyup' })
+      | (FocusEvent & { type: 'blur' })
+  ): void {
     if (isVirtualKeyboardMessage(evt)) {
       if (!validateOrigin(evt.origin, this.originValidator)) {
         throw new DOMException(
@@ -631,24 +603,24 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         // press. Restore the userSelect on mouse up
         document.body.style.userSelect = '';
 
-        this.isShifted = false;
+        this.shiftPressCount = 0;
         break;
 
       case 'contextmenu':
-        if ((evt as PointerEvent).button !== 2) evt.preventDefault();
+        if (evt.button !== 2) evt.preventDefault();
         break;
 
       case 'keydown': {
-        const kev = evt as KeyboardEvent;
-        if (kev.key === 'Shift') this.incrementShiftPress();
+        if (evt.key === 'Shift' && !evt.repeat) this.shiftPressCount = 1;
         break;
       }
+
       case 'keyup': {
-        const kev = evt as KeyboardEvent;
-        if (kev.key !== 'Shift' && this._shiftPressCount === 1) {
-          this.isCapslock = false;
-          this._shiftPressCount = 0;
-        }
+        if (
+          evt.key === 'Shift' ||
+          (!evt.getModifierState('Shift') && this.shiftPressCount !== 2)
+        )
+          this.shiftPressCount = 0;
         break;
       }
     }
@@ -664,14 +636,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
       // Avoid an infinite messages loop if within one window
       const commandTarget = getCommandTarget(command!);
-      if (commandTarget !== 'virtual-keyboard' && window === window.parent)
+      if (window.top !== undefined && commandTarget !== 'virtual-keyboard')
         return;
 
       this.executeCommand(command!);
       return;
     }
 
-    if (action === 'connect') {
+    if (action === 'connect' || action === 'show') {
       this.sendMessage(
         'synchronize-proxy',
         {
@@ -765,6 +737,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         { targetOrigin: this.targetOrigin }
       );
     } else {
+      if (payload.command) {
+        this.dispatchEvent(
+          new CustomEvent('math-virtual-keyboard-command', {
+            detail: payload.command,
+          })
+        );
+      }
       if (
         action === 'execute-command' &&
         Array.isArray(payload.command) &&
@@ -797,9 +776,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   stateChanged(): void {
     this.dispatchEvent(new Event('virtual-keyboard-toggle'));
-    this.sendMessage('geometry-changed', {
-      boundingRect: this.boundingRect,
-    });
+    if (!this._visible) {
+      this.dispatchEvent(new Event('geometrychange'));
+      this.sendMessage('geometry-changed', {
+        boundingRect: this.boundingRect,
+      });
+    }
   }
 
   /**
@@ -819,6 +801,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   updateToolbar(mf: MathfieldProxy): void {
     const el = this._element;
     if (!el) return;
+
+    el.classList.toggle('is-math-mode', mf.mode === 'math');
+    el.classList.toggle('is-text-mode', mf.mode === 'text');
 
     el.classList.toggle('can-undo', mf.canUndo);
     el.classList.toggle('can-redo', mf.canRedo);
@@ -850,8 +835,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   ): boolean {
     let selector: SelectorPrivate;
     let args: string[] = [];
+    let target = getCommandTarget(command);
+
     if (isArray(command)) {
       selector = command[0];
+      if (selector === 'performWithFeedback') {
+        command = command.slice(1) as [SelectorPrivate, ...any[]];
+        target = getCommandTarget(command);
+      }
       args = command.slice(1);
     } else selector = command;
 
@@ -859,8 +850,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     selector = selector.replace(/-\w/g, (m) =>
       m[1].toUpperCase()
     ) as SelectorPrivate;
-    if (getCommandTarget(command) === 'virtual-keyboard')
-      return COMMANDS[selector]!.fn(...args);
+
+    if (target === 'virtual-keyboard')
+      return COMMANDS[selector]!.fn(undefined, ...args);
 
     this.sendMessage('execute-command', { command });
     return false;
@@ -871,4 +863,20 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     window.removeEventListener('blur', this);
     window.removeEventListener('message', this);
   }
+}
+
+function focusedMathfield(): MathfieldElement | null {
+  let target: Node | null = deepActiveElement() as Node | null;
+  let mf: MathfieldElement | null = null;
+  while (target) {
+    if (
+      'host' in target &&
+      (target.host as HTMLElement)?.tagName?.toLowerCase() === 'math-field'
+    ) {
+      mf = target.host as MathfieldElement;
+      break;
+    }
+    target = target.parentNode;
+  }
+  return mf;
 }

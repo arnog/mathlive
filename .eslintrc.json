@@ -46,7 +46,7 @@
     //             "methods": [
     //                 "createHTML",
     //                 "mathfield.config.createHTML",
-    //                 "MathfieldPrivate.config.createHTML"
+    //                 "_Mathfield.config.createHTML"
     //             ]
     //         }
     //     }
@@ -310,7 +310,7 @@
         // When used with optional chaining, eslint can give an incorrect warning
         "@typescript-eslint/no-unused-expressions": "warn",
         "@typescript-eslint/prefer-optional-chain": "warn",
-        "@typescript-eslint/prefer-nullish-coalescing": "warn",
+        "@typescript-eslint/prefer-nullish-coalescing": "off",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/naming-convention": [
           "warn",

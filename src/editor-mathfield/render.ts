@@ -7,13 +7,14 @@ import {
   getAtomBounds,
   adjustForScrolling,
 } from './utils';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 
 import { updateSuggestionPopoverPosition } from '../editor/suggestion-popover';
 import { gFontsState } from '../core/fonts';
 import { Context } from 'core/context';
 import { Atom } from 'core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { convertLatexToMarkup } from 'public/mathlive';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -30,9 +31,10 @@ function hash(latex: string): number {
 }
 
 export function requestUpdate(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield | undefined | null,
   options?: { interactive: boolean }
 ): void {
+  if (!mathfield) return;
   if (mathfield.dirty) return;
   mathfield.dirty = true;
   requestAnimationFrame(() => {
@@ -50,7 +52,7 @@ export function requestUpdate(
  * @param renderOptions
  */
 function makeBox(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): Box {
   renderOptions = renderOptions ?? {};
@@ -91,8 +93,8 @@ function makeBox(
   //
   const wrapper = makeStruts(applyInterBoxSpacing(base, context), {
     classes: mathfield.hasEditablePrompts
-      ? 'ML__mathlive ML__prompting'
-      : 'ML__mathlive',
+      ? 'ML__latex ML__prompting'
+      : 'ML__latex',
     attributes: {
       // Sometimes Google Translate kicks in an attempts to 'translate' math
       // This doesn't work very well, so turn off translate
@@ -102,11 +104,12 @@ function makeBox(
       'aria-hidden': 'true',
     },
   });
+
   return wrapper;
 }
 
 export function contentMarkup(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): string {
   //
@@ -122,15 +125,12 @@ export function contentMarkup(
     atom.containsCaret = false;
   }
   if (model.selectionIsCollapsed) {
-    const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
-    if (hasFocus) {
-      const atom = model.at(model.position);
-      atom.caret = mathfield.model.mode;
-      let ancestor = atom.parent;
-      while (ancestor) {
-        ancestor.containsCaret = true;
-        ancestor = ancestor.parent;
-      }
+    const atom = model.at(model.position);
+    atom.caret = mathfield.model.mode;
+    let ancestor = atom.parent;
+    while (ancestor) {
+      ancestor.containsCaret = true;
+      ancestor = ancestor.parent;
     }
   } else {
     const atoms = model.getAtoms(model.selection, { includeChildren: true });
@@ -158,7 +158,7 @@ export function contentMarkup(
  *
  */
 export function render(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
   if (!isValidMathfield(mathfield)) return;
@@ -168,11 +168,11 @@ export function render(
   // 1. Hide the virtual keyboard toggle if not applicable
   //
 
-  const toggle = mathfield.element?.querySelector<HTMLElement>(
+  const keyboardToggle = mathfield.element.querySelector<HTMLElement>(
     '[part=virtual-keyboard-toggle]'
   );
-  if (toggle)
-    toggle.style.display = mathfield.hasEditableContent ? 'flex' : 'none';
+  if (keyboardToggle)
+    keyboardToggle.style.display = mathfield.hasEditableContent ? '' : 'none';
 
   // NVA tries (and fails) to read MathML, so skip it for now
   // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -181,7 +181,12 @@ export function render(
   //     '</math>'
   // );
 
+  //
+  // 2. Render the content
+  //
+
   const field = mathfield.field;
+  if (!field) return;
 
   const hasFocus = mathfield.isSelectionEditable && mathfield.hasFocus();
   const isFocused = field.classList.contains('ML__focused');
@@ -189,15 +194,38 @@ export function render(
   if (isFocused && !hasFocus) field.classList.remove('ML__focused');
   else if (!isFocused && hasFocus) field.classList.add('ML__focused');
 
-  field.innerHTML = window.MathfieldElement.createHTML(
-    contentMarkup(mathfield, renderOptions)
-  );
-  mathfield.fieldContent = field.getElementsByClassName(
-    'ML__mathlive'
-  )[0]! as HTMLElement;
+  let content = contentMarkup(mathfield, renderOptions);
+
+  const menuToggle =
+    mathfield.element.querySelector<HTMLElement>('[part=menu-toggle]');
+  if (menuToggle) {
+    if (
+      mathfield.model.atoms.length <= 1 ||
+      mathfield.disabled ||
+      (mathfield.readOnly && !mathfield.hasEditableContent) ||
+      mathfield.userSelect === 'none'
+    )
+      menuToggle.style.display = 'none';
+    else menuToggle.style.display = '';
+  }
 
   //
-  // 5. Render the selection/caret
+  // 3. Render the content placeholder, if applicable
+  //
+  // If the mathfield is emply, display a placeholder
+  if (mathfield.model.atoms.length <= 1) {
+    const placeholder = mathfield.options.contentPlaceholder;
+    if (placeholder) {
+      content += `<span part=placeholder class="ML__content-placeholder">${convertLatexToMarkup(
+        placeholder
+      )}</span>`;
+    }
+  }
+
+  field.innerHTML = globalThis.MathfieldElement.createHTML(content);
+
+  //
+  // 4. Render the selection/caret
   //
   renderSelection(mathfield, renderOptions.interactive);
 
@@ -205,7 +233,7 @@ export function render(
 }
 
 export function renderSelection(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   interactive?: boolean
 ): void {
   const field = mathfield.field;
@@ -241,12 +269,15 @@ export function renderSelection(
 
   // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
   // Without this, the selection indicator will not be in the right place.
+
   // 1. Inquire how big the mathfield thinks it is
-  const supposedWidth = parseFloat(getComputedStyle(field).width);
+  const offsetWidth = field.offsetWidth;
+
   // 2. Get the actual screen width of the box
   const actualWidth = field.getBoundingClientRect().width;
+
   // 3. Divide the two to get the scale factor
-  let scaleFactor = actualWidth / supposedWidth;
+  let scaleFactor = Math.floor(actualWidth) / offsetWidth;
   scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
 
   if (model.selectionIsCollapsed) {
@@ -259,7 +290,11 @@ export function renderSelection(
     // 1.2. Display the 'contains' highlight
     //
     let atom = model.at(model.position);
-    while (atom && !(atom.containsCaret && atom.displayContainsHighlight))
+    while (
+      atom &&
+      atom.type !== 'prompt' &&
+      !(atom.containsCaret && atom.displayContainsHighlight)
+    )
       atom = atom.parent!;
 
     if (atom?.containsCaret && atom.displayContainsHighlight) {
@@ -278,10 +313,10 @@ export function renderSelection(
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
         element.style.position = 'absolute';
-        element.style.left = `${bounds.left}px`;
-        element.style.top = `${bounds.top}px`;
+        element.style.left = `${bounds.left + 1}px`;
+        element.style.top = `${Math.ceil(bounds.top)}px`;
         element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
-        element.style.height = `${Math.ceil(bounds.bottom - bounds.top - 1)}px`;
+        element.style.height = `${Math.ceil(bounds.bottom - bounds.top)}px`;
         field.insertBefore(element, field.childNodes[0]);
       }
     }

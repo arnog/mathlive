@@ -325,7 +325,10 @@
   left: 0.24em;
 }
 
-.ML__mathlive {
+/** The markup for a LaTeX formula, either in an editable mathfield or 
+    in a static display.
+*/
+.ML__latex {
   @ptperem: 10; // This value should equal PT_PER_EM om `font-metrics.ts`
 
   @thinspace: 0.16667em; // 3mu
@@ -346,6 +349,9 @@
   font-stretch: normal;
   font-variant-caps: normal;
   letter-spacing: normal;
+
+  // This value is critical in getting the vertical alignment correct.
+  // Check with 1+\frac{5}{\frac{3}{\frac{7}{29}}}+\left(\frac{5}{\frac{3}{\frac{7}{29}}}\right)
   line-height: 1.2;
 
   word-wrap: normal;
@@ -362,7 +368,10 @@
     position: relative;
   }
 
-  .mfrac,
+  .mfrac {
+    display: inline-block;
+  }
+  
   .left-right {
     display: inline-block;
   }

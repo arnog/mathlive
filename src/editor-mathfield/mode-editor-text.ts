@@ -3,32 +3,28 @@ import type { InsertOptions } from '../public/mathfield';
 
 import { parseLatex } from '../core/core';
 import { Atom } from '../core/atom-class';
-import { ModelPrivate } from '../editor-model/model-private';
+import { _Model } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
 
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
-import { ContextInterface } from 'core/types';
+import type { ContextInterface } from 'core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {
     super('text');
   }
 
-  onPaste(
-    mathfield: MathfieldPrivate,
-    data: DataTransfer | string | null
-  ): boolean {
+  onPaste(mathfield: _Mathfield, data: DataTransfer | string | null): boolean {
     if (!data) return false;
 
     const text = typeof data === 'string' ? data : data.getData('text/plain');
 
     if (
       text &&
-      contentWillChange(mathfield.model, {
+      mathfield.model.contentWillChange({
         inputType: 'insertFromPaste',
         data: text,
       })
@@ -36,7 +32,7 @@ export class TextModeEditor extends ModeEditor {
       mathfield.stopCoalescingUndo();
       mathfield.stopRecording();
       if (this.insert(mathfield.model, text)) {
-        contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+        mathfield.model.contentDidChange({ inputType: 'insertFromPaste' });
         mathfield.startRecording();
         mathfield.snapshot('paste');
         requestUpdate(mathfield);
@@ -49,12 +45,8 @@ export class TextModeEditor extends ModeEditor {
     return false;
   }
 
-  insert(
-    model: ModelPrivate,
-    text: string,
-    options: InsertOptions = {}
-  ): boolean {
-    if (!contentWillChange(model, { data: text, inputType: 'insertText' }))
+  insert(model: _Model, text: string, options: InsertOptions = {}): boolean {
+    if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
@@ -103,7 +95,7 @@ export class TextModeEditor extends ModeEditor {
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
     else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
-    contentDidChange(model, { data: text, inputType: 'insertText' });
+    model.contentDidChange({ data: text, inputType: 'insertText' });
 
     model.silenceNotifications = silenceNotifications;
 
@@ -126,6 +118,8 @@ function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
   s = s.replace(/_/g, '\\_');
   s = s.replace(/{/g, '\\textbraceleft ');
   s = s.replace(/}/g, '\\textbraceright ');
+  s = s.replace(/lbrace/g, '\\textbraceleft ');
+  s = s.replace(/rbrace/g, '\\textbraceright ');
   s = s.replace(/\^/g, '\\textasciicircum ');
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');

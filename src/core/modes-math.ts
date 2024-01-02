@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
-import { Atom, ToLatexOptions } from './atom';
+import { Atom } from './atom';
 import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import type { Box } from './box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
-import { mathVariantToUnicode } from '../core-definitions/unicode';
-import type { TokenDefinition } from '../core-definitions/definitions-utils';
-import { FontName } from './font-metrics';
+import { mathVariantToUnicode } from './unicode';
+import type { TokenDefinition } from 'latex-commands/types';
+import type { FontName, ToLatexOptions } from './types';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -61,7 +61,7 @@ const VARIANTS: Record<string, [fontName: FontName, cssClass: string]> = {
   'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
 };
 
-const VARIANT_REPERTOIRE = {
+export const VARIANT_REPERTOIRE = {
   'double-struck': /^[A-Z ]$/,
   'script': /^[A-Z ]$/,
   'calligraphic': /^[\dA-Z ]$/,
@@ -109,6 +109,11 @@ export class MathMode extends Mode {
         style,
       });
     }
+
+    const isFunction = globalThis.MathfieldElement.isFunction(
+      info.command ?? command
+    );
+
     if (info.definitionType === 'symbol') {
       const result = new Atom({
         type: info.type ?? 'mord',
@@ -117,7 +122,7 @@ export class MathMode extends Mode {
         value: String.fromCodePoint(info.codepoint),
         style,
       });
-      if (info.isFunction ?? false) result.isFunction = true;
+      if (isFunction) result.isFunction = true;
 
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
@@ -129,8 +134,7 @@ export class MathMode extends Mode {
       value: command,
       style,
     });
-    if (info.isFunction ?? false) result.isFunction = true;
-
+    if (isFunction) result.isFunction = true;
     if (command.startsWith('\\')) result.verbatimLatex = command;
 
     return result;
@@ -264,7 +268,18 @@ function variantString(atom: Atom): string {
   const { style } = atom;
   if (style.variant === undefined) return '';
   let result = style.variant;
-  if (style.variantStyle && style.variantStyle !== 'up')
+  if (
+    ![
+      'calligraphic',
+      'fraktur',
+      'double-struck',
+      'script',
+      'monospace',
+      'sans-serif',
+    ].includes(style.variant) &&
+    style.variantStyle &&
+    style.variantStyle !== 'up'
+  )
     result += '-' + style.variantStyle;
 
   return result;

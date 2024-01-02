@@ -51,7 +51,7 @@ export interface VirtualKeyboardKeycap {
    * CSS classes to apply to the keycap.
    *
    * - `tex`: use the TeX font for its label.
-   *    Using the tex class is not necessary if using the latex property to
+   *    Using the tex class is not necessary if using the `latex` property to
    *    define the label.
    * - `shift`: a shift key
    * - `small`: display the label in a smaller size
@@ -157,6 +157,9 @@ export type EditToolbarOptions = 'none' | 'default';
 
 export type VirtualKeyboardName =
   | 'default'
+  | 'compact'
+  | 'minimalist'
+  | 'numeric-only'
   | 'numeric'
   | 'symbols'
   | 'alphabetic'
@@ -185,6 +188,10 @@ export interface VirtualKeyboardOptions {
       | (VirtualKeyboardName | VirtualKeyboardLayout)[]
       | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
   );
+
+  readonly normalizedLayouts: (VirtualKeyboardLayoutCore & {
+    layers: NormalizedVirtualKeyboardLayer[];
+  })[];
 
   /**
    * Configuration of the action toolbar, displayed on the right-hand side.
@@ -231,6 +238,7 @@ export interface VirtualKeyboardOptions {
   originValidator: OriginValidator;
 }
 
+/** @internal */
 export interface MathfieldProxy {
   value: string;
   readonly selectionIsCollapsed: boolean;
@@ -266,13 +274,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 export interface VirtualKeyboardCommands {
-  /**
-   * The command invoked when a variant key is pressed:
-   * hide the variants panel, then perform the command.
-   */
-  performVariant: (command: Selector | [Selector, ...any[]]) => boolean;
-
-  switchKeyboardLayer: (layer: string) => boolean;
+  switchKeyboardLayer: (mathfield: undefined, layer: string) => boolean;
 
   toggleVirtualKeyboard: () => boolean;
   hideVirtualKeyboard: () => boolean;

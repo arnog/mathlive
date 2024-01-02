@@ -8,22 +8,22 @@
 
 import { Atom } from '../core/atom-class';
 
-import '../core-definitions/definitions';
+import '../latex-commands/definitions';
 
 import type {
   ComputeEngine,
   SemiBoxedExpression,
 } from '@cortex-js/compute-engine';
-import { toMathML } from '../addons/math-ml';
+import { toMathML } from '../formats/atom-to-math-ml';
 import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
 import { parseLatex } from '../core/parser';
-import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { Expression } from './mathfield-element';
 import { validateLatex as validateLatexInternal } from '../core/parser';
 
-import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
-import { parseMathString } from '../editor/parse-math-string';
+import { atomToAsciiMath } from '../formats/atom-to-ascii-math';
+import { parseMathString } from '../formats/parse-math-string';
 
 import type { LatexSyntaxError, ParseMode } from './core-types';
 
@@ -118,7 +118,7 @@ export function convertLatexToMarkup(
   //
   // 4. Wrap the expression with struts
   //
-  const struts = makeStruts(box, { classes: 'ML__mathlive' });
+  const struts = makeStruts(box, { classes: 'ML__latex' });
 
   //
   // 5. Generate markup
@@ -139,8 +139,6 @@ export function validateLatex(s: string): LatexSyntaxError[] {
  * @param options.generateId If true, add an `"extid"` attribute
  * to the MathML nodes with a value matching the `atomID`. This can be used
  * to map items on the screen with their MathML representation or vice-versa.
- * @param options.onError Callback invoked when an error is encountered while
- * parsing the input string.
  *
  * @category Converting
  */
@@ -183,7 +181,16 @@ export function convertLatexToSpeakableText(latex: string): string {
 
 let gComputeEngine: ComputeEngine;
 
-export function serializeMathJsonToLatex(json: Expression): string {
+/**
+ * Convert a MathJSON expression to a LaTeX string.
+ *
+ * ```js
+ * convertMathJsonToLatex(["Add", 1, 2]);
+ * // -> "1 + 2"
+ * ```
+ * @category Converting
+ */
+export function convertMathJsonToLatex(json: Expression): string {
   if (!gComputeEngine) {
     const ComputeEngineCtor =
       globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
@@ -202,6 +209,14 @@ export function serializeMathJsonToLatex(json: Expression): string {
   return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
 }
 
+/** Convert a LaTeX string to a string of AsciiMath.
+ *
+ * ```js
+ * convertLatexToAsciiMath("\\frac{1}{2}");
+ * // -> "1/2"
+ * ```
+ * @category Converting
+ */
 export function convertLatexToAsciiMath(
   latex: string,
   parseMode: ParseMode = 'math'
@@ -211,6 +226,15 @@ export function convertLatexToAsciiMath(
   );
 }
 
+/**
+ * Convert an AsciiMath string to a LaTeX string.
+ *
+ * ```js
+ * convertAsciiMathToLatex("1/2");
+ * // -> "\\frac{1}{2}"
+ * ```
+ * @category Converting
+ */
 export function convertAsciiMathToLatex(ascii: string): string {
   return parseMathString(ascii, { format: 'ascii-math' })[1];
 }

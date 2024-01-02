@@ -3,7 +3,10 @@ import { register } from '../editor/commands';
 import { hideVariantsPanel } from './variants';
 import { VirtualKeyboard } from './virtual-keyboard';
 
-export function switchKeyboardLayer(layerName: string): boolean {
+export function switchKeyboardLayer(
+  mathfield: undefined,
+  layerName: string
+): boolean {
   const keyboard = VirtualKeyboard.singleton;
   if (!keyboard) return false;
 

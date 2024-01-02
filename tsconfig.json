@@ -3,28 +3,29 @@
     "rootDir": ".",
     "outDir": "build",
 
+    // es2018: async iterators, rest/spread for objects, RegExp named capture groups, RegExp Unicode property escapes, Promise.prototype.finally
+    // es2020: nullish coalescing, optional chaining, BigInt, dynamic import, import.meta
+    // es2022: private fields, top-level await
+    // esnext: all the above + decorators, class fields, export * as ns, export * from, numeric separators, throw expressions
     "target": "es2020",
-    "module": "esnext", // es2020 includes support for dynamic imports, and import.meta
+    "module": "esnext",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
+
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "noImplicitAny": false,
+    "noLib": false,
 
     "lib": ["es2020", "dom", "dom.iterable", "scripthost"],
     // Do not include all the type definitions in `node_modules/@types`,
     // which include NodeJS definitions that are not applicable to a web app
     // but only those type definitions that are required
-    "typeRoots": ["./src/public"],
+    "typeRoots": ["./src/public", "./src/ui/types"],
     // "types": ["@cortex-js/compute-engine"],
 
     "emitDecoratorMetadata": false,
-    "experimentalDecorators": false,
-
-    // Test files for Jest are in JS
-    // "allowJs": true,
-
-    "strictNullChecks": true,
-    "noImplicitAny": false,
-    "noLib": false,
 
     // We'll strip the comments with esbuild but we need them for the declaration files
     "removeComments": false,
@@ -34,6 +35,8 @@
     "incremental": true,
     "tsBuildInfoFile": "./build/ts-cache.tsbuildinfo"
   },
+  // "include": []
+  // "files: []   // If you want to include only specific files (paths relative to the tsconfig.json file)
   "exclude": [
     "coverage",
     "test",

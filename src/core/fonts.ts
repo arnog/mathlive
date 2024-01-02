@@ -62,14 +62,14 @@ export async function loadFonts(): Promise<void> {
       return;
     }
 
-    if (!window.MathfieldElement.fontsDirectory) {
+    if (!globalThis.MathfieldElement.fontsDirectory) {
       gFontsState = 'not-loaded';
       return;
     }
 
     // Locate the `fonts` folder relative to the script URL
     const fontsFolder = await resolveUrl(
-      window.MathfieldElement.fontsDirectory
+      globalThis.MathfieldElement.fontsDirectory
     );
     if (!fontsFolder) {
       document.body.classList.add('ML__fonts-did-not-load');
@@ -90,7 +90,7 @@ export async function loadFonts(): Promise<void> {
         ['KaTeX_Caligraphic-Bold', { weight: 'bold' }],
         ['KaTeX_Fraktur-Regular'],
         ['KaTeX_Fraktur-Bold', { weight: 'bold' }],
-        ['KaTeX_SansSerif-Regular', { style: 'italic' }],
+        ['KaTeX_SansSerif-Regular'],
         ['KaTeX_SansSerif-Bold', { weight: 'bold' }],
         ['KaTeX_SansSerif-Italic', { style: 'italic' }],
         ['KaTeX_Script-Regular'],

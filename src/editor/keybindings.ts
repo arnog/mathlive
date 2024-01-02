@@ -4,14 +4,16 @@ import type { Selector } from '../public/commands';
 import type { Keybinding } from '../public/options';
 
 import {
-  KeyboardLayout,
   getCodeForKey,
   keystrokeModifiersFromString,
   keystrokeModifiersToString,
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
-import { isBrowser, osPlatform } from '../common/capabilities';
+import { isBrowser, osPlatform } from '../ui/utils/capabilities';
 import { ParseMode } from '../public/core-types';
+import { KeyboardLayout } from './keyboard-layouts/types';
+import { getKeybindingMarkup } from '../ui/events/keyboard';
+import { keyboardEventToString } from './keyboard';
 
 /**
  * @param p The platform to test against.
@@ -35,20 +37,33 @@ function matchPlatform(p: string): boolean {
  *
  */
 export function getCommandForKeybinding(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   mode: ParseMode,
-  inKeystroke: string
+  evt: KeyboardEvent
 ): Selector | [Selector, ...any[]] | '' {
   if (keybindings.length === 0) return '';
 
-  // Normalize keystroke to the format (order of modifiers) expected by keybindings
+  // Normalize keystroke to the format (order of modifiers) expected
+  // by keybindings
   const keystroke = keystrokeModifiersToString(
-    keystrokeModifiersFromString(inKeystroke)
+    keystrokeModifiersFromString(keyboardEventToString(evt))
   );
+  const altKeystroke = keystrokeModifiersToString({
+    key: evt.key,
+    shift: evt.shiftKey,
+    alt: evt.altKey,
+    ctrl: evt.ctrlKey,
+    meta: evt.metaKey || (evt.ctrlKey && /macos|ios/.test(osPlatform())),
+    cmd: false,
+    win: false,
+  });
 
   // Try to match using a virtual keystroke
   for (let i = keybindings.length - 1; i >= 0; i--) {
-    if (keybindings[i].key === keystroke) {
+    if (
+      keybindings[i].key === keystroke ||
+      keybindings[i].key === altKeystroke
+    ) {
       if (!keybindings[i].ifMode || keybindings[i].ifMode === mode)
         return keybindings[i].command as Selector | [Selector, ...any[]];
     }
@@ -69,7 +84,7 @@ function commandToString(command: string | Selector | string[]): string {
 }
 
 export function getKeybindingsForCommand(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   command: string
 ): string[] {
   let result: string[] = [];
@@ -103,94 +118,11 @@ export function getKeybindingsForCommand(
 }
 
 /**
- * Return a human readable representation of a shortcut as a markup string
- * @revisit
+ * Return a normalized keybinding that account for the current
+ * keyboard layout. For example, a keybinding with the key `{` and
+ * a US layout will return 'shift+[' and '{' (the latter is the key code).
+ *
  */
-export function getKeybindingMarkup(keystroke: string): string {
-  const useSymbol = /macos|ios|/.test(osPlatform());
-  const segments = keystroke.split('+');
-  let result = '';
-  for (const segment of segments) {
-    if (!useSymbol && result)
-      result += '<span class="ML__shortcut-join">+</span>';
-
-    if (segment.startsWith('[Key')) result += segment.slice(4, 5);
-    else if (segment.startsWith('Key')) result += segment.slice(3, 4);
-    else if (segment.startsWith('[Digit')) result += segment.slice(6, 7);
-    else if (segment.startsWith('Digit')) result += segment.slice(5, 6);
-    else {
-      result +=
-        {
-          'cmd': '\u2318',
-          'meta': useSymbol ? '\u2318' : 'command',
-          'shift': useSymbol ? '\u21E7' : 'shift',
-          'alt': useSymbol ? '\u2325' : 'alt',
-          'ctrl': useSymbol ? '\u2303' : 'control',
-          '\n': useSymbol ? '\u23CE' : 'return',
-          '[return]': useSymbol ? '\u23CE' : 'return',
-          '[enter]': useSymbol ? '\u2324' : 'enter',
-          '[tab]': useSymbol ? '\u21E5' : 'tab',
-          // 'Esc':          useSymbol ? '\u238b' : 'esc',
-          '[escape]': 'esc',
-
-          '[backspace]': useSymbol ? '\u232B' : 'backspace',
-          '[delete]': useSymbol ? '\u2326' : 'del',
-          '[pageup]': useSymbol ? '\u21DE' : 'page up',
-          '[pagedown]': useSymbol ? '\u21DF' : 'page down',
-          '[home]': useSymbol ? '\u2912' : 'home',
-          '[end]': useSymbol ? '\u2913' : 'end',
-          '[space]': 'space',
-          '[equal]': '=',
-          '[minus]': '-',
-          '[comma]': ',',
-          '[slash]': '/',
-          '[backslash]': '\\',
-          '[bracketleft]': '[',
-          '[bracketright]': ']',
-          'semicolon': ';',
-          'period': '.',
-          'comma': ',',
-          'minus': '-',
-          'equal': '=',
-          'quote': "'",
-          'bracketLeft': '[',
-          'bracketRight': ']',
-          'backslash': '\\',
-          'intlbackslash': '\\',
-          'backquote': '`',
-          'slash': '/',
-          'numpadmultiply': '* &#128290;',
-          'numpaddivide': '/ &#128290;', // Numeric keypad
-          'numpadsubtract': '- &#128290;',
-          'numpadadd': '+ &#128290;',
-          'numpaddecimal': '. &#128290;',
-          'numpadcomma': ', &#128290;',
-          'help': 'help',
-          'left': '\u21E0',
-          'up': '\u21E1',
-          'right': '\u21E2',
-          'down': '\u21E3',
-          '[arrowleft]': '\u21E0',
-          '[arrowup]': '\u21E1',
-          '[arrowright]': '\u21E2',
-          '[arrowdown]': '\u21E3',
-          '[digit0]': '0',
-          '[digit1]': '1',
-          '[digit2]': '2',
-          '[digit3]': '3',
-          '[digit4]': '4',
-          '[digit5]': '5',
-          '[digit6]': '6',
-          '[digit7]': '7',
-          '[digit8]': '8',
-          '[digit9]': '9',
-        }[segment.toLowerCase()] ?? segment.toUpperCase();
-    }
-  }
-
-  return result;
-}
-
 function normalizeKeybinding(
   keybinding: Keybinding,
   layout: KeyboardLayout
@@ -252,19 +184,19 @@ function normalizeKeybinding(
 
   if (platform && !matchPlatform(platform)) return undefined;
 
-  if (/^\[.+\]$/.test(modifiers.key)) {
-    // This is a keybinding specified with a key code (e.g.  `[KeyW]`)
-    return {
-      ...keybinding,
-      ifPlatform: platform,
-      key: keystrokeModifiersToString(modifiers),
-    };
-  }
+  //
+  // Is this a keybinding specified with a key code (e.g.  `[KeyW]`)?
+  //
+  if (/^\[.+\]$/.test(modifiers.key))
+    return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
 
+  //
   // This is not a key code (e.g. `[KeyQ]`) it's a simple key (e.g. `a`).
-  // Convert it to a key code.
+  // Map it to a key code given the current keyboard layout.
+  //
   const code = getCodeForKey(modifiers.key, layout);
-  if (!code) throw new Error('Invalid keybinding key "' + keybinding.key + '"');
+  if (!code)
+    return { ...keybinding, key: keystrokeModifiersToString(modifiers) };
 
   if ((code.shift && modifiers.shift) || (code.alt && modifiers.alt)) {
     throw new Error(
@@ -279,11 +211,7 @@ function normalizeKeybinding(
   code.alt = code.alt || modifiers.alt;
   code.meta = modifiers.meta;
   code.ctrl = modifiers.ctrl;
-  return {
-    ...keybinding,
-    ifPlatform: platform,
-    key: keystrokeModifiersToString(code),
-  };
+  return { ...keybinding, key: keystrokeModifiersToString(code) };
 }
 
 function selectorToString(selector: Selector | [Selector, ...any[]]): string {
@@ -308,30 +236,30 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
  * - keybindings that don't apply to the current platform are removed
  */
 export function normalizeKeybindings(
-  keybindings: Keybinding[],
+  keybindings: readonly Keybinding[],
   layout: KeyboardLayout
 ): [result: Keybinding[], errors: string[]] {
-  const result: Keybinding[] = [];
   const errors: string[] = [];
+  const result: Keybinding[] = [];
 
   for (const x of keybindings) {
     try {
-      const keybinding = normalizeKeybinding(x, layout);
-      if (keybinding) {
-        const matches = result.filter(
-          (x) => x.key === keybinding.key && x.ifMode === keybinding.ifMode
+      const binding = normalizeKeybinding(x, layout);
+      if (!binding) continue;
+      // Is there a conflict with an existing keybinding?
+      const conflict = result.find(
+        (x) => x.key === binding.key && x.ifMode === binding.ifMode
+      );
+      if (conflict) {
+        throw new Error(
+          `Ambiguous key binding ${x.key} (${selectorToString(
+            x.command as Selector | [Selector, ...any[]]
+          )}) matches ${conflict.key} (${selectorToString(
+            conflict.command as Selector | [Selector, ...any[]]
+          )}) with the ${layout.displayName} keyboard layout`
         );
-        if (matches.length > 0) {
-          throw new Error(
-            `Ambiguous key binding ${x.key} (${selectorToString(
-              x.command as Selector | [Selector, ...any[]]
-            )}) matches ${matches[0].key} (${selectorToString(
-              matches[0].command as Selector | [Selector, ...any[]]
-            )}) with the ${layout.displayName} keyboard layout`
-          );
-        }
-        result.push(keybinding);
       }
+      result.push(binding);
     } catch (error: unknown) {
       if (error instanceof Error) errors.push(error.message);
     }

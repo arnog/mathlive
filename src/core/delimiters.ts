@@ -28,11 +28,10 @@ import {
   PT_PER_EM,
   AXIS_HEIGHT,
   FONT_SCALE,
-  FontName,
 } from './font-metrics';
 import { Context } from './context';
 import type { MathstyleName, ParseMode, Style } from '../public/core-types';
-import { BoxType } from './types';
+import type { BoxType, FontName } from './types';
 
 export const RIGHT_DELIM = {
   '(': ')',
@@ -754,7 +753,7 @@ export function makeNullDelimiter(parent: Context, classes?: string): Box {
   const box = new Box(null, {
     classes: ' nulldelimiter ' + (classes ?? ''),
     type: 'ignore',
-    width: parent.getRegisterAsEm('nulldelimiterspace'),
   });
+  box.width = parent.getRegisterAsEm('nulldelimiterspace');
   return box.wrap(new Context({ parent, mathstyle: 'textstyle' }));
 }

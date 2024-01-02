@@ -18,7 +18,7 @@ import { getDefaultContext } from './context-utils';
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
 
-export type AtomIdsSettings = {
+type AtomIdsSettings = {
   // **overrideID** If not undefined, unique IDs should be generated for each
   // box so they can be mapped back to an atom.
   overrideID?: string;

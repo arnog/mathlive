@@ -1,28 +1,14 @@
 import type {
-  ArgumentType,
   BoxCSSProperties,
+  LatexValue,
   MacroDefinition,
-  NormalizedMacroDictionary,
   ParseMode,
   Registers,
   Style,
-  Token,
 } from '../public/core-types';
-import { Atom } from '../core/atom-class';
-import { Context } from '../core/context';
-import { FontName } from './font-metrics';
-
-export interface ParseTokensOptions {
-  macros: NormalizedMacroDictionary;
-  smartFence: boolean;
-  style: Style;
-  args: (arg: string) => string;
-  parse: (
-    mode: ArgumentType,
-    tokens: Token[],
-    options: ParseTokensOptions
-  ) => [Atom[], Token[]];
-}
+import type { Atom } from '../core/atom-class';
+import type { Context } from '../core/context';
+import type { Argument } from 'latex-commands/types';
 
 // See http://www.ntg.nl/maps/38/03.pdf for an explanation of the metrics
 // and how they relate to the OpenFont math metrics
@@ -98,9 +84,6 @@ export type BoxType = (typeof BOX_TYPE)[number];
 export type BoxOptions = {
   mode?: ParseMode;
   type?: BoxType;
-  height?: number;
-  depth?: number;
-  width?: number;
   maxFontSize?: number;
   isTight?: boolean;
   fontFamily?: FontName;
@@ -109,7 +92,6 @@ export type BoxOptions = {
   caret?: ParseMode;
   isSelected?: boolean;
   classes?: string;
-  properties?: Partial<Record<BoxCSSProperties, string>>;
   attributes?: Record<string, string>;
 
   style?: Style; // If a `style` option is provided, a `mode` must also be provided.
@@ -216,3 +198,148 @@ export declare function applyStyle(
   box: BoxInterface,
   style: Style
 ): string | null;
+
+export type Branches = {
+  [branch in BranchName]?: Atom[];
+};
+
+export type ToLatexOptions = {
+  // Replace macros with their definitions
+  expandMacro?: boolean;
+
+  // Don't emit color, backgroundcolor, fontsize commands
+  skipStyles?: boolean;
+
+  // Replace placeholders with their content
+  skipPlaceholders?: boolean;
+
+  // Don't emit unnecessary style shift commands: you can assume we're in
+  // this default mode.
+  defaultMode: 'text' | 'math' | 'inline-math';
+};
+
+// IMPORTANT: when adding a new atom type, add its constructor to `toJson()`
+// atom.ts
+export type AtomType =
+  | 'accent'
+  | 'array' // A group, which has children arranged in rows. Used
+  // by environments such as `matrix`, `cases`, etc...
+  | 'box' // A border drawn around an expression and change its background color
+  | 'chem' // A chemical formula (mhchem)
+  | 'choice' // A \\mathchoice command
+  | 'composition' // IME composition area
+  | 'delim'
+  | 'enclose'
+  | 'extensible-symbol' // Commands such as `\int`, `\sum`, etc...
+  | 'error' //  An unknown command, for example `\xyzy`. The text  is displayed with a wavy red underline in the editor.
+  | 'first' // A special, empty, atom put as the first atom in math lists in
+  // order to be able to position the caret before the first element. Aside from
+  // the caret, they display nothing.
+  | 'genfrac' // A generalized fraction: a numerator and denominator, separated
+  // by an optional line, and surrounded by optional fences
+  | 'group' // A simple group of atoms, for example from a `{...}`
+  | 'latex' // A raw latex atom
+  | 'latexgroup' // A string of raw latex atoms
+  | 'leftright' // Used by the `\left` and `\right` commands
+  | 'line' // Used by `\overline` and `\underline`
+  | 'macro'
+  | 'macro-argument'
+  | 'subsup' // A carrier for a superscript/subscript
+  | 'operator' // A function, including special functions, `\sin`
+  | 'overlap' // Display a symbol _over_ another
+  | 'overunder' // Displays an annotation above or below a symbol
+  | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
+  | 'phantom'
+  | 'root' // A group, which has no parent (only one per formula)
+  | 'rule' // Draw a line, for the `\rule` command
+  | 'sizeddelim' // A delimiter that can grow
+  | 'space'
+  | 'spacing'
+  | 'surd' // Aka square root, nth root
+  | 'text' // Text mode atom;
+  | 'tooltip' // For `\mathtip` and `\texttip`
+  | 'prompt'
+  /** The types below confound atom type and box type. They are all indicating
+   * a probable Atom class, but with a different boxType (inter-atom spacing)
+   */
+  | 'mbin' // Binary operator: `+`, `*`, etc...
+  | 'mclose' // Closing fence: `)`, `\rangle`, etc...
+  | 'minner' // Special layout cases, fraction, overlap, `\left...\right`
+  | 'mop' // `mop`: symbols with some space around them
+  | 'mopen' // Opening fence: `(`, `\langle`, etc...
+  | 'mord' // Ordinary symbol, e.g. `x`, `\alpha`
+  | 'mpunct' // Punctuation: `,`, `:`, etc...
+  | 'mrel'; // Relational operator: `=`, `\ne`, etc...
+
+export type BBoxParameter = {
+  backgroundcolor?: LatexValue;
+  padding?: LatexValue;
+  border?: string;
+};
+
+export type CreateAtomOptions<
+  T extends (Argument | null)[] = (Argument | null)[],
+> = {
+  mode?: ParseMode;
+  command?: string;
+  style?: Style;
+  args?: T;
+};
+
+export type AtomOptions<T extends (Argument | null)[] = (Argument | null)[]> =
+  CreateAtomOptions<T> & {
+    verbatimLatex?: string | null;
+
+    type?: AtomType;
+    value?: string;
+    body?: Atom[];
+    isFunction?: boolean;
+    limits?: 'auto' | 'over-under' | 'adjacent';
+    displayContainsHighlight?: boolean;
+    captureSelection?: boolean;
+    skipBoundary?: boolean;
+  };
+
+/**
+ * This data type is used as a serialized representation of the atom tree.
+ * This is used by the Undo Manager to store the state of the mathfield.
+ * While in many cases the LaTeX representation of the mathfield could be used
+ * there are a few cases where the atom will carry additional information
+ * that is difficult/impossible to represent in pure LaTeX, for example
+ * the state/content of empty branches.
+ */
+export type AtomJson = { type?: AtomType; [key: string]: any };
+
+/**
+ * Each atom can have one or more "branches" of child atoms.
+ */
+export type BranchName =
+  | 'body'
+  | 'above'
+  | 'below'
+  | 'superscript'
+  | 'subscript';
+
+/**
+ * In addition to a "named" branch, a branch can also be identified as a cell
+ * in a tabular atom (matrix, etc...) with a row and column number.
+ */
+export type Branch = BranchName | [row: number, col: number];
+
+export type FontName =
+  | 'Main-Regular'
+  | 'Main-Italic'
+  | 'Main-Bold'
+  | 'Main-BoldItalic'
+  | 'Typewriter-Regular'
+  | 'Math-Italic'
+  | 'Math-BoldItalic'
+  | 'AMS-Regular'
+  | 'SansSerif-Regular'
+  | 'Caligraphic-Regular'
+  | 'Script-Regular'
+  | 'Fraktur-Regular'
+  | 'Size1-Regular'
+  | 'Size2-Regular'
+  | 'Size3-Regular'
+  | 'Size4-Regular';

@@ -22,6 +22,7 @@ import {
   VirtualKeyboardOptions,
 } from '../public/virtual-keyboard';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { InsertOptions } from 'public/mathfield';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -62,7 +63,7 @@ function latexToMarkup(latex: string): string {
     )
   );
 
-  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__latex' }).toMarkup();
 }
 
 function normalizeLayer(
@@ -125,20 +126,36 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
   const template =
     ALPHABETIC_TEMPLATE[layoutName] ?? ALPHABETIC_TEMPLATE.qwerty;
 
-  const rows: (string | Partial<VirtualKeyboardKeycap>)[][] = [
-    [
-      { label: '1', variants: '1' },
-      { label: '2', variants: '2' },
-      { label: '3', variants: '3' },
-      { label: '4', variants: '4' },
-      { label: '5', shift: { latex: '\\frac{#@}{#?}' }, variants: '5' },
-      { label: '6', shift: { latex: '#@^#?' }, variants: '6' },
-      { label: '7', variants: '4' },
-      { label: '8', shift: { latex: '\\times' }, variants: '8' },
-      { label: '9', shift: { label: '(', latex: '(' }, variants: '9' },
-      { label: '0', shift: { label: ')', latex: ')' }, variants: '0' },
-    ],
-  ];
+  const rows: (string | Partial<VirtualKeyboardKeycap>)[][] =
+    layoutName === 'azerty'
+      ? [
+          [
+            { label: '1', variants: '1' },
+            { label: '2', shift: { latex: 'é' }, variants: '2' },
+            { label: '3', shift: { latex: 'ù' }, variants: '3' },
+            { label: '4', variants: '4' },
+            { label: '5', shift: { label: '(', latex: '(' }, variants: '5' },
+            { label: '6', shift: { label: ')', latex: ')' }, variants: '6' },
+            { label: '7', shift: { latex: 'è' }, variants: '7' },
+            { label: '8', shift: { latex: 'ê' }, variants: '8' },
+            { label: '9', shift: { latex: 'ç' }, variants: '9' },
+            { label: '0', shift: { latex: 'à' }, variants: '0' },
+          ],
+        ]
+      : [
+          [
+            { label: '1', variants: '1' },
+            { label: '2', variants: '2' },
+            { label: '3', variants: '3' },
+            { label: '4', variants: '4' },
+            { label: '5', shift: { latex: '\\frac{#@}{#?}' }, variants: '5' },
+            { label: '6', shift: { latex: '#@^#?' }, variants: '6' },
+            { label: '7', variants: '7' },
+            { label: '8', shift: { latex: '\\times' }, variants: '8' },
+            { label: '9', shift: { label: '(', latex: '(' }, variants: '9' },
+            { label: '0', shift: { label: ')', latex: ')' }, variants: '0' },
+          ],
+        ];
 
   for (const templateRow of template) {
     const row: (string | Partial<VirtualKeyboardKeycap>)[] = [];
@@ -169,7 +186,7 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
     '[+]',
     '[=]',
     { label: ' ', width: 1.5 },
-    ',',
+    { label: ',', shift: ';', variants: '.', class: 'hide-shift' },
     '[.]',
     '[left]',
     '[right]',
@@ -400,7 +417,7 @@ function makeSyntheticKeycap(element: HTMLElement): void {
   // Display
   if (!element.innerHTML) {
     const [markup, _] = renderKeycap(keycap);
-    element.innerHTML = window.MathfieldElement.createHTML(markup);
+    element.innerHTML = globalThis.MathfieldElement.createHTML(markup);
   }
 }
 
@@ -428,6 +445,9 @@ const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;
 <symbol id="svg-commit" viewBox="0 0 512 512">
   <path d="M135 432.1l-128-128C2.344 300.3 0 294.2 0 288s2.344-12.28 7.031-16.97l128-128c9.375-9.375 24.56-9.375 33.94 0s9.375 24.56 0 33.94L81.94 264H464v-208C464 42.75 474.8 32 488 32S512 42.75 512 56V288c0 13.25-10.75 24-24 24H81.94l87.03 87.03c9.375 9.375 9.375 24.56 0 33.94S144.4 442.3 135 432.1z"/>
 </symbol>
+
+
+<symbol id="circle-plus" viewBox="0 0 512 512"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344c0 13.3 10.7 24 24 24s24-10.7 24-24V280h64c13.3 0 24-10.7 24-24s-10.7-24-24-24H280V168c0-13.3-10.7-24-24-24s-24 10.7-24 24v64H168c-13.3 0-24 10.7-24 24s10.7 24 24 24h64v64z"/></symbol>
 
 <symbol id="svg-command" viewBox="0 0 640 512">
   <path d="M34.495 36.465l211.051 211.05c4.686 4.686 4.686 12.284 0 16.971L34.495 475.535c-4.686 4.686-12.284 4.686-16.97 0l-7.071-7.07c-4.686-4.686-4.686-12.284 0-16.971L205.947 256 10.454 60.506c-4.686-4.686-4.686-12.284 0-16.971l7.071-7.07c4.686-4.687 12.284-4.687 16.97 0zM640 468v-10c0-6.627-5.373-12-12-12H300c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h328c6.627 0 12-5.373 12-12z"/>
@@ -490,7 +510,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   const plate = document.createElement('div');
   plate.className = 'MLK__plate';
-  plate.innerHTML = window.MathfieldElement.createHTML(
+  plate.innerHTML = globalThis.MathfieldElement.createHTML(
     SVG_ICONS +
       keyboard.normalizedLayouts
         .map((x, i) => makeLayout(keyboard, x, i))
@@ -588,9 +608,9 @@ function makeLayer(
   if (layer.container) layerMarkup += `<div class='${layer.container}'>`;
 
   if (layer.rows) {
-    layerMarkup += `<div class='MLK__rows'>`;
+    layerMarkup += `<div class=MLK__rows>`;
     for (const row of layer.rows) {
-      layerMarkup += `<div dir='ltr' class=row>`;
+      layerMarkup += `<div dir='ltr' class=MLK__row>`;
       for (const keycap of row) {
         if (keycap) {
           const keycapId = keyboard.registerKeycap(keycap);
@@ -637,7 +657,8 @@ export function renderKeycap(
     else if (typeof keycap.shift === 'object') {
       markup = keycap.shift.label
         ? keycap.shift.label
-        : (latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
+        : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          (latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
             keycap.shift.key) ??
           '';
     }
@@ -649,7 +670,8 @@ export function renderKeycap(
     //
     markup = keycap.label
       ? keycap.label
-      : (latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
+      : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        (latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
         '';
 
     if (keycap.shift) {
@@ -660,6 +682,7 @@ export function renderKeycap(
       else if (keycap.shift.label) shiftLabel = keycap.shift.label;
       else {
         shiftLabel =
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
           (latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
             keycap.shift.key) ??
           '';
@@ -706,15 +729,38 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
       command: ['performWithFeedback', 'extendSelectionForward'],
     },
   },
+  '[up]': {
+    class: 'action hide-shift',
+    label: '↑',
+    command: ['performWithFeedback', 'moveUp'],
+    shift: {
+      label: '↟',
+      command: ['performWithFeedback', 'extendSelectionUpward'],
+    },
+  },
+  '[down]': {
+    class: 'action hide-shift',
+    label: '↓',
+    command: ['performWithFeedback', 'moveDown'],
+    shift: {
+      label: '↡',
+      command: ['performWithFeedback', 'extendSelectionDownward'],
+    },
+  },
   '[return]': {
-    class: 'action',
+    class: 'action hide-shift',
     command: ['performWithFeedback', 'commit'],
+    shift: { command: ['performWithFeedback', 'addRowAfter'] },
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },
   '[action]': {
-    class: 'action',
+    class: 'action hide-shift',
     command: ['performWithFeedback', 'commit'],
+    shift: {
+      label: '<svg class=svg-glyph><use xlink:href=#circle-plus /></svg>',
+      command: ['performWithFeedback', 'addRowAfter'],
+    },
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },
@@ -723,16 +769,24 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[hide-keyboard]': {
     class: 'action',
-    command: ['performWithFeedback', 'hideVirtualKeyboard'],
+    command: ['hideVirtualKeyboard'],
     width: 1.5,
     label:
       '<svg class=svg-glyph-lg><use xlink:href=#svg-keyboard-down /></svg>',
   },
   '[.]': {
     variants: '.',
-    command: 'insertDecimalSeparator',
+    command: ['performWithFeedback', 'insertDecimalSeparator'],
     shift: ',',
     class: 'big-op hide-shift',
+    label: '.',
+  },
+  '[,]': {
+    variants: ',',
+    command: ['performWithFeedback', 'insertDecimalSeparator'],
+    shift: '.',
+    class: 'big-op hide-shift',
+    label: ',',
   },
   '[+]': {
     variants: [{ latex: '\\sum_{#0}^{#0}', class: 'small' }, '\\oplus'],
@@ -741,7 +795,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'big-op hide-shift',
     shift: {
       latex: '\\sum',
-      insert: '\\sum_{#?}^{#?}',
+      insert: '\\sum',
       class: 'small',
     },
   },
@@ -760,14 +814,14 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     label: '&divide;',
   },
   '[*]': {
-    variants: [{ latex: '\\prod_{#0}^{#0}', class: 'small' }, '\\otimes'],
-    latex: '\\times',
+    variants: [
+      { latex: '\\prod_{#0}^{#0}', class: 'small' },
+      '\\otimes',
+      '\\cdot',
+    ],
+    latex: '\\cdot',
     label: '&times;',
-    shift: {
-      latex: '\\prod',
-      insert: '\\prod_{#?}^{#?}',
-      class: 'small',
-    },
+    shift: { latex: '\\times' },
     class: 'big-op hide-shift',
   },
   '[=]': {
@@ -801,13 +855,13 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
     class: 'ghost if-can-undo',
     command: 'undo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-undo /></svg>',
-    tooltip: l10n('tooltip.undo'),
+    tooltip: 'tooltip.undo',
   },
   '[redo]': {
     class: 'ghost  if-can-redo',
     command: 'redo',
     label: '<svg class=svg-glyph><use xlink:href=#svg-redo /></svg>',
-    tooltip: l10n('tooltip.redo'),
+    tooltip: 'tooltip.redo',
   },
 
   '[(]': {
@@ -939,6 +993,12 @@ export function normalizeKeycap(
   keycap: string | Partial<VirtualKeyboardKeycap>
 ): Partial<VirtualKeyboardKeycap> {
   if (typeof keycap === 'string') {
+    if (
+      keycap === '[.]' &&
+      globalThis.MathfieldElement.decimalSeparator === ','
+    )
+      keycap = '[,]';
+
     if (!KEYCAP_SHORTCUTS[keycap]) return { latex: keycap };
     keycap = { label: keycap };
   }
@@ -960,7 +1020,7 @@ export function normalizeKeycap(
   }
   if (shortcut) {
     if (shortcut.command === 'insertDecimalSeparator')
-      shortcut.label = window.MathfieldElement.decimalSeparator ?? '.';
+      shortcut.label = globalThis.MathfieldElement.decimalSeparator ?? '.';
 
     if (keycap.label === '[action]') {
       shortcut = {
@@ -1032,39 +1092,32 @@ function handlePointerDown(ev: PointerEvent) {
   console.assert(ev.type === 'pointerdown');
 
   const controller = new AbortController();
+  const signal = controller.signal;
 
   target.classList.add('is-pressed');
   target.addEventListener(
     'pointerenter',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointerleave',
     handleVirtualKeyboardEvent(controller),
-    {
-      capture: true,
-      signal: controller.signal,
-    }
+    { capture: true, signal }
   );
   target.addEventListener(
     'pointercancel',
     handleVirtualKeyboardEvent(controller),
-    {
-      signal: controller.signal,
-    }
+    { signal }
   );
   target.addEventListener('pointerup', handleVirtualKeyboardEvent(controller), {
-    signal: controller.signal,
+    signal,
   });
 
   // Is it the Shift key?
   if (isShiftKey(keycap)) {
     target.classList.add('is-active');
-    keyboard.incrementShiftPress();
+    keyboard.shiftPressCount++;
   }
 
   if (keycap.variants) {
@@ -1080,7 +1133,7 @@ function handlePointerDown(ev: PointerEvent) {
           target?.classList.remove('is-active');
         });
       }
-    }, 200);
+    }, 300);
   }
 
   ev.preventDefault();
@@ -1107,7 +1160,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointercancel') {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.decrementShiftPress();
+        keyboard.shiftPressCount--;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1118,7 +1171,7 @@ function handleVirtualKeyboardEvent(controller) {
     if (ev.type === 'pointerleave' && ev.target === target) {
       target.classList.remove('is-pressed');
       if (isShiftKey(keycap)) {
-        keyboard.decrementShiftPress();
+        keyboard.shiftPressCount--;
         // Because of capslock, we may not have changed status
         target.classList.toggle('is-active', keyboard.isShifted);
       }
@@ -1144,13 +1197,13 @@ function handleVirtualKeyboardEvent(controller) {
                 scrollIntoView: true,
                 mode: 'math',
                 format: 'latex',
-                resetStyle: true,
-              },
+              } as InsertOptions,
             ]);
           } else executeKeycapCommand(keycap.shift);
         } else executeKeycapCommand(keycap);
 
-        if (keyboard.shiftPressCount === 1) keyboard.resetShiftPress();
+        if (keyboard.shiftPressCount === 1 && !(ev as MouseEvent).shiftKey)
+          keyboard.shiftPressCount = 0;
       }
       controller.abort();
       ev.preventDefault();
@@ -1174,8 +1227,7 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
-      },
+      } as InsertOptions,
     ];
   }
   if (!command && keycap.key) {
@@ -1196,8 +1248,7 @@ export function executeKeycapCommand(
         scrollIntoView: true,
         mode: 'math',
         format: 'latex',
-        resetStyle: true,
-      },
+      } as InsertOptions,
     ];
   }
   if (!command) {

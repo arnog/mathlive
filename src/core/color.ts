@@ -58,6 +58,7 @@ export const BACKGROUND_COLORS = {
   'lime': '#d0e8b9',
   'green': '#bceac4',
   'teal': '#b9f1f1',
+  'cyan': '#b8e5c9',
   'blue': '#b6d9fb',
   'indigo': '#d1c2f0',
   'purple': '#e3baf8',
@@ -77,6 +78,7 @@ export const FOREGROUND_COLORS = {
   'lime': '#63b215',
   'green': '#21ba3a',
   'teal': '#17cfcf',
+  'cyan': '#13a7ec',
   'blue': '#0d80f2',
   'indigo': '#63c',
   'purple': '#a219e6',
@@ -386,7 +388,7 @@ export function defaultColorMap(s: string): string | undefined {
     baseGreen = green;
     baseBlue = blue;
 
-    const colorName = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)?.[1];
+    const colorName = colorSpec[i].trim().match(/^([A-Za-z\d-]+)/)?.[1];
     const lcColorName = colorName?.toLowerCase();
 
     const color = !colorName

@@ -25,6 +25,16 @@ describe('MODE SHIFT', () => {
   });
 });
 
+describe('COMMANDS', () => {
+  test('Commands ', () => {
+    expect(
+      markupAndError(
+        `\\!\\#\\%\\&\\$\\_\\{\\}\\text{\\'{a}\\"{a}\\.{a}\\\`{a}\\={a}\\~{a}\\^{a}}`
+      )
+    ).toMatchSnapshot();
+  });
+});
+
 describe('FONTS', () => {
   test.each([
     '\\alpha + x - 1 - \\Gamma',

@@ -3,10 +3,7 @@ import type { Selector } from '../public/commands';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { Atom } from '../core/atom';
 
-import {
-  keyboardEventToChar,
-  mightProducePrintableCharacter,
-} from '../editor/keyboard';
+import { keyboardEventToChar, keyboardEventToString } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
 import { SelectorPrivate } from '../editor/commands';
@@ -16,23 +13,19 @@ import {
 } from '../editor/keyboard-layout';
 
 import { moveAfterParent } from '../editor-model/commands-move';
-import {
-  contentDidChange,
-  contentWillChange,
-  selectionDidChange,
-} from '../editor-model/listeners';
 import { range } from '../editor-model/selection-utils';
 
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
 import { requestUpdate } from './render';
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
 import type { ParseMode, Style } from 'public/core-types';
-import type { ModelPrivate } from 'editor-model/model-private';
-import { LeftRightAtom } from 'core-atoms/leftright';
+import type { _Model } from 'editor-model/model-private';
+import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
+import { mightProducePrintableCharacter } from 'ui/events/utils';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
@@ -61,11 +54,12 @@ import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
  *
  */
 export function onKeystroke(
-  mathfield: MathfieldPrivate,
-  keystroke: string,
+  mathfield: _Mathfield,
   evt: KeyboardEvent
 ): boolean {
   const { model } = mathfield;
+
+  const keystroke = keyboardEventToString(evt);
 
   // 1. Update the current keyboard layout based on this event
   if (evt.isTrusted) {
@@ -92,90 +86,20 @@ export function onKeystroke(
     return false;
   }
 
-  //
-  // 4. Try to insert a smart fence.
-  //
-  if (!model.mathfield.smartFence) {
-    //
-    // 4.1. When smartFence is turned off, only do a "smart" fence insert
-    // if we're inside a `leftright`, at the last char
-    //
-    const { parent } = model.at(model.position);
-    if (
-      parent instanceof LeftRightAtom &&
-      parent.rightDelim === '?' &&
-      model.at(model.position).isLastSibling &&
-      /^[)}\]|]$/.test(keystroke)
-    ) {
-      mathfield.snapshot();
-      parent.isDirty = true;
-      parent.rightDelim = keystroke;
-      model.position += 1;
-      selectionDidChange(model);
-      contentDidChange(model, {
-        data: keyboardEventToChar(evt),
-        inputType: 'insertText',
-      });
-      mathfield.snapshot('insert-fence');
-      mathfield.dirty = true;
-      mathfield.scrollIntoView();
-      if (evt.preventDefault) evt.preventDefault();
-      return false;
-    }
-
-    //
-    // 4.2. Or inserting a fence around a selection
-    //
-    if (!model.selectionIsCollapsed) {
-      const fence = keyboardEventToChar(evt);
-      if (fence === '(' || fence === '{' || fence === '[') {
-        const lDelim = { '(': '(', '{': '\\lbrace', '[': '\\lbrack' }[fence];
-        const rDelim = { '(': ')', '{': '\\rbrace', '[': '\\rbrack' }[fence];
-        const [start, end] = range(model.selection);
-        mathfield.snapshot();
-        model.position = end;
-        ModeEditor.insert(model, rDelim, { format: 'latex' });
-        model.position = start;
-        ModeEditor.insert(model, lDelim, { format: 'latex' });
-        model.setSelection(start + 1, end + 1);
-        contentDidChange(model, {
-          data: fence,
-          inputType: 'insertText',
-        });
-        mathfield.snapshot('insert-fence');
-        mathfield.dirty = true;
-        mathfield.scrollIntoView();
-        if (evt.preventDefault) evt.preventDefault();
-        return false;
-      }
-    }
-  } else if (
-    insertSmartFence(model, keyboardEventToChar(evt), mathfield.style)
-  ) {
-    mathfield.flushInlineShortcutBuffer();
-    mathfield.dirty = true;
-    mathfield.scrollIntoView();
-    if (evt.preventDefault) evt.preventDefault();
-    return false;
-  }
-
-  // 5. Let's try to find a matching inline shortcut
+  // 4. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex: number;
 
-  // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
+  // 4.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
-  // see 5.3)
+  // see 4.3)
   const buffer = mathfield.inlineShortcutBuffer;
   if (mathfield.isSelectionEditable) {
     if (model.mode === 'math') {
-      if (keystroke === '[Backspace]') {
-        // Special case for backspace to correctly handle undoing
-        buffer.pop();
-        mathfield.flushInlineShortcutBuffer({ defer: true });
-      } else if (!mightProducePrintableCharacter(evt)) {
+      if (keystroke === '[Backspace]') buffer.pop();
+      else if (!mightProducePrintableCharacter(evt)) {
         // It was a non-alpha character (PageUp, End, etc...)
         mathfield.flushInlineShortcutBuffer();
       } else {
@@ -192,7 +116,9 @@ export function onKeystroke(
           leftSiblings: getLeftSiblings(mathfield),
         });
 
+        //
         // Loop  over possible candidates, from the longest possible, to the shortest
+        //
         let i = 0;
         let candidate = '';
         while (!shortcut && i < keystrokes.length) {
@@ -232,39 +158,24 @@ export function onKeystroke(
     }
 
     //
-    // 5.2. Should we switch mode?
+    // 4.2. Should we switch mode?
     //
     // Need to check this before determining if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
     if (mathfield.options.smartMode) {
-      const previousMode = model.mode;
       if (shortcut) {
         // If we found a shortcut (e.g. "alpha"),
         // switch to math mode and insert it
-        model.mode = 'math';
+        mathfield.switchMode('math');
       } else if (smartMode(mathfield, keystroke, evt)) {
-        model.mode = { math: 'text', text: 'math' }[model.mode];
+        mathfield.switchMode({ math: 'text', text: 'math' }[model.mode]);
         selector = '';
-      }
-
-      // Notify of mode change
-      if (model.mode !== previousMode) {
-        if (
-          !mathfield.host?.dispatchEvent(
-            new Event('mode-change', {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-            })
-          )
-        )
-          model.mode = previousMode;
       }
     }
   }
 
-  // 5.3 Check if this matches a keybinding.
+  // 4.3 Check if this matches a keybinding.
   //
   // Need to check this **after** checking for inline shortcuts because
   // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
@@ -274,14 +185,14 @@ export function onKeystroke(
       selector = getCommandForKeybinding(
         mathfield.keybindings,
         model.mode,
-        keystroke
+        evt
       );
     }
 
     // 5.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
       let result = false;
-      if (contentWillChange(model, { inputType: 'insertLineBreak' })) {
+      if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
 
         if (mathfield.host) {
@@ -298,7 +209,7 @@ export function onKeystroke(
         }
 
         // Dispatch an 'input' event matching the behavior of `<textarea>`
-        contentDidChange(model, { inputType: 'insertLineBreak' });
+        model.contentDidChange({ inputType: 'insertLineBreak' });
       }
       return result;
     }
@@ -348,15 +259,86 @@ export function onKeystroke(
       //
       if (
         model.at(model.position)?.isDigit() &&
-        window.MathfieldElement.decimalSeparator === ',' &&
+        globalThis.MathfieldElement.decimalSeparator === ',' &&
         keyboardEventToChar(evt) === ','
       )
         selector = 'insertDecimalSeparator';
     }
   }
 
-  // No shortcut, no selector. We're done.
-  if (!shortcut && !selector) return true;
+  // No shortcut, no selector. Consider a smartfence
+  if (!shortcut && !selector) {
+    //
+    // 5. Try to insert a smart fence.
+    //
+    if (!model.mathfield.smartFence) {
+      //
+      // 5.1. When smartFence is turned off, only do a "smart" fence insert
+      // if we're inside a `leftright`, at the last char
+      //
+      const { parent } = model.at(model.position);
+      if (
+        parent instanceof LeftRightAtom &&
+        parent.rightDelim === '?' &&
+        model.at(model.position).isLastSibling &&
+        /^[)}\]|]$/.test(keystroke)
+      ) {
+        mathfield.snapshot();
+        parent.isDirty = true;
+        parent.rightDelim = keystroke;
+        model.position += 1;
+        model.selectionDidChange();
+        model.contentDidChange({
+          data: keyboardEventToChar(evt),
+          inputType: 'insertText',
+        });
+        mathfield.snapshot('insert-fence');
+        mathfield.dirty = true;
+        mathfield.scrollIntoView();
+        if (evt.preventDefault) evt.preventDefault();
+        return false;
+      }
+
+      //
+      // 5.2. Or inserting a fence around a selection
+      //
+      if (!model.selectionIsCollapsed) {
+        const fence = keyboardEventToChar(evt);
+        if (fence === '(' || fence === '{' || fence === '[') {
+          const lDelim = { '(': '(', '{': '\\lbrace', '[': '\\lbrack' }[fence];
+          const rDelim = { '(': ')', '{': '\\rbrace', '[': '\\rbrack' }[fence];
+          const [start, end] = range(model.selection);
+          mathfield.snapshot();
+          model.position = end;
+          ModeEditor.insert(model, rDelim, { format: 'latex' });
+          model.position = start;
+          ModeEditor.insert(model, lDelim, { format: 'latex' });
+          model.setSelection(start + 1, end + 1);
+          model.contentDidChange({
+            data: fence,
+            inputType: 'insertText',
+          });
+          mathfield.snapshot('insert-fence');
+          mathfield.dirty = true;
+          mathfield.scrollIntoView();
+          if (evt.preventDefault) evt.preventDefault();
+          return false;
+        }
+      }
+    } else if (
+      insertSmartFence(
+        model,
+        keyboardEventToChar(evt),
+        mathfield.effectiveStyle
+      )
+    ) {
+      mathfield.dirty = true;
+      mathfield.scrollIntoView();
+      if (evt.preventDefault) evt.preventDefault();
+      return false;
+    }
+    return true;
+  }
 
   //
   // 6. Insert the shortcut or perform the action for this selector
@@ -374,7 +356,7 @@ export function onKeystroke(
     parent?.type === 'leftright' &&
     child.isLastSibling &&
     mathfield.options.smartFence &&
-    insertSmartFence(model, '.', mathfield.style)
+    insertSmartFence(model, '.', mathfield.defaultStyle)
   ) {
     // Pressing the space bar (moveAfterParent selector) when at the end
     // of a potential smartFence will close it as a semi-open fence
@@ -402,10 +384,7 @@ export function onKeystroke(
     //
     // 6.4 Insert the shortcut
     //
-    const style = {
-      ...model.at(model.position).computedStyle,
-      ...mathfield.style,
-    };
+    const style = mathfield.effectiveStyle;
     //
     // Make the substitution to be undoable
     //
@@ -447,7 +426,7 @@ export function onKeystroke(
 
         // Switch (back) to text mode if the shortcut ended with a space
         if (shortcut!.endsWith(' ')) {
-          model.mode = 'text';
+          mathfield.switchMode('text');
           ModeEditor.insert(model, ' ', { style, mode: 'text' });
         }
 
@@ -490,7 +469,7 @@ export function onKeystroke(
  * @private
  */
 export function onInput(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   text: string,
   options?: {
     focus?: boolean;
@@ -511,7 +490,7 @@ export function onInput(
   //
   if (options.focus) mathfield.focus();
 
-  if (options.feedback) window.MathfieldElement.playSound('keypress');
+  if (options.feedback) globalThis.MathfieldElement.playSound('keypress');
 
   //
   // 2/ Switch mode if requested
@@ -534,9 +513,8 @@ export function onInput(
   // David Bowie emoji: 👨🏻‍🎤
   let graphemes = splitGraphemes(text);
 
-  // Check if virtual keyboard is visible and the shift key is pressed
   const keyboard = window.mathVirtualKeyboard;
-  if (keyboard?.visible && keyboard.isShifted) {
+  if (keyboard?.isShifted) {
     graphemes =
       typeof graphemes === 'string'
         ? graphemes.toUpperCase()
@@ -546,7 +524,7 @@ export function onInput(
   if (options.simulateKeystroke) {
     let handled = true;
     for (const c of graphemes) {
-      if (onKeystroke(mathfield, c, new KeyboardEvent('keypress', { key: c })))
+      if (onKeystroke(mathfield, new KeyboardEvent('keypress', { key: c })))
         handled = false;
     }
     if (handled) return;
@@ -557,7 +535,7 @@ export function onInput(
   // If the selection is not collapsed, the content will be deleted first
   //
   const atom = model.at(model.position);
-  const style = { ...atom.computedStyle, ...mathfield.style };
+  const style = { ...atom.computedStyle, ...mathfield.defaultStyle };
 
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
@@ -591,7 +569,7 @@ export function onInput(
   mathfield.scrollIntoView();
 }
 
-function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
+function getLeftSiblings(mf: _Mathfield): Atom[] {
   const model = mf.model;
 
   const result: Atom[] = [];
@@ -605,7 +583,7 @@ function getLeftSiblings(mf: MathfieldPrivate): Atom[] {
 }
 
 function insertMathModeChar(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   c: string,
   style: Style,
   atom: Atom
@@ -635,7 +613,9 @@ function insertMathModeChar(
     /\d/.test(c) &&
     mathfield.options.smartSuperscript &&
     atom.parentBranch === 'superscript' &&
-    atom.parent?.type !== 'mop' &&
+    atom.parent!.type !== 'mop' &&
+    atom.parent!.type !== 'operator' &&
+    atom.parent!.type !== 'extensible-symbol' &&
     atom.hasNoSiblings
   ) {
     // We are inserting a digit into an empty superscript
@@ -648,20 +628,16 @@ function insertMathModeChar(
     return;
   }
 
-  if (mathfield.adoptStyle !== 'none') {
+  if (/[a-zA-Z0-9]/.test(c) && mathfield.adoptStyle !== 'none') {
     // If adding an alphabetic character, and the neighboring atom is an
     // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
     const sibling =
       mathfield.adoptStyle === 'left'
         ? atom
         : atom.parent
-        ? atom.rightSibling
-        : null;
-    if (
-      sibling?.type === 'mord' &&
-      /[a-zA-Z0-9]/.test(sibling.value) &&
-      /[a-zA-Z0-9]/.test(c)
-    ) {
+          ? atom.rightSibling
+          : null;
+    if (sibling?.type === 'mord' && /[a-zA-Z0-9]/.test(sibling.value)) {
       style = { ...style };
       if (sibling.style.variant) style.variant = sibling.style.variant;
       if (sibling.style.variantStyle)
@@ -674,7 +650,7 @@ function insertMathModeChar(
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
 }
 
-function clearSelection(model: ModelPrivate) {
+function clearSelection(model: _Model) {
   if (!model.selectionIsCollapsed) {
     model.deleteAtoms(range(model.selection));
     model.mathfield.snapshot('delete');
@@ -686,7 +662,7 @@ function clearSelection(model: ModelPrivate) {
  * If not handled (because `fence` wasn't a fence), return false.
  */
 export function insertSmartFence(
-  model: ModelPrivate,
+  model: _Model,
   key: string,
   style?: Style
 ): boolean {
@@ -728,7 +704,7 @@ export function insertSmartFence(
       model.offsetOf(atom.lastChild)
     );
     model.mathfield.snapshot('insert-fence');
-    contentDidChange(model, { data: fence, inputType: 'insertText' });
+    model.contentDidChange({ data: fence, inputType: 'insertText' });
     return true;
   }
 
@@ -752,7 +728,7 @@ export function insertSmartFence(
         style,
       });
       model.mathfield.snapshot('insert-fence');
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       return true;
     }
   }
@@ -772,7 +748,7 @@ export function insertSmartFence(
       parent.leftDelim = fence;
       parent.isDirty = true;
       model.mathfield.snapshot();
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -807,7 +783,7 @@ export function insertSmartFence(
           atom
         );
         model.position = model.offsetOf(parent!.firstChild) + 1;
-        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.contentDidChange({ data: fence, inputType: 'insertText' });
         model.mathfield.snapshot('insert-fence');
         return true;
       }
@@ -842,7 +818,7 @@ export function insertSmartFence(
       match.addChildren(extractedAtoms, match.parentBranch!);
 
       model.position += 1;
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -871,7 +847,7 @@ export function insertSmartFence(
         parent.parent!.addChildBefore(extractedAtom, parent);
 
       //model.position = model.offsetOf(parent);
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
 
       return true;
@@ -925,7 +901,7 @@ export function insertSmartFence(
 
         parent!.addChildrenAfter([result], insertAfter);
         model.position = model.offsetOf(result);
-        contentDidChange(model, { data: fence, inputType: 'insertText' });
+        model.contentDidChange({ data: fence, inputType: 'insertText' });
         model.mathfield.snapshot('insert-fence');
         return true;
       }
@@ -942,7 +918,7 @@ export function insertSmartFence(
       parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -970,7 +946,7 @@ export function insertSmartFence(
         model.extractAtoms([i, model.position]),
         match.parentBranch!
       );
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
       return true;
     }
@@ -992,7 +968,7 @@ export function insertSmartFence(
         parent.parentBranch!
       );
       model.position = model.offsetOf(parent);
-      contentDidChange(model, { data: fence, inputType: 'insertText' });
+      model.contentDidChange({ data: fence, inputType: 'insertText' });
       model.mathfield.snapshot('insert-fence');
 
       return true;
@@ -1023,9 +999,9 @@ function isValidClose(open: string | undefined, close: string): boolean {
   if (!open) return true;
 
   if (
-    ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(open)
+    ['(', '\\lparen', '{', '\\{', '\\lbrace', '[', '\\lbrack'].includes(open)
   ) {
-    return [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(
+    return [')', '\\rparen', '}', '\\}', '\\rbrace', ']', '\\rbrack'].includes(
       close
     );
   }
@@ -1036,9 +1012,9 @@ function isValidOpen(open: string, close: string | undefined): boolean {
   if (!close) return true;
 
   if (
-    [')', '}', ']', '\\rbrace', '\\rparen', '\\}', '\\rbrack'].includes(close)
+    [')', '\\rparen', '}', '\\}', '\\rbrace', ']', '\\rbrack'].includes(close)
   ) {
-    return ['(', '{', '[', '\\lbrace', '\\lparen', '\\{', '\\lbrack'].includes(
+    return ['(', '\\lparen', '{', '\\{', '\\lbrace', '[', '\\lbrack'].includes(
       open
     );
   }

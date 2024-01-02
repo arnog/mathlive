@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
@@ -14,6 +14,12 @@
       textarea {
         margin-top: 1em;
         margin-bottom: 1em;
+      }
+      math-field::part(prompt) {
+        background: palegoldenrod;
+      }
+      math-field {
+        --prompt-min-width: 50px;
       }
     </style>
   </head>
@@ -55,18 +61,21 @@
     </main>
 
     <script type="module">
-      import { MathfieldElement } from '/dist/mathlive.mjs';
+      import { MathfieldElement } from "/dist/mathlive.mjs";
 
-      const prompt = document.getElementById('mf-prompt');
-      prompt.addEventListener('placeholder-change', (ev) => {
-        console.log('placeholder-change', ev.detail);
+      const prompt = document.getElementById("mf-prompt");
+      prompt.addEventListener("placeholder-change", (ev) => {
+        console.log("placeholder-change", ev.detail);
       });
-
-      prompt.addEventListener('input', (evt) => {
+      // mf.registers = {
+      //   ...mf.registers,
+      //   ...{ fboxsep: { dimension: 10, unit: 'pt' } },
+      // };
+      prompt.addEventListener("input", (evt) => {
         const prompts = prompt.getPrompts();
         console.log(prompts);
         prompts.forEach((x) =>
-          console.log('Prompt', x, prompt.getPromptValue(x))
+          console.log("Prompt", x, prompt.getPromptValue(x))
         );
       });
 
@@ -82,20 +91,20 @@
       //   x.addEventListener('focusout', logEvent);
       //   x.addEventListener('move-out', logEvent);
       //   x.addEventListener('focus-in', logEvent);
-      //   x.addEventListener('focus-out', logEvent);
+      //   x.addEventListener('focusout', logEvent);
       //   x.addEventListener('blur', logEvent);
       // });
 
       function logEvent(evt) {
         const stackTraceFrames = String(new Error().stack)
-          .replace(/^Error.*\n/, '')
-          .split('\n')
-          .map((x) => x.replace(/\(.*\)/, ''));
+          .replace(/^Error.*\n/, "")
+          .split("\n")
+          .map((x) => x.replace(/\(.*\)/, ""));
         stackTraceFrames.shift();
 
         console.log(evt.type, (evt.target?.id || evt.target?.tagName) ?? evt);
         if (stackTraceFrames.length > 0)
-          console.log(stackTraceFrames.join('\n'));
+          console.log(stackTraceFrames.join("\n"));
         // console.log(evt);
         updateButtons();
       }

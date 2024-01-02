@@ -6,8 +6,14 @@ import { Context } from './context';
 import { highlight } from './color';
 import { BoxCSSProperties, ParseMode } from '../public/core-types';
 import { Mode } from './modes-utils';
-import { BoxInterface, BoxOptions, BoxType } from './types';
-import { Atom, AtomType } from './atom-class';
+import type {
+  AtomType,
+  BoxInterface,
+  BoxOptions,
+  BoxType,
+  FontName,
+} from './types';
+import { Atom } from './atom-class';
 
 export function boxType(type: AtomType | undefined): BoxType | undefined {
   if (!type) return undefined;
@@ -98,10 +104,13 @@ export class Box implements BoxInterface {
   caret?: ParseMode;
   isSelected: boolean;
 
-  height: number; // Distance above the baseline, in em
-  depth: number; // Distance below the baseline, in em
+  _height: number; // Distance above the baseline, in em
+  _depth: number; // Distance below the baseline, in em
   _width: number;
-  hasExplicitWidth: boolean;
+  hasExplicitWidth: boolean; // True if the width has been set during
+  // rendering by a parent box, and not via horizontalLayout()
+  // If this is false, the width is the natural width of the
+  // content. Otherwise, the CSS width is set explicitly.
   skew: number;
   italic: number;
 
@@ -151,18 +160,12 @@ export class Box implements BoxInterface {
 
     this.isTight = options?.isTight ?? false;
 
-    // CSS style, as a set of key value pairs.
-    // Use `Box.setStyle()` to modify it.
-    if (options?.properties) {
-      for (const prop of Object.keys(options.properties))
-        this.setStyle(prop as BoxCSSProperties, options.properties[prop]);
-    }
-
     if (options?.attributes) this.attributes = options.attributes;
 
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     let fontName = options?.fontFamily;
     if (options?.style && this.value) {
+      // Note: getFont has the side effect of changing the
+      // classes property of the box to account for the font.
       fontName =
         Mode.getFont(options.mode ?? 'math', this, {
           variant: 'normal',
@@ -172,8 +175,8 @@ export class Box implements BoxInterface {
     }
     fontName ||= 'Main-Regular';
 
-    this.height = 0;
-    this.depth = 0;
+    this._height = 0;
+    this._depth = 0;
     this._width = 0;
     this.hasExplicitWidth = false;
     this.skew = 0;
@@ -181,98 +184,10 @@ export class Box implements BoxInterface {
     this.maxFontSize = 0;
     this.scale = 1.0;
 
-    //
-    // Calculate the dimensions of this box
-    //
-    if (this.type === 'latex') {
-      //
-      // Fixed width (and height) characters from "latex mode"
-      //
-      this.height = 0.8;
-      this.depth = 0.2;
-      this._width = 1.0;
-    } else if (typeof content === 'number') {
-      //
-      // A codepoint, as used by delimiters
-      //
-      const metrics = getCharacterMetrics(content, fontName);
-      this.height = metrics.height;
-      this.depth = metrics.depth;
-      this._width = metrics.width;
-      this.skew = metrics.skew;
-      this.italic = metrics.italic;
-    } else if (this.value) {
-      //
-      // A regular symbol
-      //
-
-      // Get the metrics information
-      this.height = -Infinity;
-      this.depth = -Infinity;
-      this._width = 0;
-      this.skew = -Infinity;
-      this.italic = -Infinity;
-      // @revisit: when this.value has more than one char it can be for
-      // a string like "cos", but sometimes it can be a multi-code-point grapheme. Maybe need a getStringMetrics()?
-      for (let i = 0; i < this.value.length; i++) {
-        const metrics = getCharacterMetrics(
-          this.value.codePointAt(i),
-          fontName
-        );
-        this.height = Math.max(this.height, metrics.height);
-        this.depth = Math.max(this.depth, metrics.depth);
-        this._width += metrics.width;
-        this.skew = metrics.skew;
-        this.italic = metrics.italic;
-      }
-    } else if (this.children && this.children.length > 0) {
-      //
-      // A sequence of boxes
-      //
-
-      if (this.children.length === 1) {
-        //
-        // A single child: inherit its metrics
-        //
-        const child = this.children[0];
-        this.height = child.height;
-        this.depth = child.depth;
-        this._width = child.width;
-        this.maxFontSize = child.maxFontSize;
-        this.skew = child.skew;
-        this.italic = child.italic;
-      } else {
-        //
-        // More than one child, assume they are being laid out horizontally
-        // (we'll override the height/depth later if that wasn't the case)
-        //
-
-        let height = -Infinity;
-        let depth = -Infinity;
-        let width = 0;
-        let maxFontSize = 0;
-        for (const child of this.children) {
-          if (child.height > height) height = child.height;
-          if (child.depth > depth) depth = child.depth;
-          maxFontSize = Math.max(maxFontSize, child.maxFontSize ?? 0);
-          width += child.width;
-        }
-        this.height = height;
-        this.depth = depth;
-        this._width = width;
-        this.maxFontSize = maxFontSize;
-      }
-    }
-
-    //
-    // If a height/depth override was provided, use it.
-    //
-    if (options?.height !== undefined) this.height = options.height;
-    if (options?.depth !== undefined) this.depth = options.depth;
-    if (options?.width !== undefined) this.width = options.width;
-
     if (options?.maxFontSize !== undefined)
       this.maxFontSize = options.maxFontSize;
+
+    horizontalLayout(this, fontName);
   }
 
   set atomID(id: string | undefined) {
@@ -348,8 +263,18 @@ export class Box implements BoxInterface {
     }
   }
 
+  set bottom(value: number) {
+    if (!Number.isFinite(value)) return;
+    if (value === 0) {
+      if (this.cssProperties) delete this.cssProperties['margin-bottom'];
+    } else {
+      if (!this.cssProperties) this.cssProperties = {};
+      this.cssProperties['margin-bottom'] = toString(value, 'em');
+    }
+  }
+
   get width(): number {
-    return this._width;
+    return this._width * this.scale;
   }
 
   set width(value: number) {
@@ -357,10 +282,34 @@ export class Box implements BoxInterface {
     this.hasExplicitWidth = true;
   }
 
+  set softWidth(_value: number) {
+    // See Limitation of Current Implementation
+    // The width cannot be accurately calculated today because the interbox
+    // spacing is not applied until later. So we can't set the width
+    // accurately. Instead we rely on the CSS to lay out the boxes.
+    // However we are still calculating the width, but setting it with
+    // "softwidth" which means it's ignored. When we fix the limitation,
+    // we can remove this method, and just call width = value.
+  }
+
+  get height(): number {
+    return this._height * this.scale;
+  }
+
+  set height(value: number) {
+    this._height = value;
+  }
+
+  get depth(): number {
+    return this._depth * this.scale;
+  }
+
+  set depth(value: number) {
+    this._depth = value;
+  }
+
   /**
    * Apply the context (color, backgroundColor, size) to the box.
-   * If necessary wrap this box with another one that adjust the font-size
-   * to account for a change in size between the context and its parent.
    */
   wrap(context: Context): Box {
     const parent = context.parent;
@@ -384,14 +333,8 @@ export class Box implements BoxInterface {
       this.setStyle('display', 'inline-block');
     }
 
-    // The scale should only get adjusted once, so it should be 1.0
-    // at this point
-    console.assert(this.scale === 1.0);
     const scale = context.scalingFactor;
     this.scale = scale;
-    this.height *= scale;
-    this.depth *= scale;
-    this._width *= scale;
     this.skew *= scale;
     this.italic *= scale;
     return this;
@@ -420,13 +363,18 @@ export class Box implements BoxInterface {
     else if (this.svgOverlay) {
       svgMarkup = '<span style="';
       svgMarkup += 'display: inline-block;';
-      svgMarkup += `height:${this.height + this.depth}em;`;
-      svgMarkup += `vertical-align:${this.depth}em;`;
+      svgMarkup += `height:${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }em;`;
+      svgMarkup += `vertical-align:${Math.floor(100 * this.depth) / 100}em;`;
       svgMarkup += '">';
       svgMarkup += body;
       svgMarkup += '</span>';
-      svgMarkup += '<svg style="position:absolute;overflow:overlay;';
-      svgMarkup += `height:${this.height + this.depth}em;`;
+      svgMarkup += '<svg style="position:absolute;overflow:visible;';
+
+      svgMarkup += `height:${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }em;`;
       const padding = this.cssProperties?.padding;
       if (padding) {
         svgMarkup += `top:${padding};`;
@@ -436,7 +384,12 @@ export class Box implements BoxInterface {
 
       svgMarkup += 'z-index:2;';
       svgMarkup += '"';
-      if (this.svgStyle) svgMarkup += ` style="${this.svgStyle}"`;
+
+      if (this.svgStyle) svgMarkup += this.svgStyle;
+
+      svgMarkup += ` viewBox="0 0 ${Math.floor(100 * this.width) / 100} ${
+        Math.floor(100 * (this.height + this.depth)) / 100
+      }"`;
 
       svgMarkup += `>${this.svgOverlay}</svg>`;
     }
@@ -453,7 +406,7 @@ export class Box implements BoxInterface {
 
     classes.push(
       {
-        latex: 'ML__latex',
+        latex: 'ML__raw-latex',
         placeholder: 'ML__placeholder',
         error: 'ML__error',
       }[this.type] ?? ''
@@ -511,8 +464,10 @@ export class Box implements BoxInterface {
     const cssProps: Partial<Record<BoxCSSProperties, string>> =
       this.cssProperties ?? {};
     if (this.hasExplicitWidth) {
-      console.assert(cssProps.width === undefined);
-      cssProps.width = `${Math.round(this._width * 100) / 100}em`;
+      // console.assert(cssProps.width === undefined);
+      if (cssProps.width === undefined)
+        cssProps.width = `${Math.ceil(this._width * 100) / 100}em`;
+      // cssProps['height'] = `${Math.round(this.height * 100) / 100}em`;
     }
     const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
 
@@ -521,8 +476,7 @@ export class Box implements BoxInterface {
       this.scale !== 1.0 &&
       (body.length > 0 || svgMarkup.length > 0)
     )
-      styles.push(`font-size: ${Math.round(this.scale * 10000) / 100}%`);
-    // styles.push(`font-size: ${Math.round(this.scale * 10000) / 10000}em`);
+      styles.push(`font-size: ${Math.ceil(this.scale * 10000) / 100}%`);
 
     if (this.htmlStyle) {
       const entries = this.htmlStyle.split(';');
@@ -716,28 +670,69 @@ export function makeStruts(
 }
 
 /**
- * Add some SVG markup to be overlaid on top of the box
- */
-export function addSVGOverlay(
-  body: Box,
-  svgMarkup: string,
-  svgStyle: string
-): Box {
-  body.svgOverlay = svgMarkup;
-  body.svgStyle = svgStyle;
-  return body;
-}
-
-/**
  * Create a box that consist of a (stretchy) SVG element
  */
 export function makeSVGBox(svgBodyName: string): Box {
   const height = svgBodyHeight(svgBodyName) / 2;
-  const box = new Box(null, {
-    height: height + 0.166,
-    depth: height - 0.166,
-    maxFontSize: 0,
-  });
+  const box = new Box(null, { maxFontSize: 0 });
+  box.height = height + 0.166;
+  box.depth = height - 0.166; // @todo ??? that doesn't seem right
   box.svgBody = svgBodyName;
   return box;
+}
+
+function horizontalLayout(box: Box, fontName: FontName): void {
+  //
+  // Fixed width (and height) characters from "latex mode"
+  //
+  if (box.type === 'latex') {
+    box.height = 0.9;
+    box.depth = 0.2;
+    box._width = 1.0;
+
+    return;
+  }
+
+  //
+  // A regular symbol
+  //
+  if (box.value) {
+    // Get the metrics information
+    box.height = -Infinity;
+    box.depth = -Infinity;
+    box._width = 0;
+    box.skew = -Infinity;
+    box.italic = -Infinity;
+    // @revisit: when this.value has more than one char it can be for
+    // a string like "cos", but sometimes it can be a multi-code-point grapheme. Maybe need a getStringMetrics()?
+    for (let i = 0; i < box.value.length; i++) {
+      const metrics = getCharacterMetrics(box.value.codePointAt(i), fontName);
+      box.height = Math.max(box.height, metrics.height);
+      box.depth = Math.max(box.depth, metrics.depth);
+      box._width += metrics.width;
+      box.skew = metrics.skew;
+      box.italic = metrics.italic;
+    }
+
+    return;
+  }
+
+  //
+  // A sequence of boxes
+  //
+  if (box.children && box.children.length > 0) {
+    let height = -Infinity;
+    let depth = -Infinity;
+    let maxFontSize = 0;
+    for (const child of box.children) {
+      if (child.height > height) height = child.height;
+      if (child.depth > depth) depth = child.depth;
+      maxFontSize = Math.max(maxFontSize, child.maxFontSize ?? 0);
+    }
+    box.height = height;
+    box.depth = depth;
+    box._width = box.children!.reduce((acc, x) => acc + x.width, 0);
+
+    box.maxFontSize = maxFontSize;
+  }
 }

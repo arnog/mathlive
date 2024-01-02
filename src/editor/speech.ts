@@ -2,12 +2,12 @@ import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
-import { atomToSpeakableText } from './atom-to-speakable-text';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { register as registerCommand } from './commands';
 import { render } from '../editor-mathfield/render';
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 import { globalMathLive } from '../mathlive';
 
 declare global {
@@ -31,7 +31,7 @@ export function speakableText(prefix: string, atoms: Atom | Atom[]): string {
 registerCommand(
   {
     speak: (
-      mathfield: MathfieldPrivate,
+      mathfield: _Mathfield,
       scope: SpeechScope,
       options: { withHighlighting: boolean }
     ): boolean => {
@@ -42,7 +42,7 @@ registerCommand(
 );
 
 function speak(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   scope: SpeechScope,
   speakOptions: { withHighlighting: boolean }
 ): boolean {
@@ -122,30 +122,25 @@ function speak(
     return result;
   }
 
+  const mfe = globalThis.MathfieldElement;
+
   const atoms = getAtoms(scope);
   if (atoms === null) {
-    window.MathfieldElement.speakHook?.(getFailedSpeech(scope));
+    mfe.speakHook?.(getFailedSpeech(scope));
     return false;
   }
 
-  if (
-    speakOptions.withHighlighting ||
-    window.MathfieldElement.speechEngine === 'amazon'
-  ) {
-    window.MathfieldElement.textToSpeechMarkup =
-      window.sre && window.MathfieldElement.textToSpeechRules === 'sre'
-        ? 'ssml_step'
-        : 'ssml';
+  if (speakOptions.withHighlighting || mfe.speechEngine === 'amazon') {
+    mfe.textToSpeechMarkup =
+      globalThis.sre && mfe.textToSpeechRules === 'sre' ? 'ssml_step' : 'ssml';
   }
 
   const text = atomToSpeakableText(atoms);
   if (isBrowser() && speakOptions.withHighlighting) {
-    globalMathLive().readAloudMathField = mathfield;
+    globalMathLive().readAloudMathfield = mathfield;
     render(mathfield, { forHighlighting: true });
-    if (window.MathfieldElement.readAloudHook)
-      window.MathfieldElement.readAloudHook(mathfield.field!, text);
-  } else if (window.MathfieldElement.speakHook)
-    window.MathfieldElement.speakHook(text);
+    if (mfe.readAloudHook) mfe.readAloudHook(mathfield.field!, text);
+  } else if (mfe.speakHook) mfe.speakHook(text);
 
   return false;
 }
@@ -156,24 +151,23 @@ export function defaultSpeakHook(text: string): void {
     return;
   }
 
-  if (
-    !window.MathfieldElement.speechEngine ||
-    window.MathfieldElement.speechEngine === 'local'
-  ) {
+  const mfe = globalThis.MathfieldElement;
+
+  if (!mfe.speechEngine || mfe.speechEngine === 'local') {
     // On ChromeOS: chrome.accessibilityFeatures.spokenFeedback
     // See also https://developer.chrome.com/apps/tts
     const utterance = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utterance);
-  } else if (window.MathfieldElement.speechEngine === 'amazon') {
+    globalThis.speechSynthesis.speak(utterance);
+  } else if (mfe.speechEngine === 'amazon') {
     if (!('AWS' in window)) {
       console.error(
         `MathLive {{SDK_VERSION}}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
       );
     } else {
-      const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+      const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
       const parameters = {
         OutputFormat: 'mp3',
-        VoiceId: window.MathfieldElement.speechEngineVoice ?? 'Joanna',
+        VoiceId: mfe.speechEngineVoice ?? 'Joanna',
         Engine: [
           'Amy',
           'Emma',
@@ -186,7 +180,7 @@ export function defaultSpeakHook(text: string): void {
           'Joey',
           'Justin',
           'Matthew',
-        ].includes(window.MathfieldElement.speechEngineVoice ?? 'Joanna')
+        ].includes(mfe.speechEngineVoice ?? 'Joanna')
           ? 'neural'
           : 'standard',
         // SampleRate: '24000',
@@ -213,7 +207,7 @@ export function defaultSpeakHook(text: string): void {
 
       // Can call AWS.Request() on the result of synthesizeSpeech()
     }
-  } else if (window.MathfieldElement.speechEngine === 'google') {
+  } else if (mfe.speechEngine === 'google') {
     console.error(
       `MathLive {{SDK_VERSION}}: The Google speech engine is not supported yet. Please come again.`
     );

@@ -1,7 +1,7 @@
 import { Atom } from '../core/atom-class';
 import type { Range } from '../public/mathfield';
 import { OriginValidator } from '../public/options';
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 
 export type Rect = {
   top: number;
@@ -10,44 +10,6 @@ export type Rect = {
   right: number;
 };
 
-export function on(
-  element: EventTarget,
-  inSelectors: string,
-  listener: EventListenerOrEventListenerObject,
-  options?: AddEventListenerOptions
-): void {
-  const selectors = inSelectors.split(' ');
-  for (const sel of selectors) {
-    const m = sel.match(/(.*):(.*)/);
-    if (m) {
-      const options2 = options ?? {};
-      if (m[2] === 'active') options2.passive = false;
-      else options2[m[2]] = true;
-
-      element.addEventListener(m[1], listener, options2);
-    } else element.addEventListener(sel, listener, options);
-  }
-}
-
-export function off(
-  element: EventTarget,
-  inSelectors: string,
-  listener: EventListenerOrEventListenerObject,
-  options?: AddEventListenerOptions
-): void {
-  const selectors = inSelectors.split(' ');
-  for (const sel of selectors) {
-    const m = sel.match(/(.*):(.*)/);
-    if (m) {
-      const options2 = options ?? {};
-      if (m[2] === 'active') options2.passive = false;
-      else options2[m[2]] = true;
-
-      element.removeEventListener(m[1], listener, options2);
-    } else element.removeEventListener(sel, listener, options);
-  }
-}
-
 /**
  * Checks if the argument is a valid Mathfield.
  * After a Mathfield has been destroyed (for example by calling `dispose()`
@@ -55,7 +17,7 @@ export function off(
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
  */
-export function isValidMathfield(mf: MathfieldPrivate): boolean {
+export function isValidMathfield(mf: _Mathfield): boolean {
   return mf.element?.mathfield === mf;
 }
 
@@ -71,7 +33,7 @@ function findElementWithCaret(element: Element): Element | null {
 }
 
 /**
- * Return the (x,y) client coordinates of the caret
+ * Return the (x,y) client coordinates of the caret in viewport coordinates
  */
 export function getCaretPoint(
   element: Element
@@ -97,7 +59,7 @@ function branchId(atom: Atom): string {
 }
 
 export function adjustForScrolling(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   rect: Rect | null,
   scaleFactor: number
 ): Rect | null {
@@ -142,16 +104,11 @@ function getNodeBounds(node: Element): Rect {
   return result;
 }
 
-export function getAtomBounds(
-  mathfield: MathfieldPrivate,
-  atom: Atom
-): Rect | null {
+export function getAtomBounds(mathfield: _Mathfield, atom: Atom): Rect | null {
   if (!atom.id) return null;
   let result: Rect | null = mathfield.atomBoundsCache?.get(atom.id) ?? null;
   if (result !== null) return result;
-  const node = mathfield.fieldContent!.querySelector(
-    `[data-atom-id="${atom.id}"]`
-  );
+  const node = mathfield.field.querySelector(`[data-atom-id="${atom.id}"]`);
   result = node ? getNodeBounds(node) : null;
   if (mathfield.atomBoundsCache) {
     if (result) mathfield.atomBoundsCache.set(atom.id, result);
@@ -165,7 +122,7 @@ export function getAtomBounds(
  * one rect per branch.
  */
 function getRangeBounds(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   range: Range,
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
@@ -178,15 +135,19 @@ function getRangeBounds(
     if (options?.excludeAtomsWithBackground && atom.style.backgroundColor)
       continue;
 
-    // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
+    // Logic to accommodate mathfield hosted in an isotropically
+    // scale-transformed element.
     // Without this, the selection indicator will not be in the right place.
+
     // 1. Inquire how big the mathfield thinks it is
     const field = mathfield.field;
-    const supposedWidth = parseFloat(getComputedStyle(field).width);
+    const offsetWidth = field.offsetWidth;
+
     // 2. Get the actual screen width of the box
-    const actualWidth = field.getBoundingClientRect().width;
+    const actualWidth = Math.floor(field.getBoundingClientRect().width);
+
     // 3. Divide the two to get the scale factor
-    let scaleFactor = actualWidth / supposedWidth;
+    let scaleFactor = actualWidth / offsetWidth;
     scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
 
     const bounds = adjustForScrolling(
@@ -212,7 +173,7 @@ function getRangeBounds(
 }
 
 export function getSelectionBounds(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
   return mathfield.model.selection.ranges.reduce(

@@ -1,14 +1,14 @@
-import { LatexAtom } from '../core-atoms/latex';
-import { suggest } from '../core-definitions/definitions-utils';
+import { LatexAtom } from '../atoms/latex';
+import { suggest } from '../latex-commands/definitions-utils';
 
-import type { ModelPrivate } from '../editor-model/model-private';
+import type { _Model } from '../editor-model/model-private';
 
 import {
   hideSuggestionPopover,
   showSuggestionPopover,
 } from '../editor/suggestion-popover';
 
-import type { MathfieldPrivate } from './mathfield-private';
+import type { _Mathfield } from './mathfield-private';
 import { render } from './render';
 import {
   getLatexGroupBody,
@@ -18,7 +18,7 @@ import {
 import { ModeEditor } from './mode-editor';
 import { ParseMode } from '../public/core-types';
 
-export function removeSuggestion(mathfield: MathfieldPrivate): void {
+export function removeSuggestion(mathfield: _Mathfield): void {
   const group = getLatexGroupBody(mathfield.model).filter(
     (x) => x.isSuggestion
   );
@@ -28,7 +28,7 @@ export function removeSuggestion(mathfield: MathfieldPrivate): void {
 }
 
 export function updateAutocomplete(
-  mathfield: MathfieldPrivate,
+  mathfield: _Mathfield,
   options?: { atIndex?: number }
 ): void {
   const { model } = mathfield;
@@ -100,7 +100,7 @@ export function updateAutocomplete(
   showSuggestionPopover(mathfield, suggestions);
 }
 
-export function acceptCommandSuggestion(model: ModelPrivate): boolean {
+export function acceptCommandSuggestion(model: _Model): boolean {
   const [from, to] = getCommandSuggestionRange(model, {
     before: model.position,
   });
@@ -120,25 +120,30 @@ export function acceptCommandSuggestion(model: ModelPrivate): boolean {
  *
  */
 export function complete(
-  mathfield: MathfieldPrivate,
-  completion: 'reject' | 'accept' | 'accept-suggestion' = 'accept',
+  mathfield: _Mathfield,
+  completion:
+    | 'reject'
+    | 'accept'
+    | 'accept-suggestion'
+    | 'accept-all' = 'accept',
   options?: { mode?: ParseMode; selectItem?: boolean }
 ): boolean {
   hideSuggestionPopover(mathfield);
   const latexGroup = getLatexGroup(mathfield.model);
   if (!latexGroup) return false;
 
-  if (completion === 'accept-suggestion') {
+  if (completion === 'accept-suggestion' || completion === 'accept-all') {
     const suggestions = getLatexGroupBody(mathfield.model).filter(
       (x) => x.isSuggestion
     );
-    if (suggestions.length === 0) return false;
-    for (const suggestion of suggestions) suggestion.isSuggestion = false;
+    if (suggestions.length !== 0) {
+      for (const suggestion of suggestions) suggestion.isSuggestion = false;
 
-    mathfield.model.position = mathfield.model.offsetOf(
-      suggestions[suggestions.length - 1]
-    );
-    return true;
+      mathfield.model.position = mathfield.model.offsetOf(
+        suggestions[suggestions.length - 1]
+      );
+    }
+    if (completion === 'accept-suggestion') return suggestions.length !== 0;
   }
 
   const body = getLatexGroupBody(mathfield.model).filter(
@@ -150,7 +155,7 @@ export function complete(
   const newPos = latexGroup.leftSibling;
   latexGroup.parent!.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
-  mathfield.model.mode = options?.mode ?? 'math';
+  mathfield.switchMode(options?.mode ?? 'math');
 
   if (completion === 'reject') return true;
 
@@ -162,5 +167,6 @@ export function complete(
 
   mathfield.snapshot();
   mathfield.model.announce('replacement');
+  mathfield.switchMode('math');
   return true;
 }

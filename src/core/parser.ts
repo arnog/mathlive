@@ -1,22 +1,20 @@
-import { Atom, BBoxParameter } from './atom-class';
+import { Atom } from './atom-class';
 
 import {
-  Argument,
-  FunctionDefinition,
   argAtoms,
   getDefinition,
   getEnvironmentDefinition,
-} from '../core-definitions/definitions-utils';
-import type { ColumnFormat } from '../core-atoms/array';
+} from '../latex-commands/definitions-utils';
+import type { ColumnFormat } from '../atoms/array';
 
-import { ErrorAtom } from '../core-atoms/error';
-import { GroupAtom } from '../core-atoms/group';
-import { LeftRightAtom } from '../core-atoms/leftright';
-import { MacroAtom } from '../core-atoms/macro';
-import { PromptAtom } from '../core-atoms/prompt';
-import { PlaceholderAtom } from '../core-atoms/placeholder';
-import { SubsupAtom } from '../core-atoms/subsup';
-import { TextAtom } from '../core-atoms/text';
+import { ErrorAtom } from '../atoms/error';
+import { GroupAtom } from '../atoms/group';
+import { LeftRightAtom } from '../atoms/leftright';
+import { MacroAtom } from '../atoms/macro';
+import { PromptAtom } from '../atoms/prompt';
+import { PlaceholderAtom } from '../atoms/placeholder';
+import { SubsupAtom } from '../atoms/subsup';
+import { TextAtom } from '../atoms/text';
 
 import { Mode } from './modes-utils';
 import { joinLatex, tokenize, tokensToString } from './tokenizer';
@@ -33,16 +31,22 @@ import type {
   LatexValue,
   DimensionUnit,
 } from '../public/core-types';
-import type { ContextInterface, PrivateStyle } from '../core/types';
+import type {
+  BBoxParameter,
+  ContextInterface,
+  PrivateStyle,
+} from '../core/types';
 import { Context } from './context';
+import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 
 //
 // - Literal (character token): a letter, digit or punctuation
 // - Token: a space `<space>`, a literal, name, group or mode shift
 // - Name (control sequence): a token with an initial `\` followed by
 //      one or more letters /[a-zA-Z]+\*?/ or followed by a single
-//      non-letter (the `operatorname*` and `hspace*` names end with
-//      a `*`) or the `~` token, e.g. `\frac`, `\alpha`, `\!`
+//      non-letter (the name of some commands such as `operatorname*`
+//      and `hspace*` names end with a `*`) or the `~` token, e.g.
+//      `\frac`, `\alpha`, `\!`
 // - Symbol: a name which is not a command, with no arguments,
 //      e.g. `\pi`
 // - Group: a sequence of tokens that start with `<{>` and end
@@ -926,7 +930,7 @@ export class Parser {
     // To handle infix commands, we'll keep track of their prefix
     // (tokens coming before them) and their arguments
     let infix: Token = '';
-    let infixInfo: FunctionDefinition<[Atom[], Atom[]]> | null = null;
+    let infixInfo: LatexCommandDefinition<[Atom[], Atom[]]> | null = null;
     let infixArgs: Atom[][] = [];
     let prefix: Atom[] | null = null;
     while (!this.end() && !done(this.peek()!)) {
@@ -938,7 +942,7 @@ export class Parser {
         // it had when we encountered the infix. However, since all infix are
         // only defined in 'math' mode, we can use the 'math' constant
         // for the parseMode
-        infixInfo = getDefinition(infix, 'math') as FunctionDefinition<
+        infixInfo = getDefinition(infix, 'math') as LatexCommandDefinition<
           [Atom[], Atom[]]
         >;
         if (infixInfo) infixArgs = this.scanArguments(infixInfo)[1] as [Atom[]];
@@ -1004,7 +1008,6 @@ export class Parser {
       if (nestLevel !== 0) this.parseExpression();
     }
 
-    if (nestLevel === 0) this.match(')');
     const result = new LeftRightAtom('', this.mathlist, {
       leftDelim: '(',
       rightDelim: nestLevel === 0 ? ')' : '?',
@@ -1205,7 +1208,7 @@ export class Parser {
     const opAtom =
       this.mathlist.length > 0 ? this.mathlist[this.mathlist.length - 1] : null;
 
-    if (opAtom === null || opAtom.type !== 'mop') return false;
+    if (opAtom === null) return false;
 
     // Record that the limits was set through an explicit command
     // so we can generate the appropriate LaTeX later
@@ -1219,7 +1222,7 @@ export class Parser {
   }
 
   scanArguments(
-    info: Partial<FunctionDefinition>
+    info: Partial<LatexCommandDefinition>
   ): [ParseMode | undefined, (null | Argument)[]] {
     if (!info?.params) return [undefined, []];
     let deferredArg: ParseMode | undefined = undefined;
@@ -1231,9 +1234,15 @@ export class Parser {
       if (parameter.type === 'rest') {
         args.push(
           this.scan((token) =>
-            ['<}>', '&', '\\end', '\\cr', '\\\\', '\\tabularnewline'].includes(
-              token
-            )
+            [
+              '<}>',
+              '&',
+              '\\end',
+              '\\cr',
+              '\\\\',
+              '\\tabularnewline',
+              '\\right',
+            ].includes(token)
           )
         );
       } else if (parameter.isOptional)
@@ -1499,40 +1508,46 @@ export class Parser {
       else body = defaultAtoms;
       if (id) {
         return [
-          new PromptAtom(
-            id,
-            correctness,
-            // locked,
-            locked,
-            body ?? defaultAtoms,
-            {
-              mode: this.parseMode,
-              style: this.style,
-            }
-          ),
+          new PromptAtom(id, correctness, locked, body ?? defaultAtoms, {
+            mode: this.parseMode,
+            style: this.style,
+          }),
         ];
       }
       return [new PlaceholderAtom({ mode: this.parseMode, style: this.style })];
     }
 
-    // if (command === '\\char') {
-    //   const initialIndex = this.index;
-    //   let codepoint = this.scanNumber(true)?.number ?? NaN;
-    //   if (!Number.isFinite(codepoint) || codepoint < 0 || codepoint > 0x10ffff)
-    //     codepoint = 0x2753; // BLACK QUESTION MARK
+    if (
+      command === '\\renewcommand' ||
+      command === '\\newcommand' ||
+      command === '\\providecommand' ||
+      command === '\\def'
+    ) {
+      // \\renewcommand: error if command is not already defined
+      // \\newcommand: error if command is already defined
+      // \\providecommand: define command only if it is not already defined
+      // \\def: define command, silently overwriting any existing definition
+      const index = this.index;
+      // Get the command name
+      const cmd = this.scanLiteralGroup() || this.next();
+      if (!cmd) return null;
 
-    //   return [
-    //     new Atom({
-    //       type: this.parseMode === 'math' ? 'mord' : 'text',
-    //       command: '\\char',
-    //       mode: this.parseMode,
-    //       value: String.fromCodePoint(codepoint),
-    //       verbatimLatex:
-    //         '\\char' +
-    //         tokensToString(this.tokens.slice(initialIndex, this.index)),
-    //     }),
-    //   ];
-    // }
+      // Define (or redefine) a command (or register)
+      if (this.context.registers[cmd.substring(1)]) {
+        const value = this.scanArgument('string');
+        if (value !== null) this.context.registers[cmd.substring(1)] = value;
+
+        const verbatimLatex = joinLatex([
+          command,
+          tokensToString(this.tokens.slice(index, this.index)),
+        ]);
+
+        return [new Atom({ type: 'text', value: '', verbatimLatex })];
+      }
+
+      // Could be a macro definition... @todo
+      // \newcommand{\cmd}[nargs][optargdefault]{defn}
+    }
 
     // Is this a macro?
     let result = this.scanMacro(command);
@@ -1543,8 +1558,13 @@ export class Parser {
 
     // An unknown command, or a command not available in this mode
     if (!info) {
-      this.onError({ code: 'unknown-command', arg: command });
       if (this.parseMode === 'text') {
+        if (/[a-zA-Z]/.test(this.peek() ?? '')) {
+          // The following character is a letter: insert a space
+          // i.e. `\alpha x` -> `\alpha~x`
+          // (the spaces are removed by the tokenizer)
+          command += ' ';
+        }
         return [...command].map(
           (c) =>
             new Atom({
@@ -1555,6 +1575,8 @@ export class Parser {
             })
         );
       }
+
+      this.onError({ code: 'unknown-command', arg: command });
       return [new ErrorAtom(command)];
     }
 
@@ -1595,9 +1617,12 @@ export class Parser {
       const savedMode = this.parseMode;
       if (info.applyMode) this.parseMode = info.applyMode;
 
-      const [deferredArg, args] = this.scanArguments(info);
-      this.parseMode = savedMode;
+      let deferredArg: ParseMode | undefined = undefined;
+      let args: (null | Argument)[] = [];
+      if (info.parse) args = info.parse(this);
+      else [deferredArg, args] = this.scanArguments(info);
 
+      this.parseMode = savedMode;
       if (info.applyMode && !info.applyStyle && !info.createAtom)
         return argAtoms(args[0]);
 
@@ -1736,10 +1761,21 @@ export class Parser {
 
     // Carry forward the placeholder argument, if any.
     const args: Record<string, string | undefined> = { '?': this.args?.('?') };
+
     // Parse each argument group as a string. We don't know yet
     // what the proper parse mode is, so defer parsing till later
     // when invoking `parseLatex`
-    for (let i = 1; i <= argCount; i++) args[i] = this.scanLiteralGroup();
+    for (let i = 1; i <= argCount; i++) {
+      let arg = this.scanLiteralGroup();
+      if (!arg) {
+        // If the argument wasn't a group ({}), it may have
+        // been a single token or expression, e.g. \frac12
+        const index = this.index;
+        this.scanExpression();
+        arg = tokensToString(this.tokens.slice(index, this.index));
+      }
+      args[i] = arg;
+    }
 
     // Group the result of the macro expansion
     return new MacroAtom(macro, {

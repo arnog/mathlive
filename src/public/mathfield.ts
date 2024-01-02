@@ -1,5 +1,5 @@
+import type { Selector } from './commands';
 import type { ParseMode, Style } from './core-types';
-import { Selector } from './commands';
 
 /**
  *
@@ -9,6 +9,7 @@ import { Selector } from './commands';
 | `"latex"`             | LaTeX rendering of the content, with LaTeX macros not expanded. |
 | `"latex-expanded"`    | All macros are recursively expanded to their definition. |
 | `"latex-unstyled"`    | Styling (background color, color) is ignored |
+| `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
 | `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
@@ -21,13 +22,13 @@ import { Selector } from './commands';
 import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
    *
-
-*/
+   */
 export type OutputFormat =
   | 'ascii-math'
   | 'latex'
   | 'latex-expanded'
   | 'latex-unstyled'
+  | 'latex-without-placeholders'
   | 'math-json'
   | 'math-ml'
   | 'spoken'
@@ -66,7 +67,6 @@ export type InsertOptions = {
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
   silenceNotifications?: boolean;
-  style?: Style;
   /** If `true`, the mathfield will be focused after
    * the insertion
    */
@@ -78,11 +78,8 @@ export type InsertOptions = {
    * insertion point is visible
    */
   scrollIntoView?: boolean;
-  /** If `true`, the style after the insertion
-   * is the same as the style before. If false, the style after the
-   * insertion is the style of the last inserted atom.
-   */
-  resetStyle?: boolean;
+
+  style?: Style;
 };
 
 export type ApplyStyleOptions = {
@@ -139,6 +136,7 @@ export type Selection = {
   direction?: 'forward' | 'backward' | 'none';
 };
 
+/** @internal */
 export interface Mathfield {
   /**
    * Execute a [[`Commands`|command]] defined by a selector.
@@ -173,7 +171,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    *
    * **Default:** `"latex"`
    *
-   * @category Accessing the Content
    */
   getValue(format?: OutputFormat): string;
   /** Return the value of the mathfield from `start` to `end` */
@@ -193,7 +190,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Set the content of the mathfield to the text interpreted as a
    * LaTeX expression.
    *
-   * @category Accessing the Content
    */
   setValue(latex?: string, options?: InsertOptions): void;
 
@@ -206,7 +202,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * After the insertion, the selection will be set according to the
    * `options.selectionMode`.
    *
-   * @category Changing the Content
    */
 
   insert(s: string, options?: InsertOptions): boolean;
@@ -215,18 +210,10 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * Return true if the mathfield is currently focused (responds to keyboard
    * input).
    *
-   * @category Focus
-   *
    */
   hasFocus(): boolean;
 
-  /**
-   * @category Focus
-   */
   focus?(): void;
-  /**
-   * @category Focus
-   */
   blur?(): void;
 
   /**
@@ -257,7 +244,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * coordinates.
    *
    * See also [[`setCaretPoint`]]
-   * @category Selection
    */
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;
@@ -274,6 +260,7 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   }): string[];
 }
 
+/** @internal */
 export interface Model {
   readonly mathfield: Mathfield;
 }

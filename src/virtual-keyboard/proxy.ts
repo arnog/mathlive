@@ -13,6 +13,8 @@ import type {
   VirtualKeyboardInterface,
   MathfieldProxy,
   VirtualKeyboardMessageAction,
+  VirtualKeyboardLayoutCore,
+  NormalizedVirtualKeyboardLayer,
 } from '../public/virtual-keyboard';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
@@ -61,6 +63,11 @@ export class VirtualKeyboardProxy
   }
   set layouts(value: (VirtualKeyboardName | VirtualKeyboardLayout)[]) {
     this.sendMessage('update-setting', { layouts: value });
+  }
+  get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
+    layers: NormalizedVirtualKeyboardLayer[];
+  })[] {
+    return [];
   }
   set editToolbar(value: EditToolbarOptions) {
     this.sendMessage('update-setting', { editToolbar: value });
@@ -178,14 +185,12 @@ export class VirtualKeyboardProxy
     }
 
     if (action === 'synchronize-proxy') {
-      console.log('synchronize-proxy', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       this._isShifted = msg.isShifted;
       return;
     }
 
     if (action === 'geometry-changed') {
-      console.log('geometry-change', window, msg.boundingRect);
       this._boundingRect = msg.boundingRect;
       this.dispatchEvent(new Event('geometrychange'));
       return;

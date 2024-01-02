@@ -3,7 +3,7 @@
 import {
   LATEX_COMMANDS,
   MATH_SYMBOLS,
-} from '../core-definitions/definitions-utils';
+} from '../latex-commands/definitions-utils';
 
 // Frequency of a symbol.
 // String constants corresponding to frequency values,
@@ -77,6 +77,7 @@ metadata(
     '\\csc',
     '\\ctg',
     '\\cth',
+    '\\deg',
     '\\lg',
     '\\lb',
     '\\sec',
@@ -433,9 +434,9 @@ metadata(
     '\\imaginaryI',
     '\\imaginaryJ',
     '\\differentialD',
-    '\\rd',
     '\\capitalDifferentialD',
-    '\\rD',
+    '\\rd', // Proof Wiki
+    '\\rD', // Proof Wiki
     '\\differencedelta',
     '\\mid',
     '@',
@@ -1034,7 +1035,7 @@ metadata(
 );
 metadata(
   'Spacing',
-  ['\\!', '\\,', '\\:', '\\;', '\\enskip', '\\enspace'],
+  ['\\!', '\\,', '\\:', '\\;', '\\>', '\\enskip', '\\enspace'],
   RARE,
   '\\char"203A$0\\char"2039'
 );

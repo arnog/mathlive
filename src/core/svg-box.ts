@@ -4,7 +4,7 @@ const SVG_BODY: Record<
     name: string[],
     minWidth: number,
     viewBoxHeight: number,
-    align?: 'xMaxYMin' | 'xMinYMin'
+    align?: 'xMaxYMin' | 'xMinYMin',
   ]
 > = {
   // Adapted from https://github.com/KaTeX/KaTeX/blob/master/src/stretchy.js
@@ -455,7 +455,7 @@ export function svgBodyToMarkup(svgBodyName: string): string {
       `<path fill="currentcolor" d="${PATHS[svgBodyName]}"></path>` +
       `</svg></span>`;
     return `<span style="display:inline-block;height:${
-      height / 2
+      Math.floor((100 * height) / 2) / 100
     }em;min-width:0">${result}</span>`;
   }
 

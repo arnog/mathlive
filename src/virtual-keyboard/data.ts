@@ -1,6 +1,11 @@
-import type { VirtualKeyboardLayout } from '../public/virtual-keyboard';
+import type {
+  VirtualKeyboardLayout,
+  VirtualKeyboardName,
+} from '../public/virtual-keyboard';
 
-export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
+export const LAYOUTS: Partial<
+  Record<VirtualKeyboardName, VirtualKeyboardLayout>
+> = {
   'numeric': {
     label: '123',
     labelClass: 'MLK__tex-math',
@@ -15,14 +20,14 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
             'z',
             't',
             'r',
-            { latex: 'f(#?)', class: 'small' },
-            { latex: 'g(#?)', class: 'small' },
             'x^2',
             'x^n',
+            'x^{#?}',
             'x_n',
-            'x_{n+1}',
             'x_i',
-            'x_{i+1}',
+            'x_{#?}',
+            { latex: 'f(#?)', class: 'small' },
+            { latex: 'g(#?)', class: 'small' },
           ],
         },
         { latex: 'n', shift: 'a', variants: ['i', 'j', 'p', 'k', 'a', 'u'] },
@@ -33,7 +38,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
         '[/]',
         '[separator-5]',
         {
-          latex: 'e',
+          latex: '\\exponentialE',
           shift: '\\ln',
           variants: ['\\exp', '\\times 10^{#?}', '\\ln', '\\log_{10}', '\\log'],
         },
@@ -100,21 +105,19 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
         '[-]',
         '[separator-5]',
         {
-          latex: '\\int^{\\infty}_{0}',
+          latex: '\\int^{\\infty}_{0}\\!#?\\,\\mathrm{d}x',
           class: 'small hide-shift',
           shift: '\\int',
           variants: [
             { latex: '\\int_{#?}^{#?}', class: 'small' },
             { latex: '\\int', class: 'small' },
-            { latex: '\\smallint', class: 'small' },
             { latex: '\\iint', class: 'small' },
             { latex: '\\iiint', class: 'small' },
             { latex: '\\oint', class: 'small' },
-            { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
+            '\\mathrm{d}x',
+            { latex: '\\dfrac{\\mathrm{d}}{\\mathrm{d} x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
-            '\\capitalDifferentialD',
-            '\\rd',
             '\\partial',
           ],
         },
@@ -240,7 +243,7 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
           shift: '\\Delta',
         },
         {
-          label: '<i>&phi;</i>',
+          latex: '\\phi',
           class: 'MLK__tex hide-shift',
           insert: '\\phi',
           aside: 'phi',
@@ -432,7 +435,15 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
             '\\grave{#@}',
           ],
         },
-        '\\lim_{#?}',
+        {
+          class: 'small',
+          latex: '\\lim_{#?}',
+          shift: '\\lim_{x\\to\\infty}',
+          variants: [
+            { class: 'small', latex: '\\liminf_{#?}' },
+            { class: 'small', latex: '\\limsup_{#?}' },
+          ],
+        },
         '\\exponentialE',
       ],
       [
@@ -591,15 +602,14 @@ export const LAYOUTS: Record<string, VirtualKeyboardLayout> = {
           variants: ['#@^{\\doubleprime}', '#@\\degree'],
         },
         {
-          latex: '\\rd',
+          latex: '\\mathrm{d}',
           shift: '\\partial',
 
           variants: [
-            { latex: '\\dfrac{\\rd}{\\rd x}', class: 'small' },
+            '\\mathrm{d}x',
+            { latex: '\\dfrac{\\mathrm{d}}{\\mathrm{d} x}', class: 'small' },
             { latex: '\\frac{\\partial}{\\partial x}', class: 'small' },
 
-            '\\capitalDifferentialD',
-            '\\rd',
             '\\partial',
           ],
         },

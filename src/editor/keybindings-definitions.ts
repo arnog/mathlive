@@ -228,7 +228,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
 
   // Accessibility
   { key: 'shift+alt+k', command: 'toggleKeystrokeCaption' },
-  { key: 'alt+[Space]', command: 'toggleVirtualKeyboard' as Selector },
+  { key: 'alt+[Space]', command: 'toggleContextMenu' },
+  { key: 'alt+shift+[Space]', command: 'toggleVirtualKeyboard' as Selector },
 
   // Note: On Mac OS (as of 10.12), there is a bug/behavior that causes
   // a beep to be generated with certain command+control key combinations.
@@ -285,7 +286,13 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     key: 'alt+/',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
-    command: ['insert', '\\/'],
+    command: ['insert', '/'],
+  },
+  {
+    key: 'alt+shift+/',
+    ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
+    ifMode: 'math',
+    command: ['insert', '/'],
   },
   {
     key: 'alt+[BracketLeft]',
@@ -414,6 +421,18 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifLayout: ['windows.french', 'linux.french'],
     ifMode: 'math',
     command: ['insert', '^2'],
+  },
+  {
+    key: '[Backquote]',
+    ifLayout: ['windows.german', 'linux.german'],
+    ifMode: 'math',
+    command: ['insert', '^'],
+  },
+  {
+    key: '[IntlBackslash]',
+    ifLayout: ['apple.german'],
+    ifMode: 'math',
+    command: ['insert', '^'],
   },
 ];
 

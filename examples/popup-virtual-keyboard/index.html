@@ -48,7 +48,7 @@
         --keyboard-background: transparent;
       }
 
-      div#keyboard-container .ML__keyboard {
+      div#keyboard-container {
         --keyboard-padding-horizontal: 10px;
         --keyboard-padding-bottom: 10px;
       }
@@ -73,13 +73,15 @@
     <main class="centered" tabindex="0">
       <div id="keyboard-container"></div>
 
-      <math-field id="mf" use-shared-virtual-keyboard>a+b</math-field>
+      <math-field id="mf">a+b</math-field>
 
-      <math-field id="mf2" use-shared-virtual-keyboard>2+3</math-field>
+      <math-field id="mf2">2+3</math-field>
     </main>
 
     <script type="module">
       import '/dist/mathlive.mjs';
+      // To use the CDN version instead:
+      // import 'https://unpkg.com/mathlive?module';
 
       window.mathVirtualKeyboard.container =
         document.getElementById('keyboard-container');

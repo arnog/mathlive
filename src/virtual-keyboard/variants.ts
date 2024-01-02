@@ -1,4 +1,4 @@
-import { Scrim } from '../editor/scrim';
+import { Scrim } from '../ui/utils/scrim';
 import {
   executeKeycapCommand,
   normalizeKeycap,
@@ -33,168 +33,44 @@ const VARIANTS: {
   '8': ['\\frac{1}{8}', '#@^8'],
   '9': ['\\frac{1}{9}', '#@^9'],
   '.': ['.', ',', ';', '\\colon'],
-
-  // '(-extended': [
-  //   '\\left( #0\\right)',
-  //   '\\left[ #0\\right]',
-  //   '\\left\\{ #0\\right\\}',
-  //   '\\left\\langle #0\\right\\rangle',
-  //   '\\lfloor',
-  //   '\\llcorner',
-  //   '(',
-  //   '\\lbrack',
-  //   '\\lvert',
-  //   '\\lVert',
-  //   '\\lgroup',
-  //   '\\langle',
-  //   '\\lceil',
-  //   '\\ulcorner',
-  //   '\\lmoustache',
-  //   '\\lbrace',
-  // ],
-  // ')-extended': [
-  //   '\\rfloor',
-  //   '\\lrcorner',
-  //   ')',
-  //   '\\rbrack',
-  //   '\\rvert',
-  //   '\\rVert',
-  //   '\\rgroup',
-  //   '\\rangle',
-  //   '\\rceil',
-  //   '\\urcorner',
-  //   '\\rmoustache',
-  //   '\\rbrace',
-  // ],
-
-  // '=-extended': [
-  //   '\\cong',
-  //   '\\asymp',
-  //   '\\equiv',
-  //   '\\differencedelta',
-  //   '\\varpropto',
-  //   '\\thickapprox',
-  //   '\\approxeq',
-  //   '\\thicksim',
-  //   '\\backsim',
-  //   '\\eqsim',
-  //   '\\simeq',
-  //   '\\Bumpeq',
-  //   '\\bumpeq',
-  //   '\\doteq',
-  //   '\\Doteq',
-  //   '\\fallingdotseq',
-  //   '\\risingdotseq',
-  //   '\\coloneq',
-  //   '\\eqcirc',
-  //   '\\circeq',
-  //   '\\triangleq',
-  //   '\\between',
-  // ],
-
-  // '<': [
-  //   '\\leq',
-  //   '\\leqq',
-  //   '\\lneqq',
-  //   '\\ll',
-
-  //   '\\lessgtr',
-  //   '\\nless',
-  //   '\\nleq',
-  //   '\\lesssim',
-
-  //   '\\precsim',
-  //   '\\prec',
-  //   '\\nprec',
-  //   '\\preccurlyeq',
-
-  //   '\\lessdot',
-  // ],
-
-  // '>': [
-  //   '\\geq',
-  //   '\\geqq',
-  //   '\\gneqq',
-  //   '\\gg',
-
-  //   '\\gtrless',
-  //   '\\ngtr',
-  //   '\\ngeq',
-  //   '\\gtrsim',
-
-  //   '\\succsim',
-  //   '\\succ',
-  //   '\\nsucc',
-  //   '\\succcurlyeq',
-
-  //   '\\gtrdot',
-  // ],
-
-  // 'nabla': ['\\nabla\\times', '\\nabla\\cdot', '\\nabla^{2}'],
-
-  // 'xleftarrows': [
-  //   '\\xlongequal{#@}',
-  //   '\\xleftrightarrow{#@}',
-  //   '\\xLeftrightarrow{#@}',
-  //   '\\xleftrightharpoons{#@}',
-  //   '\\xLeftarrow{#@}',
-  //   '\\xleftharpoonup{#@}',
-  //   '\\xleftharpoondown{#@}',
-  //   '\\xtwoheadleftarrow{#@}',
-  //   '\\xhookleftarrow{#@}',
-  //   '\\xtofrom{#@}',
-  //   '\\xleftequilibrium{#@}', // From mhchem.sty package
-  //   '\\xleftrightarrows{#@}', // From mhchem.sty package
-  // ],
-  // 'xrightarrows': [
-  //   '\\xrightarrow{#@}',
-  //   '\\xlongequal{#@}',
-  //   '\\xleftrightarrow{#@}',
-  //   '\\xLeftrightarrow{#@}',
-  //   '\\xleftrightharpoons{#@}',
-  //   '\\xRightarrow{#@}',
-  //   '\\xrightharpoonup{#@}',
-  //   '\\xrightharpoondown{#@}',
-  //   '\\xtwoheadrightarrow{#@}',
-  //   '\\xrightleftharpoons{#@}',
-  //   '\\xhookrightarrow{#@}',
-  //   '\\xmapsto{#@}',
-  //   '\\xLeftrightharpoons{#@}', // From mhchem.sty package
-  //   '\\xleftrightarrows{#@}', // From mhchem.sty package
-  // ],
-
-  // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
-  //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
-  //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
-  //     {latex:'\\lvert #@ \\rvert', aside:'length'},
-  //     {latex:'\\lvert #@ \\rvert', aside:'order'},
-
-  // ],
+  ',': ['{,}', '.', ';', '\\colon'],
   'a': [
     { latex: '\\aleph', aside: 'aleph' },
     { latex: '\\forall', aside: 'for all' },
+    'à',
+    'á',
+    'â',
+    'ä',
+    'æ',
   ],
   'b': [{ latex: '\\beth', aside: 'beth' }],
-  'c': [{ latex: '\\C', aside: 'set of complex numbers' }],
+  'c': [{ latex: '\\C', aside: 'set of complex numbers' }, 'ç'],
   'd': [{ latex: '\\daleth', aside: 'daleth' }],
   'e': [
     { latex: '\\exponentialE', aside: 'exponential e' },
     { latex: '\\exists', aside: 'there is' },
     { latex: '\\nexists', aside: 'there isn’t' },
+    'è',
+    'é',
+    'ê',
+    'ë',
   ],
   'g': [{ latex: '\\gimel', aside: 'gimel' }],
   'h': [
     { latex: '\\hbar', aside: 'h bar' },
     { latex: '\\hslash', aside: 'h slash' },
   ],
-  'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
+  'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }, 'ì', 'í', 'î', 'ï'],
   'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
   'l': [{ latex: '\\ell', aside: 'ell' }],
-  'n': [{ latex: '\\mathbb{N}', aside: 'set of natural numbers' }],
+  'n': [{ latex: '\\mathbb{N}', aside: 'set of natural numbers' }, 'ñ'],
+  'o': ['ø', 'œ', 'ò', 'ó', 'ô', 'ö', 'œ'],
   'p': [{ latex: '\\mathbb{P}', aside: 'set of primes' }],
   'q': [{ latex: '\\mathbb{Q}', aside: 'set of rational numbers' }],
   'r': [{ latex: '\\mathbb{R}', aside: 'set of real numbers' }],
+  'u': ['ù', 'ú', 'û', 'ü'],
   'z': [{ latex: '\\mathbb{Z}', aside: 'set of integers' }],
+  'y': ['ý', 'ÿ'],
 
   'space': [
     {
@@ -240,7 +116,7 @@ const VARIANTS: {
   ],
 };
 
-let variantPanelController: AbortController | null;
+let gVariantPanelController: AbortController | null;
 
 export function showVariantsPanel(
   element: HTMLElement,
@@ -293,14 +169,13 @@ export function showVariantsPanel(
   //
   // Create the scrim and attach the variants panel to it
   //
-  if (!Scrim.scrim) Scrim.scrim = new Scrim();
-  Scrim.scrim.open({
+  Scrim.open({
     root: keyboard?.container?.querySelector('.ML__keyboard'),
     child: variantPanel,
   });
 
-  variantPanelController = new AbortController();
-  const { signal } = variantPanelController;
+  gVariantPanelController = new AbortController();
+  const { signal } = gVariantPanelController;
 
   //
   // Position the variants panel
@@ -391,9 +266,9 @@ export function showVariantsPanel(
 }
 
 export function hideVariantsPanel(): void {
-  variantPanelController?.abort();
-  variantPanelController = null;
-  Scrim.scrim?.close();
+  gVariantPanelController?.abort();
+  gVariantPanelController = null;
+  if (Scrim.state === 'open') Scrim.close();
 }
 
 function makeVariants(
@@ -438,6 +313,7 @@ function getVariants(
   id: string | (string | Partial<VirtualKeyboardKeycap>)[]
 ): (string | Partial<VirtualKeyboardKeycap>)[] {
   if (typeof id !== 'string') return id;
+
   if (!VARIANTS[id]) VARIANTS[id] = makeVariants(id) ?? [];
   return VARIANTS[id];
 }

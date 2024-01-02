@@ -56,10 +56,13 @@ describe('ASCII MATH', function () {
   equalASCIIMath('\\Gamma +1', 'Gamma+1');
   equalASCIIMath('\\frac{\\pi }{2\\pi }', '(pi)/(2pi)');
 
-  equalASCIIMath('\\text{if }x>0', '"if "x>0');
+  // Avoid collisions with digits
+  expect(convertLatexToAsciiMath('1^2 3^4')).toBe('1^2 3^4');
+
+  equalASCIIMath('\\text{if }x>0', '"if " x>0');
   equalASCIIMath(
     '\\text{if }x>0\\text{ then }f\\left(x\\right)=x^{2}',
-    '"if "x>0" then "f(x)=x^2'
+    '"if " x>0" then " f(x)=x^2'
   );
   // equalASCIIMath('\\begin{pmatrix}a & b & c\\end{pmatrix}', '((a),(b),(c))');
 

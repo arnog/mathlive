@@ -1,10 +1,10 @@
-import { ModelPrivate } from './model-private';
-import { CompositionAtom } from '../core-atoms/composition';
+import { _Model } from './model-private';
+import { CompositionAtom } from '../atoms/composition';
 
 /**
  * Create, remove or update a composition atom at the current location
  */
-export function updateComposition(model: ModelPrivate, s: string): void {
+export function updateComposition(model: _Model, s: string): void {
   const cursor = model.at(model.position);
 
   // We're creating or updating a composition
@@ -31,7 +31,7 @@ export function updateComposition(model: ModelPrivate, s: string): void {
 /**
  * Remove the composition zone
  */
-export function removeComposition(model: ModelPrivate): void {
+export function removeComposition(model: _Model): void {
   const cursor = model.at(model.position);
   if (cursor.type === 'composition') {
     cursor.parent!.removeChild(cursor);

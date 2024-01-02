@@ -4,12 +4,15 @@ import {
   isCasesEnvironment,
   isMatrixEnvironment,
   isTabularEnvironment,
-} from '../core-definitions/environment-types';
+} from '../latex-commands/environment-types';
 import { SelectorPrivate } from './types';
-import { MathfieldPrivate } from './mathfield';
-import { getSharedElement, releaseSharedElement } from './shared-element';
+import {
+  getSharedElement,
+  releaseSharedElement,
+} from '../common/shared-element';
 
 import { injectStylesheet, releaseStylesheet } from '../common/stylesheet';
+import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
 const padding = 4;
 const radius = 20;
@@ -184,7 +187,7 @@ const rcases: svgBuilder = (className) => `
 const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
 const casesButtons = { cases, rcases, Bmatrix };
 
-export function showEnvironmentPopover(mf: MathfieldPrivate): void {
+export function showEnvironmentPopover(mf: _Mathfield): void {
   const array = mf.model.parentEnvironment?.array;
   if (!array) return;
 
@@ -292,6 +295,7 @@ export function showEnvironmentPopover(mf: MathfieldPrivate): void {
 }
 
 export function hideEnvironmentPopover(): void {
+  // return;
   const panel = document.getElementById('mathlive-environment-popover');
   panel?.classList.remove('is-visible');
 }
@@ -309,7 +313,7 @@ export function environmentPopoverIsVisible(): boolean {
   return panel.classList.contains('is-visible');
 }
 
-export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
+export function updateEnvironmentPopover(mf: _Mathfield): void {
   if (!mf.hasFocus()) return;
   let visible = false;
   if (mf.model.mode === 'math') {
@@ -317,9 +321,7 @@ export function updateEnvironmentPopover(mf: MathfieldPrivate): void {
     if (!!env?.array && isTabularEnvironment(env.environmentName)) {
       // The focus is inside a tabular environment
       const policy = mf.options.environmentPopoverPolicy;
-      visible =
-        (policy === 'auto' && window.mathVirtualKeyboard.visible) ||
-        policy === 'on';
+      visible = policy === 'auto' || policy === 'on';
     }
   }
   if (visible) showEnvironmentPopover(mf);

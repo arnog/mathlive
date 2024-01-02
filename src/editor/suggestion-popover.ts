@@ -10,16 +10,19 @@ import {
 } from '../core/core';
 
 import { getCaretPoint } from '../editor-mathfield/utils';
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
 import { getKeybindingsForCommand } from './keybindings';
 
 import { complete } from '../editor-mathfield/autocomplete';
 import { ModeEditor } from '../editor-mathfield/mode-editor';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
-import { getSharedElement, releaseSharedElement } from './shared-element';
+import {
+  getSharedElement,
+  releaseSharedElement,
+} from '../common/shared-element';
 
-function latexToMarkup(mf: MathfieldPrivate, latex: string): string {
+function latexToMarkup(mf: _Mathfield, latex: string): string {
   const context = new Context({ from: mf.context });
 
   const root = new Atom({
@@ -35,11 +38,11 @@ function latexToMarkup(mf: MathfieldPrivate, latex: string): string {
     )
   );
 
-  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
+  return makeStruts(box, { classes: 'ML__latex' }).toMarkup();
 }
 
 export function showSuggestionPopover(
-  mf: MathfieldPrivate,
+  mf: _Mathfield,
   suggestions: string[]
 ): void {
   if (suggestions.length === 0) {
@@ -89,7 +92,7 @@ export function isSuggestionPopoverVisible(): boolean {
 }
 
 export function updateSuggestionPopoverPosition(
-  mf: MathfieldPrivate,
+  mf: _Mathfield,
   options?: { deferred: boolean }
 ): void {
   // Check that the mathfield is still valid
@@ -160,7 +163,7 @@ export function updateSuggestionPopoverPosition(
   }
 }
 
-export function hideSuggestionPopover(mf: MathfieldPrivate): void {
+export function hideSuggestionPopover(mf: _Mathfield): void {
   mf.suggestionIndex = 0;
   const panel = document.getElementById('mathlive-suggestion-popover');
   if (panel) {
@@ -170,7 +173,7 @@ export function hideSuggestionPopover(mf: MathfieldPrivate): void {
 }
 
 export function createSuggestionPopover(
-  mf: MathfieldPrivate,
+  mf: _Mathfield,
   html: string
 ): HTMLElement {
   let panel = document.getElementById('mathlive-suggestion-popover');
@@ -196,7 +199,7 @@ export function createSuggestionPopover(
     });
   }
 
-  panel!.innerHTML = window.MathfieldElement.createHTML(html);
+  panel!.innerHTML = globalThis.MathfieldElement.createHTML(html);
 
   return panel;
 }

@@ -12,47 +12,41 @@ import type {
 } from '../public/options';
 import type { ParseMode } from '../public/core-types';
 
-import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import type { _Mathfield } from '../editor-mathfield/mathfield-private';
 
-import { Atom, ToLatexOptions } from '../core/atom-class';
+import { Atom } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
-import { AtomJson, BranchName, fromJson } from '../core/atom';
+import { fromJson } from '../core/atom';
 
-import { toMathML } from '../addons/math-ml';
+import { toMathML } from '../formats/atom-to-math-ml';
 
-import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
-import { atomToSpeakableText } from '../editor/atom-to-speakable-text';
+import { atomToAsciiMath } from '../formats/atom-to-ascii-math';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { defaultAnnounceHook } from '../editor/a11y';
 
 import {
-  contentDidChange,
-  contentWillChange,
-  ModelListeners,
-  selectionDidChange,
-} from './listeners';
-import { isOffset, isSelection, isRange, AnnounceVerb } from './utils';
-import { compareSelection, range } from './selection-utils';
-import type { ArrayAtom } from '../core-atoms/array';
-import { LatexAtom } from '../core-atoms/latex';
-
-export type ModelState = {
-  content: AtomJson;
-  selection: Selection;
-  mode: ParseMode;
-};
-
-export type GetAtomOptions = {
-  includeChildren?: boolean;
-};
+  compareSelection,
+  isOffset,
+  isRange,
+  isSelection,
+  range,
+} from './selection-utils';
+import type { ArrayAtom } from '../atoms/array';
+import { LatexAtom } from '../atoms/latex';
+import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
+import '../virtual-keyboard/global';
+import type { ModelState, GetAtomOptions, AnnounceVerb } from './types';
+import type { BranchName, ToLatexOptions } from 'core/types';
 
 /** @internal */
-export class ModelPrivate implements Model {
-  readonly mathfield: MathfieldPrivate;
+export class _Model implements Model {
+  readonly mathfield: _Mathfield;
 
+  // Note: in most cases, use mf.switchMode() instead.
+  // Changing this directly will not dispatch the 'change-mode' event
   mode: ParseMode;
 
   silenceNotifications: boolean;
-  readonly listeners: ModelListeners;
 
   root: Atom;
 
@@ -60,18 +54,11 @@ export class ModelPrivate implements Model {
   private _anchor: Offset;
   private _position: Offset;
 
-  constructor(
-    target: Mathfield,
-    mode: ParseMode,
-    root: Atom,
-    listeners: ModelListeners
-  ) {
-    this.mathfield = target as MathfieldPrivate;
+  constructor(target: Mathfield, mode: ParseMode, root: Atom) {
+    this.mathfield = target as _Mathfield;
 
     this.mode = mode;
     this.silenceNotifications = false;
-
-    this.listeners = listeners;
 
     this._selection = { ranges: [[0, 0]], direction: 'none' };
     this._anchor = 0;
@@ -82,8 +69,6 @@ export class ModelPrivate implements Model {
 
   dispose(): void {
     (this as any).mathfield = undefined;
-    (this as any).listeners.onSelectionDidChange = undefined;
-    (this as any).listeners.onContentWillChange = undefined;
   }
 
   getState(): ModelState {
@@ -111,14 +96,14 @@ export class ModelPrivate implements Model {
     if (options?.type === 'undo') changeOption = { inputType: 'historyUndo' };
     if (options?.type === 'redo') changeOption = { inputType: 'historyRedo' };
     // Restore the content and selection
-    if (contentWillChange(this, changeOption)) {
+    if (this.contentWillChange(changeOption)) {
       const didSuppress = this.silenceNotifications;
       this.silenceNotifications = true;
       this.mode = state.mode;
       this.root = fromJson(state.content);
       this.selection = state.selection;
       this.silenceNotifications = didSuppress;
-      contentDidChange(this, changeOption);
+      this.contentDidChange(changeOption);
     }
     this.silenceNotifications = wasSuppressing;
   }
@@ -171,24 +156,24 @@ export class ModelPrivate implements Model {
             this._anchor = this.normalizeOffset(pos - 1);
             this._position = this._anchor;
             this._selection = this.normalizeSelection(this._anchor);
-            return true;
+            return;
           }
 
           if (this.at(pos + 1)?.parentPrompt) {
             this._anchor = this.normalizeOffset(pos + 1);
             this._position = this._anchor;
             this._selection = this.normalizeSelection(this._anchor);
-            return true;
+            return;
           }
           this._anchor = 0;
           this._position = 0;
           this._selection = { ranges: [[0, 0]] };
-          return false;
+          return;
         }
         this._anchor = pos;
         this._position = pos;
         this._selection = value;
-        return false;
+        return;
       }
 
       //
@@ -218,7 +203,7 @@ export class ModelPrivate implements Model {
         this._selection = { ranges: [selRange], direction: value.direction };
 
       console.assert(this._position >= 0 && this._position <= this.lastOffset);
-      return false;
+      return;
     });
   }
 
@@ -466,6 +451,7 @@ export class ModelPrivate implements Model {
       return Atom.serialize([atom], {
         expandMacro: format === 'latex-expanded',
         skipStyles: format === 'latex-unstyled',
+        skipPlaceholders: format === 'latex-without-placeholders',
         defaultMode: this.mathfield.options.defaultMode,
       });
     }
@@ -475,10 +461,11 @@ export class ModelPrivate implements Model {
     if (format === 'spoken') return atomToSpeakableText(atom);
 
     if (format === 'spoken-text') {
-      const saveTextToSpeechMarkup = window.MathfieldElement.textToSpeechMarkup;
-      window.MathfieldElement.textToSpeechMarkup = '';
+      const saveTextToSpeechMarkup =
+        globalThis.MathfieldElement.textToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = '';
       const result = atomToSpeakableText(atom);
-      window.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
       return result;
     }
 
@@ -486,14 +473,15 @@ export class ModelPrivate implements Model {
       format === 'spoken-ssml' ||
       format === 'spoken-ssml-with-highlighting'
     ) {
-      const saveTextToSpeechMarkup = window.MathfieldElement.textToSpeechMarkup;
+      const saveTextToSpeechMarkup =
+        globalThis.MathfieldElement.textToSpeechMarkup;
       // Const savedAtomIdsSettings = this.config.atomIdsSettings;    // @revisit
-      window.MathfieldElement.textToSpeechMarkup = 'ssml';
+      globalThis.MathfieldElement.textToSpeechMarkup = 'ssml';
       // If (format === 'spoken-ssml-with-highlighting') {     // @revisit
       //     this.config.atomIdsSettings = { seed: 'random' };
       // }
       const result = atomToSpeakableText(atom);
-      window.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
+      globalThis.MathfieldElement.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
       return result;
     }
@@ -530,7 +518,7 @@ export class ModelPrivate implements Model {
     let format: OutputFormat;
     if (isOffset(arg1) && isOffset(arg2)) {
       ranges = [this.normalizeRange([arg1, arg2])];
-      format = arg3 ?? 'latex';
+      format = arg3 as OutputFormat;
     } else if (isRange(arg1)) {
       ranges = [this.normalizeRange(arg1)];
       format = arg2 as OutputFormat;
@@ -539,11 +527,13 @@ export class ModelPrivate implements Model {
       format = arg2 as OutputFormat;
     } else {
       ranges = [this.normalizeRange([0, -1])];
-      format = (arg1 as OutputFormat) ?? 'latex';
+      format = arg1 as OutputFormat;
     }
 
+    format ??= 'latex';
+
     if (format === 'math-json') {
-      if (!window.MathfieldElement.computeEngine) {
+      if (!globalThis.MathfieldElement.computeEngine) {
         if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
           console.error(
             'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
@@ -553,7 +543,7 @@ export class ModelPrivate implements Model {
       }
       const latex = this.getValue({ ranges }, 'latex-unstyled');
       try {
-        const expr = window.MathfieldElement.computeEngine.parse(latex);
+        const expr = globalThis.MathfieldElement.computeEngine.parse(latex);
         return JSON.stringify(expr.json);
       } catch (e) {
         return JSON.stringify(['Error', `'${e.toString()}'`]);
@@ -564,6 +554,7 @@ export class ModelPrivate implements Model {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
         skipStyles: format === 'latex-unstyled',
+        skipPlaceholders: format === 'latex-without-placeholders',
         defaultMode: this.mathfield.options.defaultMode,
       };
       return joinLatex(
@@ -703,10 +694,10 @@ export class ModelPrivate implements Model {
 
     // Notify of content change, if requested
     if (options.content && contentChanged)
-      contentDidChange(this, { inputType: options.type });
+      this.contentDidChange({ inputType: options.type });
 
     // If the selection has effectively changed, notify
-    if (options.selection && selectionChanged) selectionDidChange(this);
+    if (options.selection && selectionChanged) this.selectionDidChange();
 
     return contentChanged || selectionChanged;
   }
@@ -778,10 +769,68 @@ export class ModelPrivate implements Model {
 
     return parent as ArrayAtom;
   }
+
+  /** Return the cell (row, col) that the current selection is in */
+  get cell(): [number, number] | undefined {
+    let atom: Atom | undefined = this.at(this.position);
+    if (!atom) return undefined;
+
+    while (atom && atom.parent?.type !== 'array') atom = atom.parent;
+
+    if (!atom?.parent || atom.parent.type !== 'array') return undefined;
+
+    return atom.parentBranch as [number, number];
+  }
+
+  contentWillChange(options: ContentChangeOptions = {}): boolean {
+    // The mathfield could be undefined if the mathfield was disposed
+    // while the content was changing
+    if (this.silenceNotifications || !this.mathfield) return true;
+
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+    const result = this.mathfield.onContentWillChange(options);
+    this.silenceNotifications = save;
+    return result;
+  }
+
+  contentDidChange(options: ContentChangeOptions): void {
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
+    if (this.silenceNotifications || !this.mathfield.host || !this.mathfield)
+      return;
+
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+
+    this.mathfield.host.dispatchEvent(
+      new InputEvent('input', {
+        ...options,
+        // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+        data: options.data ? options.data : options.inputType ?? '',
+        bubbles: true,
+        composed: true,
+      } as InputEventInit)
+    );
+    this.silenceNotifications = save;
+  }
+  selectionDidChange(): void {
+    // The mathfield could be undefined if the mathfield was disposed
+    // while the selection was changing
+    if (!this.mathfield) return;
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
+
+    if (this.silenceNotifications) return;
+    const save = this.silenceNotifications;
+    this.silenceNotifications = true;
+    this.mathfield.onSelectionDidChange();
+    this.silenceNotifications = save;
+  }
 }
 
 function atomIsInRange(
-  model: ModelPrivate,
+  model: _Model,
   atom: Atom,
   first: Offset,
   last: Offset
@@ -800,11 +849,7 @@ function atomIsInRange(
   return false;
 }
 
-function childrenInRange(
-  model: ModelPrivate,
-  atom: Atom,
-  range: Range
-): boolean {
+function childrenInRange(model: _Model, atom: Atom, range: Range): boolean {
   if (!atom?.hasChildren) return false;
   const [start, end] = range;
   const first = model.offsetOf(atom.firstChild);

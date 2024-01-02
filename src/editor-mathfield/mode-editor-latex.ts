@@ -1,15 +1,14 @@
 /* eslint-disable no-new */
 import { Offset, Range, InsertOptions } from '../public/mathfield';
-import { LatexAtom, LatexGroupAtom } from '../core-atoms/latex';
+import { LatexAtom, LatexGroupAtom } from '../atoms/latex';
 import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';
-import { ModelPrivate } from '../editor-model/model-private';
-import { contentDidChange, contentWillChange } from '../editor-model/listeners';
+import { _Model } from '../editor-model/model-private';
 
-import { MathfieldPrivate } from './mathfield-private';
+import { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { ModeEditor } from './mode-editor';
-import { COMMAND_MODE_CHARACTERS } from '../core-definitions/definitions-utils';
+import { COMMAND_MODE_CHARACTERS } from '../latex-commands/definitions-utils';
 
 export class LatexModeEditor extends ModeEditor {
   constructor() {
@@ -20,10 +19,7 @@ export class LatexModeEditor extends ModeEditor {
     return new LatexAtom(command);
   }
 
-  onPaste(
-    mathfield: MathfieldPrivate,
-    data: DataTransfer | string | null
-  ): boolean {
+  onPaste(mathfield: _Mathfield, data: DataTransfer | string | null): boolean {
     if (!data) return false;
     const text =
       typeof data === 'string'
@@ -32,7 +28,7 @@ export class LatexModeEditor extends ModeEditor {
 
     if (
       text &&
-      contentWillChange(mathfield.model, {
+      mathfield.model.contentWillChange({
         inputType: 'insertFromPaste',
         data: text,
       })
@@ -42,7 +38,7 @@ export class LatexModeEditor extends ModeEditor {
       if (this.insert(mathfield.model, text)) {
         mathfield.startRecording();
         mathfield.snapshot('paste');
-        contentDidChange(mathfield.model, { inputType: 'insertFromPaste' });
+        mathfield.model.contentDidChange({ inputType: 'insertFromPaste' });
         requestUpdate(mathfield);
       }
       mathfield.startRecording();
@@ -52,8 +48,8 @@ export class LatexModeEditor extends ModeEditor {
     return false;
   }
 
-  insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
-    if (!contentWillChange(model, { data: text, inputType: 'insertText' }))
+  insert(model: _Model, text: string, options?: InsertOptions): boolean {
+    if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options) options = {};
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -112,7 +108,7 @@ export class LatexModeEditor extends ModeEditor {
       model.setSelection(model.anchor, model.offsetOf(lastNewAtom));
     else if (lastNewAtom) model.position = model.offsetOf(lastNewAtom);
 
-    contentDidChange(model, { data: text, inputType: 'insertText' });
+    model.contentDidChange({ data: text, inputType: 'insertText' });
 
     model.silenceNotifications = silenceNotifications;
 
@@ -120,18 +116,18 @@ export class LatexModeEditor extends ModeEditor {
   }
 }
 
-export function getLatexGroup(model: ModelPrivate): LatexGroupAtom | undefined {
+export function getLatexGroup(model: _Model): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
-export function getLatexGroupBody(model: ModelPrivate): LatexAtom[] {
+export function getLatexGroupBody(model: _Model): LatexAtom[] {
   const atom = model.atoms.find((x) => x.type === 'latexgroup');
   if (!atom) return [];
   return (atom.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }
 
 export function getCommandSuggestionRange(
-  model: ModelPrivate,
+  model: _Model,
   options?: { before: Offset }
 ): Range | [undefined, undefined] {
   let start = 0;

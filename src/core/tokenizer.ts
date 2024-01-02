@@ -7,23 +7,22 @@
 
 import { splitGraphemes } from './grapheme-splitter';
 import type { Token } from '../public/core-types';
+import { unicodeToLatex } from './unicode';
 
 /**
- * Given a LaTeX expression represented as a character string,
- * the Lexer class will scan and return Tokens for the lexical
+ * Given a LaTeX string, the Tokenizer will return Tokens for the lexical
  * units in the string.
  *
- * @param s A string of LaTeX
+ * @param s A LaTeX string
  */
 class Tokenizer {
-  obeyspaces: boolean;
+  obeyspaces = false;
+
   private readonly s: string | string[];
-  private pos: number;
+  private pos = 0;
 
   constructor(s: string) {
     this.s = splitGraphemes(s);
-    this.pos = 0;
-    this.obeyspaces = false;
   }
 
   /**
@@ -71,6 +70,7 @@ class Tokenizer {
   next(): Token | null {
     // If we've reached the end, exit
     if (this.end()) return null;
+
     // Handle white space
     // In text mode, spaces are significant,
     // however they are coalesced unless \obeyspaces
@@ -280,18 +280,18 @@ export function tokenize(
   args: null | ((arg: string) => string | undefined) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  const stream: string[] = [];
+  const lines: string[] = [];
   let sep = '';
   for (const line of s.toString().split(/\r?\n/)) {
-    if (sep) stream.push(sep);
+    if (sep) lines.push(sep);
     sep = ' ';
     // Remove everything after a % (comment marker)
     // (but \% should be preserved...)
     const m = line.match(/((?:\\%)|[^%])*/);
-    if (m !== null) stream.push(m[0]);
+    if (m !== null) lines.push(m[0]);
   }
 
-  const tokenizer = new Tokenizer(stream.join(''));
+  const tokenizer = new Tokenizer(unicodeToLatex(lines.join('')));
   const result: Token[] = [];
   do result.push(...expand(tokenizer, args));
   while (!tokenizer.end());
@@ -352,7 +352,7 @@ export function tokensToString(tokens: Token[]): string {
           '<$>': '$',
           '<{>': '{',
           '<}>': '}',
-        }[token] ?? token)
+        })[token] ?? token
     )
   );
 }

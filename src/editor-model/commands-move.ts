@@ -1,13 +1,14 @@
-import { isBrowser } from '../common/capabilities';
+import { isBrowser } from '../ui/utils/capabilities';
 
-import { Atom, BranchName } from '../core/atom';
-import { SubsupAtom } from '../core-atoms/subsup';
+import { Atom } from '../core/atom';
+import { SubsupAtom } from '../atoms/subsup';
 import { register } from '../editor/commands';
 
 import { move, skip } from './commands';
-import type { ModelPrivate } from './model-private';
+import type { _Model } from './model-private';
+import type { BranchName } from 'core/types';
 
-export function moveAfterParent(model: ModelPrivate): boolean {
+export function moveAfterParent(model: _Model): boolean {
   const previousPosition = model.position;
   const parent = model.at(previousPosition).parent;
   // Do nothing if at the root.
@@ -22,7 +23,7 @@ export function moveAfterParent(model: ModelPrivate): boolean {
   return true;
 }
 
-function superscriptDepth(model: ModelPrivate): number {
+function superscriptDepth(model: _Model): number {
   let result = 0;
   let atom: Atom | undefined = model.at(model.position);
   let wasSuperscript = false;
@@ -42,7 +43,7 @@ function superscriptDepth(model: ModelPrivate): number {
   return wasSuperscript ? result : 0;
 }
 
-function subscriptDepth(model: ModelPrivate): number {
+function subscriptDepth(model: _Model): number {
   let result = 0;
   let atom: Atom | undefined = model.at(model.position);
   let wasSubscript = false;
@@ -66,7 +67,7 @@ function subscriptDepth(model: ModelPrivate): number {
  * Switch the cursor to the superscript and select it. If there is no subscript
  * yet, create one.
  */
-function moveToSuperscript(model: ModelPrivate): boolean {
+function moveToSuperscript(model: _Model): boolean {
   model.collapseSelection();
   if (superscriptDepth(model) >= model.mathfield.options.scriptDepth[1]) {
     model.announce('plonk');
@@ -77,7 +78,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
 
   if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
-    // add an adjacent `msubsup` atom instead.
+    // add an adjacent `subsup` atom instead.
     if (target.rightSibling?.type !== 'subsup') {
       target.parent!.addChildAfter(
         new SubsupAtom({ style: target.computedStyle }),
@@ -101,7 +102,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
  * Switch the cursor to the subscript and select it. If there is no subscript
  * yet, create one.
  */
-function moveToSubscript(model: ModelPrivate): boolean {
+function moveToSubscript(model: _Model): boolean {
   model.collapseSelection();
   if (subscriptDepth(model) >= model.mathfield.options.scriptDepth[0]) {
     model.announce('plonk');
@@ -112,7 +113,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
 
   if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
-    // add an adjacent `msubsup` atom instead.
+    // add an adjacent `subsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'subsup') {
       target.parent!.addChildAfter(
         new SubsupAtom({ style: model.at(model.position).computedStyle }),
@@ -277,7 +278,7 @@ function getTabbableElements(): HTMLElement[] {
 
 // Select all the children of an atom, or a branch
 function select(
-  model: ModelPrivate,
+  model: _Model,
   target: Atom | Atom[],
   direction: 'backward' | 'forward' = 'forward'
 ): boolean {
@@ -297,7 +298,7 @@ function select(
   return select(model, [target, target.leftSibling]);
 }
 
-function leapTo(model: ModelPrivate, target: Atom | number): boolean {
+function leapTo(model: _Model, target: Atom | number): boolean {
   const previousPosition = model.position;
 
   if (typeof target === 'number') target = model.at(target);
@@ -324,7 +325,7 @@ function leapTo(model: ModelPrivate, target: Atom | number): boolean {
  * @return `false` if no placeholder found and did not move
  */
 function leap(
-  model: ModelPrivate,
+  model: _Model,
   dir: 'forward' | 'backward',
   callHooks = true
 ): boolean {
@@ -401,7 +402,7 @@ function leap(
 // if the root is empty, it is not a valid leap target)
 
 function leapTarget(
-  model: ModelPrivate,
+  model: _Model,
   origin = 0,
   dir: 'forward' | 'backward' = 'forward'
 ): Atom | undefined {
@@ -428,7 +429,7 @@ function leapTarget(
  */
 register(
   {
-    moveToOpposite: (model: ModelPrivate): boolean => {
+    moveToOpposite: (model: _Model): boolean => {
       const OPPOSITE_RELATIONS = {
         superscript: 'subscript',
         subscript: 'superscript',
@@ -468,7 +469,7 @@ register(
       model.mathfield.stopCoalescingUndo();
       return result;
     },
-    moveBeforeParent: (model: ModelPrivate): boolean => {
+    moveBeforeParent: (model: _Model): boolean => {
       const { parent } = model.at(model.position);
       if (!parent) {
         model.announce('plonk');
@@ -479,17 +480,15 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
-    moveAfterParent: (model: ModelPrivate): boolean => moveAfterParent(model),
+    moveAfterParent: (model: _Model): boolean => moveAfterParent(model),
 
-    moveToNextChar: (model: ModelPrivate): boolean => move(model, 'forward'),
-    moveToPreviousChar: (model: ModelPrivate): boolean =>
-      move(model, 'backward'),
-    moveUp: (model: ModelPrivate): boolean => move(model, 'upward'),
-    moveDown: (model: ModelPrivate): boolean => move(model, 'downward'),
-    moveToNextWord: (model: ModelPrivate): boolean => skip(model, 'forward'),
-    moveToPreviousWord: (model: ModelPrivate): boolean =>
-      skip(model, 'backward'),
-    moveToGroupStart: (model: ModelPrivate): boolean => {
+    moveToNextChar: (model: _Model): boolean => move(model, 'forward'),
+    moveToPreviousChar: (model: _Model): boolean => move(model, 'backward'),
+    moveUp: (model: _Model): boolean => move(model, 'upward'),
+    moveDown: (model: _Model): boolean => move(model, 'downward'),
+    moveToNextWord: (model: _Model): boolean => skip(model, 'forward'),
+    moveToPreviousWord: (model: _Model): boolean => skip(model, 'backward'),
+    moveToGroupStart: (model: _Model): boolean => {
       const pos = model.offsetOf(model.at(model.position).firstSibling);
       if (pos === model.position) {
         model.announce('plonk');
@@ -500,7 +499,7 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
-    moveToGroupEnd: (model: ModelPrivate): boolean => {
+    moveToGroupEnd: (model: _Model): boolean => {
       const pos = model.offsetOf(model.at(model.position).lastSibling);
       if (pos === model.position) {
         model.announce('plonk');
@@ -511,7 +510,7 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
-    moveToNextGroup: (model: ModelPrivate): boolean => {
+    moveToNextGroup: (model: _Model): boolean => {
       //
       // 1/ If at the end of the matfield, leap to next tabbable element
       //
@@ -553,7 +552,17 @@ register(
       // 3/ Find a placeholder, a prompt or empty group.
       // They have priority over other options below
       //
-      const target = leapTarget(model, model.position + 1, 'forward');
+
+      // If we're in a prompt, start looking after the prompt
+      const parentPrompt = model.at(model.anchor).parentPrompt;
+      const origin = parentPrompt
+        ? model.offsetOf(parentPrompt) + 1
+        : Math.max(model.position + 1, 0);
+
+      const target = leapTarget(model, origin, 'forward');
+      if (target && model.offsetOf(target) < origin)
+        return leap(model, 'forward');
+
       if (target) return leapTo(model, target);
 
       //
@@ -613,7 +622,7 @@ register(
       // 4.6/ No eligible group found, move to end of mathfield
       return leapTo(model, model.lastOffset);
     },
-    moveToPreviousGroup: (model: ModelPrivate): boolean => {
+    moveToPreviousGroup: (model: _Model): boolean => {
       //
       // 1/ If at the start of the matfield, leap to previous tabbable element
       //
@@ -644,7 +653,16 @@ register(
       //
       // 3/ Find a placeholder, a prompt or empty group.
       //
-      const target = leapTarget(model, model.position - 1, 'backward');
+      // If we're in a prompt, start looking before the prompt
+      const parentPrompt = model.at(model.anchor).parentPrompt;
+      const origin = parentPrompt
+        ? model.offsetOf(parentPrompt.leftSibling)
+        : Math.max(model.position - 1, 0);
+
+      const target = leapTarget(model, origin, 'backward');
+      if (target && model.offsetOf(target) > origin)
+        return leap(model, 'backward');
+
       if (target) return leapTo(model, target);
 
       //
@@ -703,8 +721,8 @@ register(
       //
       return false;
     },
-    moveToMathfieldStart: (model: ModelPrivate): boolean => {
-      if (model.position === 0) {
+    moveToMathfieldStart: (model: _Model): boolean => {
+      if (model.selectionIsCollapsed && model.position === 0) {
         model.announce('plonk');
         return false;
       }
@@ -713,8 +731,8 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
-    moveToMathfieldEnd: (model: ModelPrivate): boolean => {
-      if (model.position === model.lastOffset) {
+    moveToMathfieldEnd: (model: _Model): boolean => {
+      if (model.selectionIsCollapsed && model.position === model.lastOffset) {
         model.announce('plonk');
         return false;
       }
@@ -723,9 +741,8 @@ register(
       model.mathfield.stopCoalescingUndo();
       return true;
     },
-    moveToSuperscript: (model: ModelPrivate): boolean =>
-      moveToSuperscript(model),
-    moveToSubscript: (model: ModelPrivate): boolean => moveToSubscript(model),
+    moveToSuperscript,
+    moveToSubscript,
   },
   { target: 'model', changeSelection: true }
 );
@@ -739,7 +756,7 @@ register(
 );
 
 function findSibling(
-  model: ModelPrivate,
+  model: _Model,
   atom: Atom,
   pred: (x: Atom) => boolean,
   dir: 'forward' | 'backward'

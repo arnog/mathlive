@@ -25,7 +25,7 @@ export function arrayIndex(
  * - row: number
  * - col: number
  */
-export function arrayColRow(
+function arrayColRow(
   array: Atom[][][],
   index: number | string | [col: number, row: number]
 ): {
@@ -87,46 +87,46 @@ export function arrayCell(
 /**
  * Total numbers of cells (include sparse cells) in the array.
  */
-export function arrayCellCount(array: Atom[][][]): number {
-  let result = 0;
-  let numberRows = 0;
-  let numberCols = 1;
-  for (const row of array) {
-    numberRows += 1;
-    if (row.length > numberCols) numberCols = row.length;
-  }
+// function arrayCellCount(array: Atom[][][]): number {
+//   let result = 0;
+//   let numberRows = 0;
+//   let numberCols = 1;
+//   for (const row of array) {
+//     numberRows += 1;
+//     if (row.length > numberCols) numberCols = row.length;
+//   }
 
-  result = numberRows * numberCols;
-  return result;
-}
+//   result = numberRows * numberCols;
+//   return result;
+// }
 
 /**
  * Adjust colRow to point to the next/previous available row
  * If no more rows, go to the next/previous column
  * If no more columns, return null
  */
-export function arrayAdjustRow(
-  array: Atom[][][],
-  colRow: { col: number; row: number },
-  dir: number
-): null | { col: number; row: number } {
-  const result = { ...colRow };
-  result.row += dir;
-  if (result.row < 0) {
-    result.col += dir;
-    result.row = array.length - 1;
-    if (result.col < 0) return null;
-    while (result.row >= 0 && !arrayCell(array, result)) result.row -= 1;
+// export function arrayAdjustRow(
+//   array: Atom[][][],
+//   colRow: { col: number; row: number },
+//   dir: number
+// ): null | { col: number; row: number } {
+//   const result = { ...colRow };
+//   result.row += dir;
+//   if (result.row < 0) {
+//     result.col += dir;
+//     result.row = array.length - 1;
+//     if (result.col < 0) return null;
+//     while (result.row >= 0 && !arrayCell(array, result)) result.row -= 1;
 
-    if (result.row < 0) return null;
-  } else if (result.row >= array.length) {
-    result.col += dir;
-    result.row = 0;
-    while (result.row < array.length && !arrayCell(array, result))
-      result.row += 1;
+//     if (result.row < 0) return null;
+//   } else if (result.row >= array.length) {
+//     result.col += dir;
+//     result.row = 0;
+//     while (result.row < array.length && !arrayCell(array, result))
+//       result.row += 1;
 
-    if (result.row > array.length - 1) return null;
-  }
+//     if (result.row > array.length - 1) return null;
+//   }
 
-  return result;
-}
+//   return result;
+// }

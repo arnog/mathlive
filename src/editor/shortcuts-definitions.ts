@@ -11,6 +11,8 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
 
   // Primes
   "''": '^{\\doubleprime}',
+  "'''": '^{\\prime\\prime\\prime}',
+  "''''": '^{\\prime\\prime\\prime\\prime}',
 
   // Greek letters
   'alpha': '\\alpha',
@@ -131,6 +133,12 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   'xin': {
     after: 'nothing+text+relop+punct+openfence+space',
     value: 'x \\in',
+  },
+  // The shortcut for `\int` is interfering with `\sin x`
+  'sint': {
+    after:
+      'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',
+    value: '\\sin t',
   },
   'in': {
     after: 'nothing+letter+closefence',
@@ -261,7 +269,8 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   'argmin': '\\operatorname*{arg~min}_{#?}',
   'argmax': '\\operatorname*{arg~max}_{#?}',
   'det': '\\det',
-  'mod': '\\mod',
+  'mod': '\\bmod{#?}',
+  '(mod': '\\pmod{#?}',
   'max': '\\max',
   'min': '\\min',
 
@@ -327,8 +336,6 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   // '(-)':                  '\\circleddash',
 
   '||': '\\Vert',
-  '{': '\\{',
-  '}': '\\}',
 
   '*': '\\cdot',
 

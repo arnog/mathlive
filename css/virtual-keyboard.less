@@ -1,4 +1,3 @@
-
 //
 // Breakpoints
 //
@@ -16,7 +15,7 @@
 @shadow4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 @shadow5: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 
-// 
+//
 // blue-50   #e2f0fd
 // blue-100   #b6d9fb
 // blue-200   #86c0f9
@@ -45,60 +44,104 @@
   --_row-padding-left: var(--keyboard-row-padding-left, 0px);
   --_row-padding-right: var(--keyboard-row-padding-right, 0px);
 
-  --_toolbar-text:var(--keyboard-toolbar-text,  #2c2e2f);
-  --_toolbar-text-active: var(--keyboard-toolbar-text-active, var(--_accent-color));
-  --_toolbar-background:var(--keyboard-toolbar-background, transparent);
+  --_toolbar-text: var(--keyboard-toolbar-text, #2c2e2f);
+  --_toolbar-text-active: var(
+    --keyboard-toolbar-text-active,
+    var(--_accent-color)
+  );
+  --_toolbar-background: var(--keyboard-toolbar-background, transparent);
   --_toolbar-background-hover: var(--keyboard-toolbar-background-hover, #eee);
-  --_toolbar-background-selected: var(--keyboard-toolbar-background-selected, transparent);
-  --_toolbar-font-size:var(--keyboard-toolbar-font-size, "135%");
+  --_toolbar-background-selected: var(
+    --keyboard-toolbar-background-selected,
+    transparent
+  );
+  --_toolbar-font-size: var(--keyboard-toolbar-font-size, '135%');
 
   --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #fff);
 
-  --_keycap-background:var(--keycap-background,  white);
-  --_keycap-background-hover:var(--keycap-background-hover,  #f5f5f7); ;
-  --_keycap-background-active: var(--keycap-background-active, var(--_accent-color));
-  --_keycap-background-pressed: var(--keycap-background-pressed, var(--_accent-color));
+  --_keycap-background: var(--keycap-background, white);
+  --_keycap-background-hover: var(--keycap-background-hover, #f5f5f7);
+  --_keycap-background-active: var(
+    --keycap-background-active,
+    var(--_accent-color)
+  );
+  --_keycap-background-pressed: var(
+    --keycap-background-pressed,
+    var(--_accent-color)
+  );
   --_keycap-border: var(--keycap-border, #e5e6e9);
   --_keycap-border-bottom: var(--keycap-border-bottom, #8d8f92);
-  --_keycap-text: var(--keycap-text,  #000);
-  --_keycap-text-active:var(--keycap-text-active, #fff);
+  --_keycap-text: var(--keycap-text, #000);
+  --_keycap-text-active: var(--keycap-text-active, #fff);
   --_keycap-text-hover: var(--keycap-text-hover, var(--_keycap-text));
   --_keycap-text-pressed: var(--keycap-text-pressed, #fff);
   --_keycap-shift-text: var(--keycap-shift-text, var(--_accent-color));
 
-  --_keycap-primary-background: var(--keycap-primary-background, var(--_accent-color));
+  --_keycap-primary-background: var(
+    --keycap-primary-background,
+    var(--_accent-color)
+  );
   --_keycap-primary-text: var(--keycap-primary-text, #ddd);
-  --_keycap-primary-background-hover:var(--keycap-primary-background-hover, #0d80f2); ;
+  --_keycap-primary-background-hover: var(
+    --keycap-primary-background-hover,
+    #0d80f2
+  );
 
-
-  --_keycap-secondary-background:var(--keycap-secondary-background,  #a0a9b8);
-  --_keycap-secondary-background-hover: var(--keycap-secondary-background-hover,  #7d8795);
+  --_keycap-secondary-background: var(--keycap-secondary-background, #a0a9b8);
+  --_keycap-secondary-background-hover: var(
+    --keycap-secondary-background-hover,
+    #7d8795
+  );
   --_keycap-secondary-text: var(--keycap-secondary-text, #060707);
   --_keycap-secondary-border: var(--keycap-secondary-border, #c5c9d0);
-  --_keycap-secondary-border-bottom:var(--keycap-secondary-border-bottom,  #989da6);
+  --_keycap-secondary-border-bottom: var(
+    --keycap-secondary-border-bottom,
+    #989da6
+  );
 
   --_keycap-height: var(--keycap-height, 60px);
   /* Keycap width (incl. margin) */
   --_keycap-max-width: var(--keycap-max-width, 100px);
   --_keycap-gap: var(--keycap-gap, 8px);
 
-  --_keycap-font-size: var(--keycap-font-size, ~"clamp(16px, 4cqw, 24px)");
-  --_keycap-small-font-size:var(--keycap-small-font-size,  calc(var(--keycap-font-size) * 0.8));
-  --_keycap-extra-small-font-size: var(--keycap-extra-small-font-size, calc(var(--keycap-font-size) / 1.42));
+  --_keycap-font-size: var(--keycap-font-size, ~'clamp(16px, 4cqw, 24px)');
+  --_keycap-small-font-size: var(
+    --keycap-small-font-size,
+    calc(var(--keycap-font-size) * 0.8)
+  );
+  --_keycap-extra-small-font-size: var(
+    --keycap-extra-small-font-size,
+    calc(var(--keycap-font-size) / 1.42)
+  );
 
-  --_variant-panel-background: var(--variant-panel-background,  #fff);
+  --_variant-panel-background: var(--variant-panel-background, #fff);
   --_variant-keycap-text: var(--variant-keycap-text, var(--_keycap-text));
-  --_variant-keycap-text-active: var(--variant-keycap-text-active, var(--_keycap-text-active));
-  --_variant-keycap-background-active: var(--variant-keycap-background-active, var(--_accent-color));
+  --_variant-keycap-text-active: var(
+    --variant-keycap-text-active,
+    var(--_keycap-text-active)
+  );
+  --_variant-keycap-background-active: var(
+    --variant-keycap-background-active,
+    var(--_accent-color)
+  );
 
-  --_variant-keycap-length: var(--variant-keycap-length,  70px);
+  --_variant-keycap-length: var(--variant-keycap-length, 70px);
   --_variant-keycap-font-size: var(--variant-keycap-font-size, 30px);
-  --_variant-keycap-aside-font-size: var(--variant-keycap-aside-font-size, 12px);
+  --_variant-keycap-aside-font-size: var(
+    --variant-keycap-aside-font-size,
+    12px
+  );
 
   --_keycap-shift-font-size: var(--keycap-shift-font-size, 16px);
   --_keycap-shift-color: var(--keycap-shift-color, var(--_accent-color));
 
   --_box-placeholder-color: var(--box-placeholder-color, var(--_accent-color));
+  --_box-placeholder-pressed-color: var(--box-placeholder-pressed-color, var(--keycap-text-pressed));
+}
+
+.is-math-mode .MLK__rows .if-text-mode,
+.is-text-mode .MLK__rows .if-math-mode {
+  display: none;
 }
 
 .if-can-undo,
@@ -126,7 +169,7 @@
 body > .ML__keyboard {
   position: fixed;
   --_padding-bottom: calc(
-    var(--_padding-bottom) + env(safe-area-inset-bottom, 0)
+    var(--keyboard-padding-bottom, 0px) + env(safe-area-inset-bottom, 0)
   );
 }
 
@@ -237,7 +280,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
 /* If a custom layout has a custom container/backdrop, make sure to 
    allow pointer events on it. */
-.backdrop-is-transparent .MLK__layer > div > div{
+.backdrop-is-transparent .MLK__layer > div > div {
   pointer-events: all;
 }
 
@@ -270,7 +313,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 // It contains all the operable UI (toolbar, rows of keycaps)
 .MLK__plate {
   position: absolute;
-  top: 0;
+  top: var(--_padding-top);
   left: var(--_padding-horizontal);
   width: calc(100% - 2 * var(--_padding-horizontal));
   margin: 0;
@@ -315,6 +358,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
 /* Keyboard layouts are made or rows of keys... */
 .MLK__rows {
+  --_keycap-width: ~'min(var(--_keycap-max-width), 10cqw)';
+
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -330,258 +375,262 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   compensate. */
   padding-left: var(--_row-padding-left);
   padding-right: var(--_row-padding-right);
-  overflow-x: auto;
+  overflow: visible;
 
   touch-action: none;
+}
 
-  & > .row {
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
+.MLK__rows > .MLK__row {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  width: 100%;
+  gap: var(--_keycap-gap);
+  margin: 0;
+  padding: 0;
+
+  .tex {
+    font-family: KaTeX_Math, KaTeX_Main, 'Cambria Math', 'Asana Math',
+      OpenSymbol, Symbola, STIX, Times, serif !important;
+  }
+  .tex-math {
+    font-family: KaTeX_Math, 'Cambria Math', 'Asana Math', OpenSymbol, Symbola,
+      STIX, Times, serif !important;
+  }
+
+  .big-op {
+    font-size: calc(1.25 * var(--_keycap-font-size));
+  }
+
+  .small {
+    font-size: var(--_keycap-small-font-size);
+  }
+
+  /* For the alignment of the text on some modifiers (e.g. shift) */
+  .bottom {
+    justify-content: flex-end;
+  }
+  .left {
+    align-items: flex-start;
+    padding-left: 12px;
+  }
+
+  .right {
+    align-items: flex-end;
+    padding-right: 12px;
+  }
+
+  .w0 {
+    width: 0;
+  }
+  .w5 {
+    width: calc(0.5 * var(--_keycap-width) - var(--_keycap-gap));
+  }
+  .w15 {
+    width: calc(1.5 * var(--_keycap-width) - var(--_keycap-gap));
+  }
+  .w20 {
+    width: calc(2 * var(--_keycap-width) - var(--_keycap-gap));
+  }
+  .w40 {
+    width: calc(4 * var(--_keycap-width) - var(--_keycap-gap));
+  }
+  .w50 {
+    width: calc(5 * var(--_keycap-width) - var(--_keycap-gap));
+  }
+  .MLK__keycap.w50 {
+    font-size: 80%;
+    padding-top: 10px;
+    font-weight: 100;
+  }
+  /* Extra spacing between two adjacent keys */
+  .separator {
+    background: transparent;
+    border: none;
+    pointer-events: none;
+  }
+  .horizontal-rule {
+    height: 6px;
+
+    margin-top: 3px;
+    margin-bottom: 0;
     width: 100%;
-    gap: var(--_keycap-gap);
-    margin: 0;
-    padding: 0;
+    border-radius: 0;
+    border-top: var(--_horizontal-rule);
+  }
+  .ghost {
+    background: var(--_toolbar-background);
+    border: none;
+    color: var(--_toolbar-text);
+  }
 
-    .tex {
-      font-family: KaTeX_Math, KaTeX_Main, 'Cambria Math', 'Asana Math',
-        OpenSymbol, Symbola, STIX, Times, serif !important;
-    }
-    .tex-math {
-      font-family: KaTeX_Math, 'Cambria Math', 'Asana Math', OpenSymbol, Symbola,
-        STIX, Times, serif !important;
-    }
+  .ghost:hover {
+    background: var(--_toolbar-background-hover);
+  }
 
-    .big-op {
-      font-size: calc(1.25 * var(--_keycap-font-size));
-    }
-
-    .small {
-      font-size: var(--_keycap-small-font-size);
-    }
-
-    /* For the alignment of the text on some modifiers (e.g. shift) */
-    .bottom {
-      justify-content: flex-end;
-    }
-    .left {
-      align-items: flex-start;
-      padding-left: 12px;
-    }
-
-    .right {
-      align-items: flex-end;
-      padding-right: 12px;
-    }
-
-    .w0 {
-      width: 0;
-    }
-    .w5 {
-      width: calc(
-        ~'min(var(--_keycap-max-width, 100px), 10%)' / 2 - var(--_keycap-gap);
-      );
-    }
-    .w15 {
-      width: calc(
-        1.5 * ~'min(var(--_keycap-max-width, 100px), 10%)' - var(--_keycap-gap);
-      );
-    }
-    .w20 {
-      width: calc(
-        2 * ~'min(var(--_keycap-max-width, 100px), 10%)' -  var(--_keycap-gap);
-      );
-    }
-    .w50 {
-      width: calc(
-        5 * ~'min(var(--_keycap-max-width, 100px), 10%)' -  var(--_keycap-gap);
-      );
-    }
-    .MLK__keycap.w50 {
-      font-size: 80%;
-      padding-top: 10px;
-      font-weight: 100;
-    }
-    /* Extra spacing between two adjacent keys */
-    .separator {
-      background: transparent;
-      border: none;
-      pointer-events: none;
-    }
-    .horizontal-rule {
-      height: 6px;
-
-      margin-top: 3px;
-      margin-bottom: 0;
-      width: 100%;
-      border-radius: 0;
-      border-top: var(--_horizontal-rule);
-    }
-    .ghost {
-      background: var(--_toolbar-background);
-      border: none;
-      color: var(--_toolbar-text);
-    }
-
-    .ghost:hover {
-      background: var(--_toolbar-background-hover);
-    }
-
-    .bigfnbutton {
-      font-size: var(--_keycap-extra-small-font-size);
-    }
-    .shift,
-    .action {
-      color: var(--_keycap-secondary-text);
-      background: var(--_keycap-secondary-background);
-      border-color: var(--_keycap-secondary-border);
-      border-bottom-color: var(--_keycap-secondary-border-bottom);
-      line-height: 0.8;
-      font-size: ~"min(1rem, var(--_keycap-small-font-size))";
-      font-weight: 600;
-      padding: 8px 12px 8px 12px;      
-      &:hover {
-        background: var(--_keycap-secondary-background-hover);
-      }
-    }
-
-    .action.primary {
-      background: var(--_keycap-primary-background);
-      color: var(--_keycap-primary-text);
-    }
-    .action.primary:hover {
-      background: var(--_keycap-primary-background-hover) ; // blue-500
-      color: var(--_keycap-primary-text);
-    }
-
-    .shift.selected,
-    .action.selected {
-      color: var(--_toolbar-text-active);
-      &.is-pressed,
-      &.is-active {
-        color: white;
-      }
-    }
-
-    // Use to display warning icons, with a SVG icon
-    .warning {
-      background: #cd0030;
-      color: white;
-      svg.svg-glyph {
-        width: 24px;
-        height: 24px;
-        min-height: 24px;
-      }
-    }
-
-    /** A regular keycap */
-    div {
-      display: flex;
-      flex-flow: column;
-      align-items: center;
-      justify-content: space-evenly;
-
-      width: calc(~'min(var(--_keycap-max-width), 10%)' - var(--_keycap-gap));
-      height: var(--_keycap-height);
-      box-sizing: border-box;
-      padding: 0;
-      vertical-align: top;
-      text-align: center;
-      float: left;
-
-      color: var(--_keycap-text);
-      fill: currentColor;
-      font-size: var(--_keycap-font-size);
-      background: var(--_keycap-background);
-      border: 1px solid var(--_keycap-border);
-      border-bottom-color: var(--_keycap-border-bottom);
-      border-radius: 6px;
-
-      cursor: pointer;
-      touch-action: none;
-
-      &:hover {
-        background: var(--_keycap-background-hover);
-      }
-
-      .ML__mathlive {
-        pointer-events: none;
-        touch-action: none;
-      }
-
-      /* Keys with a variants panel */
-      // &[data-variants] {
-      // }
-
-      svg.svg-glyph {
-        margin: 8px 0;
-        width: 20px;
-        height: 20px;
-        min-height: 20px;
-      }
-      svg.svg-glyph-lg {
-        margin: 8px 0;
-        width: 24px;
-        height: 24px;
-        min-height: 24px;
-      }
-
-      &.MLK__tex-math {
-        font-size: 25px;
-      }
-      // &.tt {font-size: 30px;}
-      &.is-pressed {
-        // box-shadow: inset 0 0 1px 1px #8d8f92;
-        background: var(--_keycap-background-pressed);
-        color: var(--_keycap-text-pressed);
-      }
-      &.MLK__keycap.is-active,
-      &.action.is-active,
-      &.MLK__keycap.is-pressed,
-      &.action.is-pressed {
-        z-index: calc(var(--_keyboard-zindex) - 5);
-        aside {
-          display: none;
-        }
-        .MLK__shift {
-          display: none;
-        }
-      }
-      &.shift.is-pressed, &.MLK__keycap.is-pressed, &.action.is-pressed {
-        background: var(--_keycap-background-pressed);
-        color: var(--_keycap-text-pressed);
-      }
-
-      &.shift.is-active, &.MLK__keycap.is-active, &.action.is-active {
-        background: var(--_keycap-background-active);
-        color: var(--_keycap-text-active);
-      }
-
-      // Waves effect
-      position: relative;
-      overflow: hidden;
-      -webkit-user-select: none;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      // z-index: 1;
-      // transition: .14s cubic-bezier(.4, 0, .2, 1);
-      small {
-        color: var(--_keycap-secondary-text);
-      }
-      aside {
-        font-family: @system;
-        font-size: 10px;
-        line-height: 10px;
-        color: var(--_keycap-secondary-text);
-      }
+  .bigfnbutton {
+    font-size: var(--_keycap-extra-small-font-size);
+  }
+  .shift,
+  .action {
+    color: var(--_keycap-secondary-text);
+    background: var(--_keycap-secondary-background);
+    border-color: var(--_keycap-secondary-border);
+    border-bottom-color: var(--_keycap-secondary-border-bottom);
+    line-height: 0.8;
+    font-size: ~'min(1rem, var(--_keycap-small-font-size))';
+    font-weight: 600;
+    padding: 8px 12px 8px 12px;
+    &:hover {
+      background: var(--_keycap-secondary-background-hover);
     }
   }
+
+  .action.primary {
+    background: var(--_keycap-primary-background);
+    color: var(--_keycap-primary-text);
+  }
+  .action.primary:hover {
+    background: var(--_keycap-primary-background-hover); // blue-500
+    color: var(--_keycap-primary-text);
+  }
+
+  .shift.selected,
+  .action.selected {
+    color: var(--_toolbar-text-active);
+    &.is-pressed,
+    &.is-active {
+      color: white;
+    }
+  }
+
+  // Use to display warning icons, with a SVG icon
+  .warning {
+    background: #cd0030;
+    color: white;
+    svg.svg-glyph {
+      width: 24px;
+      height: 24px;
+      min-height: 24px;
+    }
+  }
+
 }
+
+
+/** A regular keycap
+ * Use the :where() pseudo-class to give it a very low specifity, 
+ * so that it can be overriden by custom style.
+ */
+:where(.MLK__rows > .MLK__row  div) {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-evenly;
+
+    width: calc(var(--_keycap-width) - var(--_keycap-gap));
+    height: var(--_keycap-height);
+    box-sizing: border-box;
+    padding: 0;
+    vertical-align: top;
+    text-align: center;
+    float: left;
+
+    color: var(--_keycap-text);
+    fill: currentColor;
+    font-size: var(--_keycap-font-size);
+    background: var(--_keycap-background);
+    border: 1px solid var(--_keycap-border);
+    border-bottom-color: var(--_keycap-border-bottom);
+    border-radius: 6px;
+
+    cursor: pointer;
+    touch-action: none;
+
+    &:hover {
+      overflow: visible;
+      background: var(--_keycap-background-hover);
+    }
+
+    .ML__latex {
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    /* Keys with a variants panel */
+    // &[data-variants] {
+    // }
+
+    svg.svg-glyph {
+      margin: 8px 0;
+      width: 20px;
+      height: 20px;
+      min-height: 20px;
+    }
+    svg.svg-glyph-lg {
+      margin: 8px 0;
+      width: 24px;
+      height: 24px;
+      min-height: 24px;
+    }
+
+    &.MLK__tex-math {
+      font-size: 25px;
+    }
+    // &.tt {font-size: 30px;}
+    &.is-pressed {
+      // box-shadow: inset 0 0 1px 1px #8d8f92;
+      background: var(--_keycap-background-pressed);
+      color: var(--_keycap-text-pressed);
+      --_box-placeholder-color: var(--_box-placeholder-pressed-color);
+    }
+    &.MLK__keycap.is-active,
+    &.action.is-active,
+    &.MLK__keycap.is-pressed,
+    &.action.is-pressed {
+      z-index: calc(var(--_keyboard-zindex) - 5);
+      aside {
+        display: none;
+      }
+      .MLK__shift {
+        display: none;
+      }
+    }
+    &.shift.is-pressed,
+    &.MLK__keycap.is-pressed,
+    &.action.is-pressed {
+      background: var(--_keycap-background-pressed);
+      color: var(--_keycap-text-pressed);
+    }
+
+    &.shift.is-active,
+    &.MLK__keycap.is-active,
+    &.action.is-active {
+      background: var(--_keycap-background-active);
+      color: var(--_keycap-text-active);
+      --_box-placeholder-color: var(--_box-placeholder-pressed-color);
+    }
+
+    position: relative;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    small {
+      color: var(--_keycap-secondary-text);
+    }
+    aside {
+      font-family: @system;
+      font-size: 10px;
+      line-height: 10px;
+      color: var(--_keycap-secondary-text);
+    }
+  }
 
 /* Add an attribute 'data-tooltip' to display a tooltip on hover.
 Note there are a different set of tooltip rules for the keyboard toggle
 (it's in a different CSS tree) */
-.MLK__tooltip {
+.ML__keyboard [data-tooltip] {
   position: relative;
   &::after {
     position: absolute;
@@ -659,14 +708,14 @@ Note there are a different set of tooltip rules for the keyboard toggle
     cursor: pointer;
     width: max-content;
     min-width: 42px;
-    min-height: 22px;
+    min-height: 34px;
     border: none;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 8px;
     padding-top: 8px;
-    margin-top: 7px;
-    margin-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 4px;
     margin-left: 4px;
     margin-right: 4px;
     border-radius: 8px;
@@ -694,7 +743,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
       border-radius: 0;
       border-bottom-color: var(--_toolbar-text-active);
       padding-bottom: 4px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
   }
 }
@@ -737,7 +786,10 @@ Note there are a different set of tooltip rules for the keyboard toggle
   &.compact {
     --_variant-keycap-length: var(--variant-keycap-length, 50px);
     --_variant-keycap-font-size: var(--variant-keycap-font-size, 24px);
-    --_variant-keycap-aside-font-size: var(--variant-keycap-aside-font-size ,10px);
+    --_variant-keycap-aside-font-size: var(
+      --variant-keycap-aside-font-size,
+      10px
+    );
   }
 
   // margin: 0;
@@ -775,7 +827,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
     cursor: pointer;
 
     // Rendered label inside a variant keycap
-    .ML__mathlive {
+    .ML__latex {
       pointer-events: none;
     }
 
@@ -874,19 +926,17 @@ Note there are a different set of tooltip rules for the keyboard toggle
 /* @xs breakpoint: iPhone 5 */
 @container @xs {
   .MLK__rows {
-    --_keycap-gap: ~"min(var(--_keycap-gap, 2px), 2px)";
-    --_keycap-height: ~"min(var(--_keycap-height, 42px), 42px)";
-    --_keycap-max-width: ~"min(var(--_keycap-max-width, 62px), 62px)";
+    --_keycap-gap: ~'max(var(--_keycap-gap, 2px), 2px)';
+    --_keycap-height: ~'max(var(--_keycap-height), 42px)';
+    --_keycap-width: ~'min(min(var(--_keycap-max-width), 10cqw), 62px)';
   }
 
   // Smaller toolbar switcher labels
   .MLK__toolbar > div > div {
     font-size: 100%;
-    padding: 0;
     margin-left: 2px;
     margin-right: 2px;
   }
-
 
   .MLK__rows .shift,
   .MLK__rows .action {
@@ -902,9 +952,9 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
 @container @sm {
   .MLK__rows {
-    --_keycap-gap: ~"min(var(--keycap-gap, 2px), 2px)";
-    --_keycap-height: ~"min(var(--keycap-height, 52px), 52px)";
-    --_keycap-max-width: ~"min(var(--keycap-max-width, 62px), 62px)";;
+    --_keycap-gap: ~'max(var(--keycap-gap, 2px), 2px)';
+    --_keycap-height: ~'max(var(--keycap-height, 52px), 52px)';
+    --_keycap-width: ~'min(min(var(--_keycap-max-width), 10cqw), 62px)';
   }
 
   .MLK__toolbar > div > div {
@@ -917,19 +967,19 @@ Note there are a different set of tooltip rules for the keyboard toggle
     font-size: 16px;
   }
 
-  .MLK__rows > .row > div.fnbutton {
+  .MLK__rows > .MLK__row > div.fnbutton {
     font-size: 16px;
   }
 
-  .MLK__rows > .row > div.bigfnbutton {
+  .MLK__rows > .MLK__row > div.bigfnbutton {
     font-size: calc(var(--_keycap-extra-small-font-size) / 1.55);
   }
 
   // Class for keycaps (not a tag)
-  .MLK__rows > .row > div.small {
+  .MLK__rows > .MLK__row > div.small {
     font-size: 13px;
   }
-  .MLK__rows > .row > div > aside {
+  .MLK__rows > .MLK__row > div > aside {
     display: none;
   }
   .MLK__shift {
@@ -940,14 +990,22 @@ Note there are a different set of tooltip rules for the keyboard toggle
 /* Medium breakpoint: larger phones */
 @container @md {
   .MLK__rows {
-    // --_keycap-gap: ~"min(var(--keycap-gap), 2px)";
-    --_keycap-height: ~"min(var(--keycap-height, 42px), 42px)";
-    // --_keycap-max-width: ~"min(var(--_keycap-max-width), 62px)";;
+    --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
   }
 
-  .MLK__rows > .row > div > small {
+  .MLK__rows > .MLK__row > div > small {
     font-size: 14px;
   }
+}
+
+@media ( max-height: 768px ) {
+  .MLK__rows {
+    --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
+  }
+  .MLK__rows > .MLK__row > div > small {
+    font-size: 14px;
+  }
+
 }
 
 @container (max-width: 1444px) {
@@ -965,27 +1023,36 @@ Note there are a different set of tooltip rules for the keyboard toggle
     --_accent-color: var(--keyboard-accent-color, #0b5c9c); // blue-300
     --_background: var(--keyboard-background, #151515);
     --_border: var(--keyboard-border, transparent);
-    --_toolbar-text: var(--keyboard-toolbar-text,  #e3e4e8);
+    --_toolbar-text: var(--keyboard-toolbar-text, #e3e4e8);
 
-    --_toolbar-background-hover: var(--keyboard-toolbar-background-hover, #303030);
+    --_toolbar-background-hover: var(
+      --keyboard-toolbar-background-hover,
+      #303030
+    );
     --keyboard-toolbar-background-hover: #303030;
 
     --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #303030);
 
-    --_keycap-background:var(--keycap-background,  #1f2022);
-    --_keycap-background-hover:var(--keycap-background,  #2f3032); ;
+    --_keycap-background: var(--keycap-background, #1f2022);
+    --_keycap-background-hover: var(--keycap-background-hover, #2f3032);
     --_keycap-border: var(--_keycap-border, transparent);
     --_keycap-border-bottom: var(--_keycap-border-bottom, transparent);
-    --_keycap-text: var(--keycap-text,  #e3e4e8);
+    --_keycap-text: var(--keycap-text, #e3e4e8);
 
-    --_keycap-secondary-background:var(--keycap-secondary-background,  #3d4144);
-    --_keycap-secondary-background-hover: var(--keycap-secondary-background-hover,  #4d5154);
-    --_keycap-secondary-text:var(--keycap-secondary-text,  #e7ebee);
+    --_keycap-secondary-background: var(--keycap-secondary-background, #3d4144);
+    --_keycap-secondary-background-hover: var(
+      --keycap-secondary-background-hover,
+      #4d5154
+    );
+    --_keycap-secondary-text: var(--keycap-secondary-text, #e7ebee);
     --keycap-secondary-border: transparent;
     --keycap-secondary-border-bottom: transparent;
     --_keycap-secondary-border: var(--keycap-secondary-border, transparent);
-    --_keycap-secondary-border-bottom:var(--keycap-secondary-border-bottom,  transparent);
-  
+    --_keycap-secondary-border-bottom: var(
+      --keycap-secondary-border-bottom,
+      transparent
+    );
+
     --_variant-panel-background: var(--variant-panel-background, #303030);
     --_variant-keycap-text-active: var(--variant-keycap-text-active, #fff);
   }
@@ -993,34 +1060,41 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
 /* Same as the media query, but with a class */
 [theme='dark'] .ML__keyboard {
-  .ML__keyboard {
-    --_accent-color: var(--keyboard-accent-color, #0b5c9c); // blue-300
-    --_background: var(--keyboard-background, #151515);
-    --_border: var(--keyboard-border, transparent);
-    --_toolbar-text: var(--keyboard-toolbar-text,  #e3e4e8);
+  --_accent-color: var(--keyboard-accent-color, #0b5c9c); // blue-300
+  --_background: var(--keyboard-background, #151515);
+  --_border: var(--keyboard-border, transparent);
+  --_toolbar-text: var(--keyboard-toolbar-text, #e3e4e8);
 
-    --_toolbar-background-hover: var(--keyboard-toolbar-background-hover, #303030);
-    --keyboard-toolbar-background-hover: #303030;
+  --_toolbar-background-hover: var(
+    --keyboard-toolbar-background-hover,
+    #303030
+  );
+  --keyboard-toolbar-background-hover: #303030;
 
-    --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #303030);
+  --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #303030);
 
-    --_keycap-background:var(--keycap-background,  #1f2022);
-    --_keycap-background-hover:var(--keycap-background,  #2f3032); ;
-    --_keycap-border: var(--_keycap-border, transparent);
-    --_keycap-border-bottom: var(--_keycap-border-bottom, transparent);
-    --_keycap-text: var(--keycap-text,  #e3e4e8);
+  --_keycap-background: var(--keycap-background, #1f2022);
+  --_keycap-background-hover: var(--keycap-background-hover, #2f3032);
+  --_keycap-border: var(--_keycap-border, transparent);
+  --_keycap-border-bottom: var(--_keycap-border-bottom, transparent);
+  --_keycap-text: var(--keycap-text, #e3e4e8);
 
-    --_keycap-secondary-background:var(--keycap-secondary-background,  #3d4144);
-    --_keycap-secondary-background-hover: var(--keycap-secondary-background-hover,  #4d5154);
-    --_keycap-secondary-text:var(--keycap-secondary-text,  #e7ebee);
-    --keycap-secondary-border: transparent;
-    --keycap-secondary-border-bottom: transparent;
-    --_keycap-secondary-border: var(--keycap-secondary-border, transparent);
-    --_keycap-secondary-border-bottom:var(--keycap-secondary-border-bottom,  transparent);
-  
-    --_variant-panel-background: var(--variant-panel-background, #303030);
-    --_variant-keycap-text-active: var(--variant-keycap-text-active, #fff);
-  }
+  --_keycap-secondary-background: var(--keycap-secondary-background, #3d4144);
+  --_keycap-secondary-background-hover: var(
+    --keycap-secondary-background-hover,
+    #4d5154
+  );
+  --_keycap-secondary-text: var(--keycap-secondary-text, #e7ebee);
+  --keycap-secondary-border: transparent;
+  --keycap-secondary-border-bottom: transparent;
+  --_keycap-secondary-border: var(--keycap-secondary-border, transparent);
+  --_keycap-secondary-border-bottom: var(
+    --keycap-secondary-border-bottom,
+    transparent
+  );
+
+  --_variant-panel-background: var(--variant-panel-background, #303030);
+  --_variant-keycap-text-active: var(--variant-keycap-text-active, #fff);
 }
 
 [theme='light'] .ML__keyboard {
@@ -1028,34 +1102,54 @@ Note there are a different set of tooltip rules for the keyboard toggle
   --_background: var(--keyboard-background, #cacfd7);
   --_border: var(--keyboard-border, #ddd);
 
-  --_toolbar-text:var(--keyboard-toolbar-text,  #2c2e2f);
-  --_toolbar-background:var(--keyboard-toolbar-background, transparent);
+  --_toolbar-text: var(--keyboard-toolbar-text, #2c2e2f);
+  --_toolbar-background: var(--keyboard-toolbar-background, transparent);
   --_toolbar-background-hover: var(--keyboard-toolbar-background-hover, #eee);
-  --_toolbar-background-selected: var(--keyboard-toolbar-background-selected, transparent);
+  --_toolbar-background-selected: var(
+    --keyboard-toolbar-background-selected,
+    transparent
+  );
 
   --_horizontal-rule: var(--keyboard-horizontal-rule, 1px solid #fff);
 
-  --_keycap-background:var(--keycap-background,  white);
-  --_keycap-background-hover:var(--keycap-background,  #f5f5f7); ;
-  --_keycap-background-active: var(--keycap-background-active, var(--_accent-color));
-  --_keycap-background-pressed: var(--keycap-background-pressed, var(--_accent-color));
+  --_keycap-background: var(--keycap-background, white);
+  --_keycap-background-hover: var(--keycap-background-hover, #f5f5f7);
+  --_keycap-background-active: var(
+    --keycap-background-active,
+    var(--_accent-color)
+  );
+  --_keycap-background-pressed: var(
+    --keycap-background-pressed,
+    var(--_accent-color)
+  );
   --_keycap-border: var(--_keycap-border, #e5e6e9);
   --_keycap-border-bottom: var(--_keycap-border-bottom, #8d8f92);
-  --_keycap-text: var(--keycap-text,  #000);
-  --_keycap-text-active:var(--keycap-text-active, #fff);
+  --_keycap-text: var(--keycap-text, #000);
+  --_keycap-text-active: var(--keycap-text-active, #fff);
   --_keycap-text-hover: var(--keycap-text-hover, var(--_keycap-text));
   --_keycap-text-pressed: var(--keycap-text-pressed, #fff);
   --_keycap-shift-text: var(--keycap-shift-text, var(--_accent-color));
 
-  --_keycap-secondary-background:var(--keycap-secondary-background,  #a0a9b8);
-  --_keycap-secondary-background-hover: var(--keycap-secondary-background-hover,  #7d8795);
+  --_keycap-secondary-background: var(--keycap-secondary-background, #a0a9b8);
+  --_keycap-secondary-background-hover: var(
+    --keycap-secondary-background-hover,
+    #7d8795
+  );
   --_keycap-secondary-text: var(--keycap-secondary-text, #060707);
   --_keycap-secondary-border: var(--keycap-secondary-border, #c5c9d0);
-  --_keycap-secondary-border-bottom:var(--keycap-secondary-border-bottom,  #989da6);
+  --_keycap-secondary-border-bottom: var(
+    --keycap-secondary-border-bottom,
+    #989da6
+  );
 
-
-  --_variant-panel-background: var(--variant-panel-background,  #fff);
+  --_variant-panel-background: var(--variant-panel-background, #fff);
   --_variant-keycap-text: var(--variant-keycap-textvar, var(--_keycap-text));
-  --_variant-keycap-text-active: var(--variant-keycap-text-active, var(--_keycap-text-active));
-  --_variant-keycap-background-active: var(--variant-keycap-background-active, var(--_accent-color));
+  --_variant-keycap-text-active: var(
+    --variant-keycap-text-active,
+    var(--_keycap-text-active)
+  );
+  --_variant-keycap-background-active: var(
+    --variant-keycap-background-active,
+    var(--_accent-color)
+  );
 }

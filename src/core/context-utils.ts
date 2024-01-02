@@ -1,7 +1,7 @@
 import {
   getMacroDefinition,
   getMacros,
-} from '../core-definitions/definitions-utils';
+} from '../latex-commands/definitions-utils';
 import type { ContextInterface } from '../core/types';
 
 import { defaultColorMap, defaultBackgroundColorMap } from './color';

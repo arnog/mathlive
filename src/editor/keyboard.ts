@@ -25,7 +25,11 @@
  */
 
 import { normalizeKeyboardEvent } from './keyboard-layout';
-import { Scrim } from './scrim';
+import { Scrim } from '../ui/utils/scrim';
+import {
+  deepActiveElement,
+  mightProducePrintableCharacter,
+} from 'ui/events/utils';
 
 export interface KeyboardDelegate {
   cancelComposition: () => void;
@@ -38,126 +42,8 @@ export interface KeyboardDelegate {
   dispose: () => void;
 }
 
-const PRINTABLE_KEYCODE = new Set([
-  'Backquote', // Japanese keyboard: hankaku/zenkaku/kanji key, which is non-printable
-  'Digit0',
-  'Digit1',
-  'Digit2',
-  'Digit3',
-  'Digit4',
-  'Digit5',
-  'Digit6',
-  'Digit7',
-  'Digit8',
-  'Digit9',
-  'Minus',
-  'Equal',
-  'IntlYen', // Japanese Keyboard. Russian keyboard: \/
-
-  'KeyQ', // AZERTY keyboard: labeled 'a'
-  'KeyW', // AZERTY keyboard: labeled 'z'
-  'KeyE',
-  'KeyR',
-  'KeyT',
-  'KeyY', // QWERTZ keyboard: labeled 'z'
-  'KeyU',
-  'KeyI',
-  'KeyO',
-  'KeyP',
-  'BracketLeft',
-  'BracketRight', // On the Windows Swedish keyboard, this is the `¨` key, which is a dead key
-  'Backslash', // May be labeled #~ on UK 102 keyboard
-  'KeyA', // AZERTY keyboard: labeled 'q'
-  'KeyS',
-  'KeyD',
-  'KeyF',
-  'KeyG',
-  'KeyH',
-  'KeyJ',
-  'KeyK',
-  'KeyL',
-  'Semicolon',
-  'Quote',
-  'IntlBackslash', // QWERTZ keyboard '><'
-  'KeyZ', // AZERTY: 'w', QWERTZ: 'y'
-  'KeyX',
-  'KeyC',
-  'KeyV',
-  'KeyB',
-  'KeyN',
-  'KeyM',
-  'Comma',
-  'Period',
-  'Slash',
-  'IntlRo', // Japanese keyboard '\ろ'
-
-  'Space',
-
-  'Numpad0',
-  'Numpad1',
-  'Numpad2',
-  'Numpad3',
-  'Numpad4',
-  'Numpad5',
-  'Numpad6',
-  'Numpad7',
-  'Numpad8',
-  'Numpad9',
-  'NumpadAdd',
-  'NumpadComma',
-  'NumpadDecimal',
-  'NumpadDivide',
-  'NumpadEqual',
-  'NumpadHash',
-  'NumpadMultiply',
-  'NumpadParenLeft',
-  'NumpadParenRight',
-  'NumpadStar',
-  'NumpadSubstract',
-]);
-
-export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
-  // Ignore ctrl/cmd-combinations but not shift/alt-combinations
-  if (evt.ctrlKey || evt.metaKey) return false;
-
-  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-  if (['Dead', 'Process'].includes(evt.key)) return false;
-
-  // When issued via a composition, the `code` field is empty
-  if (evt.code === '') return true;
-
-  return PRINTABLE_KEYCODE.has(evt.code);
-}
-
-/**
- * Create a normalized representation of a keyboard event,
- * i.e., key code and modifier keys. For example:
- * - `ctrl+Shift+alt+[KeyF]`
- *
- * Note: the key code corresponds to a physical key, e.g. 'KeyQ' is
- * the key labeled 'A' on a French keyboard
- *
- */
-function keyboardEventToString(evt: KeyboardEvent): string {
-  evt = normalizeKeyboardEvent(evt);
-
-  const modifiers: string[] = [];
-
-  if (evt.ctrlKey) modifiers.push('ctrl');
-  if (evt.metaKey) modifiers.push('meta');
-  if (evt.altKey) modifiers.push('alt');
-  if (evt.shiftKey) modifiers.push('shift');
-
-  // If no modifiers, simply return the key name
-  if (modifiers.length === 0) return `[${evt.code}]`;
-
-  modifiers.push(`[${evt.code}]`);
-
-  return modifiers.join('+');
-}
-
 export interface KeyboardDelegateInterface {
-  onKeystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
+  onKeystroke: (ev: KeyboardEvent) => boolean;
   onInput: (text: string) => void;
   onCut: (ev: ClipboardEvent) => void;
   onCopy: (ev: ClipboardEvent) => void;
@@ -223,8 +109,7 @@ export function delegateKeyboardEvents(
 
       keydownEvent = event;
       keypressEvent = null;
-      if (!delegate.onKeystroke(keyboardEventToString(event), event))
-        keydownEvent = null;
+      if (!delegate.onKeystroke(event)) keydownEvent = null;
       else keyboardSink.textContent = '';
     },
     { capture: true, signal }
@@ -236,8 +121,7 @@ export function delegateKeyboardEvents(
       if (compositionInProgress) return;
       // If this is not the first keypress after a keydown, that is,
       // if this is a repeated keystroke, call the keystroke handler.
-      if (keydownEvent && keypressEvent)
-        delegate.onKeystroke(keyboardEventToString(keydownEvent), keydownEvent);
+      if (keydownEvent && keypressEvent) delegate.onKeystroke(keydownEvent);
 
       keypressEvent = event;
     },
@@ -351,7 +235,7 @@ export function delegateKeyboardEvents(
         return;
       }
       // If the scrim is up, ignore blur (while the variants panel is up)
-      const scrimState = Scrim.scrim?.state;
+      const scrimState = Scrim.state;
       if (scrimState === 'open' || scrimState === 'opening') {
         event.preventDefault();
         event.stopPropagation();
@@ -437,13 +321,6 @@ export function delegateKeyboardEvents(
   };
 }
 
-function deepActiveElement(): Element | null {
-  let a = document.activeElement;
-  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
-
-  return a;
-}
-
 export function keyboardEventToChar(evt?: KeyboardEvent): string {
   if (!evt || !mightProducePrintableCharacter(evt)) return '';
   let result: string | undefined;
@@ -465,4 +342,31 @@ export function keyboardEventToChar(evt?: KeyboardEvent): string {
     result = '';
 
   return result;
+}
+
+/**
+ * Create a normalized representation of a keyboard event,
+ * i.e., key code and modifier keys. For example:
+ * - `ctrl+Shift+alt+[KeyF]`
+ *
+ * Note: the key code corresponds to a physical key, e.g. 'KeyQ' is
+ * the key labeled 'A' on a French keyboard
+ *
+ */
+export function keyboardEventToString(evt: KeyboardEvent): string {
+  evt = normalizeKeyboardEvent(evt);
+
+  const modifiers: string[] = [];
+
+  if (evt.ctrlKey) modifiers.push('ctrl');
+  if (evt.metaKey) modifiers.push('meta');
+  if (evt.altKey) modifiers.push('alt');
+  if (evt.shiftKey) modifiers.push('shift');
+
+  // If no modifiers, simply return the key name
+  if (modifiers.length === 0) return `[${evt.code}]`;
+
+  modifiers.push(`[${evt.code}]`);
+
+  return modifiers.join('+');
 }

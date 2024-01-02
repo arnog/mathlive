@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en-US">
+<!doctype html>
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Smoke Test</title>
@@ -11,9 +11,6 @@
     <link rel="icon" href="data:," />
     <style>
       math-field {
-        /* --caret-color: cyan; */
-        /* --selection-background-color: red;
-        --selection-color: beige; */
         border: 1px solid var(--editable-border);
         padding: 5px;
         margin: 10px 0 10px 0;
@@ -22,11 +19,24 @@
         color: var(--on-editable);
         max-width: 640px;
         width: 100%;
+        position: relative;
+        z-index: 1;
+        font-size: clamp(1rem, 1.5vw, 4rem);
       }
-      /* math-field {
-        --selection-background-color: red;
-        --selection-color: #f80;
-      } */
+      @media (prefers-color-scheme: dark) {
+        math-field {
+          --contains-highlight-background-color: hsl(212, 40%, 25%);
+        }
+      }
+
+      /* math-field::part(menu-toggle) {
+        display: none;
+      }
+ */
+      #mathml-render {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
     </style>
   </head>
   <body>
@@ -46,10 +56,28 @@
       </ul>
     </header>
     <main>
-      <math-field id="mf"
+      <!-- <div style="transform: scale(2) translate(30%, 30%)"> -->
+      <math-field id="mf" name="formula">x² \in ℂ</math-field>
+      <!-- </div> -->
+      <!-- <math-field id="mf"
+        >\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field
+      > -->
+      <!-- <math-field id="mf"
+        >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
+      > -->
+
+      <!-- <math-field id="mf"
+        >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
+      > -->
+      <!-- <math-field id="mf"
+        >\phase{abc}\enclose{box}{\sqrt{\frac{1}{x+1}}}\enclose{roundedbox}{\sqrt{\frac{1}{x+1}}}\enclose{circle}{\sqrt{\frac{1}{x+1}}}\enclose{top}{\sqrt{\frac{1}{x+1}}}\enclose{left}{\sqrt{\frac{1}{x+1}}}\enclose{right}{\sqrt{\frac{1}{x+1}}}\enclose{bottom}{\sqrt{\frac{1}{x+1}}}\enclose{horizontalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{verticalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{phasorangle}{\sqrt{\frac{1}{x+1}}}\enclose{radical}{\sqrt{\frac{1}{x+1}}}\enclose{longdiv}{\sqrt{\frac{1}{x+1}}}\enclose{actuarial}{\sqrt{\frac{1}{x+1}}}\enclose{madruwb}{\sqrt{\frac{1}{x+1}}}</math-field
+      > -->
+      <!-- <math-field id="mf"
+        >\phase{abc}\phase{\frac{x}{x+1}}\enclose{downdiagonalstrike}{\frac{1}{x+1}}</math-field -->
+      <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
-      >
+      > -->
 
       <h2>Selection</h2>
       <div class="output" id="selection"></div>
@@ -69,6 +97,7 @@
 
       <h2>MathML</h2>
       <div class="output" id="mathml"></div>
+      <div id="mathml-render"></div>
 
       <h2>Latex to Speakable Text</h2>
       <div class="output" id="latex2speech"></div>
@@ -77,6 +106,8 @@
         <button id="grow">Grow</button>
         <button id="shrink">Shrink</button>
       </div>
+      <div>$$f(x) = \sin(x)$$</div>
+      <div style="height: 800px"></div>
     </main>
 
     <script type="module">
@@ -86,23 +117,17 @@
         MathfieldElement,
         convertLatexToMarkup,
         convertLatexToSpeakableText,
-      } from '/dist/mathlive.mjs';
+      } from "/dist/mathlive.mjs";
 
       import {
         ComputeEngine,
         version,
-      } from 'https://unpkg.com/@cortex-js/compute-engine?module';
+      } from "https://unpkg.com/@cortex-js/compute-engine?module";
 
-      renderMathInDocument();
+      const MAX_LINE_LENGTH = 74;
 
-      const mfe = new MathfieldElement({
-        mathVirtualKeyboardPolicy: 'manual',
-      });
-
-      // iframe.contentDocument.body.appendChild(mf.cloneNode(true));
-
-      // mathVirtualKeyboard.layouts = makeVirtualKeyboard(['x', 'y']);
-      // mathVirtualKeyboard.layouts = 'alphabetic';
+      // renderMathInDocument({ renderAccessibleContent: false });
+      renderMathInDocument({ renderAccessibleContent: false });
 
       // const ce = new ComputeEngine({
       //   latexDictionary: [
@@ -128,14 +153,120 @@
 
       // MathfieldElement.computeEngine = ce;
 
-      const mf = document.getElementById('mf');
+      MathfieldElement.computeEngine.latexOptions = {
+        ...MathfieldElement.computeEngine.latexOptions,
+        parseUnknownIdentifier: (s) =>
+          /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
+      };
 
-      mf.smartFence = false;
+      MathfieldElement.computeEngine.declare("f", "Functions");
+
+      // mathVirtualKeyboard.layouts = [
+      //   {
+      //     label: 'minimal',
+      //     tooltip: 'Only the essential',
+      //     layers: [
+      //       {
+      //         style: `
+      //           .digit { background: blue !important; color: white !important }
+      //           .variant_indicator::before { content: '•'; color: #38d; }`,
+      //         rows: [
+      //           [
+      //             // {
+      //             //   latex: 'x',
+      //             //   insert: 'x',
+      //             //   shift: { latex: 'a', insert: 's' },
+      //             // },
+      //             {
+      //               label: 'Aa',
+      //               class: 'if-math-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'text']],
+      //             },
+      //             {
+      //               label: '√x',
+      //               class: 'if-text-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'math']],
+      //             },
+      //             '-',
+      //             '\\times',
+      //             '\\frac{#@}{#?}',
+      //             '=',
+      //             '.',
+      //             '(',
+      //             ')',
+      //             '\\sqrt{#0}',
+      //             '#@^{#?}',
+      //           ],
+      //           [
+      //             { class: 'variant_indicator', latex: '1' },
+      //             { class: 'digit', latex: '2' },
+      //             { class: 'digit', latex: '3' },
+      //             { class: 'digit', latex: '4' },
+      //             { class: 'digit', latex: '5' },
+      //             { class: 'digit', latex: '6' },
+      //             { class: 'digit', latex: '7' },
+      //             { class: 'digit', latex: '8' },
+      //             { class: 'digit', latex: '9' },
+      //             { class: 'digit', latex: '0' },
+      //           ],
+      //         ],
+      //       },
+      //     ],
+      //   },
+      //   'alphabetic',
+      // ];
+
+      const mf = document.getElementById("mf");
+
+      // MathfieldElement.locale = "he";
+
+      // const menuItems = mf.menuItems;
+      // mf.menuItems = [];
+      // mf.menuItems = menuItems;
+
+      MathfieldElement.computeEngine.notation = "scientific";
+      // MathfieldElement.decimalSeparator = ",";
+
+      // mf.smartFence = false;
+
+      // mf.menu = [
+      //   {
+      //     label: "My Menu Item",
+      //     id: "my-menu-item",
+      //   },
+      // ];
+
       mf.inlineShortcuts = {
         ...mf.inlineShortcuts,
-        '@': '@',
-        '$': '\\$',
+        "[": { mode: "math", value: "$foo$" },
+        "[BracketLeft]": { mode: "math", value: "$toto$" },
+        "--": "\\_",
       };
+      // eslint-disable-next-line no-undef
+      // mathVirtualKeyboard.layouts = [
+      //   'alphabetic',
+      //   {
+      //     label: 'Test Keyboard',
+      //     rows: [[{ key: '-' }]],
+      //   },
+      // ];
+      // mf.mathModeSpace = '\\;';
+
+      // mf.scriptDepth = [0, 0];
+      // mf.addEventListener(
+      //   'keydown',
+      //   (ev) => {
+      //     if (ev.key === 'Escape') {
+      //       if (ev.shiftKey) mf.executeCommand('moveToPreviousGroup');
+      //       else mf.executeCommand('moveToNextGroup');
+      //       ev.preventDefault();
+      //     }
+      //   },
+      //   { capture: true }
+      // );
+
+      // mf.onInlineShortcut = (_mf, s) =>
+      //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
       // mf.onInlineShortcut = (_mf, s) => {
       //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
       //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
@@ -148,88 +279,128 @@
       //   }
       //   return '';
       // };
-      // mf.macros = {
-      //   ...mf.macros,
-      //   // Alpha: undefined,
-      //   minutes: '\\prime',
-      //   smolfrac: {
-      //     args: 2,
-      //     def: '{}^{#1}\\!\\!/\\!{}_{#2}',
-      //     captureSelection: true,
-      //   },
-      // };
 
-      mf.addEventListener('input', (ev) => {
-        console.log('input event');
-        updateContent(mf);
+      mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
+        console.log(
+          "geometrychange",
+          ev,
+          "bounds",
+          mathVirtualKeyboard.boundingRect
+        );
       });
 
-      // mf.addEventListener('beforeinput', (ev) => {
-      //   if (ev.inputType === 'insertLineBreak') console.log('enter');
-      // });
+      mf.macros = {
+        ...mf.macros,
+        // Alpha: undefined,
+        minutes: "\\prime",
+        smolfrac: {
+          args: 2,
+          def: "{}^{#1}\\!\\!/\\!{}_{#2}",
+          captureSelection: false,
+        },
+        funfunction: {
+          captureSelection: false,
+          args: 2,
+          def: "FunFunction\\left({#1},{#2}\\right)",
+        },
+      };
+
+      // mf.macros = {
+      //   ...mf.macros,
+      //   // speed: { def: '\\mathrm{speed}', captureSelection: true },
+      //   speed: '\\mathrm{speed}',
+      // };
+      // mf.onInlineShortcut = (_mf, s) => {
+      //   if (/^[A-Z][a-z]+$/.test(s)) return `\\mathrm{${s}}`;
+      //   if (/^[a-z][a-z]+$/.test(s)) return `\\mathit{${s}}`;
+      //   return '';
+      // };
+
+      mf.addEventListener("beforeinput", (ev) => {
+        if (ev.inputType === "insertLineBreak") console.log("enter");
+      });
+
+      mf.addEventListener("input", (ev) => {
+        console.log("input");
+      });
+
+      mf.addEventListener("menu-select", (ev) => {
+        console.log("menu-select", ev.detail);
+      });
+
+      mf.addEventListener("input", (ev) => updateContent(mf));
 
       // mf.addEventListener('keydown', (ev) => {
       //   console.log('keydown', ev);
       // });
 
-      mf.addEventListener('selection-change', (ev) => {
+      mf.addEventListener("selection-change", (ev) => {
         const selection = mf.selection;
-        document.getElementById('selection').innerHTML =
-          `${label('value     ')}"${escapeHtml(
-            mf.getValue(selection, 'latex')
+        document.getElementById("selection").innerHTML =
+          `${label("value     ")}"${escapeHtml(
+            mf.getValue(selection, "latex")
           )}"<br>` +
           // `${label('MathJson  ')}"${escapeHtml(
           //   mf.getValue(selection, 'math-json')
           // )}"<br>` +
-          label('start     ') +
+          label("start     ") +
           selection.ranges[0][0] +
-          '<br>' +
-          label('end       ') +
+          "<br>" +
+          label("end       ") +
           selection.ranges[0][1] +
-          '<br>' +
-          label('position  ') +
+          "<br>" +
+          label("position  ") +
           mf.position +
-          '<br>' +
-          label('direction ') +
+          "<br>" +
+          label("direction ") +
           '"' +
           selection.direction +
           '"<br>' +
-          label('depth     ') +
-          mf.getOffsetDepth(mf.position);
+          label("depth     ") +
+          mf.getOffsetDepth(mf.position) +
+          '"<br>' +
+          label("queryStyle") +
+          mf.queryStyle({ color: "red" });
+        // mf.queryStyle({ variant: "double-struck" });
       });
 
-      document.getElementById('grow').addEventListener('click', () => {
+      document.getElementById("grow").addEventListener("click", () => {
         for (let i = 0; i < 1000; i++) {
           document.body.appendChild(new MathfieldElement());
         }
       });
 
-      document.getElementById('shrink').addEventListener('click', () => {
-        document.querySelectorAll('math-field').forEach((x) => x.remove());
+      document.getElementById("shrink").addEventListener("click", () => {
+        document.querySelectorAll("math-field").forEach((x) => x.remove());
       });
+
+      // First time update
+      updateContent(mf);
 
       //
       // Handler called when the mathfield content has changed
       //
       function updateContent(mf) {
-        const latex = mf.getValue('latex-expanded');
+        const latex = mf.getValue("latex-expanded");
         try {
-          setHtml('latex', mf.getValue('latex-expanded'));
-          setHtml('ascii-math', mf.getValue('ascii-math'));
-          setHtml('mathml', mf.getValue('math-ml'));
+          setHtml("latex", mf.getValue("latex-expanded"));
+          setHtml("ascii-math", mf.getValue("ascii-math"));
+          setHtml("mathml", mf.getValue("math-ml"));
+          document.getElementById("mathml-render").innerHTML =
+            `<math>${mf.getValue("math-ml")}</math>`;
           // setHtml('math-json', ce.parse(mf.value));
-          setHtml('latex2speech', convertLatexToSpeakableText(mf.getValue()));
+          setHtml("latex2speech", convertLatexToSpeakableText(mf.getValue()));
 
           const expr = mf.expression;
           if (expr) {
-            setHtml('math-json', JSON.stringify(expr.json));
-            const result = expr.evaluate().latex ?? '';
-            document.getElementById('result').innerText = result;
-            document.getElementById('result-latex').innerText = `$$${result}$$`;
-            renderMathInElement('result-latex');
+            setHtml("math-json", exprToString(expr));
+            const result = expr.evaluate().latex ?? "";
+            document.getElementById("result").innerText = result;
+            document.getElementById("result-latex").innerText = `$$${result}$$`;
+            renderMathInElement("result-latex");
           }
         } catch (e) {
-          console.error('Error converting', e.toString());
+          console.error("Error converting", e.toString());
         }
       }
 
@@ -246,163 +417,201 @@
           /[&<>"'`= /\u200b]/g,
           (s) =>
             ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#39;',
-              '/': '&#x2F;',
-              '`': '&#x60;',
-              '=': '&#x3D;',
-              '\u200b': '&amp;#zws;',
-            }[s] ?? s)
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+              "/": "&#x2F;",
+              "`": "&#x60;",
+              "=": "&#x3D;",
+              "\u200b": "&amp;#zws;",
+            })[s] ?? s
         );
       }
 
-      // First time update
-      updateContent(mf);
-      // renderMathInDocument();
-
-      function makeVirtualKeyboard(variables) {
+      function makeVirtualKeyboard(customKeys = []) {
         const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
-        // const customKeys = symbolsToKeycaps(variables);
 
         return {
-          label: '',
+          label: "",
           layers: [
             {
               style: `
-                .ML__keyboard {
-                  --keyboard-zindex: 2000;
+                        .ML__keyboard {
+                          --keyboard-zindex: 2000;
 
-                }
-                .minimalist-backdrop {
-                  display: flex;
-                  justify-content: center;
-                }
-                ${extraSpecificity} .minimalist-container {
-                  --keycap-height: 45px;
-                  --keycap-max-width: 53px;
-                  --keycap-font-size: 20px;
-                  --keycap-small-font-size: 12px;
-                  --keyboard-background: #f2f2f2;
-                  --keycap-background-hover: #ffffff;
+                        }
+                        .minimalist-backdrop {
+                          display: flex;
+                          justify-content: center;
+                        }
+                        ${extraSpecificity} .minimalist-container {
+                          --keycap-height: 45px;
+                          --keycap-max-width: 53px;
+                          --keycap-font-size: 20px;
+                          --keycap-small-font-size: 12px;
+                          --keyboard-background: #f2f2f2;
+                          --keycap-background-hover: #ffffff;
 
-                  --keycap-secondary-background: #e5e5e5;
-                  --keycap-secondary-background-hover: #c4c4c4;
+                          --keycap-secondary-background: #e5e5e5;
+                          --keycap-secondary-background-hover: #c4c4c4;
 
-                  --placeholder-opacity: 1;
+                          --placeholder-opacity: 1;
 
-                  padding: 15px;
+                          padding: 15px;
 
-                  background: var(--keyboard-background);
-                  border-top-left-radius: 8px;
-                  border-top-right-radius: 8px;
-                  border: none;
-                  box-shadow: 0px 0px 40px 0px #00000033;
-                }
+                          background: var(--keyboard-background);
+                          border-top-left-radius: 8px;
+                          border-top-right-radius: 8px;
+                          border: none;
+                          box-shadow: 0px 0px 40px 0px #00000033;
+                        }
 
-                @container (max-width: 744px) {
-                  ${extraSpecificity} .minimalist-container {
-                    padding: 4px;
-                  }
+                        @container (max-width: 744px) {
+                          ${extraSpecificity} .minimalist-container {
+                            padding: 4px;
+                          }
 
-                  ${extraSpecificity} .MLK__rows {
-                    --keycap-gap: 5px;
-                    --keycap-height: 45px;
-                  }
-                }
+                          ${extraSpecificity} .MLK__rows {
+                            --keycap-gap: 5px;
+                            --keycap-height: 45px;
+                          }
+                        }
 
-                ${extraSpecificity} .minimalist-container .action {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keyboard-text);
-                  border: none;
-                }
+                        ${extraSpecificity} .minimalist-container .action {
+                          box-shadow: 0px 1px 0px #b5b5b5;
+                          color: var(--keyboard-text);
+                          border: none;
+                        }
 
-                ${extraSpecificity} .minimalist-container .action.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keyboard-text);
-                }
+                        ${extraSpecificity} .minimalist-container .action.is-pressed {
+                          transform-origin: bottom center;
+                          transform: scale(1.4, 1.4);
+                          background-color: var(--keycap-secondary-background-hover);
+                          color: var(--keyboard-text);
+                        }
 
-                ${extraSpecificity} .minimalist-container .action.is-active {
-                  background-color: var(--keycap-secondary-background-hover);
-                  color: var(--keyboard-text);
-                }
+                        ${extraSpecificity} .minimalist-container .action.is-active {
+                          background-color: var(--keycap-secondary-background-hover);
+                          color: var(--keyboard-text);
+                        }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
-                  box-shadow: 0px 1px 0px #b5b5b5;
-                  color: var(--keyboard-text);
-                  border: none;
-                }
+                        ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
+                          box-shadow: 0px 1px 0px #b5b5b5;
+                          color: var(--keyboard-text);
+                          border: none;
+                        }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
-                  transform-origin: bottom center;
-                  transform: scale(1.4, 1.4);
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keyboard-text);
-                }
+                        ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
+                          transform-origin: bottom center;
+                          transform: scale(1.4, 1.4);
+                          background-color: var(--keycap-background-hover);
+                          color: var(--keyboard-text);
+                        }
 
-                ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
-                  background-color: var(--keycap-background-hover);
-                  color: var(--keyboard-text);
-                }
+                        ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
+                          background-color: var(--keycap-background-hover);
+                          color: var(--keyboard-text);
+                        }
 
-                ${extraSpecificity} .MLK__rows {
-                  overflow-x: unset;
-                }
+                        ${extraSpecificity} .MLK__rows {
+                          overflow-x: unset;
+                        }
 
-                ${extraSpecificity} .MLK__rows .row {
-                  justify-content: flex-start;
-                }
+                        ${extraSpecificity} .MLK__rows .MLK__row {
+                          justify-content: flex-start;
+                        }
 
-                ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
-                  opacity: 0.4;
-                }
+                        ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
+                          opacity: 0.4;
+                        }
 
-                .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
-                  opacity: 1;
-                }
-              `,
-              backdrop: 'minimalist-backdrop',
-              container: 'minimalist-container',
+                        .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
+                          opacity: 1;
+                        }
+                      `,
+              backdrop: "minimalist-backdrop",
+              container: "minimalist-container",
               rows: [
-                // customKeys,
-                // customKeys.length > 0 ? ['[hr]'] : [],
+                customKeys,
+                customKeys.length > 0 ? ["[hr]"] : [],
                 [
-                  '+',
-                  '-',
-                  '\\times',
+                  "+",
+                  "-",
+                  "\\times",
                   {
-                    insert: '\\frac{#@}{#0}',
-                    latex: '\\frac{#?}{#?}',
-                    class: 'small',
+                    insert: "\\frac{#@}{#0}",
+                    latex: "\\frac{#?}{#?}",
+                    class: "small",
                   },
-                  '=',
-                  '[.]',
-                  '(',
-                  ')',
-                  { latex: '\\sqrt{#0}', class: 'small' },
-                  { insert: '#@^{#?}', class: 'small', latex: '#?^{#?}' },
+                  "=",
+                  "[.]",
+                  "(",
+                  ")",
+                  { latex: "\\sqrt{#0}", class: "small" },
+                  { insert: "#@^{#?}", class: "small", latex: "#?^{#?}" },
                 ],
-                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-                ['[hr]'],
+                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+                ["[hr]"],
                 [
-                  { label: '[undo]' },
-                  '[redo]',
-                  '[separator]',
-                  '[separator]',
-                  '[separator]',
-                  { label: '[separator]', width: 1.5 },
-                  '[left]',
-                  '[right]',
-                  { label: '[backspace]', class: 'action hide-shift' },
+                  { label: "[undo]" },
+                  "[redo]",
+                  "[separator]",
+                  "[separator]",
+                  "[separator]",
+                  { label: "[separator]", width: 1.5 },
+                  "[left]",
+                  "[right]",
+                  { label: "[backspace]", class: "action hide-shift" },
                 ],
               ],
             },
           ],
         };
+      }
+
+      function exprToStringRecursive(expr, start) {
+        let indent = " ".repeat(start);
+        if (Array.isArray(expr)) {
+          const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
+          let result = `[${elements.join(", ")}]`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
+        }
+        if (expr === null) return "null";
+        if (typeof expr === "object") {
+          const elements = {};
+          Object.keys(expr).forEach(
+            (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
+          );
+          let result = `{${Object.keys(expr)
+            .map((key) => `"${key}": ${elements[key]}`)
+            .join("; ")}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          result = `\n${indent}{${Object.keys(expr)
+            .map((key) => {
+              return `"${key}": ${elements[key]}`;
+            })
+            .join("; ")}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return (
+            `\n${indent}{\n` +
+            Object.keys(expr)
+              .map((key) => {
+                return `${indent}  "${key}": ${elements[key]}`;
+              })
+              .join(`;\n${indent}`) +
+            "\n" +
+            indent +
+            "}"
+          );
+        }
+        return JSON.stringify(expr, null, 2);
+      }
+
+      function exprToString(expr) {
+        return exprToStringRecursive(expr.json, 0);
       }
     </script>
   </body>

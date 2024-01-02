@@ -2,11 +2,12 @@ import { Box } from './box';
 
 export class SkipBox extends Box {
   constructor(width: number) {
-    super(null, { type: 'skip', width });
+    super(null, { type: 'skip' });
+    this._width = width;
   }
   toMarkup(): string {
     return `<span style="display:inline-block;width:${
-      Math.round(this.width * 100) / 100
+      Math.ceil(this.width * 100) / 100
     }em"></span>`;
   }
 }
@@ -31,9 +32,6 @@ export function addSkipBefore(box: Box, width: number): void {
   }
 
   // If there's a skip box to our left, merge
-  if (i > 0 && siblings[i - 1].type === 'skip') {
-    siblings[i - 1].width += width;
-    return;
-  }
-  siblings.splice(i, 0, new SkipBox(width));
+  if (i > 0 && siblings[i - 1].type === 'skip') siblings[i - 1].width += width;
+  else siblings.splice(i, 0, new SkipBox(width));
 }

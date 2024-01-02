@@ -1,12 +1,12 @@
 /* eslint-disable no-new */
-import type { AutoRenderOptions } from './public/options';
+import type { StaticRenderOptions } from './public/options';
 export * from './public/mathlive';
 
 import {
-  AutoRenderOptionsPrivate,
-  autoRenderMathInElement,
-} from './addons/auto-render';
-export * from './addons/auto-render';
+  StaticRenderOptionsPrivate,
+  _renderMathInElement,
+} from './addons/static-render';
+export * from './addons/static-render';
 
 import './virtual-keyboard/commands';
 
@@ -14,7 +14,7 @@ import {
   convertLatexToMarkup,
   convertLatexToMathMl,
   convertLatexToSpeakableText,
-  serializeMathJsonToLatex,
+  convertMathJsonToLatex,
 } from './public/mathlive-ssr';
 import type { VirtualKeyboardInterface } from './public/virtual-keyboard';
 
@@ -28,7 +28,7 @@ export type MathLiveGlobal = {
   readAloudCurrentMark: string;
   readAloudAudio: HTMLAudioElement;
   readAloudStatus: string;
-  readAloudMathField: any; // MathfieldPrivate;
+  readAloudMathfield: any; // _Mathfield;
 };
 
 // Note that this global is only global to the "browsing context". In the
@@ -84,7 +84,7 @@ export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
  * @keywords render, document, autorender
  */
 
-export function renderMathInDocument(options?: AutoRenderOptions): void {
+export function renderMathInDocument(options?: StaticRenderOptions): void {
   renderMathInElement(document.body, options);
 }
 
@@ -121,16 +121,16 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
 
 export function renderMathInElement(
   element: string | HTMLElement,
-  options?: AutoRenderOptions
+  options?: StaticRenderOptions
 ): void {
   const el = getElement(element);
   if (!el) return;
-  const optionsPrivate: AutoRenderOptionsPrivate = options ?? {};
+  const optionsPrivate: StaticRenderOptionsPrivate = options ?? {};
   optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
   optionsPrivate.renderToMathML ??= convertLatexToMathMl;
   optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
-  optionsPrivate.serializeToLatex ??= serializeMathJsonToLatex;
-  autoRenderMathInElement(el, optionsPrivate);
+  optionsPrivate.serializeToLatex ??= convertMathJsonToLatex;
+  _renderMathInElement(el, optionsPrivate);
 }
 
 /**
@@ -153,7 +153,6 @@ export const version = {
 // export const debug = {
 //   FUNCTIONS: MathLiveDebug.FUNCTIONS,
 //   MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
-//   TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
 //   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
 //   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
 //   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,

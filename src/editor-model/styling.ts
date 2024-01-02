@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom';
-import type { ModelPrivate } from './model-private';
+import type { _Model } from './model-private';
 import { Range } from '../public/mathfield';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
@@ -44,7 +44,7 @@ export function applyStyleToUnstyledAtoms(
  */
 
 export function applyStyle(
-  model: ModelPrivate,
+  model: _Model,
   range: Range,
   style: PrivateStyle,
   options: { operation: 'set' | 'toggle' }
@@ -100,6 +100,16 @@ export function applyStyle(
     if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
       // If the selection already has this size, reset it to default size
       style.fontSize = DEFAULT_FONT_SIZE;
+    }
+
+    if (style.variant && everyStyle('variant', style.variant)) {
+      // If the selection already has this variant, turn it off
+      style.variant = 'normal';
+    }
+
+    if (style.variantStyle && everyStyle('variantStyle', style.variantStyle)) {
+      // If the selection already has this variant, turn it off
+      style.variantStyle = '';
     }
   }
 
