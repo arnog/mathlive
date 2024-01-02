@@ -1656,7 +1656,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     // Ignore blur events if the scrim is open (case where the variant panel
     // is open). Otherwise we disconect from the VK and end up in a weird state.
-    if (evt.type === 'blur' && Scrim.scrim.state === 'closed')
+    if (evt.type === 'blur' && Scrim.scrim?.state === 'closed')
       this._mathfield?.blur();
   }
 
