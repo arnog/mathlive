@@ -234,6 +234,26 @@ export function delegateKeyboardEvents(
         event.stopPropagation();
         return;
       }
+
+      // If we're attempting to focus an element that is inside the virtual
+      // keyboard, ignore the blur (this happens on iOS when doing a multi-touch
+      // tap on an element inside the virtual keyboard).
+      let isInsideKeyboard = false;
+      let target = event.relatedTarget as HTMLElement;
+      while (target) {
+        if (target.classList.contains('ML__keyboard')) {
+          isInsideKeyboard = true;
+          break;
+        }
+        target = target.parentElement as HTMLElement;
+      }
+      if (isInsideKeyboard) {
+        keyboardSink.focus({ preventScroll: true });
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       // If the scrim is up, ignore blur (while the variants panel is up)
       const scrimState = Scrim.state;
       if (scrimState === 'open' || scrimState === 'opening') {
