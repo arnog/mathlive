@@ -9,6 +9,8 @@
 - **#2243##, **#2245** Unicode characters such as `²` or `ℂ` are now
   interpreted as their LaTeX equivalent only when in math mode.
 - **#2237** The command `\iff` now renders correctly
+- **#2246** Changing the `mf.value` property would not always update
+  the value of the mathfield.
  
 ## 0.98.5 _2023-12-27_
 

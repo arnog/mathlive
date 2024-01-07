@@ -1139,6 +1139,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   private _internals: ElementInternals;
 
+  /** @internal */
+  private _observer: MutationObserver | null = null;
+
   // The content of <style> tags inside the element.
   /** @internal */
   private _style: string;
@@ -1245,17 +1248,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Record the (optional) configuration options, as a deferred state
     if (options) this._setOptions(options);
-
-    this.shadowRoot!.addEventListener('slotchange', () => {
-      const slot =
-        this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
-      this.value =
-        slot
-          ?.assignedNodes()
-          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-          .join('')
-          .trim() ?? '';
-    });
   }
 
   showMenu(_: {
@@ -1848,16 +1840,28 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   connectedCallback(): void {
     const computedStyle = window.getComputedStyle(this);
     const shadowRoot = this.shadowRoot!;
+    const host = shadowRoot.host;
     const userSelect = computedStyle.userSelect !== 'none';
 
-    if (userSelect) shadowRoot.host.addEventListener('pointerdown', this, true);
+    if (userSelect) host.addEventListener('pointerdown', this, true);
     else {
       const span = shadowRoot.querySelector('span');
       span!.style.pointerEvents = 'none';
     }
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
-    shadowRoot.host.addEventListener('focus', this, true);
-    shadowRoot.host.addEventListener('blur', this, true);
+    host.addEventListener('focus', this, true);
+    host.addEventListener('blur', this, true);
+
+    // Create an observer instance to detect when the innerHTML or textContent
+    // of the element is modified
+    this._observer = new MutationObserver(() => {
+      this.value = this.textContent ?? '';
+    });
+    this._observer.observe(this, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
 
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
@@ -1969,6 +1973,9 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this.shadowRoot!.host.removeEventListener('pointerdown', this, true);
 
     if (!this._mathfield) return;
+
+    this._observer?.disconnect();
+    this._observer = null;
 
     window.queueMicrotask(() =>
       // Notify listeners that we have been unmounted
