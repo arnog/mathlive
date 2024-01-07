@@ -234,7 +234,7 @@ const DEFAULT_MACROS: MacroDictionary = {
   'iff': {
     primitive: true,
     captureSelection: true,
-    def: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+    def: '\\;\\char"27FA\\;', // >2,000 Note: additional spaces around the arrows
   },
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
