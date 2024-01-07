@@ -6,6 +6,8 @@
   in a server-side environment, a runtime error would occur.
 - When tabbing in a mathfield with multiple prompts, tab out of the mathfield
   when the last or first prompt is reached.
+- **#2243##, **#2245** Unicode characters such as `²` or `ℂ` are now
+  interpreted as their LaTeX equivalent only when in math mode.
 
 ## 0.98.5 _2023-12-27_
 

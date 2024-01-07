@@ -347,56 +347,52 @@ export function unicodeToMathVariant(codepoint: number): {
 /**
  * Transform some Unicode characters into equivalent LaTeX commands
  */
-export function unicodeToLatex(s: string): string {
-  let result = '';
-  for (const c of s) {
-    if ("{}<>[]$&#^_%:'˜".includes(c)) {
-      result += c;
-      continue;
-    }
-    const codepoint = c.codePointAt(0) ?? 0;
-    let latex = UNICODE_TO_LATEX[codepoint];
-    if (latex) {
-      if (latex.startsWith('\\')) result += latex + ' ';
-      else result += latex;
-    } else {
-      const { char, variant, style } = unicodeToMathVariant(codepoint);
-      latex = char;
-      switch (variant) {
-        case 'double-struck':
-          latex = `\\mathbb{${latex}}`;
-          break;
-        case 'fraktur':
-          latex = `\\mathfrak{${latex}}`;
-          break;
-        case 'script':
-          latex = `\\mathscr{${latex}}`;
-          break;
-        case 'sans-serif':
-          latex = `\\mathsf{${latex}}`;
-          break;
-        case 'monospace':
-          latex = `\\mathtt{${latex}}`;
-          break;
-        case 'calligraphic':
-          latex = `\\mathcal{${latex}}`;
-          break;
-      }
+export function codePointToLatex(c: string): string | undefined {
+  if ("{}<>[]$&*#^_%:'˜".includes(c)) return undefined;
 
-      switch (style) {
-        case 'bold':
-          latex = `\\mathbf{${latex}}`;
-          break;
-        case 'italic':
-          latex = `\\mathit{${latex}}`;
-          break;
-        case 'bolditalic':
-          latex = `\\mathbfit{${latex}}`;
-          break;
-      }
+  if (c.length > 1) return undefined;
 
-      result += latex;
-    }
+  const codepoint = c.codePointAt(0) ?? 0;
+  let latex = UNICODE_TO_LATEX[codepoint];
+  if (latex) return latex;
+
+  const { char, variant, style } = unicodeToMathVariant(codepoint);
+
+  if (!variant && !style) return undefined;
+
+  latex = char;
+  switch (variant) {
+    case 'double-struck':
+      latex = `\\mathbb{${latex}}`;
+      break;
+    case 'fraktur':
+      latex = `\\mathfrak{${latex}}`;
+      break;
+    case 'script':
+      latex = `\\mathscr{${latex}}`;
+      break;
+    case 'sans-serif':
+      latex = `\\mathsf{${latex}}`;
+      break;
+    case 'monospace':
+      latex = `\\mathtt{${latex}}`;
+      break;
+    case 'calligraphic':
+      latex = `\\mathcal{${latex}}`;
+      break;
   }
-  return result;
+
+  switch (style) {
+    case 'bold':
+      latex = `\\mathbf{${latex}}`;
+      break;
+    case 'italic':
+      latex = `\\mathit{${latex}}`;
+      break;
+    case 'bolditalic':
+      latex = `\\mathbfit{${latex}}`;
+      break;
+  }
+
+  return latex;
 }
