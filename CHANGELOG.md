@@ -15,6 +15,7 @@
   on the virtual keyboard would result in the mathfield losing focus and the
   virtualy keyboard closing.
 - **#2252** At some viewport sizes, the integral sign in the symbols virtual keyboard would be clipped.
+- **#2235** Improved serialization to ASCIIMath.
 
 ## 0.98.5 _2023-12-27_
 

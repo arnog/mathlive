@@ -71,133 +71,121 @@ function parseMathExpression(
     inlineShortcuts?: InlineShortcutDefinitions;
   }
 ): string {
+  s = s.trim();
   if (!s) return '';
-  let done = false;
-  let m;
 
   const inlineShortcuts = options.inlineShortcuts ?? INLINE_SHORTCUTS;
 
-  if (!done && (s.startsWith('^') || s.startsWith('_'))) {
+  if (s.startsWith('^') || s.startsWith('_')) {
     // Superscript and subscript
-    m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
-    s = s[0] + '{' + m.match + '}';
-    s += parseMathExpression(m.rest, options);
-    done = true;
+    const { match, rest } = parseMathArgument(s.slice(1), {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    return `${s[0]}{${match}}${parseMathExpression(rest, options)}`;
   }
 
-  if (!done) {
-    m = s.match(/^(sqrt|\u221A)(.*)/);
-    if (m) {
-      // Square root
-      m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
-      const sqrtArgument = m.match ?? '\\placeholder{}';
-      s = '\\sqrt{' + sqrtArgument + '}';
-      s += parseMathExpression(m.rest, options);
-      done = true;
-    }
+  let m = s.match(/^(sqrt|\u221A)(.*)/);
+  if (m) {
+    // Square root
+    const { match, rest } = parseMathArgument(m[2], {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    return `\\sqrt{${match ?? '\\placeholder{}'}}${parseMathExpression(
+      rest,
+      options
+    )}`;
   }
 
-  if (!done) {
-    m = s.match(/^(\\cbrt|\u221B)(.*)/);
-    if (m) {
-      // Cube root
-      m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
-      const sqrtArgument = m.match ?? '\\placeholder{}';
-      s = '\\sqrt[3]{' + sqrtArgument + '}';
-      s += parseMathExpression(m.rest, options);
-      done = true;
-    }
+  m = s.match(/^(\\cbrt|\u221B)(.*)/);
+  if (m) {
+    // Cube root
+    const { match, rest } = parseMathArgument(m[2], {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    return `\\sqrt[3]{${match ?? '\\placeholder{}'}}${parseMathExpression(
+      rest,
+      options
+    )}`;
   }
 
-  if (!done) {
-    m = s.match(/^abs(.*)/);
-    if (m) {
-      // Absolute value
-      m = parseMathArgument(m[1], { inlineShortcuts, noWrap: true });
-      s = '\\left|' + m.match + '\\right|';
-      s += parseMathExpression(m.rest, options);
-      done = true;
-    }
+  m = s.match(/^abs(.*)/);
+  if (m) {
+    // Absolute value
+    const { match, rest } = parseMathArgument(m[1], {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    return `\\left|${match ?? '\\placeholder{}'}\\right|${parseMathExpression(
+      rest,
+      options
+    )}`;
   }
 
-  if (!done) {
-    m = s.match(/^["”“](.*?)["”“](.*)/);
-    if (m) {
-      // Quoted text
-      s = '\\text{' + m[1] + '}';
-      s += parseMathExpression(m[2], options);
-      done = true;
-    }
+  m = s.match(/^["”“](.*?)["”“](.*)/);
+  if (m) {
+    // Quoted text
+    return `\\text{${m[1]}}${parseMathExpression(m[2], options)}`;
   }
 
-  if (!done) {
-    m = s.match(/^([^a-zA-Z\(\{\[\_\^\\\s"]+)(.*)/);
-    // A string of symbols...
-    // Could be a binary or relational operator, etc...
-    if (m) {
-      s = paddedShortcut(m[1], inlineShortcuts);
-      s += parseMathExpression(m[2], options);
-      done = true;
-    }
+  m = s.match(/^([^a-zA-Z\(\{\[\_\^\\\s"]+)(.*)/);
+  // A string of symbols...
+  // Could be a binary or relational operator, etc...
+  if (m) {
+    return `${paddedShortcut(m[1], inlineShortcuts)}${parseMathExpression(
+      m[2],
+      options
+    )}`;
   }
 
-  if (!done && /^([fgh])[^a-zA-Z]/.test(s)) {
+  if (/^([fgh])[^a-zA-Z]/.test(s)) {
     // This could be a function...
-    m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
-    s = s[1] === '(' ? s[0] + '\\left(' + m.match + '\\right)' : s[0] + m.match;
-    s += parseMathExpression(m.rest, options);
-    done = true;
+    const { rest, match } = parseMathArgument(s.slice(1), {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    let result = '';
+    if (s[1] === '(') result = `${s[0]}\\left(${match}\\right)`;
+    else result = s[0] + match;
+    return result + parseMathExpression(rest, options);
   }
 
-  if (!done) {
-    m = s.match(/^([a-zA-Z]+)(.*)/);
-    if (m) {
-      // Some alphabetical string...
-      // Could be a function name (sin) or symbol name (alpha)
-      s = paddedShortcut(m[1], inlineShortcuts);
-      s += parseMathExpression(m[2], options);
-      done = true;
+  m = s.match(/^([a-zA-Z]+)(.*)/);
+  if (m) {
+    // Some alphabetical string...
+    // Could be a function name (sin) or symbol name (alpha)
+    return (
+      paddedShortcut(m[1], inlineShortcuts) + parseMathExpression(m[2], options)
+    );
+  }
+
+  const { match, rest } = parseMathArgument(s, {
+    inlineShortcuts,
+    noWrap: true,
+  });
+  if (match && rest[0] === '/') {
+    // Fraction
+    const m2 = parseMathArgument(rest.slice(1), {
+      inlineShortcuts,
+      noWrap: true,
+    });
+    if (m2.match) {
+      return `\\frac{${match}}{${m2.match}}${parseMathExpression(
+        m2.rest,
+        options
+      )}`;
     }
+  } else if (match) {
+    return s.startsWith('(')
+      ? '\\left(' + match + '\\right)' + parseMathExpression(rest, options)
+      : match + parseMathExpression(rest, options);
   }
 
-  if (!done) {
-    m = parseMathArgument(s, { inlineShortcuts, noWrap: true });
-    if (m.match && m.rest[0] === '/') {
-      // Fraction
-      const m2 = parseMathArgument(m.rest.slice(1), {
-        inlineShortcuts,
-        noWrap: true,
-      });
-      if (m2.match) {
-        s =
-          '\\frac{' +
-          m.match +
-          '}{' +
-          m2.match +
-          '}' +
-          parseMathExpression(m2.rest, options);
-      }
-
-      done = true;
-    } else if (m.match) {
-      s = s.startsWith('(')
-        ? '\\left(' +
-          m.match +
-          '\\right)' +
-          parseMathExpression(m.rest, options)
-        : m.match + parseMathExpression(m.rest, options);
-      done = true;
-    }
-  }
-
-  if (!done) {
-    m = s.match(/^(\s+)(.*)$/);
-    // Whitespace
-    if (m) {
-      s = ' ' + parseMathExpression(m[2], options);
-      done = true;
-    }
-  }
+  m = s.match(/^(\s+)(.*)$/);
+  // Whitespace
+  if (m) return ' ' + parseMathExpression(m[2], options);
 
   return s;
 }
