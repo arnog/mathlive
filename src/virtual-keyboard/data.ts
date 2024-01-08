@@ -436,7 +436,7 @@ export const LAYOUTS: Partial<
           ],
         },
         {
-          class: 'small',
+          class: 'small hide-shift',
           latex: '\\lim_{#?}',
           shift: '\\lim_{x\\to\\infty}',
           variants: [
@@ -514,7 +514,7 @@ export const LAYOUTS: Partial<
           ],
         },
         {
-          class: 'hide-shift',
+          class: 'hide-shift small',
           latex: '\\int',
           shift: '\\iint',
           variants: [

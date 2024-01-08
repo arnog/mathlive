@@ -14,7 +14,8 @@
 - **#2244** Worked around an issue in Safari on iOS where doing a double-tap
   on the virtual keyboard would result in the mathfield losing focus and the
   virtualy keyboard closing.
- 
+- **#2252** At some viewport sizes, the integral sign in the symbols virtual keyboard would be clipped.
+
 ## 0.98.5 _2023-12-27_
 
 ### Issues Resolved
