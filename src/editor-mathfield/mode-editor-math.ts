@@ -211,10 +211,8 @@ export class MathModeEditor extends ModeEditor {
       !model.selectionIsCollapsed
     )
       model.deleteAtoms(range(model.selection));
-    else if (options.insertionMode === 'replaceAll') {
-      model.root.setChildren([], 'body');
-      model.position = 0;
-    } else if (options.insertionMode === 'insertBefore')
+    else if (options.insertionMode === 'replaceAll') model.deleteAtoms();
+    else if (options.insertionMode === 'insertBefore')
       model.collapseSelection('backward');
     else if (options.insertionMode === 'insertAfter')
       model.collapseSelection('forward');

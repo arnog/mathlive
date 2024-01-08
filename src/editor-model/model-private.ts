@@ -338,7 +338,7 @@ export class _Model implements Model {
     if (options.includeChildren === undefined) options.includeChildren = false;
 
     if (start < 0) start = this.lastOffset - start + 1;
-    if (end < 0) end = this.lastOffset - end + 1;
+    if (end < 0) end = this.lastOffset + end + 1;
     const first = Math.min(start, end) + 1;
     const last = Math.max(start, end);
 
@@ -439,7 +439,8 @@ export class _Model implements Model {
     return result;
   }
 
-  deleteAtoms(range: Range): void {
+  deleteAtoms(range?: Range): void {
+    range ??= [0, -1];
     this.extractAtoms(range);
     this.position = range[0];
   }
