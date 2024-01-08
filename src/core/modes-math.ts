@@ -110,9 +110,8 @@ export class MathMode extends Mode {
       });
     }
 
-    const isFunction = globalThis.MathfieldElement.isFunction(
-      info.command ?? command
-    );
+    const isFunction =
+      globalThis.MathfieldElement?.isFunction(info.command ?? command) ?? false;
 
     if (info.definitionType === 'symbol') {
       const result = new Atom({
