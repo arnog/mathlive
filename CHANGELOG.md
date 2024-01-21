@@ -16,6 +16,9 @@
   virtualy keyboard closing.
 - **#2252** At some viewport sizes, the integral sign in the symbols virtual keyboard would be clipped.
 - **#2235** Improved serialization to ASCIIMath.
+- Avoid conflicts with some class names when rendering static math.
+- When using `renderMathToElement()` or `renderMathInDocument()`, coalesce
+  adjacent text nodes.
 
 ## 0.98.5 _2023-12-27_
 
