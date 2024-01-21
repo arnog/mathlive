@@ -163,14 +163,7 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  texDelimiters?: {
-    display?: [openDelim: string, closeDelim: string][];
-    inline?: [openDelim: string, closeDelim: string][];
-  },
-  mathAsciiDelimiters?: {
-    display?: [openDelim: string, closeDelim: string][];
-    inline?: [openDelim: string, closeDelim: string][];
-  }
+  options: StaticRenderOptionsPrivate
 ): {
   type: string;
   data: string;
@@ -178,20 +171,20 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (texDelimiters?.inline) {
-    texDelimiters.inline.forEach(([openDelim, closeDelim]) => {
+  if (options.TeX?.delimiters?.inline) {
+    options.TeX.delimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
     });
   }
 
-  if (texDelimiters?.display) {
-    texDelimiters.display.forEach(([openDelim, closeDelim]) => {
+  if (options.TeX?.delimiters?.display) {
+    options.TeX.delimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
     });
   }
 
-  if (mathAsciiDelimiters?.inline) {
-    mathAsciiDelimiters.inline.forEach(([openDelim, closeDelim]) => {
+  if (options.asciiMath?.delimiters?.inline) {
+    options.asciiMath.delimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
         openDelim,
@@ -202,8 +195,8 @@ function splitWithDelimiters(
     });
   }
 
-  if (mathAsciiDelimiters?.display) {
-    mathAsciiDelimiters.display.forEach(([openDelim, closeDelim]) => {
+  if (options.asciiMath?.delimiters?.display) {
+    options.asciiMath.delimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
         openDelim,
@@ -327,11 +320,7 @@ function scanText(
     if (node) fragment.appendChild(node);
   } else {
     if (!text.trim()) return null;
-    const data = splitWithDelimiters(
-      text,
-      options.TeX?.delimiters,
-      options.asciiMath?.delimiters
-    );
+    const data = splitWithDelimiters(text, options);
     if (data.length === 1 && data[0].type === 'text') {
       // This text contains no math. No need to continue processing
       return null;
@@ -372,11 +361,7 @@ function scanElement(
       return;
     }
 
-    const data = splitWithDelimiters(
-      text,
-      options.TeX?.delimiters,
-      options.asciiMath?.delimiters
-    );
+    const data = splitWithDelimiters(text, options);
     if (data.length === 1 && data[0].type === 'math') {
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
@@ -404,9 +389,15 @@ function scanElement(
   for (let i = element.childNodes.length - 1; i >= 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
+      let content = childNode.textContent ?? '';
+      // Coalescce adjacent text nodes
+      while (i > 0 && element.childNodes[i - 1].nodeType === 3) {
+        i--;
+        content = ((element.childNodes[i] as Text).textContent ?? '') + content;
+      }
       // A text node
       // Look for math mode delimiters inside the text
-      const frag = scanText(childNode.textContent ?? '', options);
+      const frag = scanText(content, options);
       if (frag) {
         i += frag.childNodes.length - 1;
         childNode.replaceWith(frag);
