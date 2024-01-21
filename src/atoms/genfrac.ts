@@ -273,14 +273,14 @@ export class GenfracAtom extends Atom {
             { style: this.style, mode: this.mode, isSelected: this.isSelected }
           )
         )
-      : makeNullDelimiter(fracContext, 'open');
+      : makeNullDelimiter(fracContext, 'ML__open');
 
     let rightDelim: Box | null = null;
     if (this.continuousFraction) {
       // Zero width for `\cfrac`
       rightDelim = new Box(null, { type: 'close' });
     } else if (!this.rightDelim)
-      rightDelim = makeNullDelimiter(fracContext, 'close');
+      rightDelim = makeNullDelimiter(fracContext, 'ML__close');
     else {
       rightDelim = this.bind(
         context,
@@ -300,7 +300,7 @@ export class GenfracAtom extends Atom {
     const mfrac = new Box([leftDelim, frac, rightDelim], {
       isTight: fracContext.isTight,
       type: 'inner',
-      classes: 'mfrac',
+      classes: 'ML__mfrac',
     });
 
     const result = this.bind(context, mfrac);

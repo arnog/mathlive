@@ -803,7 +803,7 @@ defineFunction('mathop', '{:auto}', {
     return new Box(atom.bind(context, base), {
       type: 'op',
       isSelected: atom.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     });
   },
   serialize: (atom, options) => {
@@ -907,7 +907,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
     return new Box(atom.bind(context, base), {
       type: 'op',
       isSelected: atom.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     });
   },
   serialize: (atom, options) => {
@@ -958,7 +958,7 @@ defineFunction('rule', '[raise:value]{width:value}{thickness:value}', {
     const width = ctx.toEm(atom.args[1] ?? { dimension: 10 });
     const height = ctx.toEm(atom.args[2] ?? { dimension: 10 });
     const result = new Box(null, {
-      classes: 'rule',
+      classes: 'ML__rule',
       type: 'ord',
     });
     result.width = width;

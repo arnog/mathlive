@@ -986,7 +986,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
         new Box(supsub, {
           caret: this.caret,
           isSelected: this.isSelected,
-          classes: 'msubsup',
+          classes: 'ML__msubsup',
         }),
       ],
       { type: options.type }

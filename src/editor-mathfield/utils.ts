@@ -91,7 +91,7 @@ function getNodeBounds(node: Element): Rect {
     if (
       child.nodeType === 1 &&
       'atomId' in (child as HTMLElement).dataset &&
-      !child.classList.contains('pstrut')
+      !child.classList.contains('ML__pstrut')
     ) {
       const r: Rect = getNodeBounds(child);
       result.left = Math.min(result.left, r.left);

@@ -199,7 +199,7 @@ export class LeftRightAtom extends Atom {
 
     const result = new Box(boxes, {
       type: tightSpacing ? 'close' : 'inner',
-      classes: 'left-right',
+      classes: 'ML__left-right',
     });
     result.setStyle('margin-top', `${-inner.depth}em`);
     result.setStyle('height', `${inner.height + inner.depth}em`);

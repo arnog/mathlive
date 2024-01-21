@@ -104,9 +104,9 @@ export class OverunderAtom extends Atom {
       // The base of \overset are padded, but \overbrace aren't
       body = new Box(
         [
-          makeNullDelimiter(parentContext, 'open'),
+          makeNullDelimiter(parentContext, 'ML__open'),
           body,
-          makeNullDelimiter(parentContext, 'close'),
+          makeNullDelimiter(parentContext, 'ML__close'),
         ],
         { type: 'ignore' }
       );

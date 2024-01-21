@@ -44,7 +44,7 @@ export class PhantomAtom extends Atom {
 
     if (!this.smashDepth && !this.smashHeight && !this.smashWidth) {
       console.assert(this.isInvisible);
-      return Atom.createBox(phantom, this.body, { classes: 'inner' });
+      return Atom.createBox(phantom, this.body, { classes: 'ML__inner' });
     }
 
     const content = Atom.createBox(
@@ -55,8 +55,8 @@ export class PhantomAtom extends Atom {
     if (!content) return null;
 
     if (this.smashWidth) {
-      const fix = new Box(null, { classes: 'fix' });
-      return new Box([content, fix], { classes: 'rlap' }).wrap(context);
+      const fix = new Box(null, { classes: 'ML__fix' });
+      return new Box([content, fix], { classes: 'ML__rlap' }).wrap(context);
     }
 
     if (!this.smashHeight && !this.smashDepth) return content;

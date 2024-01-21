@@ -15,20 +15,7 @@ import { Context } from 'core/context';
 import { Atom } from 'core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { convertLatexToMarkup } from 'public/mathlive';
-
-/*
- * Return a hash (32-bit integer) representing the content of the mathfield
- * (but not the selection state)
- */
-function hash(latex: string): number {
-  let result = 0;
-  for (let i = 0; i < latex.length; i++) {
-    result = result * 31 + latex.charCodeAt(i);
-    result = result | 0; // Force it to a 32-bit integer
-  }
-
-  return Math.abs(result);
-}
+import { hashCode } from 'common/hash-code';
 
 export function requestUpdate(
   mathfield: _Mathfield | undefined | null,
@@ -63,7 +50,7 @@ function makeBox(
         // Using the hash as a seed for the ID
         // keeps the IDs the same until the content of the field changes.
         seed: renderOptions.forHighlighting
-          ? hash(
+          ? hashCode(
               Atom.serialize([mathfield.model.root], {
                 expandMacro: false,
                 defaultMode: mathfield.options.defaultMode,
