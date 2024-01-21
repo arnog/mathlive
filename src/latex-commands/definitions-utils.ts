@@ -409,6 +409,7 @@ const TEXT_SYMBOLS: Record<string, number> = {
   '\\$': 0x0024,
   '\\%': 0x0025,
   '\\&': 0x0026,
+  '\\_': 0x005f,
   '-': 0x002d, // In Math mode, '-' is substituted to U+2212, but we don't
   '\\textunderscore': 0x005f, // '_'
   '\\euro': 0x20ac,
