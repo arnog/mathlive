@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### New Features
+
+- Added `StaticRenderOptions.TeX.className` to specify that an
+  element with the specified class name should be rendered as a
+  LaTeX formula.
+
 ### Issues Resolved
 
 - When using some APIs such as `renderToMarkup()` or `renderToMathML()`
@@ -19,6 +25,7 @@
 - Avoid conflicts with some class names when rendering static math.
 - When using `renderMathToElement()` or `renderMathInDocument()`, coalesce
   adjacent text nodes.
+
 
 ## 0.98.5 _2023-12-27_
 

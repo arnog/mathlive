@@ -37,6 +37,9 @@ export type StaticRenderOptionsPrivate = StaticRenderOptions & {
   processScriptTypePattern?: RegExp;
   processMathJSONScriptTypePattern?: RegExp;
 
+  texClassDisplayPattern?: RegExp;
+  texClassInlinePattern?: RegExp;
+
   mathstyle?: string;
   format?: string;
 };
@@ -171,15 +174,18 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (options.TeX?.delimiters?.inline) {
-    options.TeX.delimiters.inline.forEach(([openDelim, closeDelim]) => {
-      data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
-    });
-  }
 
+  // We need to check `display` first because `$$` is a common prefix
+  // and `$` would match it first.
   if (options.TeX?.delimiters?.display) {
     options.TeX.delimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
+    });
+  }
+
+  if (options.TeX?.delimiters?.inline) {
+    options.TeX.delimiters.inline.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
     });
   }
 
@@ -389,22 +395,30 @@ function scanElement(
   for (let i = element.childNodes.length - 1; i >= 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
+      //
+      // A text node
+      //
+      // Look for math mode delimiters inside the text
+
       let content = childNode.textContent ?? '';
-      // Coalescce adjacent text nodes
+
+      // Coalesce adjacent text nodes
       while (i > 0 && element.childNodes[i - 1].nodeType === 3) {
         i--;
         content = ((element.childNodes[i] as Text).textContent ?? '') + content;
       }
-      // A text node
-      // Look for math mode delimiters inside the text
+      content = content.trim();
+      if (!content) continue;
       const frag = scanText(content, options);
       if (frag) {
         i += frag.childNodes.length - 1;
         childNode.replaceWith(frag);
       }
     } else if (childNode.nodeType === 1) {
-      const el = childNode as HTMLElement;
+      //
       // An element node
+      //
+      const el = childNode as HTMLElement;
       const tag = childNode.nodeName.toLowerCase();
       if (tag === 'script') {
         const scriptNode = childNode as HTMLScriptElement;
@@ -441,31 +455,40 @@ function scanElement(
           if (span) scriptNode.parentNode!.replaceChild(span, scriptNode);
         }
       } else {
-        // Element node
-        // console.assert(childNode.className !== 'formula');
-        const shouldRender =
+        if (options.texClassDisplayPattern?.test(el.className)) {
+          const formula = el.textContent;
+          el.textContent = '';
+          const node = createAccessibleMarkupPair(
+            formula ?? '',
+            'displaystyle',
+            options,
+            true
+          );
+          if (node) el.append(node);
+          continue;
+        }
+
+        if (options.texClassInlinePattern?.test(el.className)) {
+          const formula = el.textContent;
+          el.textContent = '';
+          const node = createAccessibleMarkupPair(
+            formula ?? '',
+            'textstyle',
+            options,
+            true
+          );
+          if (node) element.append(node);
+          continue;
+        }
+
+        const shouldProcess =
           (options.processClassPattern?.test(el.className) ?? false) ||
           !(
             (options.skipTags?.includes(tag) ?? false) ||
             (options.ignoreClassPattern?.test(el.className) ?? false)
           );
 
-        if (shouldRender) {
-          if (
-            element.childNodes.length === 1 &&
-            element.childNodes[0].nodeType === 3
-          ) {
-            const formula = element.textContent;
-            element.textContent = '';
-            const node = createAccessibleMarkupPair(
-              formula ?? '',
-              'displaystyle',
-              options,
-              true
-            );
-            if (node) element.append(node);
-          } else scanElement(el, options);
-        }
+        if (shouldProcess) scanElement(el, options);
       }
     }
     // Otherwise, it's something else, and ignore it.
@@ -545,6 +568,17 @@ export function _renderMathInElement(
     optionsPrivate.processMathJSONScriptTypePattern = new RegExp(
       optionsPrivate.processMathJSONScriptType ?? ''
     );
+
+    if (optionsPrivate.TeX?.className?.display) {
+      optionsPrivate.texClassDisplayPattern = new RegExp(
+        optionsPrivate.TeX.className.display
+      );
+    }
+    if (optionsPrivate.TeX?.className?.inline) {
+      optionsPrivate.texClassInlinePattern = new RegExp(
+        optionsPrivate.TeX.className.inline
+      );
+    }
 
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`

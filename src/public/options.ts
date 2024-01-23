@@ -647,27 +647,26 @@ export declare function setKeyboardLayout(
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
 export type StaticRenderOptions = {
-  /** An array of tag names whose content will
-   *  not be scanned for delimiters (unless their class matches the `processClass`
-   * pattern below.
+  /**
+   * An array of tag names whose content will not be scanned for delimiters
+   * (unless their class matches the `processClass` pattern below).
    *
    * **Default:** `['math-field', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
    */
   skipTags?: string[];
 
   /**
-   * A string used as a regular expression of class names of elements whose content will not be
-   * scanned for delimiter
+   * A string used as a regular expression of class names of elements whose
+   * content will not be scanned for delimiter
    *
    * **Default**: `"tex2jax_ignore"`
    */
   ignoreClass?: string;
 
   /**
-   * A string used as a
-   * regular expression of class names of elements whose content **will** be
-   * scanned for delimiters,  even if their tag name or parent class name would
-   * have prevented them from doing so.
+   * A string used as a regular expression of class names of elements whose
+   * content **will** be scanned for delimiters,  even if their tag name or
+   * parent class name would have prevented them from doing so.
    *
    * **Default**: `"tex2jax_process"`
    *
@@ -688,8 +687,7 @@ export type StaticRenderOptions = {
    */
   processMathJSONScriptType?: string;
 
-  /** The format(s) in
-   * which to render the math for screen readers:
+  /** The format(s) in which to render the math for screen readers:
    * - `"mathml"` MathML
    * - `"speakable-text"` Spoken representation
    *
@@ -717,8 +715,8 @@ export type StaticRenderOptions = {
 
   TeX?: {
     /**
-     * If true, math expression that start with `\begin{` will automatically be
-     * rendered.
+     * If true, math expression that start with `\begin{`
+     * will automatically be rendered.
      *
      * **Default**: true.
      */
@@ -735,6 +733,11 @@ export type StaticRenderOptions = {
     delimiters?: {
       display: [openDelim: string, closeDelim: string][];
       inline: [openDelim: string, closeDelim: string][];
+    };
+
+    className?: {
+      display?: string;
+      inline?: string;
     };
   };
 };

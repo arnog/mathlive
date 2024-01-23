@@ -107,6 +107,7 @@
         <button id="shrink">Shrink</button>
       </div>
       <div>$$f(x) = \sin(x)$$</div>
+      <span class="display_math">\frac{1}{4}</span>
       <div style="height: 800px"></div>
     </main>
 
@@ -127,7 +128,16 @@
       const MAX_LINE_LENGTH = 74;
 
       // renderMathInDocument({ renderAccessibleContent: false });
-      renderMathInDocument({ renderAccessibleContent: false });
+      renderMathInDocument({
+        renderAccessibleContent: false,
+        TeX: {
+          delimiters: {
+            display: [["$$", "$$"]],
+            inline: [["$", "$"]],
+          },
+          className: { display: "display_math" },
+        },
+      });
 
       // const ce = new ComputeEngine({
       //   latexDictionary: [
