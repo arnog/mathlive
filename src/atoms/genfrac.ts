@@ -10,6 +10,7 @@ import type { AtomJson } from 'core/types';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
+  align?: 'left' | 'right' | 'center';
   numerPrefix?: string;
   denomPrefix?: string;
   leftDelim?: string;
@@ -36,6 +37,7 @@ export class GenfracAtom extends Atom {
   readonly leftDelim?: string;
   readonly rightDelim?: string;
   private readonly continuousFraction: boolean;
+  private readonly align: 'left' | 'right' | 'center';
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
   private readonly mathstyleName?: MathstyleName;
@@ -53,6 +55,7 @@ export class GenfracAtom extends Atom {
     this.below = below;
     this.hasBarLine = options?.hasBarLine ?? true;
     this.continuousFraction = options?.continuousFraction ?? false;
+    this.align = options?.align ?? 'center';
     this.numerPrefix = options?.numerPrefix;
     this.denomPrefix = options?.denomPrefix;
     this.mathstyleName = options?.mathstyleName;
@@ -72,6 +75,7 @@ export class GenfracAtom extends Atom {
   toJson(): AtomJson {
     const options: GenfracOptions = {};
     if (this.continuousFraction) options.continuousFraction = true;
+    if (this.align !== 'center') options.align = this.align;
     if (this.numerPrefix) options.numerPrefix = this.numerPrefix;
     if (this.denomPrefix) options.denomPrefix = this.denomPrefix;
     if (this.leftDelim) options.leftDelim = this.leftDelim;
@@ -198,12 +202,12 @@ export class GenfracAtom extends Atom {
           {
             box: numerBox,
             shift: -numerShift,
-            classes: [...classes, 'ML__center'],
+            classes: [...classes, align(this.align)],
           },
           {
             box: denomBox,
             shift: denomShift,
-            classes: [...classes, 'ML__center'],
+            classes: [...classes, align(this.align)],
           },
         ],
       }).wrap(fracContext);
@@ -233,13 +237,13 @@ export class GenfracAtom extends Atom {
           {
             box: denomBox,
             shift: denomShift,
-            classes: [...classes, 'ML__center'],
+            classes: [...classes, align(this.align)],
           },
           { box: fracLine, shift: -denomLine, classes },
           {
             box: numerBox,
             shift: -numerShift,
-            classes: [...classes, 'ML__center'],
+            classes: [...classes, align(this.align)],
           },
         ],
       }).wrap(fracContext);
@@ -308,4 +312,14 @@ export class GenfracAtom extends Atom {
 
     return this.attachSupsub(context, { base: result });
   }
+}
+
+function align(v: 'left' | 'right' | 'center'): string {
+  return (
+    {
+      left: 'ML__left',
+      right: 'ML__right',
+      center: 'ML__center',
+    }[v] ?? 'ML__center'
+  );
 }

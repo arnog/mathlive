@@ -891,6 +891,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.onWheel(evt as WheelEvent);
         break;
 
+      case 'message':
+        break;
+
       default:
         console.warn('Unexpected event type', evt.type);
     }

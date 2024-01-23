@@ -25,7 +25,7 @@
 - Avoid conflicts with some class names when rendering static math.
 - When using `renderMathToElement()` or `renderMathInDocument()`, coalesce
   adjacent text nodes.
-
+- Correctly parse the `\cfrac` optional alignment argument
 
 ## 0.98.5 _2023-12-27_
 
