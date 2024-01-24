@@ -601,7 +601,12 @@ function atomToSpeakableFragment(
                 ' <break time="200ms"/> of ';
               supsubHandled = true;
             } else result += ' the integral of <break time="200ms"/> ';
-          } else if (typeof atom.value === 'string') {
+          } else if (
+            trimLatex === '\\operatorname' ||
+            trimLatex === '\\operatorname*'
+          )
+            result += atomsAsText(atom.body) + ' ';
+          else if (typeof atom.value === 'string') {
             const value =
               PRONUNCIATION[atom.value] ??
               (atom.command ? PRONUNCIATION[atom.command] : undefined);
@@ -609,8 +614,6 @@ function atomToSpeakableFragment(
           } else if (atom.command) {
             if (atom.command === '\\mathop')
               result += atomToSpeakableFragment('math', atom.body);
-            else if (atom.command === '\\operatorname')
-              result += atomsAsText(atom.body);
             else {
               result += atom.command.startsWith('\\')
                 ? ' ' + atom.command.slice(1)

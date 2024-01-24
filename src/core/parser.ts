@@ -1391,6 +1391,19 @@ export class Parser {
         return result;
       }
       if (type === 'balanced-string') return null;
+      if (type === 'rest') {
+        return this.scan((token) =>
+          [
+            '<}>',
+            '&',
+            '\\end',
+            '\\cr',
+            '\\\\',
+            '\\tabularnewline',
+            '\\right',
+          ].includes(token)
+        );
+      }
       console.assert(false);
       return null;
     }

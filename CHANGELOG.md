@@ -26,6 +26,10 @@
 - When using `renderMathToElement()` or `renderMathInDocument()`, coalesce
   adjacent text nodes.
 - Correctly parse the `\cfrac` optional alignment argument
+- The commands `\bf`, `\bfseries`, `\mdseries`, `\upshape`, `\itshape`,
+  `\slshape`, `\scshape`, `\rmfamily`, `\sffamily`, `\ttfamily` are now
+  interpreted correctly.
+- The command `\operatorname` is now spoken correctly
 
 ## 0.98.5 _2023-12-27_
 

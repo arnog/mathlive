@@ -149,12 +149,21 @@ export class MathMode extends Mode {
     box: Box,
     style: {
       // For math mode
+      fontFamily: string;
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
       variant: Variant;
       variantStyle?: VariantStyle;
     }
   ): FontName | null {
     console.assert(style.variant !== undefined);
+
+    if (style.fontFamily) {
+      const [fontName, classes] = VARIANTS[style.fontFamily];
+
+      if (classes) box.classes += ' ' + classes;
+
+      return fontName;
+    }
 
     let { variant } = style;
     let { variantStyle } = style;
