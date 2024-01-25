@@ -407,6 +407,7 @@ export type TabularEnvironment =
   | 'eqnarray'
   | 'split'
   | 'gather'
+  | 'gather*'
   | 'gathered'
   | 'lines'
   | 'multline'
@@ -424,6 +425,7 @@ export type AlignEnvironment =
   | 'align*'
   | 'aligned'
   | 'gather'
+  | 'gather*'
   | 'gathered'
   | 'split'
   | 'multline';

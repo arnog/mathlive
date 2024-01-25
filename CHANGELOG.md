@@ -12,6 +12,7 @@
   CSS unit. If the browser does not support the `cq` CSS unit, this CSS 
   variable can be used to specify the width of the keycap. (See **#2028**, 
   **#2133**)
+- **#2255** Support for `gather*` environment
 
 ### Issues Resolved
 

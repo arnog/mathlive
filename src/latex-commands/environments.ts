@@ -130,7 +130,11 @@ defineTabularEnvironment('split', '', makeEnvironment);
 //   \bgroup\Let@\restore@math@cr
 //   \ifinany@\else\openup\jot\fi\ialign
 //   \bgroup\hfil\strut@$\m@th\displaystyle##$\hfil\crcr
-defineTabularEnvironment(['gather', 'gathered'], '', makeEnvironment);
+defineTabularEnvironment(
+  ['gather', 'gather*', 'gathered'],
+  '',
+  makeEnvironment
+);
 
 // DefineEnvironment('cardinality', '',  function() {
 //     const result = {};
