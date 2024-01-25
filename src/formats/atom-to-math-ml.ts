@@ -10,16 +10,16 @@ type MathMLStream = {
   lastType: string;
 };
 
-const APPLY_FUNCTION = '<mo>\u2061</mo>';
+const APPLY_FUNCTION = '<mo>&#x2061;</mo>';
 
-const INVISIBLE_TIMES = '<mo>\u2062</mo>';
+const INVISIBLE_TIMES = '<mo>&#8290;</mo>';
 
 function xmlEscape(string: string): string {
   return (
     string
       // .replace(/&/g, '&amp;')
-      .replace(/"/g, '\u0022')
-      .replace(/'/g, '\u0027')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
   );
@@ -84,16 +84,16 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
   }
 
   const SPECIAL_IDENTIFIERS = {
-    '\\exponentialE': '\u2147',
-    '\\imaginaryI': '\u2148',
-    '\\differentialD': '\u2146',
-    '\\capitalDifferentialD': '\u2145',
-    '\\alpha': '\u03b1',
-    '\\pi': '\u03c0',
-    '\\infty': '\u221e',
-    '\\forall': '\u2200',
-    '\\nexists': '\u2204',
-    '\\exists': '\u2203',
+    '\\exponentialE': '&#x02147;',
+    '\\imaginaryI': '&#x2148;',
+    '\\differentialD': '&#x2146;',
+    '\\capitalDifferentialD': '&#x2145;',
+    '\\alpha': '&#x03b1;',
+    '\\pi': '&#x03c0;',
+    '\\infty': '&#x221e;',
+    '\\forall': '&#x2200;',
+    '\\nexists': '&#x2204;',
+    '\\exists': '&#x2203;',
     '\\hbar': '\u210F',
     '\\cdotp': '\u22C5',
     '\\ldots': '\u2026',
@@ -238,7 +238,6 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
   if (!superscript && !subscript) return false;
 
   let mathML = '';
-
   if (superscript && subscript)
     mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
   else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
@@ -254,10 +253,6 @@ function scanText(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
-
-  let superscript = indexOfSuperscriptInNumber(stream);
-  if (superscript >= 0 && superscript < final) final = superscript;
-
   while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
     mathML += stream.atoms[stream.index].value
       ? stream.atoms[stream.index].value
@@ -266,21 +261,11 @@ function scanText(stream: MathMLStream, final: number, options) {
   }
 
   if (mathML.length > 0) {
-    mathML = `<mtext ${makeID(
+    stream.mathML += `<mtext ${makeID(
       stream.atoms[initial].id,
       options
     )}>${mathML}</mtext>`;
-
-    if (superscript < 0 && isSuperscriptAtom(stream)) {
-      superscript = stream.index;
-      stream.index += 1;
-    }
-
-    if (!parseSubsup(mathML, stream, options)) {
-      stream.mathML += mathML;
-      stream.lastType = 'mtext';
-    }
-
+    stream.lastType = 'mtext';
     return true;
   }
 
@@ -389,10 +374,10 @@ function scanOperator(stream: MathMLStream, final: number, options) {
   if (!atom) return false;
 
   const SPECIAL_OPERATORS = {
-    '\\ne': '\u2260',
-    '\\neq': '\u2260',
-    '\\pm': '\u00B1',
-    '\\times': '\u00D7',
+    '\\ne': '&ne;',
+    '\\neq': '&ne;',
+    '\\pm': '&#177;',
+    '\\times': '&#215;',
     '\\colon': ':',
     '\\vert': '|',
     '\\Vert': '\u2225',
@@ -551,7 +536,7 @@ export function toMathML(
         ) {
           // If this is a fraction preceded by a number (e.g. 2 1/2),
           // add an "invisible plus" (U+0264) character in front of it
-          mathML = '<mo>\u2064</mo>' + mathML;
+          mathML = '<mo>&#x2064;</mo>' + mathML;
         }
 
         if (result.atoms[result.index].type === 'genfrac')
@@ -706,16 +691,16 @@ function atomToMathML(atom, options): string {
   };
 
   const SPECIAL_ACCENTS = {
-    '\\vec': '\u20d7',
-    '\\acute': '\u00b4',
-    '\\grave': '\u0060',
-    '\\dot': '\u02d9',
-    '\\ddot': '\u00a8',
-    '\\tilde': '\u007e',
-    '\\bar': '\u00af',
-    '\\breve': '\u02d8',
-    '\\check': '\u02c7',
-    '\\hat': '\u005e',
+    '\\vec': '&#x20d7;',
+    '\\acute': '&#x00b4;',
+    '\\grave': '&#x0060;',
+    '\\dot': '&#x02d9;',
+    '\\ddot': '&#x00a8;',
+    '\\tilde': '&#x007e;',
+    '\\bar': '&#x00af;',
+    '\\breve': '&#x02d8;',
+    '\\check': '&#x02c7;',
+    '\\hat': '&#x005e;',
   };
   switch (atom.type) {
     case 'first':
@@ -796,8 +781,8 @@ function atomToMathML(atom, options): string {
 
       if (atom.hasBarLine) {
         result += '<mfrac>';
-        result += toMathML(atom.above, options) || '<mi>\u00A0</mi>';
-        result += toMathML(atom.below, options) || '<mi>\u00A0</mi>';
+        result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
+        result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
         result += '</mfrac>';
       } else {
         // No bar line, i.e. \choose, etc...
@@ -933,13 +918,13 @@ function atomToMathML(atom, options): string {
       if (command === '\\char') {
         // It's a \char command
         result =
-          '\\u' + ('000000' + atom.args[0].number.toString(16)).slice(-4) + ';';
+          '&#x' + ('000000' + atom.args[0].number.toString(16)).slice(-4) + ';';
       } else if (result.length > 0 && result.startsWith('\\')) {
         // This is an identifier with no special handling. Use the
         // Unicode value
         if (typeof atom.value === 'string' && atom.value.charCodeAt(0) > 255) {
           result =
-            '\\u' +
+            '&#x' +
             ('000000' + atom.value.charCodeAt(0).toString(16)).slice(-4) +
             ';';
         } else if (typeof atom.value === 'string')
@@ -1040,7 +1025,7 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'space':
-      result += '\u00A0';
+      result += '&nbsp;';
       break;
 
     case 'subsup':
