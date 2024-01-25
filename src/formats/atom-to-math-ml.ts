@@ -390,7 +390,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
 
   const SPECIAL_OPERATORS = {
     '\\ne': '&ne;',
-    '\\neq': '&neq;',
+    '\\neq': '&ne;',
     '\\pm': '&#177;',
     '\\times': '&#215;',
     '\\colon': ':',
