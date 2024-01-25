@@ -5,6 +5,13 @@
 - Added `StaticRenderOptions.TeX.className` to specify that an
   element with the specified class name should be rendered as a
   LaTeX formula.
+- **#2273** Added a `--keycap-width` CSS variable to specify the width of
+  a keycap in a virtual-keyboard. By default, if the CSS variable is not 
+  specified, the width of the keycap is calculated based on the width of
+  the parent container. However, this requires browser that support the `cq`
+  CSS unit. If the browser does not support the `cq` CSS unit, this CSS 
+  variable can be used to specify the width of the keycap. (See **#2028**, 
+  **#2133**)
 
 ### Issues Resolved
 

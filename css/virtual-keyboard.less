@@ -358,7 +358,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
 /* Keyboard layouts are made or rows of keys... */
 .MLK__rows {
-  --_keycap-width: ~'min(var(--_keycap-max-width), 10cqw)';
+  --_keycap-width: var(--keycap-width, ~'min(var(--_keycap-max-width), 10cqw)');
 
   display: flex;
   flex-flow: column;
@@ -928,7 +928,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
   .MLK__rows {
     --_keycap-gap: ~'max(var(--_keycap-gap, 2px), 2px)';
     --_keycap-height: ~'max(var(--_keycap-height), 42px)';
-    --_keycap-width: ~'min(min(var(--_keycap-max-width), 10cqw), 62px)';
+    --_keycap-width: var(--keycap-width, ~'min(min(var(--_keycap-max-width)), 10cqw), 62px)');
   }
 
   // Smaller toolbar switcher labels
@@ -954,7 +954,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
   .MLK__rows {
     --_keycap-gap: ~'max(var(--keycap-gap, 2px), 2px)';
     --_keycap-height: ~'max(var(--keycap-height, 52px), 52px)';
-    --_keycap-width: ~'min(min(var(--_keycap-max-width), 10cqw), 62px)';
+    --_keycap-width: var(--keycap-width, ~'min(min(var(--_keycap-max-width), 10cqw), 62px)');
   }
 
   .MLK__toolbar > div > div {
