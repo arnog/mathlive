@@ -1,17 +1,25 @@
 /**
  *
- * Use MathLive to render and edit mathematical formulas.
+ * Importing this package in a web page will make the `<math-field>` custom
+ * element available. Use it as a drop-in replacement for `<textarea>` or
+ * `<input type="text">` to allow the user to type and edit mathematical
+ * expressions.
  *
  *
  * @example
- * <script type="module">
- * // Load the `MathLive` module from a CDN
- * import { convertLatexToSpeakableText } from 'https://unpkg.com/mathlive?module';
  *
- * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
+ * ```html
+ * <script src="https://unpkg.com/mathlive"></script>
+ * <math-field>\frac{1}{2}</math-field>
+ * <script>
+ * const mf = document.querySelector('math-field');
+ * mf.addEventListener('input', (ev) => {
+ *  console.log('New value:', mf.value);
+ * });
  * </script>
+ * ```
  *
- * @packageDocumentation MathLive SDK Reference {{SDK_VERSION}}
+ * @packageDocumentation MathLive SDK Reference
  * @version {{SDK_VERSION}}
  *
  */

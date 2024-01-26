@@ -157,7 +157,7 @@ export class ModeEditor {
       // 5. Put other flavors on the clipboard (MathJSON)
       //
       if (window[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine) {
-        const ce = window.MathfieldElement.computeEngine;
+        const ce = globalThis.MathfieldElement.computeEngine;
         if (ce) {
           try {
             const options = ce.jsonSerializationOptions;

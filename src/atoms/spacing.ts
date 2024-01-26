@@ -38,20 +38,20 @@ export class SpacingAtom extends Atom {
 
     let result: Box;
     if (this.width !== undefined) {
-      result = new Box(null, { classes: 'mspace' });
+      result = new Box(null, { classes: 'ML__mspace' });
       result.left = context.toEm(this.width);
     } else {
       const spacingCls =
         {
-          '\\qquad': 'qquad',
-          '\\quad': 'quad',
-          '\\enspace': 'enspace',
-          '\\;': 'thickspace',
-          '\\:': 'mediumspace',
-          '\\>': 'mediumspace',
-          '\\,': 'thinspace',
-          '\\!': 'negativethinspace',
-        }[this.command!] ?? 'mediumspace';
+          '\\qquad': 'ML__qquad',
+          '\\quad': 'ML__quad',
+          '\\enspace': 'ML__enspace',
+          '\\;': 'ML__thickspace',
+          '\\:': 'ML__mediumspace',
+          '\\>': 'ML__mediumspace',
+          '\\,': 'ML__thinspace',
+          '\\!': 'ML__negativethinspace',
+        }[this.command!] ?? 'ML__mediumspace';
       result = new Box(null, { classes: spacingCls });
     }
 

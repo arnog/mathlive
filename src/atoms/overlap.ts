@@ -42,13 +42,13 @@ export class OverlapAtom extends Atom {
     // smash (common), mathllap (0), mathrlap (0), mathclap (0)
     // See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf
     // and https://tex.stackexchange.com/questions/98785/what-are-the-different-kinds-of-vertical-spacing-and-horizontal-spacing-commands
-    const inner = Atom.createBox(context, this.body, { classes: 'inner' }); // @revisit
+    const inner = Atom.createBox(context, this.body, { classes: 'ML__inner' }); // @revisit
     if (!inner) return null;
     if (this.caret) inner.caret = this.caret;
     return this.bind(
       context,
-      new Box([inner, new Box(null, { classes: 'fix' })], {
-        classes: this.align === 'right' ? 'rlap' : 'llap',
+      new Box([inner, new Box(null, { classes: 'ML__fix' })], {
+        classes: this.align === 'right' ? 'ML__rlap' : 'ML__llap',
         type: this.boxType,
       })
     );

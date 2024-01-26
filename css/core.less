@@ -215,6 +215,15 @@
   text-align: center;
 }
 
+.ML__left {
+  text-align: left;
+}
+
+.ML__right {
+  text-align: right;
+}
+
+
 .ML__label_padding {
   padding: 0 0.5em;
 }
@@ -368,25 +377,25 @@
     position: relative;
   }
 
-  .mfrac {
+  .ML__mfrac {
     display: inline-block;
   }
   
-  .left-right {
+  .ML__left-right {
     display: inline-block;
   }
 
-  .vlist-t {
+  .ML__vlist-t {
     display: inline-table;
     table-layout: fixed;
     border-collapse: collapse;
   }
 
-  .vlist-r {
+  .ML__vlist-r {
     display: table-row;
   }
 
-  .vlist {
+  .ML__vlist {
     display: table-cell;    // Inside a table-cell, vertical-align aligns the content of the cell, not the cell itself
     vertical-align: bottom;
     position: relative;
@@ -399,18 +408,18 @@
       > span {
         display: inline-block;
       }
-      > .pstrut {
+      > .ML__pstrut {
         overflow: hidden;
         width: 0;
       }
     }
   }
 
-  .vlist-t2 {
+  .ML__vlist-t2 {
     margin-right: -2px;
   }
 
-  .vlist-s {
+  .ML__vlist-s {
     // This cell solves Safari rendering problems. It has text content, so
     // its baseline is used for the table. A very small font avoids line-box
     // issues; absolute units prevent user font-size overrides from breaking
@@ -424,76 +433,76 @@
     width: 2px;
     min-width: 2px;
   }
-  .msubsup {
+  .ML__msubsup {
     text-align: left;
   }
 
-  .negativethinspace {
+  .ML__negativethinspace {
     display: inline-block;
     margin-left: -@thinspace;
     height: 0.71em;
   }
 
-  .thinspace {
+  .ML__thinspace {
     display: inline-block;
     width: @thinspace;
     height: 0.71em;
   }
 
-  .mediumspace {
+  .ML__mediumspace {
     display: inline-block;
     width: @mediumspace;
     height: 0.71em;
   }
 
-  .thickspace {
+  .ML__thickspace {
     display: inline-block;
     width: @thickspace;
     height: 0.71em;
   }
 
-  .enspace {
+  .ML__enspace {
     display: inline-block;
     width: 0.5em;
     height: 0.71em;
   }
 
-  .quad {
+  .ML__quad {
     display: inline-block;
     width: 1em;
     height: 0.71em;
   }
 
-  .qquad {
+  .ML__qquad {
     display: inline-block;
     width: 2em;
     height: 0.71em;
   }
 
-  .llap,
-  .rlap {
+  .ML__llap,
+  .ML__rlap {
     width: 0;
     position: relative;
     display: inline-block;
 
-    > .inner {
+    > .ML__inner {
       position: absolute;
     }
 
-    > .fix {
+    > .ML__fix {
       display: inline-block;
     }
   }
 
-  .llap > .inner {
+  .ML__llap > .ML__inner {
     right: 0;
   }
 
-  .rlap > .inner {
+  .ML__rlap > .ML__inner {
     left: 0;
   }
 
-  .rule {
+  .ML__rule {
     display: inline-block;
     border: solid 0;
     position: relative;
@@ -527,7 +536,7 @@
     }
   }
 
-  .stretchy {
+  .ML__stretchy {
     display: block;
     position: absolute;
     width: 100%;
@@ -599,50 +608,50 @@
     overflow: hidden;
   }
 
-  .nulldelimiter {
+  .ML__nulldelimiter {
     display: inline-block;
   }
 
-  .op-group {
+  .ML__op-group {
     display: inline-block;
   }
 
-  .op-symbol {
+  .ML__op-symbol {
     position: relative;
 
-    &.small-op {
+    &.ML__small-op {
       font-family: KaTeX_Size1;
     }
-    &.large-op {
+    &.ML__large-op {
       font-family: KaTeX_Size2;
     }
   }
 
-  .mtable {
-    .vertical-separator {
+  .ML__mtable {
+    .ML__vertical-separator {
       display: inline-block;
       // margin and border-right are set in Javascript
       min-width: 1px; // Prevent Chrome from omitting a line.
       box-sizing: border-box;
     }
 
-    .arraycolsep {
+    .ML__arraycolsep {
       display: inline-block;
     }
 
-    .col-align-m > .vlist-t {
+    .col-align-m > .ML__vlist-t {
       text-align: center;
     }
 
-    .col-align-c > .vlist-t {
+    .col-align-c > .ML__vlist-t {
       text-align: center;
     }
 
-    .col-align-l > .vlist-t {
+    .col-align-l > .ML__vlist-t {
       text-align: left;
     }
 
-    .col-align-r > .vlist-t {
+    .col-align-r > .ML__vlist-t {
       text-align: right;
     }
   }

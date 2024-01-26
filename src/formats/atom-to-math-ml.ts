@@ -1,6 +1,6 @@
 import { Atom } from '../core/atom-class';
+import { mathVariantToUnicode } from '../core/unicode';
 import { MacroAtom } from '../atoms/macro';
-import { mathVariantToUnicode } from '../latex-commands/unicode';
 import { LeftRightAtom } from '../atoms/leftright';
 
 type MathMLStream = {
@@ -238,6 +238,7 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
   if (!superscript && !subscript) return false;
 
   let mathML = '';
+
   if (superscript && subscript)
     mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
   else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
@@ -253,6 +254,10 @@ function scanText(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
+
+  let superscript = indexOfSuperscriptInNumber(stream);
+  if (superscript >= 0 && superscript < final) final = superscript;
+
   while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
     mathML += stream.atoms[stream.index].value
       ? stream.atoms[stream.index].value
@@ -261,11 +266,21 @@ function scanText(stream: MathMLStream, final: number, options) {
   }
 
   if (mathML.length > 0) {
-    stream.mathML += `<mtext ${makeID(
+    mathML = `<mtext ${makeID(
       stream.atoms[initial].id,
       options
     )}>${mathML}</mtext>`;
-    stream.lastType = 'mtext';
+
+    if (superscript < 0 && isSuperscriptAtom(stream)) {
+      superscript = stream.index;
+      stream.index += 1;
+    }
+
+    if (!parseSubsup(mathML, stream, options)) {
+      stream.mathML += mathML;
+      stream.lastType = 'mtext';
+    }
+
     return true;
   }
 
@@ -375,7 +390,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
 
   const SPECIAL_OPERATORS = {
     '\\ne': '&ne;',
-    '\\neq': '&neq;',
+    '\\neq': '&ne;',
     '\\pm': '&#177;',
     '\\times': '&#215;',
     '\\colon': ':',

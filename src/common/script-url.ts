@@ -68,7 +68,18 @@ const gScriptUrl =
 
 export async function resolveUrl(url: string): Promise<string> {
   // Is  it an absolute URL?
-  if (/^(?:[a-z+]+:)?\/\//i.test(url)) return new URL(url).href;
+  if (/^(?:[a-z+]+:)?\/\//i.test(url)) {
+    try {
+      return new URL(url).href;
+    } catch (e) {}
+    if (url.startsWith('//')) {
+      // Add the protocol
+      try {
+        return new URL(`${window.location.protocol}${url}`).href;
+      } catch (e) {}
+    }
+    return url;
+  }
 
   // This may be a relative URL
   if (gResolvedScriptUrl === null) {

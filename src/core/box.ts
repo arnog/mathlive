@@ -593,7 +593,7 @@ export class Box implements BoxInterface {
     for (const [i, class_] of classes.entries()) {
       // Don't coalesce vertical separators
       // (used in column formating with {l||r} for example
-      if (class_ === 'vertical-separator') return false;
+      if (class_ === 'ML__vertical-separator') return false;
       if (class_ !== boxClasses[i]) return false;
     }
 

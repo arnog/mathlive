@@ -507,7 +507,7 @@ export class ArrayAtom extends Atom {
         // It's a column separator.
         //
 
-        const separator = new Box(null, { classes: 'vertical-separator' });
+        const separator = new Box(null, { classes: 'ML__vertical-separator' });
         separator.height = totalHeight;
         separator.setStyle('height', totalHeight, 'em');
         separator.setStyle(
@@ -537,7 +537,7 @@ export class ArrayAtom extends Atom {
       cols.push(makeColGap(arraycolsep));
     }
 
-    const inner = new Box(cols, { classes: 'mtable' });
+    const inner = new Box(cols, { classes: 'ML__mtable' });
 
     if (
       (!this.leftDelim || this.leftDelim === '.') &&
@@ -593,7 +593,11 @@ export class ArrayAtom extends Atom {
   }
 
   _serialize(options: ToLatexOptions): string {
-    const result = [`\\begin{${this.environmentName}}`];
+    const result: string[] = [];
+
+    if (this.environmentName === 'lines') result.push(`{\\displaylines`);
+    else result.push(`\\begin{${this.environmentName}}`);
+
     if (this.environmentName === 'array') {
       result.push('{');
       if (this.colFormat !== undefined) {
@@ -625,7 +629,8 @@ export class ArrayAtom extends Atom {
       }
     }
 
-    result.push(`\\end{${this.environmentName}}`);
+    if (this.environmentName === 'lines') result.push(`}`);
+    else result.push(`\\end{${this.environmentName}}`);
 
     return joinLatex(result);
   }
@@ -794,7 +799,7 @@ function makePlaceholderCell(parent: ArrayAtom): Atom[] {
  * Create a column separator box.
  */
 function makeColGap(width: number): Box {
-  const result = new Box(null, { classes: 'arraycolsep' });
+  const result = new Box(null, { classes: 'ML__arraycolsep' });
   result.width = width;
   return result;
 }

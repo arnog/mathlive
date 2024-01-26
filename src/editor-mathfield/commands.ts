@@ -57,7 +57,7 @@ registerCommand({
     const model = mathfield.model;
     if (
       model.mode === 'math' &&
-      window.MathfieldElement.decimalSeparator === ','
+      globalThis.MathfieldElement.decimalSeparator === ','
     ) {
       const child = model.at(Math.max(model.position, model.anchor));
       if (child.isDigit()) {

@@ -429,6 +429,9 @@ export class _MenuListState implements MenuListState {
     // @ts-ignore
     if (supportPopover() && this._element?.popover) this.element.hidePopover();
 
+    // Change the focus to avoid a spurious blur event
+    this.parentMenu?.element?.focus();
+
     this._element?.parentNode?.removeChild(this._element);
   }
 

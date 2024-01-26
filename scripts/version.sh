@@ -19,6 +19,6 @@ sedi () {
     sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
 }
 
-sedi -e 's/\[Unreleased\]/'"$PACKAGE_VERSION"' ('"$DATE_STAMP"')/g' CHANGELOG.md
+sedi -e 's/\[Unreleased\]/'"$PACKAGE_VERSION"' _'"$DATE_STAMP"'_/g' CHANGELOG.md
 
 git add CHANGELOG.md

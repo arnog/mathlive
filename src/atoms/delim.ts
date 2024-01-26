@@ -78,7 +78,7 @@ export class SizedDelimAtom extends Atom {
 
   render(context: Context): Box | null {
     let result = makeSizedDelim(this.value, this.size, context, {
-      classes: { open: 'mopen', close: 'mclose' }[this.delimType],
+      classes: { open: 'ML__open', close: 'ML__close' }[this.delimType],
       type: this.delimType,
       isSelected: this.isSelected,
     });

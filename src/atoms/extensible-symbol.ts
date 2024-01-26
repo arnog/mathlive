@@ -56,7 +56,7 @@ export class ExtensibleSymbolAtom extends Atom {
 
     const base = new Box(this.value, {
       fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
-      classes: 'op-symbol ' + (large ? 'large-op' : 'small-op'),
+      classes: 'ML__op-symbol ' + (large ? 'ML__large-op' : 'ML__small-op'),
       type: 'op',
       maxFontSize: context.scalingFactor,
       isSelected: this.isSelected,
@@ -94,7 +94,7 @@ export class ExtensibleSymbolAtom extends Atom {
       type: 'op',
       caret: this.caret,
       isSelected: this.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     }).wrap(context);
   }
 

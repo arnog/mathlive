@@ -79,6 +79,12 @@
         );
       });
 
+      document.querySelectorAll("math-field").forEach((x) => {
+        x.addEventListener("focusin", logEvent, true);
+        x.addEventListener("move-out", logEvent, true);
+        x.addEventListener("focusout", logEvent, true);
+      });
+
       // document.querySelectorAll('math-field, textarea').forEach((x) => {
       //   x.addEventListener('beforeinput', logEvent);
       //   x.addEventListener('input', logEvent);
@@ -106,7 +112,7 @@
         if (stackTraceFrames.length > 0)
           console.log(stackTraceFrames.join("\n"));
         // console.log(evt);
-        updateButtons();
+        // updateButtons();
       }
     </script>
   </body>

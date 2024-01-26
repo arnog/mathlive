@@ -13,7 +13,7 @@ import type {
   Variant,
   Environment,
 } from '../public/core-types';
-import { unicodeToMathVariant } from './unicode';
+import { UNICODE_TO_LATEX } from '../core/unicode';
 import type {
   AtomType,
   CreateAtomOptions,
@@ -31,6 +31,7 @@ import type {
   LatexSymbolDefinition,
   TokenDefinition,
 } from './types';
+import type { Parser } from 'core/parser';
 
 export function argAtoms(arg: Argument | null | undefined): Atom[] {
   if (!arg) return [];
@@ -50,121 +51,8 @@ export const MATH_SYMBOLS: Record<string, LatexSymbolDefinition> = {};
 // The table will also be populated by any registered symbol from MATH_SYMBOLS,
 //  so an explicit entry is only needed in case of ambiguous mappings.
 //
-// prettier-ignore
-const REVERSE_MATH_SYMBOLS = {
-    0x003C: '\\lt',
-    0x003E: '\\gt',
-    0x006F: 'o',    // Also \omicron
-    0x0026: '\\&',  // Also \And
-    0x007B: '\\lbrace',
-    0x007D: '\\rbrace',
-    0x005B: '\\lbrack',
-    0x005D: '\\rbrack',
-    0x003A: '\\colon', // Also :
-    
-    0x00A0: '~', // Also \space
-    0x00AC: '\\neg',  // Also \lnot
+const REVERSE_MATH_SYMBOLS: Record<number, string> = { ...UNICODE_TO_LATEX };
 
-    0x00B7: '\\cdot',
-    0x00BC: '\\frac{1}{4}',
-    0x00BD: '\\frac{1}{2}',
-    0x00BE: '\\frac{3}{4}',
-    0x2070: '^{0}',
-    0x2071: '^{i}',
-    0x00B9: '^{1}',
-    0x00B2: '^{2}',
-    0x00B3: '^{3}',
-
-    0x2020: '\\dagger', // Also \dag
-    0x2021: '\\ddagger', // Also \ddag
-    0x2026: '\\ldots',    // Also \mathellipsis
-
-    0x2074: '^{4}',
-    0x2075: '^{5}',
-    0x2076: '^{6}',
-    0x2077: '^{7}',
-    0x2078: '^{8}',
-    0x2079: '^{9}',
-    0x207A: '^{+}',
-    0x207B: '^{-}',
-    0x207C: '^{=}',
-    0x207F: '^{n}',
-    0x2080: '_{0}',
-    0x2081: '_{1}',
-    0x2082: '_{2}',
-    0x2083: '_{3}',
-    0x2084: '_{4}',
-    0x2085: '_{5}',
-    0x2086: '_{6}',
-    0x2087: '_{7}',
-    0x2088: '_{8}',
-    0x2089: '_{9}',
-    0x208A: '_{+}',
-    0x208B: '_{-}',
-    0x208C: '_{=}',
-    0x2090: '_{a}',
-    0x2091: '_{e}',
-    0x2092: '_{o}',
-    0x2093: '_{x}',
-
-    0x2032: '\\prime',
-    0x0027: '\\prime',
-
-    0x2190: '\\gets', // Also \leftarrow
-    0x2192: '\\to',   // Also \rightarrow
-
-    0x25B3: '\\triangle', // Also \bigtriangleup, \vartriangle
-    0x25BD: '\\triangledown',
-
-    0x220B: '\\owns', // Also \ni
-    0x2217: '\\ast',  // Also *
-    0x2223: '\\vert',  // Also |, \mvert, \lvert, \rvert
-    0x2225: '\\Vert',  // Also \parallel \shortparallel
-
-    0x2227: '\\land', // Also \wedge
-    0x2228: '\\lor', // Also \vee
-
-    0x22C5: '\\cdot', // Also \centerdot, \cdotp
-    0x22C8: '\\bowtie', // Also \Joint
-
-    0x2260: '\\ne',   // Also \neq
-    0x2264: '\\le',   // Also \leq
-    0x2265: '\\ge',   // Also \geq
-    0x22A5: '\\bot', // Also \perp
-
-    0x27F7: '\\biconditional',    // Also \longleftrightarrow
-    0x27F8: '\\impliedby', // Also \Longleftarrow
-    0x27F9: '\\implies', // Also \Longrightarrow
-    0x27fa: '\\iff',
-
-    0x2102: '\\mathbb{C}',
-    0x2115: '\\mathbb{N}',
-    0x2119: '\\mathbb{P}',
-    0x211A: '\\mathbb{Q}',
-    0x211D: '\\mathbb{R}',
-    0x2124: '\\mathbb{Z}',
-    0x210d: '\\mathbb{H}',
-
-    0x211c: '\\Re',
-    0x2111: '\\Im',
-    0x002A: '\\ast',
-
-
-    0x2b1c: '\\square',
-    0x25a1: '\\square',
-    0x2210: '\\coprod',
-    0x220c: '\\not\\ni',
-    0x25c7: '\\diamond',
-    0x228e: '\\uplus',
-    0x2293: '\\sqcap',
-    0x2294: '\\sqcup',
-    0x2240: '\\wr',
-    0x222e: '\\oint',
-    0x2022: '\\textbullet',
-    0x2212: '-',
-
-    0x03d2 : '\\Upsilon',
-};
 export const LATEX_COMMANDS: Record<string, LatexCommandDefinition> = {};
 
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
@@ -346,7 +234,7 @@ const DEFAULT_MACROS: MacroDictionary = {
   'iff': {
     primitive: true,
     captureSelection: true,
-    def: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+    def: '\\;\\char"27FA\\;', // >2,000 Note: additional spaces around the arrows
   },
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
@@ -521,6 +409,7 @@ const TEXT_SYMBOLS: Record<string, number> = {
   '\\$': 0x0024,
   '\\%': 0x0025,
   '\\&': 0x0026,
+  '\\_': 0x005f,
   '-': 0x002d, // In Math mode, '-' is substituted to U+2212, but we don't
   '\\textunderscore': 0x005f, // '_'
   '\\euro': 0x20ac,
@@ -639,26 +528,6 @@ export function defineSymbols(
 export function defineSymbolRange(from: number, to: number): void {
   for (let i = from; i <= to; i++) defineSymbol(String.fromCodePoint(i), i);
 }
-
-// export function unicodeStringToLatex(
-//   parseMode: ArgumentType,
-//   s: string
-// ): string {
-//   let result = '';
-//   let needSpace = false;
-//   for (const c of s) {
-//     if (needSpace) result += parseMode === 'text' ? '{}' : ' ';
-
-//     needSpace = false;
-//     const latex = unicodeCharToLatex(parseMode, c);
-//     if (latex) {
-//       result += latex;
-//       needSpace = /\\[a-zA-Z\d]+\*?$/.test(latex);
-//     } else result += c;
-//   }
-
-//   return result;
-// }
 
 export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
   return ENVIRONMENTS[name] ?? null;
@@ -833,6 +702,7 @@ export function defineFunction(
     applyMode?: ParseMode;
     infix?: boolean;
     isFunction?: boolean;
+    parse?: (parser: Parser) => Argument[];
     createAtom?: (options: CreateAtomOptions) => Atom;
     applyStyle?: (
       name: string,
@@ -857,6 +727,7 @@ export function defineFunction(
     isFunction: options.isFunction ?? false,
     applyMode: options.applyMode,
     infix: options.infix ?? false,
+    parse: options.parse,
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
     serialize: options.serialize,
@@ -982,17 +853,6 @@ export function getDefinition(
     };
   }
 
-  // Special case `f`, `g` and `h` are recognized as functions.
-  if (
-    info &&
-    info.definitionType === 'symbol' &&
-    info.type === 'mord' &&
-    (info.codepoint === 0x66 ||
-      info.codepoint === 0x67 ||
-      info.codepoint === 0x68)
-  )
-    info.isFunction = true;
-
   return info ?? null;
 }
 
@@ -1003,31 +863,6 @@ export function getMacroDefinition(
   if (!token.startsWith('\\')) return null;
   const command = token.slice(1);
   return macros[command];
-}
-
-export function unicodeCharToLatex(parseMode: ParseMode, char: string): string {
-  if (parseMode === 'text')
-    return charToLatex(parseMode, char.codePointAt(0)) ?? char;
-
-  let result: string;
-  // Codepoint shortcuts have priority over variants
-  // That is, "\N" vs "\mathbb{N}"
-  // if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
-  result = charToLatex(parseMode, char.codePointAt(0));
-  if (result) return result;
-
-  const cp = char.codePointAt(0)!;
-  const v = unicodeToMathVariant(cp);
-  if (!v.style && !v.variant) return '';
-
-  result = v.char;
-  if (v.variant) result = '\\' + v.variant + '{' + result + '}';
-
-  if (v.style === 'bold') result = '\\mathbf{' + result + '}';
-  else if (v.style === 'italic') result = '\\mathit{' + result + '}';
-  else if (v.style === 'bolditalic') result = '\\mathbfit{' + result + '}';
-
-  return '\\mathord{' + result + '}';
 }
 
 /**

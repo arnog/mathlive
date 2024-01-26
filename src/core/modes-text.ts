@@ -146,7 +146,7 @@ export class TextMode extends Mode {
     const { fontFamily } = style;
 
     if (TEXT_FONT_CLASS[fontFamily!])
-      box.classes += ' ' + TEXT_FONT_CLASS[fontFamily!] ?? '';
+      box.classes += ' ' + TEXT_FONT_CLASS[fontFamily!];
     else if (fontFamily) {
       // Not a well-known family. Use a style.
       box.setStyle('font-family', fontFamily);

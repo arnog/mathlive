@@ -38,6 +38,7 @@ import type {
 } from '../core/types';
 import { Context } from './context';
 import { Argument, LatexCommandDefinition } from 'latex-commands/types';
+import { codePointToLatex } from './unicode';
 
 //
 // - Literal (character token): a letter, digit or punctuation
@@ -247,6 +248,18 @@ export class Parser {
 
   peek(): Token | undefined {
     return this.tokens[this.index];
+  }
+
+  // If the next token is a Unicode character such as ² or ℂ,
+  // expand it with an equivalent LaTeX command.
+  expandUnicode(): void {
+    if (!this.peek()) return;
+
+    if (this.parseMode !== 'math') return;
+
+    // Check if we have a Unicode character such as `²` or `ℂ`
+    const latex = codePointToLatex(this.peek()!);
+    if (latex) this.tokens.splice(this.index, 1, ...tokenize(latex));
   }
 
   /**
@@ -1234,9 +1247,15 @@ export class Parser {
       if (parameter.type === 'rest') {
         args.push(
           this.scan((token) =>
-            ['<}>', '&', '\\end', '\\cr', '\\\\', '\\tabularnewline'].includes(
-              token
-            )
+            [
+              '<}>',
+              '&',
+              '\\end',
+              '\\cr',
+              '\\\\',
+              '\\tabularnewline',
+              '\\right',
+            ].includes(token)
           )
         );
       } else if (parameter.isOptional)
@@ -1372,6 +1391,19 @@ export class Parser {
         return result;
       }
       if (type === 'balanced-string') return null;
+      if (type === 'rest') {
+        return this.scan((token) =>
+          [
+            '<}>',
+            '&',
+            '\\end',
+            '\\cr',
+            '\\\\',
+            '\\tabularnewline',
+            '\\right',
+          ].includes(token)
+        );
+      }
       console.assert(false);
       return null;
     }
@@ -1611,9 +1643,12 @@ export class Parser {
       const savedMode = this.parseMode;
       if (info.applyMode) this.parseMode = info.applyMode;
 
-      const [deferredArg, args] = this.scanArguments(info);
-      this.parseMode = savedMode;
+      let deferredArg: ParseMode | undefined = undefined;
+      let args: (null | Argument)[] = [];
+      if (info.parse) args = info.parse(this);
+      else [deferredArg, args] = this.scanArguments(info);
 
+      this.parseMode = savedMode;
       if (info.applyMode && !info.applyStyle && !info.createAtom)
         return argAtoms(args[0]);
 
@@ -1703,6 +1738,8 @@ export class Parser {
   }
 
   scanSymbolCommandOrLiteral(): Atom[] | null {
+    this.expandUnicode();
+
     const token = this.get();
     if (!token) return null;
 

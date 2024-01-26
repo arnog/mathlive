@@ -146,7 +146,7 @@ defineFunction('sqrt', '[index:auto]{radicand:expression}', {
 
 // Fractions
 defineFunction(
-  ['frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'dbinom', 'tbinom'],
+  ['frac', 'dfrac', 'tfrac', 'binom', 'dbinom', 'tbinom'],
   '{:expression}{:expression}',
   {
     ifMode: 'math',
@@ -206,6 +206,31 @@ defineFunction(
     },
   }
 );
+
+defineFunction(['cfrac'], '[:string]{:expression}{:expression}', {
+  ifMode: 'math',
+  createAtom: (options) => {
+    const genfracOptions: GenfracOptions = { ...options };
+    const args = options.args!;
+    genfracOptions.hasBarLine = true;
+    genfracOptions.continuousFraction = true;
+
+    if (args[0] === 'r') genfracOptions.align = 'right';
+    if (args[0] === 'l') genfracOptions.align = 'left';
+
+    return new GenfracAtom(
+      !args[1] ? [new PlaceholderAtom()] : argAtoms(args[1]),
+      !args[2] ? [new PlaceholderAtom()] : argAtoms(args[2]),
+      genfracOptions
+    );
+  },
+  serialize: (atom, options) => {
+    const numer = atom.aboveToLatex(options);
+    const denom = atom.belowToLatex(options);
+
+    return latexCommand(atom.command, numer, denom);
+  },
+});
 
 defineFunction(['brace', 'brack'], '', {
   infix: true,

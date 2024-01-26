@@ -49,7 +49,7 @@ class Tokenizer {
    * Return the next substring matching regEx and advance.
    */
   match(regEx: RegExp): string {
-    // This.s can either be a string, if it's made up only of ASCII chars
+    // This can either be a string, if it's made up only of ASCII chars
     // or an array of graphemes, if it's more complicated.
     const execResult: (string | null)[] | null =
       typeof this.s === 'string'
@@ -71,8 +71,8 @@ class Tokenizer {
     if (this.end()) return null;
 
     // Handle white space
-    // In text mode, spaces are significant,
-    // however they are coalesced unless \obeyspaces
+    // In text mode, spaces are significant, however they are coalesced
+    // unless \obeyspaces
     if (!this.obeyspaces && this.match(/^[ \f\n\r\t\v\u00A0\u2028\u2029]+/)) {
       // Note that browsers are inconsistent in their definitions of the
       // `\s` metacharacter, so we use an explicit pattern instead.
@@ -92,7 +92,8 @@ class Tokenizer {
     }
 
     if (this.obeyspaces && this.match(/^[ \f\n\r\t\v\u00A0\u2028\u2029]/)) {
-      // Don't coalesce when this.obeyspaces is true (different regex from above)
+      // Don't coalesce when this.obeyspaces is true (different regex
+      // from above)
       return '<space>';
     }
 
@@ -279,18 +280,18 @@ export function tokenize(
   args: null | ((arg: string) => string | undefined) = null
 ): Token[] {
   // Merge multiple lines into one, and remove comments
-  const stream: string[] = [];
+  const lines: string[] = [];
   let sep = '';
   for (const line of s.toString().split(/\r?\n/)) {
-    if (sep) stream.push(sep);
+    if (sep) lines.push(sep);
     sep = ' ';
     // Remove everything after a % (comment marker)
     // (but \% should be preserved...)
     const m = line.match(/((?:\\%)|[^%])*/);
-    if (m !== null) stream.push(m[0]);
+    if (m !== null) lines.push(m[0]);
   }
 
-  const tokenizer = new Tokenizer(stream.join(''));
+  const tokenizer = new Tokenizer(lines.join(''));
   const result: Token[] = [];
   do result.push(...expand(tokenizer, args));
   while (!tokenizer.end());

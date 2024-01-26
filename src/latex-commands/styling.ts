@@ -321,7 +321,7 @@ defineFunction('selectfont', '', {
 
 // \bf works in any mode
 // As per the LaTeX 2.09 semantics, it overrides shape, family
-defineFunction('bf', '{:rest}', {
+defineFunction('bf', '{:rest*}', {
   applyStyle: () => ({ fontSeries: 'b', fontShape: 'n', fontFamily: 'roman' }),
 });
 
@@ -344,24 +344,24 @@ defineFunction('bold', '{:math*}', {
   applyStyle: () => ({ variantStyle: 'bold' }),
 });
 
-defineFunction('bfseries', '{:rest}', {
+defineFunction('bfseries', '{:rest*}', {
   applyMode: 'text',
   applyStyle: () => ({ fontSeries: 'b' }),
 });
-defineFunction('mdseries', '{:rest}', {
+defineFunction('mdseries', '{:rest*}', {
   applyMode: 'text',
   applyStyle: () => ({ fontSeries: 'm' }),
 });
-defineFunction('upshape', '{:rest}', {
+defineFunction('upshape', '{:rest*}', {
   applyMode: 'text',
   applyStyle: () => ({ fontShape: 'n' }),
 });
-defineFunction('slshape', '{:rest}', {
+defineFunction('slshape', '{:rest*}', {
   applyMode: 'text',
   applyStyle: () => ({ fontShape: 'sl' }),
 });
 // Small caps
-defineFunction('scshape', '{:rest}', {
+defineFunction('scshape', '{:rest*}', {
   applyMode: 'text',
   applyStyle: () => ({ fontShape: 'sc' }),
 });
@@ -454,7 +454,7 @@ defineFunction('mathtt', '{:math*}', {
   applyStyle: () => ({ variant: 'monospace', variantStyle: 'up' }),
 });
 
-defineFunction('it', '{:rest}', {
+defineFunction('it', '{:rest*}', {
   applyStyle: () => ({
     fontSeries: 'm',
     fontShape: 'it',
@@ -464,15 +464,15 @@ defineFunction('it', '{:rest}', {
 });
 
 // In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
-defineFunction('rmfamily', '', {
+defineFunction('rmfamily', '{:rest*}', {
   applyStyle: () => ({ fontFamily: 'roman' }),
 });
 
-defineFunction('sffamily', '', {
+defineFunction('sffamily', '{:rest*}', {
   applyStyle: () => ({ fontFamily: 'sans-serif' }),
 });
 
-defineFunction('ttfamily', '', {
+defineFunction('ttfamily', '{:rest*}', {
   applyStyle: () => ({ fontFamily: 'monospace' }),
 });
 
@@ -803,7 +803,7 @@ defineFunction('mathop', '{:auto}', {
     return new Box(atom.bind(context, base), {
       type: 'op',
       isSelected: atom.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     });
   },
   serialize: (atom, options) => {
@@ -907,7 +907,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
     return new Box(atom.bind(context, base), {
       type: 'op',
       isSelected: atom.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     });
   },
   serialize: (atom, options) => {
@@ -958,7 +958,7 @@ defineFunction('rule', '[raise:value]{width:value}{thickness:value}', {
     const width = ctx.toEm(atom.args[1] ?? { dimension: 10 });
     const height = ctx.toEm(atom.args[2] ?? { dimension: 10 });
     const result = new Box(null, {
-      classes: 'rule',
+      classes: 'ML__rule',
       type: 'ord',
     });
     result.width = width;

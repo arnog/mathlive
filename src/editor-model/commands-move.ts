@@ -560,6 +560,9 @@ register(
         : Math.max(model.position + 1, 0);
 
       const target = leapTarget(model, origin, 'forward');
+      if (target && model.offsetOf(target) < origin)
+        return leap(model, 'forward');
+
       if (target) return leapTo(model, target);
 
       //
@@ -657,6 +660,9 @@ register(
         : Math.max(model.position - 1, 0);
 
       const target = leapTarget(model, origin, 'backward');
+      if (target && model.offsetOf(target) > origin)
+        return leap(model, 'backward');
+
       if (target) return leapTo(model, target);
 
       //

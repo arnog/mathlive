@@ -37,6 +37,9 @@ export type StaticRenderOptionsPrivate = StaticRenderOptions & {
   processScriptTypePattern?: RegExp;
   processMathJSONScriptTypePattern?: RegExp;
 
+  texClassDisplayPattern?: RegExp;
+  texClassInlinePattern?: RegExp;
+
   mathstyle?: string;
   format?: string;
 };
@@ -163,14 +166,7 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  texDelimiters?: {
-    display?: [openDelim: string, closeDelim: string][];
-    inline?: [openDelim: string, closeDelim: string][];
-  },
-  mathAsciiDelimiters?: {
-    display?: [openDelim: string, closeDelim: string][];
-    inline?: [openDelim: string, closeDelim: string][];
-  }
+  options: StaticRenderOptionsPrivate
 ): {
   type: string;
   data: string;
@@ -178,20 +174,23 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (texDelimiters?.inline) {
-    texDelimiters.inline.forEach(([openDelim, closeDelim]) => {
-      data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
-    });
-  }
 
-  if (texDelimiters?.display) {
-    texDelimiters.display.forEach(([openDelim, closeDelim]) => {
+  // We need to check `display` first because `$$` is a common prefix
+  // and `$` would match it first.
+  if (options.TeX?.delimiters?.display) {
+    options.TeX.delimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
     });
   }
 
-  if (mathAsciiDelimiters?.inline) {
-    mathAsciiDelimiters.inline.forEach(([openDelim, closeDelim]) => {
+  if (options.TeX?.delimiters?.inline) {
+    options.TeX.delimiters.inline.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
+    });
+  }
+
+  if (options.asciiMath?.delimiters?.inline) {
+    options.asciiMath.delimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
         openDelim,
@@ -202,8 +201,8 @@ function splitWithDelimiters(
     });
   }
 
-  if (mathAsciiDelimiters?.display) {
-    mathAsciiDelimiters.display.forEach(([openDelim, closeDelim]) => {
+  if (options.asciiMath?.delimiters?.display) {
+    options.asciiMath.delimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(
         data,
         openDelim,
@@ -229,7 +228,7 @@ function createMathMLNode(
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
       options.renderToMathML!(latex) +
       '</math>';
-    span.innerHTML = window.MathfieldElement.createHTML(html);
+    span.innerHTML = globalThis.MathfieldElement.createHTML(html);
   } catch (error: unknown) {
     console.error(
       `MathLive {{SDK_VERSION}}:  Could not convert "${latex}"' to MathML with ${error}`
@@ -264,7 +263,7 @@ function createMarkupNode(
       mathstyle === 'displaystyle' ? 'flex' : 'inline-flex';
     element.setAttribute('aria-hidden', 'true');
     element.setAttribute('translate', 'no');
-    element.innerHTML = window.MathfieldElement.createHTML(html);
+    element.innerHTML = globalThis.MathfieldElement.createHTML(html);
     return element;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
@@ -303,7 +302,7 @@ function createAccessibleMarkupPair(
       span.setAttribute('translate', 'no');
 
       const html = options.renderToSpeakableText(latex);
-      span.innerHTML = window.MathfieldElement.createHTML(html);
+      span.innerHTML = globalThis.MathfieldElement.createHTML(html);
       span.className = 'ML__sr-only';
       fragment.append(span);
     }
@@ -327,11 +326,7 @@ function scanText(
     if (node) fragment.appendChild(node);
   } else {
     if (!text.trim()) return null;
-    const data = splitWithDelimiters(
-      text,
-      options.TeX?.delimiters,
-      options.asciiMath?.delimiters
-    );
+    const data = splitWithDelimiters(text, options);
     if (data.length === 1 && data[0].type === 'text') {
       // This text contains no math. No need to continue processing
       return null;
@@ -372,11 +367,7 @@ function scanElement(
       return;
     }
 
-    const data = splitWithDelimiters(
-      text,
-      options.TeX?.delimiters,
-      options.asciiMath?.delimiters
-    );
+    const data = splitWithDelimiters(text, options);
     if (data.length === 1 && data[0].type === 'math') {
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
@@ -404,16 +395,30 @@ function scanElement(
   for (let i = element.childNodes.length - 1; i >= 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
+      //
       // A text node
+      //
       // Look for math mode delimiters inside the text
-      const frag = scanText(childNode.textContent ?? '', options);
+
+      let content = childNode.textContent ?? '';
+
+      // Coalesce adjacent text nodes
+      while (i > 0 && element.childNodes[i - 1].nodeType === 3) {
+        i--;
+        content = ((element.childNodes[i] as Text).textContent ?? '') + content;
+      }
+      content = content.trim();
+      if (!content) continue;
+      const frag = scanText(content, options);
       if (frag) {
         i += frag.childNodes.length - 1;
         childNode.replaceWith(frag);
       }
     } else if (childNode.nodeType === 1) {
-      const el = childNode as HTMLElement;
+      //
       // An element node
+      //
+      const el = childNode as HTMLElement;
       const tag = childNode.nodeName.toLowerCase();
       if (tag === 'script') {
         const scriptNode = childNode as HTMLScriptElement;
@@ -450,31 +455,40 @@ function scanElement(
           if (span) scriptNode.parentNode!.replaceChild(span, scriptNode);
         }
       } else {
-        // Element node
-        // console.assert(childNode.className !== 'formula');
-        const shouldRender =
+        if (options.texClassDisplayPattern?.test(el.className)) {
+          const formula = el.textContent;
+          el.textContent = '';
+          const node = createAccessibleMarkupPair(
+            formula ?? '',
+            'displaystyle',
+            options,
+            true
+          );
+          if (node) el.append(node);
+          continue;
+        }
+
+        if (options.texClassInlinePattern?.test(el.className)) {
+          const formula = el.textContent;
+          el.textContent = '';
+          const node = createAccessibleMarkupPair(
+            formula ?? '',
+            'textstyle',
+            options,
+            true
+          );
+          if (node) element.append(node);
+          continue;
+        }
+
+        const shouldProcess =
           (options.processClassPattern?.test(el.className) ?? false) ||
           !(
             (options.skipTags?.includes(tag) ?? false) ||
             (options.ignoreClassPattern?.test(el.className) ?? false)
           );
 
-        if (shouldRender) {
-          if (
-            element.childNodes.length === 1 &&
-            element.childNodes[0].nodeType === 3
-          ) {
-            const formula = element.textContent;
-            element.textContent = '';
-            const node = createAccessibleMarkupPair(
-              formula ?? '',
-              'displaystyle',
-              options,
-              true
-            );
-            if (node) element.append(node);
-          } else scanElement(el, options);
-        }
+        if (shouldProcess) scanElement(el, options);
       }
     }
     // Otherwise, it's something else, and ignore it.
@@ -554,6 +568,17 @@ export function _renderMathInElement(
     optionsPrivate.processMathJSONScriptTypePattern = new RegExp(
       optionsPrivate.processMathJSONScriptType ?? ''
     );
+
+    if (optionsPrivate.TeX?.className?.display) {
+      optionsPrivate.texClassDisplayPattern = new RegExp(
+        optionsPrivate.TeX.className.display
+      );
+    }
+    if (optionsPrivate.TeX?.className?.inline) {
+      optionsPrivate.texClassInlinePattern = new RegExp(
+        optionsPrivate.TeX.className.inline
+      );
+    }
 
     // Load the fonts and inject the stylesheet once to
     // avoid having to do it many times in the case of a `renderMathInDocument()`

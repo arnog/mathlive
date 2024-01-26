@@ -4,7 +4,7 @@ import { joinLatex, latexCommand } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import type { Box } from './box';
 import type { Style, Variant, VariantStyle } from '../public/core-types';
-import { mathVariantToUnicode } from '../latex-commands/unicode';
+import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
 
@@ -109,6 +109,10 @@ export class MathMode extends Mode {
         style,
       });
     }
+
+    const isFunction =
+      globalThis.MathfieldElement?.isFunction(info.command ?? command) ?? false;
+
     if (info.definitionType === 'symbol') {
       const result = new Atom({
         type: info.type ?? 'mord',
@@ -117,7 +121,7 @@ export class MathMode extends Mode {
         value: String.fromCodePoint(info.codepoint),
         style,
       });
-      if (info.isFunction ?? false) result.isFunction = true;
+      if (isFunction) result.isFunction = true;
 
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
@@ -129,8 +133,7 @@ export class MathMode extends Mode {
       value: command,
       style,
     });
-    if (info.isFunction ?? false) result.isFunction = true;
-
+    if (isFunction) result.isFunction = true;
     if (command.startsWith('\\')) result.verbatimLatex = command;
 
     return result;
@@ -146,12 +149,21 @@ export class MathMode extends Mode {
     box: Box,
     style: {
       // For math mode
+      fontFamily: string;
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
       variant: Variant;
       variantStyle?: VariantStyle;
     }
   ): FontName | null {
     console.assert(style.variant !== undefined);
+
+    if (style.fontFamily) {
+      const [fontName, classes] = VARIANTS[style.fontFamily];
+
+      if (classes) box.classes += ' ' + classes;
+
+      return fontName;
+    }
 
     let { variant } = style;
     let { variantStyle } = style;

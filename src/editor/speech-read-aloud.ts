@@ -47,27 +47,27 @@ function highlightAtomID(element: HTMLElement | null, atomID?: string): void {
 export function defaultReadAloudHook(element: HTMLElement, text: string): void {
   if (!isBrowser()) return;
 
-  if (window.MathfieldElement.speechEngine !== 'amazon') {
+  if (globalThis.MathfieldElement.speechEngine !== 'amazon') {
     console.error(
       `MathLive {{SDK_VERSION}}: Use Amazon TTS Engine for synchronized highlighting`
     );
-    if (typeof window.MathfieldElement.speakHook === 'function')
-      window.MathfieldElement.speakHook(text);
+    if (typeof globalThis.MathfieldElement.speakHook === 'function')
+      globalThis.MathfieldElement.speakHook(text);
     return;
   }
 
-  if (!window.AWS) {
+  if (!globalThis.AWS) {
     console.error(
       `MathLive {{SDK_VERSION}}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
     );
     return;
   }
 
-  const polly = new window.AWS.Polly({ apiVersion: '2016-06-10' });
+  const polly = new globalThis.AWS.Polly({ apiVersion: '2016-06-10' });
 
   const parameters = {
     OutputFormat: 'json',
-    VoiceId: window.MathfieldElement.speechEngineVoice ?? 'Joanna',
+    VoiceId: globalThis.MathfieldElement.speechEngineVoice ?? 'Joanna',
     Engine: 'standard', // The neural engine does not appear to support ssml marks
     Text: text,
     TextType: 'ssml',

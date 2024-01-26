@@ -259,7 +259,7 @@ export function onKeystroke(
       //
       if (
         model.at(model.position)?.isDigit() &&
-        window.MathfieldElement.decimalSeparator === ',' &&
+        globalThis.MathfieldElement.decimalSeparator === ',' &&
         keyboardEventToChar(evt) === ','
       )
         selector = 'insertDecimalSeparator';
@@ -490,7 +490,7 @@ export function onInput(
   //
   if (options.focus) mathfield.focus();
 
-  if (options.feedback) window.MathfieldElement.playSound('keypress');
+  if (options.feedback) globalThis.MathfieldElement.playSound('keypress');
 
   //
   // 2/ Switch mode if requested

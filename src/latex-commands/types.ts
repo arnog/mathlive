@@ -6,7 +6,6 @@ import type {
   ArgumentType,
   ParseMode,
   Variant,
-  MathstyleName,
   LatexValue,
   Environment,
   Dimension,
@@ -21,6 +20,7 @@ import type {
 } from '../core/types';
 import type { Context } from 'core/context';
 import type { Box } from 'core/box';
+import type { Parser } from 'core/parser';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;
@@ -35,13 +35,6 @@ export type Argument =
   | { group: Atom[] }
   | Atom[];
 
-export type ParseResult =
-  | Atom
-  | PrivateStyle
-  | ParseMode
-  | MathstyleName
-  | { error: string };
-
 export type TokenDefinition = LatexSymbolDefinition | LatexCommandDefinition;
 
 /** A LatexSymbol is a command associated with a
@@ -53,9 +46,6 @@ export type LatexSymbolDefinition = {
   type: AtomType;
   codepoint: number;
   variant?: Variant;
-
-  /** For "f", "g" and "h" */
-  isFunction?: boolean;
 
   /** Note: symbols never have serialize or render functions. They are here because a TokenDefinition
    * expect it.
@@ -89,7 +79,11 @@ export type LatexCommandDefinition<T extends Argument[] = Argument[]> = {
 
   /**  */
   applyMode?: ParseMode;
+
+  parse?: (parser: Parser) => Argument[];
+
   createAtom?: (options: CreateAtomOptions<T>) => Atom;
+
   applyStyle?: (
     command: string,
     args: (null | Argument)[],

@@ -60,6 +60,23 @@ const SPECIAL_IDENTIFIERS = {
   '\\qquad': ' ',
   '\\quad': ' ',
   '\\infty': 'oo',
+  '\\R': 'RR',
+  '\\N': 'NN',
+  '\\Z': 'ZZ',
+  '\\Q': 'QQ',
+  '\\C': 'CC',
+  '\\emptyset': 'O/',
+  '\\varnothing': 'O/',
+  '\\varDelta': 'Delta',
+  '\\varTheta': 'Theta',
+  '\\varLambda': 'Lambda',
+  '\\varXi': 'Xi',
+  '\\varPi': 'Pi',
+  '\\varSigma': 'Sigma',
+  '\\varUpsilon': 'Upsilon',
+  '\\varPhi': 'Phi',
+  '\\varPsi': 'Psi',
+  '\\varOmega': 'Omega',
 };
 
 const SPECIAL_OPERATORS = {

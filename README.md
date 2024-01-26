@@ -105,7 +105,6 @@ MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
 
 - Chat with the [CortexJS Assistant](https://chat.openai.com/g/g-8YgEfR7ig-cortexjs-assistant)
 - Join our [Discord server](https://discord.gg/yhmvVeJ4Hd)
-- Join our [Gitter forum](https://cortexjs.io/gitter/)
 - Drop a line to [arno@arno.org](arno@arno.org)
 
 ## 📃 License

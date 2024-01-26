@@ -199,7 +199,7 @@ export function createSuggestionPopover(
     });
   }
 
-  panel!.innerHTML = window.MathfieldElement.createHTML(html);
+  panel!.innerHTML = globalThis.MathfieldElement.createHTML(html);
 
   return panel;
 }

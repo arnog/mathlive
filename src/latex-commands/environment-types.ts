@@ -145,7 +145,15 @@ const matrices = [
 ];
 const cases = ['cases', 'dcases', 'rcases'];
 
-const align = ['align', 'align*', 'aligned', 'gather', 'gathered', 'split'];
+const align = [
+  'align',
+  'align*',
+  'aligned',
+  'gather',
+  'gather*',
+  'gathered',
+  'split',
+];
 const otherTabular = ['array', 'subequations', 'eqnarray'];
 export function isTabularEnvironment(
   environment: Environment

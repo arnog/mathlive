@@ -1039,6 +1039,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private static _computeEngine: ComputeEngine | null;
 
+  /** @internal */
+  private static _isFunction: (command: string) => boolean = (command) => {
+    const ce = globalThis.MathfieldElement.computeEngine;
+    return ce?.parse(command).domain?.isFunction ?? false;
+  };
+
+  static get isFunction(): (command: string) => boolean {
+    if (typeof this._isFunction !== 'function') return () => false;
+    return this._isFunction;
+  }
+
+  static set isFunction(value: (command: string) => boolean) {
+    this._isFunction = value;
+  }
+
   static async loadSound(
     sound: 'plonk' | 'keypress' | 'spacebar' | 'delete' | 'return'
   ): Promise<void> {
@@ -1123,6 +1138,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * without being reflected on the element instance.
    */
   private _internals: ElementInternals;
+
+  /** @internal */
+  private _observer: MutationObserver | null = null;
 
   // The content of <style> tags inside the element.
   /** @internal */
@@ -1624,10 +1642,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       const options = gDeferredState.get(this)!.options;
       gDeferredState.set(this, {
         value,
-        selection: {
-          ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
-          direction: 'forward',
-        },
+        selection: { ranges: [[-1, -1]], direction: 'forward' },
         options,
         menuItems: undefined,
       });
@@ -1637,10 +1652,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
       value,
-      selection: {
-        ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
-        direction: 'forward',
-      },
+      selection: { ranges: [[-1, -1]], direction: 'forward' },
       options: attrOptions,
       menuItems: undefined,
     });
@@ -1814,7 +1826,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (evt.type === 'pointerdown') this.onPointerDown();
     if (evt.type === 'focus') this._mathfield?.focus();
-    if (evt.type === 'blur') this._mathfield?.blur();
+
+    // Ignore blur events if the scrim is open (case where the variant panel
+    // is open). Otherwise we disconect from the VK and end up in a weird state.
+    if (evt.type === 'blur' && Scrim.scrim?.state === 'closed')
+      this._mathfield?.blur();
   }
 
   /**
@@ -1824,16 +1840,28 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   connectedCallback(): void {
     const computedStyle = window.getComputedStyle(this);
     const shadowRoot = this.shadowRoot!;
+    const host = shadowRoot.host;
     const userSelect = computedStyle.userSelect !== 'none';
 
-    if (userSelect) shadowRoot.host.addEventListener('pointerdown', this, true);
+    if (userSelect) host.addEventListener('pointerdown', this, true);
     else {
       const span = shadowRoot.querySelector('span');
       span!.style.pointerEvents = 'none';
     }
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
-    shadowRoot.host.addEventListener('focus', this, true);
-    shadowRoot.host.addEventListener('blur', this, true);
+    host.addEventListener('focus', this, true);
+    host.addEventListener('blur', this, true);
+
+    // Create an observer instance to detect when the innerHTML or textContent
+    // of the element is modified
+    this._observer = new MutationObserver(() => {
+      this.value = this.textContent ?? '';
+    });
+    this._observer.observe(this, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
 
     if (!isElementInternalsSupported()) {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
@@ -1945,6 +1973,9 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this.shadowRoot!.host.removeEventListener('pointerdown', this, true);
 
     if (!this._mathfield) return;
+
+    this._observer?.disconnect();
+    this._observer = null;
 
     window.queueMicrotask(() =>
       // Notify listeners that we have been unmounted
@@ -2506,10 +2537,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Selection
    */
   getOffsetDepth(offset: Offset): number {
-    if (this._mathfield)
-      return this._mathfield.model.at(offset)?.treeDepth - 2 ?? 0;
-
-    return 0;
+    if (!this._mathfield) return 0;
+    return (this._mathfield.model.at(offset)?.treeDepth ?? 2) - 2;
   }
 
   /**
@@ -2581,6 +2610,6 @@ if (isBrowser() && !window.customElements?.get('math-field')) {
   const global = window[Symbol.for('io.cortexjs.mathlive')];
   global.version = '{{SDK_VERSION}}';
 
-  window.MathfieldElement = MathfieldElement;
+  globalThis.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }

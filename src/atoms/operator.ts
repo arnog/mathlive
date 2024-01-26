@@ -85,7 +85,7 @@ export class OperatorAtom extends Atom {
       type: 'op',
       caret: this.caret,
       isSelected: this.isSelected,
-      classes: 'op-group',
+      classes: 'ML__op-group',
     }).wrap(context);
   }
 

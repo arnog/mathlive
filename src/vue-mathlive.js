@@ -56,7 +56,7 @@ export default {
       const oldMathfieldValue = this.$el.getValue();
       if (newValue !== oldMathfieldValue) {
         this.$el.setValue(newValue, {
-          suppressChangeNotifications: true,
+          silenceNotifications: true,
         });
       }
     },

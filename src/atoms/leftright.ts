@@ -183,13 +183,23 @@ export class LeftRightAtom extends Atom {
     // If the left sibling is a function (e.g. `\sin`, `f`...)
     // or we use the `mleft...mright` variant,
     // use a tighter spacing
-    const tightSpacing =
-      (this.variant === 'mleft...mright' || this.leftSibling?.isFunction) ??
-      false;
+    let tightSpacing = this.variant === 'mleft...mright';
+
+    const sibling = this.leftSibling;
+    if (sibling) {
+      if (!tightSpacing && sibling.isFunction) tightSpacing = true;
+
+      if (
+        !tightSpacing &&
+        sibling.type === 'subsup' &&
+        sibling.leftSibling?.isFunction
+      )
+        tightSpacing = true;
+    }
 
     const result = new Box(boxes, {
       type: tightSpacing ? 'close' : 'inner',
-      classes: 'left-right',
+      classes: 'ML__left-right',
     });
     result.setStyle('margin-top', `${-inner.depth}em`);
     result.setStyle('height', `${inner.height + inner.depth}em`);

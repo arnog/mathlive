@@ -751,7 +751,7 @@ export function makeLeftRightDelim(
 export function makeNullDelimiter(parent: Context, classes?: string): Box {
   // The size of the null delimiter is independent of the current mathstyle
   const box = new Box(null, {
-    classes: ' nulldelimiter ' + (classes ?? ''),
+    classes: ' ML__nulldelimiter ' + (classes ?? ''),
     type: 'ignore',
   });
   box.width = parent.getRegisterAsEm('nulldelimiterspace');
