@@ -302,7 +302,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     });
 
     document.addEventListener('focusout', (evt) => {
-      if ((evt.target as HTMLElement)?.tagName?.toLowerCase() !== 'math-field') return;
+      if ((evt.target as HTMLElement)?.tagName?.toLowerCase() !== 'math-field')
+        return;
       const target = evt.target as MathfieldElement;
       if (target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
@@ -427,13 +428,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     if (!keycaps) return;
 
+    const shifted = this.isShifted;
     for (const keycapElement of keycaps) {
       const keycap = this.getKeycap(keycapElement.id);
       if (keycap) {
-        const [markup, cls] = renderKeycap(keycap, { shifted: this.isShifted });
+        const [markup, cls] = renderKeycap(keycap, { shifted });
         keycapElement.innerHTML =
           globalThis.MathfieldElement.createHTML(markup);
         keycapElement.className = cls;
+        if (
+          shifted &&
+          typeof keycap.shift === 'object' &&
+          keycap.shift?.tooltip
+        )
+          keycapElement.dataset.tooltip = keycap.shift.tooltip;
+        else if (!shifted && keycap.tooltip)
+          keycapElement.dataset.tooltip = keycap.tooltip;
       }
     }
   }

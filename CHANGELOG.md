@@ -13,6 +13,7 @@
   variable can be used to specify the width of the keycap. (See **#2028**, 
   **#2133**)
 - **#2255** Support for `gather*` environment
+- **#2242** A virtual keyboard keycap can now include a tooltip for its shifted variant.
 
 ### Issues Resolved
 
