@@ -116,10 +116,12 @@ export class PromptAtom extends Atom {
     box.height = base.height + vPadding;
     box.depth = base.depth + vPadding;
     box.width = base.width + 2 * hPadding;
-    box.setStyle('box-sizing', 'border-box');
     box.setStyle('position', 'absolute');
 
-    box.setStyle('height', base.height + base.depth + 2 * vPadding, 'em'); // @todo: remove
+    box.setStyle(
+      'height',
+      `calc(${base.height + base.depth + 2 * vPadding}em - 2px)`
+    ); // @todo: remove
     if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
     if (hPadding !== 0) {
       box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
