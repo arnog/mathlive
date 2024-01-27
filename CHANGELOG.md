@@ -38,6 +38,8 @@
   `\slshape`, `\scshape`, `\rmfamily`, `\sffamily`, `\ttfamily` are now
   interpreted correctly.
 - The command `\operatorname` is now spoken correctly
+- **#2152** On Safari, fill-in-the-blank prompts containing a fraction were 
+  rendered incorrectly.
 
 ## 0.98.5 _2023-12-27_
 
