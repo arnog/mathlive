@@ -152,6 +152,8 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   containsCaret: boolean;
   caret: ParseMode | undefined;
 
+  _json: AtomJson | undefined;
+
   constructor(options: AtomOptions<T>) {
     this.type = options.type;
     if (typeof options.value === 'string') this.value = options.value;
@@ -259,6 +261,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   }
 
   toJson(): AtomJson {
+    if (this._json) return this._json;
     const result: AtomJson = {};
 
     if (this.type) result.type = this.type;
@@ -299,6 +302,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
       if (Object.keys(result).length === 2 && 'value' in result)
         return result.value;
     }
+    this._json = result;
     return result;
   }
 

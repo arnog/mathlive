@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2280** Handle better very deeply nested expressions
+
 ## 0.98.6 _2024-01-27_
 
 ### New Features
