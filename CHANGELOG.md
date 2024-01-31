@@ -3,6 +3,7 @@
 ### Issues Resolved
 
 - **#2280** Handle better very deeply nested expressions
+- **#2282** Don't display selection when the mathfield is not focused
 
 ## 0.98.6 _2024-01-27_
 

@@ -260,8 +260,13 @@ with this style */
 
 .ML__selection {
   box-sizing: border-box;
+  background: transparent;
+}
+
+:host(:focus) .ML__selection {
   background: var(--_selection-background-color) !important;
 }
+
 
 .ML__contains-caret.ML__close,
 .ML__contains-caret.ML__open,
