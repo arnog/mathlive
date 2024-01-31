@@ -109,6 +109,7 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
+    // Mathfield Element events
     'mode-change': CustomEvent;
     'mount': Event;
     'unmount': Event;
@@ -116,6 +117,8 @@ declare global {
     'read-aloud-status-change': Event;
     'selection-change': Event;
     'undo-state-change': CustomEvent;
+
+    // Virtual Keyboard events
     'before-virtual-keyboard-toggle': Event;
     'virtual-keyboard-toggle': Event;
   }
