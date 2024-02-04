@@ -4,6 +4,10 @@
 
 - **#2280** Handle better very deeply nested expressions
 - **#2282** Don't display selection when the mathfield is not focused
+- When the mathfield is an iframe, the `before-virtual-keyboard-toggle` and
+  `virtual-keyboard-toggle` events are now dispatched on the 
+  `window.mathVirtualKeyboard` object of the iframe. This can be used to detect
+  a request (and prevent) for the virtual keyboard to be displayed.
 
 ## 0.98.6 _2024-01-27_
 

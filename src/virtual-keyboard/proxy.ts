@@ -90,11 +90,33 @@ export class VirtualKeyboardProxy
   }
 
   show(options?: { animate: boolean }): void {
-    this.sendMessage('show', options);
+    const defaultNotPrevented = this.dispatchEvent(
+      new CustomEvent('before-virtual-keyboard-toggle', {
+        detail: { visible: true },
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      })
+    );
+    if (defaultNotPrevented) {
+      this.sendMessage('show', options);
+      this.dispatchEvent(new Event('virtual-keyboard-toggle'));
+    }
   }
 
   hide(options?: { animate: boolean }): void {
-    this.sendMessage('hide', options);
+    const defaultNotPrevented = this.dispatchEvent(
+      new CustomEvent('before-virtual-keyboard-toggle', {
+        detail: { visible: false },
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      })
+    );
+    if (defaultNotPrevented) {
+      this.sendMessage('hide', options);
+      this.dispatchEvent(new Event('virtual-keyboard-toggle'));
+    }
   }
 
   get isShifted(): boolean {
