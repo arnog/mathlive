@@ -314,6 +314,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
   set isDirty(dirty: boolean) {
     if (dirty) {
+      this._json = undefined;
       if (!this.parent) this._changeCounter++;
       if ('verbatimLatex' in this) this.verbatimLatex = undefined;
       this._children = undefined;
