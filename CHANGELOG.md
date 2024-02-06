@@ -8,6 +8,8 @@
   `virtual-keyboard-toggle` events are now dispatched on the 
   `window.mathVirtualKeyboard` object of the iframe. This can be used to detect
   a request (and prevent) for the virtual keyboard to be displayed.
+- **#2289** When changing the value of the mathfield, the selection is now 
+  preserved. In addition, when using a controlled component with React an unnecessary updated is avoided.
 
 ## 0.98.6 _2024-01-27_
 
