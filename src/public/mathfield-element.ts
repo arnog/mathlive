@@ -1639,13 +1639,9 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       const currentValue = this._mathfield.model.getValue();
       if (currentValue === value) return;
 
-      const keepSelection = options?.selectionMode === undefined;
-      const currentSelection = this._mathfield.model.selection;
-
       options ??= { silenceNotifications: true, mode: 'math' };
       this._mathfield.setValue(value, options);
 
-      if (keepSelection) this.selection = currentSelection;
       return;
     }
 
