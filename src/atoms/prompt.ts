@@ -14,7 +14,7 @@ export class PromptAtom extends Atom {
     placeholderId?: string,
     correctness?: 'correct' | 'incorrect' | undefined,
     locked = false,
-    body?: Atom[],
+    body?: readonly Atom[],
     options?: {
       mode?: ParseMode;
       style?: Style;

@@ -108,7 +108,7 @@ export class _Model implements Model {
     this.silenceNotifications = wasSuppressing;
   }
 
-  get atoms(): Atom[] {
+  get atoms(): readonly Atom[] {
     return this.root.children;
   }
 
@@ -301,14 +301,18 @@ export class _Model implements Model {
    * Note that an atom with children is included in the result only if
    * all its children are in range.
    */
-  getAtoms(arg: Selection, options?: GetAtomOptions): Atom[];
-  getAtoms(arg: Range, options?: GetAtomOptions): Atom[];
-  getAtoms(from: Offset, to?: Offset, options?: GetAtomOptions): Atom[];
+  getAtoms(arg: Selection, options?: GetAtomOptions): readonly Atom[];
+  getAtoms(arg: Range, options?: GetAtomOptions): readonly Atom[];
+  getAtoms(
+    from: Offset,
+    to?: Offset,
+    options?: GetAtomOptions
+  ): readonly Atom[];
   getAtoms(
     arg1: Selection | Range | Offset,
     arg2?: Offset | GetAtomOptions,
     arg3?: GetAtomOptions
-  ): Atom[] {
+  ): readonly Atom[] {
     let options = arg3 ?? {};
     if (isSelection(arg1)) {
       options = (arg2 as GetAtomOptions) ?? {};
@@ -374,7 +378,7 @@ export class _Model implements Model {
    * Return all the atoms, in order, starting at startingIndex
    * then looping back at the beginning
    */
-  getAllAtoms(startingIndex = 0): Atom[] {
+  getAllAtoms(startingIndex = 0): readonly Atom[] {
     const result: Atom[] = [];
     const last = this.lastOffset;
     for (let i = startingIndex; i <= last; i++) result.push(this.atoms[i]);
@@ -421,7 +425,7 @@ export class _Model implements Model {
    * **WARNING** upon return the selection may now be invalid
    */
   extractAtoms(range: Range): Atom[] {
-    let result = this.getAtoms(range);
+    let result = this.getAtoms(range) as Atom[];
     if (result.length === 1 && !result[0].parent) {
       // We're trying to extract the root.
       // Don't actually delete the root, delete all the children of the root.
@@ -649,7 +653,7 @@ export class _Model implements Model {
   announce(
     command: AnnounceVerb,
     previousPosition?: number,
-    atoms: Atom[] = []
+    atoms: readonly Atom[] = []
   ): void {
     const result =
       this.mathfield.host?.dispatchEvent(

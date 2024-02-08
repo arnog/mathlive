@@ -156,7 +156,9 @@ function joinAsciiMath(xs: string[]): string {
   return result;
 }
 
-export function atomToAsciiMath(atom: Atom | Atom[] | undefined): string {
+export function atomToAsciiMath(
+  atom: Atom | readonly Atom[] | undefined
+): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
     if (atom.length === 0) return '';

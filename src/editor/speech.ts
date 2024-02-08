@@ -16,7 +16,10 @@ declare global {
   }
 }
 
-export function speakableText(prefix: string, atoms: Atom | Atom[]): string {
+export function speakableText(
+  prefix: string,
+  atoms: Atom | readonly Atom[]
+): string {
   return prefix + atomToSpeakableText(atoms);
 }
 
@@ -48,8 +51,8 @@ function speak(
 ): boolean {
   speakOptions = speakOptions ?? { withHighlighting: false };
   const { model } = mathfield;
-  function getAtoms(scope: SpeechScope): Atom | Atom[] | null {
-    let result: Atom | Atom[] | null = null;
+  function getAtoms(scope: SpeechScope): Atom | readonly Atom[] | null {
+    let result: Atom | readonly Atom[] | null = null;
     switch (scope) {
       case 'all':
         result = model.root;

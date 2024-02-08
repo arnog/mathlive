@@ -58,9 +58,8 @@ function getVListChildrenAndDepth(
   if ('individualShift' in params) {
     const oldChildren = params.individualShift;
     let prevChild = oldChildren[0];
-    if (prevChild == null)
-      return [null, 0];
-    
+    if (prevChild == null) return [null, 0];
+
     const children: (VBoxChild | VBoxElementAndShift)[] = [prevChild];
 
     // Add in kerns to the list of params.children to get each element to be

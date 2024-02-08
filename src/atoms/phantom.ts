@@ -11,7 +11,7 @@ export class PhantomAtom extends Atom {
   private readonly smashWidth: boolean;
   constructor(
     options: CreateAtomOptions & {
-      body: Atom[];
+      body: readonly Atom[];
       smashHeight?: boolean;
       smashDepth?: boolean;
       smashWidth?: boolean;

@@ -20,7 +20,7 @@ export class BoxAtom extends Atom {
 
   constructor(
     options: CreateAtomOptions & {
-      body: Atom[];
+      body: readonly Atom[];
       framecolor?: LatexValue;
       backgroundcolor?: LatexValue;
       padding?: LatexValue;

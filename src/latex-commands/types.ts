@@ -32,8 +32,8 @@ export type Argument =
   | LatexValue
   | BBoxParameter
   | ColumnFormat[]
-  | { group: Atom[] }
-  | Atom[];
+  | { group: readonly Atom[] }
+  | readonly Atom[];
 
 export type TokenDefinition = LatexSymbolDefinition | LatexCommandDefinition;
 
@@ -86,7 +86,7 @@ export type LatexCommandDefinition<T extends Argument[] = Argument[]> = {
 
   applyStyle?: (
     command: string,
-    args: (null | Argument)[],
+    args: readonly (null | Argument)[],
     context: ContextInterface
   ) => PrivateStyle;
   serialize?: (atom: Atom, options: ToLatexOptions) => string;
@@ -108,7 +108,7 @@ export type EnvironmentDefinition = {
 
 export type EnvironmentConstructor = (
   name: Environment,
-  array: Atom[][][],
-  rowGaps: Dimension[],
-  args: (null | Argument)[]
+  array: (readonly Atom[])[][],
+  rowGaps: readonly Dimension[],
+  args: readonly (null | Argument)[]
 ) => Atom | null;

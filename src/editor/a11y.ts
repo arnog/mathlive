@@ -48,7 +48,7 @@ export function defaultAnnounceHook(
   mathfield: _Mathfield,
   action: AnnounceVerb,
   previousPosition?: number,
-  atoms?: Atom[]
+  atoms?: readonly Atom[]
 ): void {
   //* * Fix: the focus is the end of the selection, so it is before where we want it
   let liveText = '';

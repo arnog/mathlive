@@ -12,7 +12,7 @@ export class AccentAtom extends Atom {
     options: CreateAtomOptions & {
       accentChar?: number;
       svgAccent?: string;
-      body: null | Atom[];
+      body: null | readonly Atom[];
     }
   ) {
     super({ ...options, type: 'accent', body: options.body ?? undefined });

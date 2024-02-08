@@ -159,7 +159,7 @@ function getSpokenName(latex: string): string {
   return result;
 }
 
-function isAtomic(atoms: undefined | Atom[]): boolean {
+function isAtomic(atoms: undefined | readonly Atom[]): boolean {
   let count = 0;
   if (isArray<Atom>(atoms))
     for (const atom of atoms) if (atom.type !== 'first') count += 1;
@@ -167,7 +167,7 @@ function isAtomic(atoms: undefined | Atom[]): boolean {
   return count === 1;
 }
 
-function atomicID(atoms: undefined | Atom[]): string {
+function atomicID(atoms: undefined | readonly Atom[]): string {
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms)
       if (atom.type !== 'first' && atom.id) return atom.id.toString();
@@ -176,7 +176,7 @@ function atomicID(atoms: undefined | Atom[]): string {
   return '';
 }
 
-function atomicValue(atoms: undefined | Atom[]): string {
+function atomicValue(atoms: undefined | readonly Atom[]): string {
   let result = '';
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -188,14 +188,62 @@ function atomicValue(atoms: undefined | Atom[]): string {
   return result;
 }
 
-function atomsAsText(atoms: Atom[] | undefined): string {
+function atomsAsText(atoms: readonly Atom[] | undefined): string {
   if (!atoms) return '';
   return atoms.map((atom) => atom.value).join('');
 }
 
+function emph(s: string) {
+  return `<emphasis>${s}</emphasis>`;
+}
+
+function atomsToSpeakableFragment(
+  mode: 'text' | 'math',
+  atom: readonly Atom[]
+) {
+  let result = '';
+  let isInDigitRun = false; // Need to group sequence of digits
+  let isInTextRun = false; // Need to group text
+  for (let i = 0; i < atom.length; i++) {
+    if (atom[i].type === 'first') continue;
+
+    if (atom[i].mode !== 'text') isInTextRun = false;
+
+    if (
+      i < atom.length - 2 &&
+      atom[i].type === 'mopen' &&
+      atom[i + 2].type === 'mclose' &&
+      atom[i + 1].type === 'mord'
+    ) {
+      result += ' of ';
+      result += emph(atomToSpeakableFragment(mode, atom[i + 1]));
+      i += 2;
+    } else if (atom[i].mode === 'text') {
+      if (isInTextRun) result += atom[i].value ?? ' ';
+      else {
+        isInTextRun = true;
+        result += atomToSpeakableFragment('text', atom[i]);
+      }
+      // '.' and ',' should only be allowed if prev/next entry is a digit
+      // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
+      // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
+    } else if (atom[i].isDigit()) {
+      if (isInDigitRun) result += atom[i].asDigit();
+      else {
+        isInDigitRun = true;
+        result += atomToSpeakableFragment(mode, atom[i]);
+      }
+    } else {
+      isInDigitRun = false;
+      result += atomToSpeakableFragment(mode, atom[i]);
+    }
+  }
+  return result;
+}
+
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
-  atom: undefined | Atom | Atom[]
+  atom: undefined | Atom | readonly Atom[]
 ): string {
   function letter(c: string): string {
     if (!globalThis.MathfieldElement.textToSpeechMarkup) {
@@ -211,469 +259,424 @@ function atomToSpeakableFragment(
     return c;
   }
 
-  function emph(s: string): string {
-    return '<emphasis>' + s + '</emphasis>';
-  }
-
   if (!atom) return '';
+
+  if (isArray(atom)) return atomsToSpeakableFragment(mode, atom);
 
   let result = '';
 
-  if (isArray<Atom>(atom)) {
-    let isInDigitRun = false; // Need to group sequence of digits
-    let isInTextRun = false; // Need to group text
-    for (let i = 0; i < atom.length; i++) {
-      if (atom[i].type === 'first') continue;
+  if (atom.id && mode === 'math')
+    result += '<mark name="' + atom.id.toString() + '"/>';
 
-      if (atom[i].mode !== 'text') isInTextRun = false;
+  if (atom.mode === 'text') return result + atom.value;
 
-      if (
-        i < atom.length - 2 &&
-        atom[i].type === 'mopen' &&
-        atom[i + 2].type === 'mclose' &&
-        atom[i + 1].type === 'mord'
-      ) {
-        result += ' of ';
-        result += emph(atomToSpeakableFragment(mode, atom[i + 1]));
-        i += 2;
-      } else if (atom[i].mode === 'text') {
-        if (isInTextRun) result += atom[i].value ?? ' ';
-        else {
-          isInTextRun = true;
-          result += atomToSpeakableFragment('text', atom[i]);
-        }
-        // '.' and ',' should only be allowed if prev/next entry is a digit
-        // However, if that isn't the case, this still works because 'toSpeakableFragment' is called in either case.
-        // Note: the first char in a digit/text run potentially needs to have a 'mark', hence the call to 'toSpeakableFragment'
-      } else if (atom[i].isDigit()) {
-        if (isInDigitRun) result += atom[i].asDigit();
-        else {
-          isInDigitRun = true;
-          result += atomToSpeakableFragment(mode, atom[i]);
-        }
-      } else {
-        isInDigitRun = false;
-        result += atomToSpeakableFragment(mode, atom[i]);
-      }
-    }
-  } else if (atom.mode === 'text') {
-    if (atom.id && mode === 'math')
-      result += '<mark name="' + atom.id.toString() + '"/>';
+  let numer = '';
+  let denom = '';
+  let body = '';
+  let supsubHandled = false;
+  const { command } = atom;
 
-    result += atom.value;
-  } else {
-    if (atom.id && mode === 'math')
-      result += '<mark name="' + atom.id.toString() + '"/>';
+  switch (command) {
+    case '\\vec':
+      return 'vector ' + atomToSpeakableFragment(mode, atom.body);
+    case '\\acute':
+      return atomToSpeakableFragment(mode, atom.body) + ' acute';
+    case '\\grave':
+      return atomToSpeakableFragment(mode, atom.body) + ' grave';
+    case '\\dot':
+      return 'dot over' + atomToSpeakableFragment(mode, atom.body);
+    case '\\ddot':
+      return 'double dot over' + atomToSpeakableFragment(mode, atom.body);
+    case '\\mathring':
+      return 'ring over' + atomToSpeakableFragment(mode, atom.body);
+    case '\\tilde':
+    case '\\widetilde':
+      return 'tilde over' + atomToSpeakableFragment(mode, atom.body);
+    case '\\bar':
+      return atomToSpeakableFragment(mode, atom.body) + ' bar';
+    case '\\breve':
+      return atomToSpeakableFragment(mode, atom.body) + ' breve';
+    case '\\check':
+    case '\\widecheck':
+      return 'check over ' + atomToSpeakableFragment(mode, atom.body);
+    case '\\hat':
+    case '\\widehat':
+      return 'hat over' + atomToSpeakableFragment(mode, atom.body);
 
-    let numer = '';
-    let denom = '';
-    let body = '';
-    let supsubHandled = false;
-    const { command } = atom;
+    case '\\overarc':
+    case '\\overparen':
+    case '\\wideparen':
+      return 'arc over ' + atomToSpeakableFragment(mode, atom.body);
+    case '\\underarc':
+    case '\\underparen':
+      return 'arc under ' + atomToSpeakableFragment(mode, atom.body);
+  }
 
-    switch (command) {
-      case '\\vec':
-        return 'vector ' + atomToSpeakableFragment(mode, atom.body);
-      case '\\acute':
-        return atomToSpeakableFragment(mode, atom.body) + ' acute';
-      case '\\grave':
-        return atomToSpeakableFragment(mode, atom.body) + ' grave';
-      case '\\dot':
-        return 'dot over' + atomToSpeakableFragment(mode, atom.body);
-      case '\\ddot':
-        return 'double dot over' + atomToSpeakableFragment(mode, atom.body);
-      case '\\mathring':
-        return 'ring over' + atomToSpeakableFragment(mode, atom.body);
-      case '\\tilde':
-      case '\\widetilde':
-        return 'tilde over' + atomToSpeakableFragment(mode, atom.body);
-      case '\\bar':
-        return atomToSpeakableFragment(mode, atom.body) + ' bar';
-      case '\\breve':
-        return atomToSpeakableFragment(mode, atom.body) + ' breve';
-      case '\\check':
-      case '\\widecheck':
-        return 'check over ' + atomToSpeakableFragment(mode, atom.body);
-      case '\\hat':
-      case '\\widehat':
-        return 'hat over' + atomToSpeakableFragment(mode, atom.body);
+  switch (atom.type) {
+    case 'prompt':
+      const input =
+        atom.body!.length > 1
+          ? 'start input . <break time="500ms"/> ' +
+            atomToSpeakableFragment(mode, atom.body) +
+            '. <break time="500ms"/> end input'
+          : 'blank';
+      result +=
+        ' <break time="300ms"/> ' +
+        input +
+        '. <break time="700ms"/>' +
+        ((atom as PromptAtom).correctness ?? '') +
+        ' . <break time="700ms"/> ';
+      break;
+    case 'array':
+      const array = (atom as ArrayAtom).array;
+      const environment = (atom as ArrayAtom).environmentName;
 
-      case '\\overarc':
-      case '\\overparen':
-      case '\\wideparen':
-        return 'arc over ' + atomToSpeakableFragment(mode, atom.body);
-      case '\\underarc':
-      case '\\underparen':
-        return 'arc under ' + atomToSpeakableFragment(mode, atom.body);
-    }
-
-    switch (atom.type) {
-      case 'prompt':
-        const input =
-          atom.body!.length > 1
-            ? 'start input . <break time="500ms"/> ' +
-              atomToSpeakableFragment(mode, atom.body) +
-              '. <break time="500ms"/> end input'
-            : 'blank';
-        result +=
-          ' <break time="300ms"/> ' +
-          input +
-          '. <break time="700ms"/>' +
-          ((atom as PromptAtom).correctness ?? '') +
-          ' . <break time="700ms"/> ';
-        break;
-      case 'array':
-        const array = (atom as ArrayAtom).array;
-        const environment = (atom as ArrayAtom).environmentName;
-
-        if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {
-          result += ` begin ${ENVIRONMENTS_NAMES[environment]} `;
-          for (let i = 0; i < array.length; i++) {
-            if (i > 0) result += ',';
-            result += ` row ${i + 1} `;
-            for (let j = 0; j < array[i].length; j++) {
-              if (j > 0) result += ',';
-              result += ` column ${j + 1}: `;
-              result += atomToSpeakableFragment('math', array[i][j]);
-            }
+      if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {
+        result += ` begin ${ENVIRONMENTS_NAMES[environment]} `;
+        for (let i = 0; i < array.length; i++) {
+          if (i > 0) result += ',';
+          result += ` row ${i + 1} `;
+          for (let j = 0; j < array[i].length; j++) {
+            if (j > 0) result += ',';
+            result += ` column ${j + 1}: `;
+            result += atomToSpeakableFragment('math', array[i][j]);
           }
-          result += ` end ${ENVIRONMENTS_NAMES[environment]} `;
         }
+        result += ` end ${ENVIRONMENTS_NAMES[environment]} `;
+      }
 
-        // @todo add support for other array environments
-        break;
-      case 'group':
-        if (command === '\\ne') result += ' not equal ';
-        else if (command === '\\not') {
-          result += ' not ';
-          result += atomToSpeakableFragment('math', atom.body);
-        } else {
-          // @todo add support for other groups
-          result += atomToSpeakableFragment('math', atom.body);
-        }
-        break;
-      case 'root':
+      // @todo add support for other array environments
+      break;
+    case 'group':
+      if (command === '\\ne') result += ' not equal ';
+      else if (command === '\\not') {
+        result += ' not ';
         result += atomToSpeakableFragment('math', atom.body);
-        break;
+      } else {
+        // @todo add support for other groups
+        result += atomToSpeakableFragment('math', atom.body);
+      }
+      break;
+    case 'root':
+      result += atomToSpeakableFragment('math', atom.body);
+      break;
 
-      case 'genfrac':
-        numer = atomToSpeakableFragment('math', atom.above);
-        denom = atomToSpeakableFragment('math', atom.below);
-        if (isAtomic(atom.above) && isAtomic(atom.below)) {
-          const COMMON_FRACTIONS = {
-            '1/2': ' half ',
-            '1/3': ' one third ',
-            '2/3': ' two third',
-            '1/4': ' one quarter ',
-            '3/4': ' three quarter ',
-            '1/5': ' one fifth ',
-            '2/5': ' two fifths ',
-            '3/5': ' three fifths ',
-            '4/5': ' four fifths ',
-            '1/6': ' one sixth ',
-            '5/6': ' five sixths ',
-            '1/8': ' one eight ',
-            '3/8': ' three eights ',
-            '5/8': ' five eights ',
-            '7/8': ' seven eights ',
-            '1/9': ' one ninth ',
-            '2/9': ' two ninths ',
-            '4/9': ' four ninths ',
-            '5/9': ' five ninths ',
-            '7/9': ' seven ninths ',
-            '8/9': ' eight ninths ',
-            // '1/10':     ' one tenth ',
-            // '1/12':     ' one twelfth ',
-            // 'x/2':     ' <say-as interpret-as="character">X</say-as> over 2',
-          };
-          const commonFraction =
-            COMMON_FRACTIONS[
-              atomicValue(atom.above) + '/' + atomicValue(atom.below)
-            ];
-          if (commonFraction) result = commonFraction;
-          else result += numer + ' over ' + denom;
+    case 'genfrac':
+      numer = atomToSpeakableFragment('math', atom.above);
+      denom = atomToSpeakableFragment('math', atom.below);
+      if (isAtomic(atom.above) && isAtomic(atom.below)) {
+        const COMMON_FRACTIONS = {
+          '1/2': ' half ',
+          '1/3': ' one third ',
+          '2/3': ' two third',
+          '1/4': ' one quarter ',
+          '3/4': ' three quarter ',
+          '1/5': ' one fifth ',
+          '2/5': ' two fifths ',
+          '3/5': ' three fifths ',
+          '4/5': ' four fifths ',
+          '1/6': ' one sixth ',
+          '5/6': ' five sixths ',
+          '1/8': ' one eight ',
+          '3/8': ' three eights ',
+          '5/8': ' five eights ',
+          '7/8': ' seven eights ',
+          '1/9': ' one ninth ',
+          '2/9': ' two ninths ',
+          '4/9': ' four ninths ',
+          '5/9': ' five ninths ',
+          '7/9': ' seven ninths ',
+          '8/9': ' eight ninths ',
+          // '1/10':     ' one tenth ',
+          // '1/12':     ' one twelfth ',
+          // 'x/2':     ' <say-as interpret-as="character">X</say-as> over 2',
+        };
+        const commonFraction =
+          COMMON_FRACTIONS[
+            atomicValue(atom.above) + '/' + atomicValue(atom.below)
+          ];
+        if (commonFraction) result = commonFraction;
+        else result += numer + ' over ' + denom;
+      } else {
+        result +=
+          ' the fraction <break time="150ms"/>' +
+          numer +
+          ' over <break time="150ms"/>' +
+          denom +
+          '.<break time="150ms"/> End fraction.<break time="150ms"/>';
+      }
+
+      break;
+    case 'surd':
+      body = atomToSpeakableFragment('math', atom.body);
+
+      if (atom.hasEmptyBranch('above')) {
+        result += isAtomic(atom.body)
+          ? ' the square root of ' + body + ' , '
+          : ' the square root of <break time="200ms"/>' +
+            body +
+            '. <break time="200ms"/> End square root';
+      } else {
+        let index = atomToSpeakableFragment('math', atom.above);
+        index = index.trim();
+        const index2 = index.replace(/<mark([^/]*)\/>/g, '');
+        if (index2 === '3') {
+          result +=
+            ' the cube root of <break time="200ms"/>' +
+            body +
+            '. <break time="200ms"/> End cube root';
+        } else if (index2 === 'n') {
+          result +=
+            ' the nth root of <break time="200ms"/>' +
+            body +
+            '. <break time="200ms"/> End root';
         } else {
           result +=
-            ' the fraction <break time="150ms"/>' +
-            numer +
-            ' over <break time="150ms"/>' +
-            denom +
-            '.<break time="150ms"/> End fraction.<break time="150ms"/>';
+            ' the root with index: <break time="200ms"/>' +
+            index +
+            ', of <break time="200ms"/>' +
+            body +
+            '. <break time="200ms"/> End root';
         }
+      }
 
-        break;
-      case 'surd':
-        body = atomToSpeakableFragment('math', atom.body);
+      break;
+    case 'leftright':
+      {
+        const delimAtom = atom as LeftRightAtom;
+        result +=
+          (delimAtom.leftDelim
+            ? PRONUNCIATION[delimAtom.leftDelim]
+            : undefined) ?? delimAtom.leftDelim;
+        result += atomToSpeakableFragment('math', atom.body);
+        result +=
+          (delimAtom.rightDelim
+            ? PRONUNCIATION[delimAtom.rightDelim]
+            : undefined) ?? delimAtom.rightDelim;
+      }
 
-        if (atom.hasEmptyBranch('above')) {
-          result += isAtomic(atom.body)
-            ? ' the square root of ' + body + ' , '
-            : ' the square root of <break time="200ms"/>' +
-              body +
-              '. <break time="200ms"/> End square root';
-        } else {
-          let index = atomToSpeakableFragment('math', atom.above);
-          index = index.trim();
-          const index2 = index.replace(/<mark([^/]*)\/>/g, '');
-          if (index2 === '3') {
-            result +=
-              ' the cube root of <break time="200ms"/>' +
-              body +
-              '. <break time="200ms"/> End cube root';
-          } else if (index2 === 'n') {
-            result +=
-              ' the nth root of <break time="200ms"/>' +
-              body +
-              '. <break time="200ms"/> End root';
-          } else {
-            result +=
-              ' the root with index: <break time="200ms"/>' +
-              index +
-              ', of <break time="200ms"/>' +
-              body +
-              '. <break time="200ms"/> End root';
-          }
-        }
-
-        break;
-      case 'leftright':
-        {
-          const delimAtom = atom as LeftRightAtom;
-          result +=
-            (delimAtom.leftDelim
-              ? PRONUNCIATION[delimAtom.leftDelim]
-              : undefined) ?? delimAtom.leftDelim;
-          result += atomToSpeakableFragment('math', atom.body);
-          result +=
-            (delimAtom.rightDelim
-              ? PRONUNCIATION[delimAtom.rightDelim]
-              : undefined) ?? delimAtom.rightDelim;
-        }
-
-        break;
-      case 'rule':
-        // @todo
-        break;
-      case 'overunder':
-        // @todo
-        break;
-      case 'overlap':
-        // @todo
-        break;
-      case 'macro':
-        // @todo implement custom speech for macros
-        // Workaround: if the macro is expand = true, speak the atom body, otherwise speak the macro name
-        const macroName = command.replace(/^\\/g, '');
-        const macro = getMacros()[macroName];
-        if (macro) {
-          if (macro?.expand)
-            result += atomToSpeakableFragment('math', atom.body);
-          else result += `${macroName} `;
-        }
-        break;
-      case 'placeholder':
-        result += 'placeholder ';
-        break;
-      case 'delim':
-      case 'sizeddelim':
-      case 'mord':
-      case 'minner':
-      case 'mbin':
-      case 'mrel':
-      case 'mpunct':
-      case 'mopen':
-      case 'mclose': {
-        if (
-          command === '\\mathbin' ||
-          command === '\\mathrel' ||
-          command === '\\mathopen' ||
-          command === '\\mathclose' ||
-          command === '\\mathpunct' ||
-          command === '\\mathord' ||
-          command === '\\mathinner'
-        ) {
-          result = atomToSpeakableFragment(mode, atom.body);
-          break;
-        }
-
-        let atomValue = atom.isDigit() ? atom.asDigit() : atom.value;
-        let latexValue = atom.command;
-        if (atom.type === 'delim' || atom.type === 'sizeddelim') {
-          latexValue = atom.value;
-          atomValue = latexValue;
-        }
-
-        if (mode === 'text') result += atomValue;
-        else {
-          if (atom.type === 'mbin') result += '<break time="150ms"/>';
-
-          if (atomValue) {
-            const value =
-              PRONUNCIATION[atomValue] ||
-              (latexValue ? PRONUNCIATION[latexValue.trim()] : '');
-            if (value) result += ' ' + value;
-            else {
-              const spokenName = latexValue
-                ? getSpokenName(latexValue.trim())
-                : '';
-
-              result += spokenName ? spokenName : letter(atomValue);
-            }
-          } else result += atomToSpeakableFragment('math', atom.body);
-
-          if (atom.type === 'mbin') result += '<break time="150ms"/>';
-        }
-
+      break;
+    case 'rule':
+      // @todo
+      break;
+    case 'overunder':
+      // @todo
+      break;
+    case 'overlap':
+      // @todo
+      break;
+    case 'macro':
+      // @todo implement custom speech for macros
+      // Workaround: if the macro is expand = true, speak the atom body, otherwise speak the macro name
+      const macroName = command.replace(/^\\/g, '');
+      const macro = getMacros()[macroName];
+      if (macro) {
+        if (macro?.expand) result += atomToSpeakableFragment('math', atom.body);
+        else result += `${macroName} `;
+      }
+      break;
+    case 'placeholder':
+      result += 'placeholder ';
+      break;
+    case 'delim':
+    case 'sizeddelim':
+    case 'mord':
+    case 'minner':
+    case 'mbin':
+    case 'mrel':
+    case 'mpunct':
+    case 'mopen':
+    case 'mclose': {
+      if (
+        command === '\\mathbin' ||
+        command === '\\mathrel' ||
+        command === '\\mathopen' ||
+        command === '\\mathclose' ||
+        command === '\\mathpunct' ||
+        command === '\\mathord' ||
+        command === '\\mathinner'
+      ) {
+        result = atomToSpeakableFragment(mode, atom.body);
         break;
       }
 
-      case 'mop':
-      case 'operator':
-      case 'extensible-symbol':
-        // @todo
-        if (atom.value !== '\u200B') {
-          // Not ZERO-WIDTH
-          const trimLatex = atom.command;
-          if (trimLatex === '\\sum') {
-            if (
-              !atom.hasEmptyBranch('superscript') &&
-              !atom.hasEmptyBranch('subscript')
-            ) {
-              let sup = atomToSpeakableFragment('math', atom.superscript);
-              sup = sup.trim();
-              let sub = atomToSpeakableFragment('math', atom.subscript);
-              sub = sub.trim();
-              result +=
-                ' the summation from <break time="200ms"/>' +
-                sub +
-                '<break time="200ms"/> to  <break time="200ms"/>' +
-                sup +
-                '<break time="200ms"/> of <break time="150ms"/>';
-              supsubHandled = true;
-            } else if (!atom.hasEmptyBranch('subscript')) {
-              let sub = atomToSpeakableFragment('math', atom.subscript);
-              sub = sub.trim();
-              result +=
-                ' the summation from <break time="200ms"/>' +
-                sub +
-                '<break time="200ms"/> of <break time="150ms"/>';
-              supsubHandled = true;
-            } else result += ' the summation of';
-          } else if (trimLatex === '\\prod') {
-            if (
-              !atom.hasEmptyBranch('superscript') &&
-              !atom.hasEmptyBranch('subscript')
-            ) {
-              let sup = atomToSpeakableFragment('math', atom.superscript);
-              sup = sup.trim();
-              let sub = atomToSpeakableFragment('math', atom.subscript);
-              sub = sub.trim();
-              result +=
-                ' the product from <break time="200ms"/>' +
-                sub +
-                '<break time="200ms"/> to <break time="200ms"/>' +
-                sup +
-                '<break time="200ms"/> of <break time="150ms"/>';
-              supsubHandled = true;
-            } else if (!atom.hasEmptyBranch('subscript')) {
-              let sub = atomToSpeakableFragment('math', atom.subscript);
-              sub = sub.trim();
-              result +=
-                ' the product from <break time="200ms"/>' +
-                sub +
-                '<break time="200ms"/> of <break time="150ms"/>';
-              supsubHandled = true;
-            } else result += ' the product  of ';
-          } else if (trimLatex === '\\int') {
-            if (
-              !atom.hasEmptyBranch('superscript') &&
-              !atom.hasEmptyBranch('subscript')
-            ) {
-              let sup = atomToSpeakableFragment('math', atom.superscript);
-              sup = sup.trim();
-              let sub = atomToSpeakableFragment('math', atom.subscript);
-              sub = sub.trim();
-              result +=
-                ' the integral from <break time="200ms"/>' +
-                emph(sub) +
-                '<break time="200ms"/> to <break time="200ms"/>' +
-                emph(sup) +
-                ' <break time="200ms"/> of ';
-              supsubHandled = true;
-            } else result += ' the integral of <break time="200ms"/> ';
-          } else if (
-            trimLatex === '\\operatorname' ||
-            trimLatex === '\\operatorname*'
-          )
-            result += atomsAsText(atom.body) + ' ';
-          else if (typeof atom.value === 'string') {
-            const value =
-              PRONUNCIATION[atom.value] ??
-              (atom.command ? PRONUNCIATION[atom.command] : undefined);
-            result += value ? value : ' ' + atom.value;
-          } else if (atom.command) {
-            if (atom.command === '\\mathop')
-              result += atomToSpeakableFragment('math', atom.body);
-            else {
-              result += atom.command.startsWith('\\')
-                ? ' ' + atom.command.slice(1)
-                : ' ' + atom.command;
-            }
+      let atomValue = atom.isDigit() ? atom.asDigit() : atom.value;
+      let latexValue = atom.command;
+      if (atom.type === 'delim' || atom.type === 'sizeddelim') {
+        latexValue = atom.value;
+        atomValue = latexValue;
+      }
+
+      if (mode === 'text') result += atomValue;
+      else {
+        if (atom.type === 'mbin') result += '<break time="150ms"/>';
+
+        if (atomValue) {
+          const value =
+            PRONUNCIATION[atomValue] ||
+            (latexValue ? PRONUNCIATION[latexValue.trim()] : '');
+          if (value) result += ' ' + value;
+          else {
+            const spokenName = latexValue
+              ? getSpokenName(latexValue.trim())
+              : '';
+
+            result += spokenName ? spokenName : letter(atomValue);
           }
-        }
+        } else result += atomToSpeakableFragment('math', atom.body);
 
-        break;
+        if (atom.type === 'mbin') result += '<break time="150ms"/>';
+      }
 
-      case 'enclose':
-        body = atomToSpeakableFragment('math', atom.body);
-
-        result += ' crossed out ' + body + '. End crossed out.';
-        break;
-
-      case 'space':
-      case 'spacing':
-        // @todo
-        break;
+      break;
     }
 
-    if (!supsubHandled && !atom.hasEmptyBranch('superscript')) {
-      let sup = atomToSpeakableFragment(mode, atom.superscript);
-      sup = sup.trim();
-      const sup2 = sup.replace(/<[^>]*>/g, '');
-      if (isAtomic(atom.superscript)) {
-        if (mode === 'math') {
-          const id = atomicID(atom.superscript);
-          if (id) result += '<mark name="' + id + '"/>';
+    case 'mop':
+    case 'operator':
+    case 'extensible-symbol':
+      // @todo
+      if (atom.value !== '\u200B') {
+        // Not ZERO-WIDTH
+        const trimLatex = atom.command;
+        if (trimLatex === '\\sum') {
+          if (
+            !atom.hasEmptyBranch('superscript') &&
+            !atom.hasEmptyBranch('subscript')
+          ) {
+            let sup = atomToSpeakableFragment('math', atom.superscript);
+            sup = sup.trim();
+            let sub = atomToSpeakableFragment('math', atom.subscript);
+            sub = sub.trim();
+            result +=
+              ' the summation from <break time="200ms"/>' +
+              sub +
+              '<break time="200ms"/> to  <break time="200ms"/>' +
+              sup +
+              '<break time="200ms"/> of <break time="150ms"/>';
+            supsubHandled = true;
+          } else if (!atom.hasEmptyBranch('subscript')) {
+            let sub = atomToSpeakableFragment('math', atom.subscript);
+            sub = sub.trim();
+            result +=
+              ' the summation from <break time="200ms"/>' +
+              sub +
+              '<break time="200ms"/> of <break time="150ms"/>';
+            supsubHandled = true;
+          } else result += ' the summation of';
+        } else if (trimLatex === '\\prod') {
+          if (
+            !atom.hasEmptyBranch('superscript') &&
+            !atom.hasEmptyBranch('subscript')
+          ) {
+            let sup = atomToSpeakableFragment('math', atom.superscript);
+            sup = sup.trim();
+            let sub = atomToSpeakableFragment('math', atom.subscript);
+            sub = sub.trim();
+            result +=
+              ' the product from <break time="200ms"/>' +
+              sub +
+              '<break time="200ms"/> to <break time="200ms"/>' +
+              sup +
+              '<break time="200ms"/> of <break time="150ms"/>';
+            supsubHandled = true;
+          } else if (!atom.hasEmptyBranch('subscript')) {
+            let sub = atomToSpeakableFragment('math', atom.subscript);
+            sub = sub.trim();
+            result +=
+              ' the product from <break time="200ms"/>' +
+              sub +
+              '<break time="200ms"/> of <break time="150ms"/>';
+            supsubHandled = true;
+          } else result += ' the product  of ';
+        } else if (trimLatex === '\\int') {
+          if (
+            !atom.hasEmptyBranch('superscript') &&
+            !atom.hasEmptyBranch('subscript')
+          ) {
+            let sup = atomToSpeakableFragment('math', atom.superscript);
+            sup = sup.trim();
+            let sub = atomToSpeakableFragment('math', atom.subscript);
+            sub = sub.trim();
+            result +=
+              ' the integral from <break time="200ms"/>' +
+              emph(sub) +
+              '<break time="200ms"/> to <break time="200ms"/>' +
+              emph(sup) +
+              ' <break time="200ms"/> of ';
+            supsubHandled = true;
+          } else result += ' the integral of <break time="200ms"/> ';
+        } else if (
+          trimLatex === '\\operatorname' ||
+          trimLatex === '\\operatorname*'
+        )
+          result += atomsAsText(atom.body) + ' ';
+        else if (typeof atom.value === 'string') {
+          const value =
+            PRONUNCIATION[atom.value] ??
+            (atom.command ? PRONUNCIATION[atom.command] : undefined);
+          result += value ? value : ' ' + atom.value;
+        } else if (atom.command) {
+          if (atom.command === '\\mathop')
+            result += atomToSpeakableFragment('math', atom.body);
+          else {
+            result += atom.command.startsWith('\\')
+              ? ' ' + atom.command.slice(1)
+              : ' ' + atom.command;
+          }
         }
+      }
 
-        if (sup2 === '\u2032') result += ' prime ';
-        else if (sup2 === '2') result += ' squared ';
-        else if (sup2 === '3') result += ' cubed ';
-        else if (Number.isNaN(Number.parseInt(sup2)))
-          result += ' to the ' + sup + '; ';
-        else {
-          result +=
-            ' to the <say-as interpret-as="ordinal">' +
-            sup2 +
-            '</say-as> power; ';
-        }
-      } else if (Number.isNaN(Number.parseInt(sup2)))
-        result += ' raised to the ' + sup + '; ';
+      break;
+
+    case 'enclose':
+      body = atomToSpeakableFragment('math', atom.body);
+
+      result += ' crossed out ' + body + '. End crossed out.';
+      break;
+
+    case 'space':
+    case 'spacing':
+      // @todo
+      break;
+  }
+
+  if (!supsubHandled && !atom.hasEmptyBranch('superscript')) {
+    let sup = atomToSpeakableFragment(mode, atom.superscript);
+    sup = sup.trim();
+    const sup2 = sup.replace(/<[^>]*>/g, '');
+    if (isAtomic(atom.superscript)) {
+      if (mode === 'math') {
+        const id = atomicID(atom.superscript);
+        if (id) result += '<mark name="' + id + '"/>';
+      }
+
+      if (sup2 === '\u2032') result += ' prime ';
+      else if (sup2 === '2') result += ' squared ';
+      else if (sup2 === '3') result += ' cubed ';
+      else if (Number.isNaN(Number.parseInt(sup2)))
+        result += ' to the ' + sup + '; ';
       else {
         result +=
-          ' raised to the <say-as interpret-as="ordinal">' +
+          ' to the <say-as interpret-as="ordinal">' +
           sup2 +
           '</say-as> power; ';
       }
+    } else if (Number.isNaN(Number.parseInt(sup2)))
+      result += ' raised to the ' + sup + '; ';
+    else {
+      result +=
+        ' raised to the <say-as interpret-as="ordinal">' +
+        sup2 +
+        '</say-as> power; ';
     }
+  }
 
-    if (!supsubHandled && !atom.hasEmptyBranch('subscript')) {
-      let sub = atomToSpeakableFragment('math', atom.subscript);
-      sub = sub.trim();
-      result += isAtomic(atom.subscript)
-        ? ' sub ' + sub
-        : ' subscript ' + sub + '. End subscript. ';
-    }
+  if (!supsubHandled && !atom.hasEmptyBranch('subscript')) {
+    let sub = atomToSpeakableFragment('math', atom.subscript);
+    sub = sub.trim();
+    result += isAtomic(atom.subscript)
+      ? ' sub ' + sub
+      : ' subscript ' + sub + '. End subscript. ';
   }
 
   return result;
@@ -682,7 +685,7 @@ function atomToSpeakableFragment(
 /**
  * @param  atoms The atoms to represent as speakable text.
  */
-export function atomToSpeakableText(atoms: Atom | Atom[]): string {
+export function atomToSpeakableText(atoms: Atom | readonly Atom[]): string {
   const mfe = globalThis.MathfieldElement;
   if (mfe.textToSpeechRules === 'sre' && ('sre' in window || 'SRE' in window)) {
     const mathML = toMathML(atoms);

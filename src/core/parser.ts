@@ -39,6 +39,7 @@ import type {
 import { Context } from './context';
 import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 import { codePointToLatex } from './unicode';
+import { isArray } from 'common/types';
 
 //
 // - Literal (character token): a letter, digit or punctuation
@@ -1505,7 +1506,7 @@ export class Parser {
   }
 
   /** Parse a symbol or a command and its arguments */
-  scanSymbolOrCommand(command: string): Atom[] | null {
+  scanSymbolOrCommand(command: string): readonly Atom[] | null {
     if (command === '\\placeholder') {
       const id = this.scanOptionalArgument('string') as string;
       // default value is legacy, ignored if there is a body
@@ -1737,7 +1738,7 @@ export class Parser {
     return [result];
   }
 
-  scanSymbolCommandOrLiteral(): Atom[] | null {
+  scanSymbolCommandOrLiteral(): readonly Atom[] | null {
     this.expandUnicode();
 
     const token = this.get();
@@ -1831,7 +1832,7 @@ export class Parser {
    * arguments.
    */
   parseExpression(): boolean {
-    let result: null | Atom | Atom[] =
+    let result: null | Atom | readonly Atom[] =
       this.scanEnvironment() ??
       this.scanModeShift() ??
       this.scanModeSet() ??
@@ -1848,7 +1849,7 @@ export class Parser {
     // math list. We could have no atom for tokens that were skipped,
     // a ' ' in math mode for example
     if (!result) return false;
-    if (Array.isArray(result)) this.mathlist.push(...result);
+    if (isArray(result)) this.mathlist.push(...result);
     else this.mathlist.push(result);
     return true;
   }

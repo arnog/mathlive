@@ -13,8 +13,8 @@ export class TooltipAtom extends Atom {
   constructor(
     options: CreateAtomOptions<[Argument | null, Argument | null]> & {
       content: 'math' | 'text';
-      body: Atom[] | undefined;
-      tooltip: Atom[] | undefined;
+      body: readonly Atom[] | undefined;
+      tooltip: readonly Atom[] | undefined;
     }
   ) {
     super({

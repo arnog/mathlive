@@ -54,7 +54,7 @@ export class EncloseAtom extends Atom {
 
   constructor(
     command: string,
-    body: Atom[],
+    body: readonly Atom[],
     notation: Notations,
     options: EncloseAtomOptions
   ) {

@@ -32,7 +32,10 @@ export abstract class Mode {
     );
   }
 
-  static serialize(atoms: Atom[] | undefined, options: ToLatexOptions): string {
+  static serialize(
+    atoms: readonly Atom[] | undefined,
+    options: ToLatexOptions
+  ): string {
     if (!atoms || atoms.length === 0) return '';
 
     if (options.skipStyles ?? false) {
@@ -71,7 +74,7 @@ export abstract class Mode {
     style?: Style
   ): Atom | null;
 
-  abstract serialize(run: Atom[], options: ToLatexOptions): string[];
+  abstract serialize(run: readonly Atom[], options: ToLatexOptions): string[];
 
   /*
    * Calculate the effective font name to be used for metrics
@@ -94,7 +97,7 @@ export abstract class Mode {
 /*
  * Return an array of runs with the same mode
  */
-export function getModeRuns(atoms: Atom[]): Atom[][] {
+export function getModeRuns(atoms: readonly Atom[]): readonly Atom[][] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
   let currentMode = 'NONE';
@@ -117,9 +120,9 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
  *   for the specified property)
  */
 export function getPropertyRuns(
-  atoms: Atom[],
+  atoms: readonly Atom[],
   property: keyof Style
-): Atom[][] {
+): readonly Atom[][] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
   let currentValue: string | number | undefined = undefined;
@@ -150,7 +153,7 @@ export function getPropertyRuns(
   return result;
 }
 
-function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
+function emitColorRun(run: readonly Atom[], options: ToLatexOptions): string[] {
   const { parent } = run[0];
   const parentColor = parent?.computedStyle.color;
 
@@ -187,7 +190,7 @@ function emitColorRun(run: Atom[], options: ToLatexOptions): string[] {
 }
 
 function emitBackgroundColorRun(
-  run: Atom[],
+  run: readonly Atom[],
   options: ToLatexOptions
 ): string[] {
   const { parent } = run[0];
@@ -211,7 +214,10 @@ function emitBackgroundColorRun(
   });
 }
 
-function emitFontSizeRun(run: Atom[], options: ToLatexOptions): string[] {
+function emitFontSizeRun(
+  run: readonly Atom[],
+  options: ToLatexOptions
+): string[] {
   if (run.length === 0) return [];
   const { parent } = run[0];
   const contextFontsize = parent?.computedStyle.fontSize;

@@ -292,7 +292,7 @@ export type AtomOptions<T extends (Argument | null)[] = (Argument | null)[]> =
 
     type?: AtomType;
     value?: string;
-    body?: Atom[];
+    body?: readonly Atom[];
     isFunction?: boolean;
     limits?: 'auto' | 'over-under' | 'adjacent';
     displayContainsHighlight?: boolean;

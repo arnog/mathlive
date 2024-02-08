@@ -511,7 +511,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
  * @param final last index of the input to stop conversion to
  */
 export function toMathML(
-  input: number | boolean | string | Atom | Atom[] | undefined,
+  input: number | boolean | string | Atom | readonly Atom[] | undefined,
   options?: { generateID?: boolean },
   initial?: number,
   final?: number

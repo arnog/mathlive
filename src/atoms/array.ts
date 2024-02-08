@@ -26,7 +26,7 @@ export type ColumnFormat =
     }
   | {
       // The width of a gap between columns, or a LaTeX expression between columns
-      gap?: number | Atom[];
+      gap?: number | readonly Atom[];
     }
   | {
       // A rule (line) separating columns
@@ -98,9 +98,9 @@ type ArrayRow = {
 
 function normalizeArray(
   atom: ArrayAtom,
-  array: Atom[][][],
-  colFormat: ColumnFormat[]
-): Atom[][][] {
+  array: (readonly Atom[])[][],
+  colFormat: readonly ColumnFormat[]
+): (readonly Atom[])[][] {
   //
   // 1/
   // - Fold the array so that there are no more columns of content than
@@ -115,13 +115,13 @@ function normalizeArray(
 
   // Actual number of columns (at most `maxColCount`)
   let colCount = 0;
-  const rows: Atom[][][] = [];
+  const rows: (readonly Atom[])[][] = [];
 
   for (const row of array) {
     let colIndex = 0;
     colCount = Math.max(colCount, Math.min(row.length, maxColCount));
     while (colIndex < row.length) {
-      const newRow: Atom[][] = [];
+      const newRow: (readonly Atom[])[] = [];
       const lastCol = Math.min(row.length, colIndex + maxColCount);
       while (colIndex < lastCol) {
         const cell = row[colIndex];
@@ -156,7 +156,7 @@ function normalizeArray(
   //
   // 3/ Fill out any missing cells
   //
-  const result: Atom[][][] = [];
+  const result: (readonly Atom[])[][] = [];
   for (const row of rows) {
     if (row.length !== colCount) {
       for (let i = row.length; i < colCount; i++) {
@@ -193,10 +193,10 @@ function normalizeArray(
 
 // See http://ctan.math.utah.edu/ctan/tex-archive/macros/latex/base/lttab.dtx
 export class ArrayAtom extends Atom {
-  array: (undefined | Atom[])[][];
+  array: (undefined | readonly Atom[])[][];
   environmentName: Environment;
-  rowGaps: Dimension[];
-  colFormat: ColumnFormat[];
+  rowGaps: readonly Dimension[];
+  colFormat: readonly ColumnFormat[];
   arraystretch?: number;
   arraycolsep?: number;
   colSeparationType?: ColSeparationType;
@@ -207,8 +207,8 @@ export class ArrayAtom extends Atom {
 
   constructor(
     envName: Environment,
-    array: Atom[][][],
-    rowGaps: Dimension[],
+    array: (readonly Atom[])[][],
+    rowGaps: readonly Dimension[],
     options: ArrayAtomConstructorOptions = {}
   ) {
     super({ type: 'array' });
@@ -280,7 +280,7 @@ export class ArrayAtom extends Atom {
     return result;
   }
 
-  branch(cell: Branch): Atom[] | undefined {
+  branch(cell: Branch): readonly Atom[] | undefined {
     if (!isCellBranch(cell)) return undefined;
     return this.array[cell[0]][cell[1]] ?? undefined;
   }
@@ -288,7 +288,7 @@ export class ArrayAtom extends Atom {
   createBranch(cell: Branch): Atom[] {
     if (!isCellBranch(cell)) return [];
     this.isDirty = true;
-    return this.branch(cell) ?? [];
+    return (this.branch(cell) as Atom[]) ?? [];
   }
 
   get rowCount(): number {
@@ -303,18 +303,19 @@ export class ArrayAtom extends Atom {
     return this.colFormat.filter((col) => Boolean(col['align'])).length;
   }
 
-  removeBranch(name: Branch): Atom[] {
+  removeBranch(name: Branch): readonly Atom[] {
     if (isNamedBranch(name)) return super.removeBranch(name);
 
-    const children = this.branch(name)!;
+    const [_first, ...children] = this.branch(name)!;
+    // Drop the 'first' element
+    console.assert(_first.type === 'first');
+
     this.array[name[0]][name[1]] = undefined;
     children.forEach((x) => {
       x.parent = undefined;
       x.parentBranch = undefined;
     });
-    // Drop the 'first' element
-    console.assert(children[0].type === 'first');
-    children.shift();
+
     this.isDirty = true;
     return children;
   }
@@ -323,7 +324,7 @@ export class ArrayAtom extends Atom {
     return this.children.length > 0;
   }
 
-  get children(): Atom[] {
+  get children(): readonly Atom[] {
     const result: Atom[] = [];
     for (const row of this.array) {
       for (const cell of row) {
@@ -635,11 +636,18 @@ export class ArrayAtom extends Atom {
     return joinLatex(result);
   }
 
-  getCell(row: number, col: number): Atom[] | undefined {
+  forEachCell(
+    callback: (cell: readonly Atom[], row: number, col: number) => void
+  ): void {
+    for (let i = 0; i < this.rowCount; i++)
+      for (let j = 0; j < this.colCount; j++) callback(this.array[i][j]!, i, j);
+  }
+
+  getCell(row: number, col: number): readonly Atom[] | undefined {
     return this.array[row][col];
   }
 
-  setCell(row: number, column: number, value: Atom[]): void {
+  setCell(row: number, column: number, value: readonly Atom[]): void {
     console.assert(
       this.type === 'array' &&
         Array.isArray(this.array) &&
@@ -664,7 +672,7 @@ export class ArrayAtom extends Atom {
 
   addRowBefore(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    const newRow: Atom[][] = [];
+    const newRow: (readonly Atom[])[] = [];
     for (let i = 0; i < this.colCount; i++)
       newRow.push(makePlaceholderCell(this));
 
@@ -680,7 +688,7 @@ export class ArrayAtom extends Atom {
 
   addRowAfter(row: number): void {
     console.assert(this.type === 'array' && Array.isArray(this.array));
-    const newRow: Atom[][] = [];
+    const newRow: (readonly Atom[])[] = [];
     for (let i = 0; i < this.colCount; i++)
       newRow.push(makePlaceholderCell(this));
 
@@ -774,8 +782,8 @@ export class ArrayAtom extends Atom {
     this.isDirty = true;
   }
 
-  get cells(): Atom[][] {
-    const result: Atom[][] = [];
+  get cells(): (readonly Atom[])[] {
+    const result: (readonly Atom[])[] = [];
     for (const row of this.array) {
       for (const cell of row)
         if (cell) result.push(cell.filter((x) => x.type !== 'first'));
@@ -787,7 +795,7 @@ export class ArrayAtom extends Atom {
 /**
  * Create a matrix cell with a placeholder atom in it.
  */
-function makePlaceholderCell(parent: ArrayAtom): Atom[] {
+function makePlaceholderCell(parent: ArrayAtom): readonly Atom[] {
   const first = new Atom({ type: 'first', mode: parent.mode });
   first.parent = parent;
   const placeholder = new PlaceholderAtom();
@@ -811,7 +819,7 @@ function makeColOfRepeatingElements(
   context: Context,
   rows: ArrayRow[],
   offset: number,
-  element: Atom[] | undefined
+  element: readonly Atom[] | undefined
 ): Box | null {
   if (!element) return null;
   const col: VBoxElementAndShift[] = [];

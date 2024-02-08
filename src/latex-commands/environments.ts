@@ -59,7 +59,7 @@ defineFunction('displaylines', '', {
     return lines as Argument[];
   },
   createAtom: (options) =>
-    new ArrayAtom('lines', options.args as Atom[][][], [], {
+    new ArrayAtom('lines', options.args as (readonly Atom[])[][], [], {
       // arraystretch: 1.2,
       leftDelim: '.',
       rightDelim: '.',
@@ -70,7 +70,7 @@ defineFunction('displaylines', '', {
 defineTabularEnvironment(
   'array',
   '{columns:colspec}',
-  (name: Environment, array: Atom[][][], rowGaps: Dimension[], args): Atom => {
+  (name, array, rowGaps, args) => {
     return new ArrayAtom(name, defaultContent(array), rowGaps, {
       columns: args[0] as ColumnFormat[],
       mathstyleName: 'textstyle',
@@ -81,7 +81,11 @@ defineTabularEnvironment(
 defineTabularEnvironment(
   ['equation', 'equation*', 'subequations'],
   '',
-  (name: Environment, array: Atom[][][], rowGaps: Dimension[]): Atom => {
+  (
+    name: Environment,
+    array: (readonly Atom[])[][],
+    rowGaps: Dimension[]
+  ): Atom => {
     return new ArrayAtom(name, defaultContent(array), rowGaps, {
       columns: [{ align: 'c' }],
     });
@@ -198,13 +202,13 @@ is a continuous function.
 //     return {};
 // });
 
-function isContentEmpty(array: Atom[][][]) {
+function isContentEmpty(array: (readonly Atom[])[][]) {
   for (const row of array)
     for (const col of row) if (col.length > 0) return false;
   return true;
 }
 
-function defaultContent(array: Atom[][][], count = 1) {
+function defaultContent(array: (readonly Atom[])[][], count = 1) {
   if (isContentEmpty(array)) {
     return Array(count).fill([
       [new Atom({ type: 'first' }), new PlaceholderAtom()],
@@ -215,18 +219,17 @@ function defaultContent(array: Atom[][][], count = 1) {
     return row.map((cell) => {
       if (cell.length === 0) return [new Atom({ type: 'first' })];
 
-      if (cell[0].type !== 'first') cell.unshift(new Atom({ type: 'first' }));
-
-      return cell;
+      if (cell[0].type === 'first') return cell;
+      return [new Atom({ type: 'first' }), ...cell];
     });
   });
 }
 
 export function makeEnvironment(
   name: Environment,
-  content: Atom[][][] = [[[]]],
-  rowGaps: Dimension[] = [],
-  args: (null | Argument)[] = []
+  content: (readonly Atom[])[][] = [[[]]],
+  rowGaps: readonly Dimension[] = [],
+  args: readonly (null | Argument)[] = []
 ): ArrayAtom {
   content = defaultContent(
     content,

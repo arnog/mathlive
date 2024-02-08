@@ -15,8 +15,8 @@ export class SurdAtom extends Atom {
   constructor(
     options: CreateAtomOptions & {
       mode?: ParseMode;
-      body: Atom[];
-      index: undefined | Atom[];
+      body: readonly Atom[];
+      index: undefined | readonly Atom[];
     }
   ) {
     super({
@@ -61,7 +61,7 @@ export class SurdAtom extends Atom {
   }
 
   // Custom implementation so that the navigation of the index feels natural
-  get children(): Atom[] {
+  get children(): readonly Atom[] {
     if (this._children) return this._children;
     const result: Atom[] = [];
 

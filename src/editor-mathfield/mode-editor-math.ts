@@ -380,9 +380,9 @@ function convertStringToAtoms(
   s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions
-): [OutputFormat, Atom[]] {
+): [OutputFormat, readonly Atom[]] {
   let format: OutputFormat | undefined = undefined;
-  let result: Atom[] = [];
+  let result: readonly Atom[] = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
     const ce = globalThis.MathfieldElement.computeEngine;
@@ -402,7 +402,7 @@ function convertStringToAtoms(
       format !== 'latex' &&
       model.mathfield.options.removeExtraneousParentheses
     )
-      simplifyParen(result);
+      result = result.map((x) => removeExtraneousParenthesis(x));
   } else if (options.format === 'auto' || options.format?.startsWith('latex')) {
     if (options.format === 'auto') {
       [format, s] = parseMathString(s, {
@@ -424,7 +424,7 @@ function convertStringToAtoms(
       options.format !== 'latex' &&
       model.mathfield.options.removeExtraneousParentheses
     )
-      simplifyParen(result);
+      result = result.map((x) => removeExtraneousParenthesis(x));
   }
 
   //
@@ -438,64 +438,38 @@ function convertStringToAtoms(
   return [format ?? 'latex', result];
 }
 
-function removeParen(atoms: Atom[]): Atom[] | null {
-  if (!atoms) return null;
-
-  console.assert(atoms[0].type === 'first');
-  if (atoms.length > 1) return null;
-
-  const atom = atoms[0];
+function removeExtraneousParenthesis(atom: Atom): Atom {
   if (
     atom instanceof LeftRightAtom &&
-    atom.leftDelim === '(' &&
+    atom.leftDelim !== '(' &&
     atom.rightDelim === ')'
-  )
-    return atom.removeBranch('body');
+  ) {
+    const children = atom.body?.filter((x) => x.type !== 'first');
+    // If this is a single frac inside a leftright: remove the leftright
+    if (children?.length === 1 && children[0].type === 'genfrac')
+      return children[0];
+  }
 
-  return null;
-}
-
-/**
- * If it's a fraction with a parenthesized numerator or denominator
- * remove the parentheses
- * @revisit: don't need model, only need to know if removeExtraneousParentheses
- *              Check at callsites.
- */
-function simplifyParen(atoms: Atom[]): void {
-  if (!atoms) return;
-  for (let i = 0; atoms[i]; i++) {
-    const atom = atoms[i];
-    if (atom instanceof LeftRightAtom && atom.leftDelim === '(') {
-      let genFracCount = 0;
-      let genFracIndex = 0;
-      let nonGenFracCount = 0;
-      for (let j = 0; atom.body![j]; j++) {
-        if (atom.body![j].type === 'genfrac') {
-          genFracCount++;
-          genFracIndex = j;
-        }
-
-        nonGenFracCount++;
-      }
-
-      if (nonGenFracCount === 0 && genFracCount === 1) {
-        // This is a single frac inside a leftright: remove the leftright
-        atoms[i] = atom.body![genFracIndex];
-      }
+  for (const branch of atom.branches) {
+    if (!atom.hasEmptyBranch(branch)) {
+      atom.setChildren(
+        atom.branch(branch)!.map((x) => removeExtraneousParenthesis(x)),
+        branch
+      );
     }
   }
 
-  for (const atom of atoms) {
-    for (const branch of atom.branches) {
-      if (!atom.hasEmptyBranch(branch)) {
-        simplifyParen(atom.branch(branch)!);
-        const newChildren = removeParen(atom.branch(branch)!);
-        if (newChildren) atom.setChildren(newChildren, branch);
-      }
-    }
-
-    if (atom instanceof ArrayAtom) for (const x of atom.cells) simplifyParen(x);
+  if (atom instanceof ArrayAtom) {
+    atom.forEachCell((cell, row, column) => {
+      atom.setCell(
+        row,
+        column,
+        cell.map((x) => removeExtraneousParenthesis(x))
+      );
+    });
   }
+
+  return atom;
 }
 
 /**

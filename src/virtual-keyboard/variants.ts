@@ -186,9 +186,12 @@ export function showVariantsPanel(
     if (position.top - variantPanel.clientHeight < 0) {
       // variantPanel.style.maxWidth = '320px';  // Up to six columns
       variantPanel.style.width = 'auto';
-      if (l <= 6) variantPanel.style.height = '56px'; // 1 row
-      else if (l <= 12) variantPanel.style.height = '108px'; // 2 rows
-      else if (l <= 18) variantPanel.style.height = '205px'; // 3 rows
+      if (l <= 6)
+        variantPanel.style.height = '56px'; // 1 row
+      else if (l <= 12)
+        variantPanel.style.height = '108px'; // 2 rows
+      else if (l <= 18)
+        variantPanel.style.height = '205px'; // 3 rows
       else variantPanel.classList.add('compact');
     }
 

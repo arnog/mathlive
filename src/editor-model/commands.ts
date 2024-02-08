@@ -392,7 +392,7 @@ function isValidPosition(model: _Model, pos: number): boolean {
 
 function getClosestAtomToXPosition(
   mathfield: _Mathfield,
-  search: Atom[],
+  search: readonly Atom[],
   x: number
 ): Atom {
   let prevX = Infinity;
@@ -415,7 +415,7 @@ function getClosestAtomToXPosition(
 function moveToClosestAtomVertically(
   model: _Model,
   fromAtom: Atom,
-  toAtoms: Atom[],
+  toAtoms: readonly Atom[],
   extend: boolean,
   direction: 'up' | 'down'
 ) {

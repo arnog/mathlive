@@ -7,6 +7,7 @@ import { register } from '../editor/commands';
 import { move, skip } from './commands';
 import type { _Model } from './model-private';
 import type { BranchName } from 'core/types';
+import { isArray } from 'common/types';
 
 export function moveAfterParent(model: _Model): boolean {
   const previousPosition = model.position;
@@ -279,11 +280,11 @@ function getTabbableElements(): HTMLElement[] {
 // Select all the children of an atom, or a branch
 function select(
   model: _Model,
-  target: Atom | Atom[],
+  target: Atom | readonly Atom[],
   direction: 'backward' | 'forward' = 'forward'
 ): boolean {
   const previousPosition = model.position;
-  if (Array.isArray(target)) {
+  if (isArray(target)) {
     // The target is a branch. Select all the atoms in the branch
     const first = model.offsetOf(target[0]);
     const last = model.offsetOf(target[target.length - 1]);

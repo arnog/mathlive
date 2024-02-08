@@ -117,7 +117,8 @@ export function onKeystroke(
         });
 
         //
-        // Loop  over possible candidates, from the longest possible, to the shortest
+        // Loop  over possible candidates, from the longest possible
+        // to the shortest
         //
         let i = 0;
         let candidate = '';
@@ -889,11 +890,12 @@ export function insertSmartFence(
       if (sibling.type === 'mopen' && sibling.value === lDelim) {
         model.mathfield.snapshot();
         const insertAfter = sibling.leftSibling!;
-        const body = model.extractAtoms([
+        let body = model.extractAtoms([
           model.offsetOf(sibling.leftSibling),
           model.offsetOf(atom),
         ]);
-        body.shift();
+        // Remove the first element (which is a 'first' atom)
+        [, ...body] = body;
         const result = new LeftRightAtom('left...right', body, {
           leftDelim: lDelim,
           rightDelim: fence,
