@@ -7,7 +7,7 @@ import { register } from '../editor/commands';
 import { move, skip } from './commands';
 import type { _Model } from './model-private';
 import type { BranchName } from 'core/types';
-import { isArray } from 'common/types';
+import { isArray } from '../common/types';
 
 export function moveAfterParent(model: _Model): boolean {
   const previousPosition = model.position;

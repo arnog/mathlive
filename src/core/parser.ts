@@ -39,7 +39,7 @@ import type {
 import { Context } from './context';
 import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 import { codePointToLatex } from './unicode';
-import { isArray } from 'common/types';
+import { isArray } from '../common/types';
 
 //
 // - Literal (character token): a letter, digit or punctuation
