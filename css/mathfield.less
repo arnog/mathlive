@@ -153,6 +153,14 @@
   }
 }
 
+@media (pointer: coarse) {
+  .ML__virtual-keyboard-toggle,
+  .ML__menu-toggle {
+    min-width: 60px;
+    min-height: 60px;
+  }
+}
+
 /* The invisible element used to capture keyboard events. We're just trying
  really hard to make sure it doesn't show. */
 .ML__keyboard-sink {
@@ -316,11 +324,6 @@ with this style */
   fill: currentColor;
 }
 
-.ML__virtual-keyboard-toggle:focus {
-  outline: none;
-  border-radius: 8px;
-  border: 2px solid hsl(var(--_hue), 40%, 50%);
-}
 
 .ML__virtual-keyboard-toggle.is-pressed,
 .ML__virtual-keyboard-toggle.is-active:hover,
