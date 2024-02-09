@@ -628,8 +628,10 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     if (!isNamedBranch(branch)) return;
 
     // Update the parent
-    console.assert(children[0]?.type !== 'first');
-    const newBranch = [this.makeFirstAtom(branch), ...children];
+    const newBranch =
+      children[0]?.type === 'first'
+        ? [...children]
+        : [this.makeFirstAtom(branch), ...children];
     if (this._branches) this._branches[branch] = newBranch;
     else this._branches = { [branch]: newBranch };
 
