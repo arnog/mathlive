@@ -1,8 +1,19 @@
-@monospace: 'Berkeley Mono', 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
-  'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
+@monospace: 'Berkeley Mono', 'IBM Plex Mono', 'Source Code Pro', Consolas,
+  'Roboto Mono', Menlo, 'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco,
+  Courier, monospace;
 
-@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+@system:
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  'Roboto',
+  'Oxygen',
+  'Ubuntu',
+  'Cantarell',
+  'Fira Sans',
+  'Droid Sans',
+  'Helvetica Neue',
   sans-serif;
 
 @keyframes ML__caret-blink {
@@ -15,10 +26,10 @@
   }
 }
 
-// The .ML__container includes the visible parts of the math-field: 
+// The .ML__container includes the visible parts of the math-field:
 // the .ML__content and the .ML__virtual-keyboard-toggle.
-// .ML__container 
-//      > .ML__content 
+// .ML__container
+//      > .ML__content
 //            > .ML__latex > .ML__base
 //            > .ML__selection
 //      > .ML__virtual-keyboard-toggle
@@ -38,17 +49,26 @@
 
   // The color of the caret, the insertion point.
   --_caret-color: var(--caret-color, hsl(var(--_hue), 40%, 49%));
-  
+
   // The color of the selection, and its background
   --_selection-color: var(--selection-color, #000);
-  --_selection-background-color: var(--selection-background-color, hsl(var(--_hue), 70%, 85%));
+  --_selection-background-color: var(
+    --selection-background-color,
+    hsl(var(--_hue), 70%, 85%)
+  );
 
   // The background color indicating the caret is in a text zone
-  --_text-highlight-background-color: var(--highlight-text, hsla(var(--_hue), 40%, 50%, 0.1));
+  --_text-highlight-background-color: var(
+    --highlight-text,
+    hsla(var(--_hue), 40%, 50%, 0.1)
+  );
 
   // The background color indicating the scope/zone of the caret, i.e. the
   // inside of a square root or a fraction.
-  --_contains-highlight-background-color: var(--contains-highlight-background-color, hsl(var(--_hue), 40%, 95%));
+  --_contains-highlight-background-color: var(
+    --contains-highlight-background-color,
+    hsl(var(--_hue), 40%, 95%)
+  );
 
   // The color and opacity of a smart fence (automatically added ")" or "}")
   --_smart-fence-color: var(--smart-fence-color, currentColor);
@@ -61,12 +81,14 @@
   // The border color when a prompt is in "incorrect" state
   --_incorrect-color: var(--incorrect-color, #a01b00);
 
-  // A composition is zone controled by an input method, for example, the 
+  // A composition is zone controled by an input method, for example, the
   // Japanese input method, or dead keys on macOS, i.e. alt+U.
   --_composition-background-color: var(--composition-background-color, #fff1c2);
   --_composition-text-color: var(--composition-text-color, black);
-  --_composition-underline-color: var(--composition-underline-color, transparent);
-
+  --_composition-underline-color: var(
+    --composition-underline-color,
+    transparent
+  );
 }
 
 // @media (prefers-color-scheme: dark) {
@@ -92,7 +114,8 @@
   width: 100%;
 }
 
-.ML__virtual-keyboard-toggle, .ML__menu-toggle {
+.ML__virtual-keyboard-toggle,
+.ML__menu-toggle {
   box-sizing: border-box;
   display: flex;
   align-self: center;
@@ -130,9 +153,6 @@
   }
 }
 
-
-
-
 /* The invisible element used to capture keyboard events. We're just trying
  really hard to make sure it doesn't show. */
 .ML__keyboard-sink {
@@ -148,13 +168,12 @@
   /* Need this to prevent iOS Safari from auto-zooming */
   font-size: 1em;
   font-family: KaTeX_Main;
-  line-height: .5;  /* On Chromium, if this is 0, no keyboard events are received */
+  line-height: 0.5; /* On Chromium, if this is 0, no keyboard events are received */
 }
 
-[part="placeholder"] {
+[part='placeholder'] {
   color: var(--neutral-400);
 }
-
 
 .ML__composition {
   background: var(--_composition-background-color);
@@ -168,7 +187,6 @@
 //     color: white;
 //   }
 // }
-
 
 .ML__caret::after {
   content: '';
@@ -189,7 +207,6 @@
 
   animation: ML__caret-blink 1.05s step-end forwards infinite;
 }
-
 
 .ML__text-caret::after {
   content: '';
@@ -234,7 +251,6 @@
   visibility: visible;
 }
 
-
 .ML__focused .ML__text {
   background: var(--_text-highlight-background-color);
 }
@@ -243,14 +259,14 @@
 with this style */
 .ML__smart-fence__close {
   opacity: var(--_smart-fence-opacity);
-  color:  var(--_smart-fence-color);
+  color: var(--_smart-fence-color);
 }
 
 .ML__selected,
 .ML__focused .ML__selected .ML__contains-caret,
 .ML__focused .ML__selected .ML__smart-fence__close,
 .ML__focused .ML__selected .ML__placeholder {
-  color:  var(--_selection-color);
+  color: var(--_selection-color);
   opacity: 1;
 }
 
@@ -262,7 +278,6 @@ with this style */
 :host(:focus) .ML__selection {
   background: var(--_selection-background-color) !important;
 }
-
 
 .ML__contains-caret.ML__close,
 .ML__contains-caret.ML__open,
@@ -278,11 +293,9 @@ with this style */
   background: transparent;
 }
 
-
 .ML__focused .ML__contains-highlight {
   background: var(--_contains-highlight-background-color);
 }
-
 
 .ML__raw-latex {
   font-family: @monospace;
@@ -317,7 +330,6 @@ with this style */
   fill: currentColor;
 }
 
-
 /* Add an attribute 'data-tooltip' to automatically show a
    tooltip over a element on hover.
 */
@@ -330,7 +342,7 @@ with this style */
     z-index: 2;
     pointer-events: none;
 
-    right: auto;  // center tooltip
+    right: auto; // center tooltip
     top: calc(-100% - 4px); // place tooltip above element
 
     width: max-content;
@@ -341,8 +353,8 @@ with this style */
     background: #616161; // Grey 700
     color: #fff;
 
-    box-shadow: 
-      0 2px 2px 0 rgba(0, 0, 0, 0.14), 
+    box-shadow:
+      0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2);
 
@@ -379,7 +391,7 @@ menu .ML__base {
 }
 
 /** But do display if tracking and inside a menu */
-.tracking menu li[data-tooltip]:hover::after, 
+.tracking menu li[data-tooltip]:hover::after,
 [data-tooltip]:hover::after {
   visibility: visible; // Visible triggers the animation...
   opacity: 1; // ... but we start fully transparent to
@@ -388,13 +400,8 @@ menu .ML__base {
   transition-duration: 0.15s;
   // give ourselves a delay before showing
   transition-delay: 1s;
-  transition-timing-function: cubic-bezier(0.4, 0, 1, 1) 
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
-
-
-
-
-
 
 .ML__prompt {
   border-radius: 2px;
@@ -431,37 +438,42 @@ menu .ML__base {
   padding: 8px;
 }
 
-.variant-submenu [part=menu-item] {
+.variant-submenu [part='menu-item'] {
   font-size: 2rem;
   text-align: center;
   margin: 0;
 }
 
 .insert-matrix-submenu {
-    display: grid;
-    padding: 8px;
-    align-content: center;
-    justify-content: center;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Grid doesn't work on Safari */
+  // display: grid;
+  // grid-template-columns: repeat(5, minmax(0, 1fr));
+  --_menu-item-size: 25px;
+  width: calc(5 * var(--_menu-item-size));
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+  align-content: center;
+  justify-content: center;
 }
 
-.insert-matrix-submenu [part=menu-item] {
+.insert-matrix-submenu [part='menu-item'] {
+  width: var(--_menu-item-size);
+  height: var(--_menu-item-size);
   font-size: 21px;
-  // color: transparent;
   border: none;
   border-radius: 0;
   line-height: 21px;
   text-align: center;
   padding: 0;
   margin: 0;
-  }
+}
 
-.border-submenu [part=menu-item] {
+.border-submenu [part='menu-item'] {
   font-size: 2rem;
   line-height: 1.2;
   text-align: center;
 }
-
 
 .swatches-submenu {
   --_swatch-size: 2rem;
@@ -507,17 +519,16 @@ menu .ML__base {
     }
   }
 
-  .ui-checkmark, .ui-mixedmark {    
+  .ui-checkmark,
+  .ui-mixedmark {
     position: absolute;
     margin: 0;
     padding: 0;
     color: white;
   }
 
-  &.dark-contrast .ui-checkmark, 
+  &.dark-contrast .ui-checkmark,
   &.dark-contrast .ui-mixedmark {
     color: #000;
   }
-
 }
-
