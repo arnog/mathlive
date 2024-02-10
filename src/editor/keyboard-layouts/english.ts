@@ -1,5 +1,8 @@
 import { KeyboardLayout } from './types';
 
+// More keyboard layouts from VSCode:
+// https://github.com/microsoft/vscode/tree/main/src/vs/workbench/services/keybinding/browser/keyboardLayouts
+
 export const APPLE_ENGLISH: KeyboardLayout = {
   id: 'apple.en-intl',
   displayName: 'English (international)',
