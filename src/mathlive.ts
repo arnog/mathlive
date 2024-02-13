@@ -64,13 +64,13 @@ export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
  * Transform all the elements in the document body that contain LaTeX code
  * into typeset math.
  *
- * **(Caution):**
+ * **Caution**
+ *
  * This is a very expensive call, as it needs to parse the entire
  * DOM tree to determine which elements need to be processed. In most cases
  * this should only be called once per document, once the DOM has been loaded.
  *
  * To render a specific element, use {@linkcode renderMathInElement | renderMathInElement()}
- * ---
  *
  *
  * @example

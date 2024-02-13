@@ -10,7 +10,7 @@ import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import { requestUpdate } from './render';
-import type { ContextInterface } from 'core/types';
+import type { ContextInterface } from '../core/types';
 
 export class TextModeEditor extends ModeEditor {
   constructor() {

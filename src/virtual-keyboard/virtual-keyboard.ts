@@ -876,7 +876,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 }
 
 function focusedMathfield(): MathfieldElement | null {
-  let target: Node | null = deepActiveElement() as Node | null;
+  let target: Node | null = deepActiveElement() as unknown as Node | null;
   let mf: MathfieldElement | null = null;
   while (target) {
     if (

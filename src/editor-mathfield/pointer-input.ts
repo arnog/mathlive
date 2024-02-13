@@ -320,7 +320,7 @@ export function nearestAtomFromPoint(
 
 /**
  * @param options.bias  if 0, the midpoint of the bounding box
- * is considered to return the sibling. If <0, the left sibling is
+ * is considered to return the sibling. If &lt;0, the left sibling is
  * favored, if >0, the right sibling
  */
 export function offsetFromPoint(

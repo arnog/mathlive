@@ -182,8 +182,8 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     if (isCommand(declaration)) {
       this.checked =
-        isCommand(declaration) &&
-        (dynamicValue(declaration.checked, modifiers) ?? false);
+        dynamicValue<boolean | 'mixed'>(declaration.checked, modifiers) ??
+        false;
     }
 
     if (isCommand(declaration) || isSubmenu(declaration)) {
@@ -470,7 +470,8 @@ function dynamicValue<T>(
   value: DynamicValue<T> | undefined,
   modifiers?: KeyboardModifiers
 ): T | undefined {
-  if (value === undefined || typeof value !== 'function') return value;
+  if (value === undefined || typeof value !== 'function')
+    return value as T | undefined;
 
   modifiers ??= { alt: false, control: false, shift: false, meta: false };
 
