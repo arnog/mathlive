@@ -208,8 +208,8 @@ function getBackgroundColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
 
       checked: () =>
         ({ some: 'mixed', all: true })[
-          mf.queryStyle({ backgroundColor: color }) ?? false
-        ],
+          mf.queryStyle({ backgroundColor: color })
+        ] ?? false,
 
       onMenuSelect: () => {
         mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
@@ -234,7 +234,7 @@ function getColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
       ariaLabel: () => localize(color) ?? color,
 
       checked: () =>
-        ({ some: 'mixed', all: true })[mf.queryStyle({ color }) ?? false],
+        ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
 
       onMenuSelect: () => {
         mf.applyStyle({ color }, { operation: 'toggle' });
@@ -686,7 +686,7 @@ function variantMenuItem(
     tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantAtom(mf, variant),
     checked: () =>
-      ({ some: 'mixed', all: true })[mf.queryStyle({ variant }) ?? false],
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variant })] ?? false,
     onMenuSelect: () => {
       mf.applyStyle({ variant }, { operation: 'toggle' });
       mf.adoptStyle = 'none';
@@ -706,7 +706,7 @@ function variantStyleMenuItem(
     tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantStyleSelection(mf, variantStyle),
     checked: () =>
-      ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle }) ?? false],
+      ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle })] ?? false,
     onMenuSelect: () => {
       mf.applyStyle({ variantStyle }, { operation: 'toggle' });
       mf.adoptStyle = 'none';
