@@ -42,6 +42,8 @@
   min-height: 39px; /* Need some room for the virtual keyboard toggle */
   width: 100%;
 
+  pointer-events: auto;
+
   /* Prevent the browser from trying to interpret touch gestures in the field */
   /* "Disabling double-tap to zoom removes the need for browsers to
         delay the generation of click events when the user taps the screen." */
@@ -290,6 +292,10 @@ with this style */
 
 :host(:focus) .ML__selection {
   background: var(--_selection-background-color) !important;
+}
+
+:host {
+  pointer-events: none;
 }
 
 .ML__contains-caret.ML__close,
