@@ -1,0 +1,42 @@
+{
+  // https://typedoc.org/options/
+  "out": "./temp-docs",
+  "compilerOptions": {
+    // "esModuleInterop": true,
+
+    // More lenient...
+    "noImplicitAny": false,
+    "strictNullChecks": false
+  },
+  // "includes": "./src/compute-engine/**/*",
+  "externalPattern": ["**/node_modules/**"],
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeReferences": true,
+  "name": "Mathfield",
+  "disableSources": true,
+  "disableGit": true,
+  "stripYamlFrontmatter": true,
+  "outputFileStrategy": "modules",
+  "entryPoints": ["./src/mathlive.ts"],
+  "readme": "none",
+  "excludeExternals": true,
+
+  // https://typedoc-plugin-markdown.org/options
+  "plugin": [
+    "typedoc-plugin-no-inherit",
+    "typedoc-plugin-markdown",
+    "./plugins/grok-theme/index.mjs"
+  ],
+  "theme": "grok-theme",
+  "namedAnchors": true,
+  "hidePageHeader": true,
+  "hidePageTitle": true,
+  "hideBreadcrumbs": true,
+  "excludeGroups": true,
+  "useCodeBlocks": true,
+  "parametersFormat": "list", // table | list
+  "propertiesFormat": "list", // table | list
+  "typeDeclarationFormat": "list" // table | list
+}
