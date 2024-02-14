@@ -197,11 +197,11 @@ export interface MathfieldElementAttributes {
    * -   slope = rise/run
    * -   If x > 0, then f(x) = sin(x)
    * -   x^2 + sin (x) when x > 0
-   * -   When x<0, x^{2n+1}<0
-   * -   Graph x^2 -x+3 =0 for 0<=x<=5
+   * -   When x&lt;0, x^{2n+1}&lt;0
+   * -   Graph x^2 -x+3 =0 for 0&lt;=x&lt;=5
    * -   Divide by x-3 and then add x^2-1 to both sides
    * -   Given g(x) = 4x – 3, when does g(x)=0?
-   * -   Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}
+   * -   Let D be the set {(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x}
    * -   \int\_{the unit square} f(x,y) dx dy
    * -   For all n in NN
    *
@@ -387,7 +387,7 @@ const DEPRECATED_OPTIONS = {
  * ```js
  * document.body.style.setProperty("--hue", "10");
  * ```
- * <div class='symbols-table' style='--first-col-width:25ex'>
+ * <div className='symbols-table' style={{"--first-col-width":"25ex"}}>
  *
  * | CSS Variable | Usage |
  * |:---|:---|
@@ -453,7 +453,7 @@ const DEPRECATED_OPTIONS = {
  * remains at its initial value.
  *
  *
- * <div class='symbols-table' style='--first-col-width:32ex'>
+ * <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
  *
  * | Attribute | Property |
  * |:---|:---|
@@ -493,7 +493,7 @@ const DEPRECATED_OPTIONS = {
  * Listen to these events by using `addEventListener()`. For events with
  * additional arguments, the arguments are available in `event.detail`.
  *
- * <div class='symbols-table' style='--first-col-width:27ex'>
+ * <div className='symbols-table' style={{"--first-col-width":"27ex"}}>
  *
  * | Event Name  | Description |
  * |:---|:---|
@@ -509,7 +509,7 @@ const DEPRECATED_OPTIONS = {
  * | `geometrychange` | The geometry of the virtual keyboard has changed. The `evt.detail.boundingRect` property is the new bounding rectangle of the virtual keyboard. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
- * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br\> `detail: \{direction: 'forward' | 'backward' | 'upward' | 'downward'\}` **cancellable**|
  * | `keypress` | The user pressed a physical keyboard key |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
@@ -1298,14 +1298,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * @inheritdoc Mathfield.getPromptValue
+   * @inheritDoc _Mathfield#getPromptValue
    * @category Prompts */
   getPromptValue(placeholderId: string, format?: OutputFormat): string {
     return this._mathfield?.getPromptValue(placeholderId, format) ?? '';
   }
 
   /**
-   * @inheritdoc Mathfield.setPromptValue
+   * @inheritDoc _Mathfield.setPromptValue
    * @category Prompts
    * */
   setPromptValue(
@@ -1577,14 +1577,14 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.executeCommand
+   * @inheritDoc _Mathfield.executeCommand
    */
   executeCommand(command: Selector | [Selector, ...any[]]): boolean {
     return this._mathfield?.executeCommand(command) ?? false;
   }
 
   /**
-   * @inheritdoc Mathfield.getValue
+   * @inheritDoc _Mathfield.getValue
    * @category Accessing and changing the content
    */
   getValue(format?: OutputFormat): string;
@@ -1631,7 +1631,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.setValue
+   * @inheritDoc _Mathfield.setValue
    * @category Accessing and changing the content
    */
   setValue(value?: string, options?: InsertOptions): void {
@@ -1666,7 +1666,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.hasFocus
+   * @inheritDoc _Mathfield.hasFocus
    *
    * @category Focus
    *
@@ -1705,7 +1705,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.insert
+   * @inheritDoc _Mathfield.insert
 
    *  @category Accessing and changing the content
    */
@@ -1714,7 +1714,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.applyStyle
+   * @inheritDoc _Mathfield.applyStyle
    *
    * @category Accessing and changing the content
    */
@@ -1734,7 +1734,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritdoc Mathfield.getCaretPoint
+   * @inheritDoc _Mathfield.getCaretPoint
    * @category Selection
    */
   get caretPoint(): null | Readonly<{ x: number; y: number }> {
@@ -2379,7 +2379,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Hooks
-   * @inheritDoc MathfieldHooks.onInlineShortcut
+   * @inheritDoc _MathfieldHooks.onInlineShortcut
    */
   get onInlineShortcut(): (sender: Mathfield, symbol: string) => string {
     return this._getOption('onInlineShortcut');
@@ -2389,7 +2389,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Hooks
-   * @inheritDoc MathfieldHooks.onScrollIntoView
+   * @inheritDoc _MathfieldHooks.onScrollIntoView
    */
   get onScrollIntoView(): ((sender: Mathfield) => void) | null {
     return this._getOption('onScrollIntoView');
@@ -2399,7 +2399,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Hooks
-   * @inheritDoc MathfieldHooks.onExport
+   * @inheritDoc _MathfieldHooks.onExport
    */
   get onExport(): (from: Mathfield, latex: string, range: Range) => string {
     return this._getOption('onExport');

@@ -61,9 +61,6 @@ import { applyInterBoxSpacing } from '../core/inter-box-spacing';
  * of TeX is used, which is most appropriate when displaying math "inline"
  * with other text (on the same line).
  *
- * @param  options.macros A dictionary of LaTeX macros
- *
- *
  * @category Converting
  * @keywords convert, latex, markup
  */
@@ -71,20 +68,25 @@ export function convertLatexToMarkup(
   text: string,
   options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
-    format?: string;
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
+    context?: unknown /* ContextInterface */;
   }
 ): string {
   options ??= {};
   options.mathstyle = options.mathstyle ?? 'displaystyle';
+  let { mathstyle, letterShapeStyle, context } = options ?? {};
+  mathstyle = mathstyle ?? 'displaystyle';
+  letterShapeStyle = letterShapeStyle ?? 'tex';
+  context ??= {};
 
-  const context = new Context({
+  const effectiveContext = new Context({
     from: {
       ...getDefaultContext(),
       renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
-      letterShapeStyle: options?.letterShapeStyle ?? 'tex',
+      letterShapeStyle,
+      ...(context as any),
     },
-    mathstyle: options.mathstyle,
+    mathstyle,
   });
 
   //
@@ -94,9 +96,9 @@ export function convertLatexToMarkup(
     mode: 'math',
     type: 'root',
     body: parseLatex(text, {
-      context,
+      context: effectiveContext,
       parseMode: 'math',
-      mathstyle: options.mathstyle,
+      mathstyle,
     }),
   });
 
@@ -104,7 +106,7 @@ export function convertLatexToMarkup(
   // 2. Transform the math atoms into elementary boxes
   // for example from genfrac to VBox.
   //
-  const box = root.render(context);
+  const box = root.render(effectiveContext);
 
   if (!box) return '';
 
@@ -113,7 +115,7 @@ export function convertLatexToMarkup(
   //    for example, from <span>1</span><span>2</span>
   //    to <span>12</span>
   //
-  coalesce(applyInterBoxSpacing(box, context));
+  coalesce(applyInterBoxSpacing(box, effectiveContext));
 
   //
   // 4. Wrap the expression with struts
@@ -136,7 +138,8 @@ export function validateLatex(s: string): LatexSyntaxError[] {
  *
  * @param latex A string of valid LaTeX. It does not have to start
  * with a mode token such as a `$$` or `\(`.
- * @param options.generateId If true, add an `"extid"` attribute
+ *
+ * @param options.generateID If true, add an `"extid"` attribute
  * to the MathML nodes with a value matching the `atomID`. This can be used
  * to map items on the screen with their MathML representation or vice-versa.
  *

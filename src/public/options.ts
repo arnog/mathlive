@@ -5,7 +5,7 @@ import type { ParseMode, MacroDictionary, Registers } from './core-types';
 /**
  * Specify behavior for origin validation.
  *
- * <div class='symbols-table' style='--first-col-width:32ex'>
+ * <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
  *
  * | Value | Description |
  * | ----- | ----------- |
@@ -285,7 +285,6 @@ export type InlineShortcutsOptions = {
    * The keys of this object literal indicate the sequence of characters
    * that will trigger an inline shortcut.
    *
-   * {@inheritDoc InlineShortcutDefinition}
    */
 
   inlineShortcuts: InlineShortcutDefinitions;
@@ -349,11 +348,11 @@ export type EditingOptions = {
    * - `slope = rise/run`
    * - `If x > 0, then f(x) = sin(x)`
    * - `x^2 + sin (x) when x > 0`
-   * - `When x<0, x^{2n+1}<0`
-   * - `Graph x^2 -x+3 =0 for 0<=x<=5`
+   * - `When x&lt;0, x^{2n+1}&lt;0`
+   * - `Graph x^2 -x+3 =0 for 0&lt;=x&lt;=5`
    * - `Divide by x-3 and then add x^2-1 to both sides`
    * - `Given g(x) = 4x – 3, when does g(x)=0?`
-   * - `Let D be the set {(x,y)|0<=x<=1 and 0<=y<=x}`
+   * - `Let D be the set {(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x}`
    * - `\int\_{the unit square} f(x,y) dx dy`
    * - `For all n in NN`
    *
@@ -525,7 +524,7 @@ mf.macros = {
   backgroundColorMap: (name: string) => string | undefined;
 
   /**
-     * Control the letter shape style:
+   * Control the letter shape style:
 
     | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
     | ------------------ | --- | --- | --- | --- |
@@ -536,23 +535,21 @@ mf.macros = {
 
     (it) = italic (up) = upright
 
-     * The default letter shape style is `auto`, which indicates that `french`
-     * should be used if the locale is "french", and `tex` otherwise.
-     *
-     * **(Historical Note)**
-     *
-     * Where do the "french" rules come from? The
-     * TeX standard font, Computer Modern, is based on Monotype 155M, itself
-     * based on the Porson greek font which was one of the most widely used
-     * Greek fonts in english-speaking countries. This font had upright
-     * capitals, but slanted lowercase. In France, the traditional font for
-     * greek was Didot, which has both upright capitals and lowercase.
-     *
-     *
-     * As for roman uppercase, they are recommended by "Lexique des règles
-     * typographiques en usage à l’Imprimerie Nationale". It should be noted
-     * that this convention is not universally followed.
-     * ---
+    * The default letter shape style is `auto`, which indicates that `french`
+    * should be used if the locale is "french", and `tex` otherwise.
+    *
+    * **Historical Note**
+    *
+    * Where do the "french" rules come from? The
+    * TeX standard font, Computer Modern, is based on Monotype 155M, itself
+    * based on the Porson greek font which was one of the most widely used
+    * Greek fonts in english-speaking countries. This font had upright
+    * capitals, but slanted lowercase. In France, the traditional font for
+    * greek was Didot, which has both upright capitals and lowercase.
+    *
+    * As for roman uppercase, they are recommended by "Lexique des règles
+    * typographiques en usage à l’Imprimerie Nationale". It should be noted
+    * that this convention is not universally followed.
     */
   letterShapeStyle: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 
