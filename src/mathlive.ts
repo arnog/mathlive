@@ -18,6 +18,7 @@ import {
 } from './public/mathlive-ssr';
 import type { VirtualKeyboardInterface } from './public/virtual-keyboard';
 
+/** @hidden */
 export type MathLiveGlobal = {
   version: string;
   readAloudElement: null | HTMLElement;
@@ -34,30 +35,10 @@ export type MathLiveGlobal = {
 // Note that this global is only global to the "browsing context". In the
 // case of a page containing iframes, each iframe is a separate browsing
 // context, and therefore will have its own `globalMathLive()`
+/** @hidden */
 export function globalMathLive(): MathLiveGlobal {
   globalThis[Symbol.for('io.cortexjs.mathlive')] ??= {};
   return globalThis[Symbol.for('io.cortexjs.mathlive')];
-}
-
-/**
- * This function is deprecated and is no longer necessary: the virtual
- * keyboard is always shared. This function will be removed in a future release
- * of MathLive.
- *
- * To access the global shared virtual keyboard use `window.mathVirtualKeyboard`
- *
- * @keywords create, make, mathfield, iframe
- * @deprecated
- */
-export function makeSharedVirtualKeyboard(): VirtualKeyboardInterface {
-  console.warn(
-    `%cMathLive {{SDK_VERSION}}: %cmakeSharedVirtualKeyboard() is deprecated. 
-    Use \`window.mathVirtualKeyboard\` to access the virtual keyboard instance.
-    See https://cortexjs.io/mathlive/changelog/ for details.`,
-    'color:#12b; font-size: 1.1rem',
-    'color:#db1111; font-size: 1.1rem'
-  );
-  return window.mathVirtualKeyboard;
 }
 
 /**

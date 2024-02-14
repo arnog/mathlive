@@ -10,7 +10,7 @@
  *
  * ```html
  * <script src="https://unpkg.com/mathlive"></script>
- * <math-field>\frac{1}{2}</math-field>
+ *  <math-field>\frac{1}{2}</math-field>
  * <script>
  * const mf = document.querySelector('math-field');
  * mf.addEventListener('input', (ev) => {
@@ -19,12 +19,11 @@
  * </script>
  * ```
  *
- * @packageDocumentation MathLive SDK Reference
+ * @packageDocumentation Mathfield API Reference
  * @version {{SDK_VERSION}}
  *
  */
 
-import type { VirtualKeyboardOptions } from './virtual-keyboard';
 import type { VirtualKeyboardInterface } from './virtual-keyboard';
 import type { StaticRenderOptions } from './options';
 
@@ -35,10 +34,6 @@ export * from './mathfield';
 export * from './mathfield-element';
 export * from './mathlive-ssr';
 export * from './virtual-keyboard';
-
-export declare function makeSharedVirtualKeyboard(
-  options?: Partial<VirtualKeyboardOptions>
-): VirtualKeyboardInterface & EventTarget;
 
 export declare function renderMathInDocument(
   options?: StaticRenderOptions
