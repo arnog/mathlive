@@ -18,7 +18,7 @@ import type { ParseMode, Style } from './core-types';
 | `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized highlighting (read aloud). |
 
    * To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
-   * 
+   *
 ```js
 import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
