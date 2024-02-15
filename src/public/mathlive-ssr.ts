@@ -34,21 +34,23 @@ import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 /**
  * Convert a LaTeX string to a string of HTML markup.
  *
- * **(Note)**
+ * :::info[Note]
  *
- * This function does not interact with the DOM. The function does not load
- * fonts or inject stylesheets in the document. It can be used
- * on the server side.
+ * This function does not interact with the DOM. It does not load fonts or
+ * inject stylesheets in the document. It can safely be used on the server side.
+ * :::
  *
  * To get the output of this function to correctly display
  * in a document, use the mathlive static style sheet by adding the following
  * to the `<head>` of the document:
  *
  * ```html
- * <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
+ * <link
+ *  rel="stylesheet"
+ *  href="https://unpkg.com/mathlive/dist/mathlive-static.css"
+ * />
  * ```
  *
- * ---
  *
  * @param text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
@@ -57,11 +59,10 @@ import { applyInterBoxSpacing } from '../core/inter-box-spacing';
  * is used to typeset the formula, which is most appropriate for formulas that are
  * displayed in a standalone block.
  *
- * If `"textstyle"` is used, the "text" mode
- * of TeX is used, which is most appropriate when displaying math "inline"
- * with other text (on the same line).
+ * If `"textstyle"` is used, the "text" mode of TeX is used, which is most
+ * appropriate when displaying math "inline" with other text (on the same line).
  *
- * @category Converting
+ * @category Conversion
  * @keywords convert, latex, markup
  */
 export function convertLatexToMarkup(
@@ -143,7 +144,7 @@ export function validateLatex(s: string): LatexSyntaxError[] {
  * to the MathML nodes with a value matching the `atomID`. This can be used
  * to map items on the screen with their MathML representation or vice-versa.
  *
- * @category Converting
+ * @category Conversion
  */
 
 export function convertLatexToMathMl(
@@ -170,7 +171,7 @@ export function convertLatexToMathMl(
  * @example
  * console.log(convertLatexToSpeakableText('\\frac{1}{2}'));
  * // 'half'
- * @category Converting
+ * @category Conversion
  * @keywords convert, latex, speech, speakable, text, speakable text
  */
 export function convertLatexToSpeakableText(latex: string): string {
@@ -191,7 +192,7 @@ let gComputeEngine: ComputeEngine;
  * convertMathJsonToLatex(["Add", 1, 2]);
  * // -> "1 + 2"
  * ```
- * @category Converting
+ * @category Conversion
  */
 export function convertMathJsonToLatex(json: Expression): string {
   if (!gComputeEngine) {
@@ -218,7 +219,7 @@ export function convertMathJsonToLatex(json: Expression): string {
  * convertLatexToAsciiMath("\\frac{1}{2}");
  * // -> "1/2"
  * ```
- * @category Converting
+ * @category Conversion
  */
 export function convertLatexToAsciiMath(
   latex: string,
@@ -236,7 +237,7 @@ export function convertLatexToAsciiMath(
  * convertAsciiMathToLatex("1/2");
  * // -> "\\frac{1}{2}"
  * ```
- * @category Converting
+ * @category Conversion
  */
 export function convertAsciiMathToLatex(ascii: string): string {
   return parseMathString(ascii, { format: 'ascii-math' })[1];

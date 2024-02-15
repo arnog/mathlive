@@ -13,8 +13,9 @@ import type { InsertOptions, Mathfield, Model } from './mathfield';
  * | `right` | the element to the right of the selection |
  * | `group` | the group (numerator, root, etc..) the selection is in |
  * | `parent` | the parent of the selection |
+ *
+ * @category Speech
  */
-
 export type SpeechScope =
   | 'all'
   | 'selection'
@@ -25,7 +26,7 @@ export type SpeechScope =
 
 // @revisit: maybe a command attribute instead?
 /**
- * To perform editing commands on a mathfield, use [[MathfieldElement.executeCommand]] with the commands below.
+ * To perform editing commands on a mathfield, use {@linkcode MathfieldElement.executeCommand} with the commands below.
  *
  * ```ts
  * const mf = document.getElementById('mathfield');
@@ -34,6 +35,7 @@ export type SpeechScope =
  * ```
  *
  * Commands return true if they resulted in a dirty state.
+ * @category Commands
  * @command executeCommand
  */
 export interface Commands {
@@ -345,4 +347,5 @@ export interface Commands {
   applyStyle: (mathfield: Mathfield, style: Style) => boolean;
 }
 
+/** @category Commands */
 export type Selector = Keys<Commands>;

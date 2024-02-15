@@ -44,6 +44,7 @@ import { Scrim } from '../ui/utils/scrim';
 import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
 import { KeyboardModifiers } from './ui-events-types';
 
+/** @category MathJSON */
 export declare type Expression =
   | number
   | string
@@ -87,6 +88,7 @@ if (!isBrowser()) {
  * If the event is canceled (i.e. `evt.preventDefault()` is called inside your
  * event handler), the default behavior is to play a "plonk" sound.
  *
+ * @category Web Component
  */
 export type MoveOutEvent = {
   direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -100,6 +102,7 @@ export type MoveOutEvent = {
  * context (iframe) if it has a defined container or is the top-level browsing
  * context.
  *
+ * @category Virtual Keyboard
  */
 export type VirtualKeyboardPolicy = 'auto' | 'manual' | 'sandboxed';
 
@@ -144,6 +147,8 @@ const gDeferredState = new WeakMap<
 /**
  * These attributes of the `<math-field>` element correspond to the
  * [MathfieldOptions] properties.
+ *
+ * @category Web Component
  */
 export interface MathfieldElementAttributes {
   // Allow for global aria attributes, data- attributes, micro-data attributes
@@ -331,25 +336,26 @@ const DEPRECATED_OPTIONS = {
 /**
  * The `MathfieldElement` class represent a DOM element that displays
  * math equations.
+ *
  * It is a subclass of the standard
  * [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
  * class and as such inherits all of its properties and methods.
  *
- * It inherits many useful properties and methods from [[`HTMLElement`]] such
+ * It inherits many useful properties and methods from `HTMLElement` such
  * as `style`, `tabIndex`, `addEventListener()`, `getAttribute()`,  etc...
  *
- * It is the main entry point to the MathLive library.
- *
  * It is typically used to render a single equation.
+ *
  * To render multiple equations, use multiple instances of `MathfieldElement`.
- * The `MathfieldElement` class
- * provides special properties and
- * methods to control the display and behavior of `<math-field>`
- * elements.
+ *
+ * The `MathfieldElement` class provides special properties and methods to
+ * control the display and behavior of `<math-field>` elements.
  *
  *
+ * You will usually instantiate a `MathfieldElement` using the
+ * `<math-field>` tag in HTML. However, if necessary you can also create
+ * it programmatically using `new MathfieldElement()`.
  *
- * To create a new `MathfieldElement`:
  *
  * ```javascript
  * // 1. Create a new MathfieldElement
@@ -360,7 +366,7 @@ const DEPRECATED_OPTIONS = {
  * ```
  *
  * The `MathfieldElement` constructor has an optional argument of
- * [[`MathfieldOptions`]] to configure the element. The options can also
+ * `MathfieldOptions` to configure the element. The options can also
  * be modified later:
  *
  * ```javascript
@@ -371,7 +377,7 @@ const DEPRECATED_OPTIONS = {
  * mf.smartFence = true;
  * ```
  *
- * ### MathfieldElement CSS Variables
+ * #### MathfieldElement CSS Variables
  *
  * To customize the appearance of the mathfield, declare the following CSS
  * variables (custom properties) in a ruleset that applies to the mathfield.
@@ -404,13 +410,14 @@ const DEPRECATED_OPTIONS = {
  * with some CSS variables associated with a selector that applies to the
  * virtual keyboard panel container.
  *
- * Read more about [customizing the virtual keyboard appearance](https://cortexjs.io/mathlive/guides/virtual-keyboards/#custom-appearance)
+ * Read more about [customizing the virtual keyboard appearance](mathfield/guides/virtual-keyboards/#custom-appearance)
  *
- * ### MathfieldElement CSS Parts
+ * #### MathfieldElement CSS Parts
  *
  * To style the virtual keyboard toggle, use the `virtual-keyboard-toggle` CSS
  * part. To use it, define a CSS rule with a `::part()` selector
  * for example:
+ * 
  * ```css
  * math-field::part(virtual-keyboard-toggle) {
  *  color: red;
@@ -418,7 +425,7 @@ const DEPRECATED_OPTIONS = {
  * ```
  *
  *
- * ### MathfieldElement Attributes
+ * #### MathfieldElement Attributes
  *
  * An attribute is a key-value pair set as part of the tag:
  *
@@ -475,7 +482,7 @@ const DEPRECATED_OPTIONS = {
  *
  * </div>
  *
- * See [[`MathfieldOptions`]] for more details about these options.
+ * See `MathfieldOptions` for more details about these options.
  *
  * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
  * can also be used:
@@ -488,7 +495,7 @@ const DEPRECATED_OPTIONS = {
  * - `tabindex`
  *
  *
- * ### MathfieldElement Events
+ * #### MathfieldElement Events
  *
  * Listen to these events by using `addEventListener()`. For events with
  * additional arguments, the arguments are available in `event.detail`.
@@ -516,6 +523,7 @@ const DEPRECATED_OPTIONS = {
  *
  * </div>
  *
+ * @category Web Component
  * @keywords zindex, events, attribute, attributes, property, properties, parts, variables, css, mathfield, mathfieldelement
 
  */
@@ -785,7 +793,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * AWS API library and configure it with your API key before use.
    *
    * **See**
-   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
+   * {@link mathfield/guides/speech/ | Guide: Speech}
    */
   static get speechEngine(): 'local' | 'amazon' {
     return this._speechEngine;
@@ -859,7 +867,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * work SRE should be loaded separately.
    *
    * **See**
-   * {@link https://cortexjs.io/mathlive/guides/speech/ | Guide: Speech}
+   * {@link mathfield/guides/speech/ | Guide: Speech}
    */
   static get textToSpeechRules(): 'mathlive' | 'sre' {
     return this._textToSpeechRules;
@@ -1202,7 +1210,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         );
         console.warn(
           `Some of the options passed to \`new MathfieldElement(...)\` are invalid. 
-          See https://cortexjs.io/mathlive/changelog/ for details.`
+          See mathfield/changelog/ for details.`
         );
         for (const warning of warnings) console.warn(warning);
 
@@ -1399,7 +1407,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
       console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
+        `MathLive {{SDK_VERSION}}: The Compute Engine library is not available.
         
         Load the library, for example with:
         
@@ -1452,7 +1460,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     console.warn(
       `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
       \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead.
-      See https://cortexjs.io/mathlive/changelog/ for details.`,
+      See mathfield/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
       'color:#db1111; font-size: 1.1rem',
       'color: inherit, font-size: 1rem'
@@ -1510,7 +1518,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     console.warn(
       `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
       \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead.
-      See https://cortexjs.io/mathlive/changelog/ for details.`,
+      See mathfield/changelog/ for details.`,
       'color:#12b; font-size: 1.1rem',
       'color:#db1111; font-size: 1.1rem',
       'color: inherit, font-size: 1rem'
@@ -1563,7 +1571,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     );
     console.warn(
       ` \`mf.setOptions()\` is deprecated. Set the property directly on the mathfield instead.
-      See https://cortexjs.io/mathlive/changelog/ for details.`
+      See mathfield/changelog/ for details.`
     );
     for (const key of Object.keys(options)) {
       if (DEPRECATED_OPTIONS[key]) {

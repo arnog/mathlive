@@ -9,7 +9,7 @@
   `window.mathVirtualKeyboard` object of the iframe. This can be used to detect
   a request (and prevent) for the virtual keyboard to be displayed.
 - **#2289** When changing the value of the mathfield, the selection is now 
-  preserved. In addition, when using a controlled component with React an unnecessary updated is avoided.
+  preserved. In addition, when using a controlled component with React an unnecessary update is avoided.
 - On Safari, the Insert Matrix submenu was displayed incorrectly.
 
 ## 0.98.6 _2024-01-27_

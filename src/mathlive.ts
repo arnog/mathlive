@@ -60,7 +60,7 @@ export function globalMathLive(): MathLiveGlobal {
  * else
  *   renderMathInDocument();
  *
- * @category Rendering
+ * @category Static Rendering
  * @keywords render, document, autorender
  */
 
@@ -95,7 +95,7 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  * else
  *   renderMathInElement("formula");
  *
- * @category Rendering
+ * @category Static Rendering
  * @keywords render, element, htmlelement
  */
 

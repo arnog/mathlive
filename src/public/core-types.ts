@@ -4,8 +4,7 @@ export type MathstyleName =
   | 'scriptstyle'
   | 'scriptscriptstyle';
 
-export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
-
+/** @internal  */
 export type ArgumentType =
   | ParseMode
   | (
@@ -31,12 +30,14 @@ export type ArgumentType =
 // '\' + ([a-zA-Z\*]+)|([^a-zAz\*])  : command
 // others: literal (not that length may be > 1, e.g. emoji)
 //  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
+/** @internal  */
 export type Token = string;
 
 /**
  * The mode that indicates how a portion of content is interpreted
  *
  */
+/** @internal  */
 export type ParseMode = 'math' | 'text' | 'latex';
 
 /**
@@ -93,7 +94,7 @@ export type LatexSyntaxError<T = ParserErrorCode> = {
  *
  * Typically, those are controlled with explicit commands, such as
  * `\mathbb{}` or `\mathfrak{}`. This type is used with the
- * [[`applyStyle`]] method to change the styling of a range of
+ * {@linkcode MathfieldElement.applyStyle} method to change the styling of a range of
  * selected characters.
  *
  * In mathematical notation these variants are used not only for visual
@@ -117,7 +118,7 @@ export type LatexSyntaxError<T = ParserErrorCode> = {
  * it's not equivalent to a `main` variant with `italic` variant style applied.
  *
  * **See Also**
- * * [[`Style`]]
+ * * {@linkcode Style}
  */
 export type Variant =
   | 'ams'
@@ -165,8 +166,8 @@ export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
  * the font variant, weight (`FontSeries`), size and more.
  *
  * **See Also**
- * * [`applyStyle`](http://cortexjs.io/docs/mathlive/?q=applyStyle)
- * * [Interacting with a Mathfield](/mathlive/guides/interacting/)
+ * * `applyStyle()`
+ * * [Interacting with a Mathfield](mathfield/guides/interacting/)
  */
 
 export interface Style {
@@ -187,9 +188,10 @@ export interface Style {
 
 /**
  * **See Also**
- * * [[`MacroDictionary`]]
- * * [Macros](/mathlive/guides/macros/)
+ * * {@linkcode MacroDictionary}
+ * * {@link mathfield/guides/macros/|Macros Guide}
  *
+ * @category Macros
  */
 export type MacroDefinition = {
   /** Definition of the macro as a LaTeX expression */
@@ -200,6 +202,10 @@ export type MacroDefinition = {
   expand?: boolean;
 };
 
+/** @category Macros */
+export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
+
+/** @category Macros */
 export type MacroPackageDefinition = {
   package: Record<string, string | MacroDefinition>;
   // If `primitive` is true, the macro in this package are not expanded,
@@ -211,6 +217,8 @@ export type MacroPackageDefinition = {
 /**
  * Glue represents flexible spacing, that is a dimension that
  * can grow (by the `grow` property) or shrink (by the `shrink` property).
+ *
+ * @category Registers
  */
 export type Glue = {
   glue: Dimension;
@@ -219,7 +227,7 @@ export type Glue = {
 };
 
 /**
- *
+ * @category Registers
  */
 export type DimensionUnit =
   | 'pt'
@@ -239,6 +247,8 @@ export type DimensionUnit =
 
 /**
  * A dimension is used to specify the size of things
+ *
+ * @category Registers
  */
 export type Dimension = {
   dimension: number;
@@ -248,6 +258,8 @@ export type Dimension = {
 /**
  * A LaTeX expression represent a sequence of tokens that can be evaluated to
  * a value, such as a dimension.
+ *
+ * @category Registers
  */
 export type LatexValue = { relax?: boolean } & (
   | Dimension
@@ -324,6 +336,7 @@ export type LatexValue = { relax?: boolean } & (
  * mf.registers.thinmuskip = { dimension: 2, unit: "mu" };
  * mf.registers.medmuskip = "3mu";
  *```
+ * @category Registers
  *
  */
 export type Registers = Record<string, number | string | LatexValue>;
@@ -340,13 +353,16 @@ The code above will support the following notation:
 \smallfrac{5}{16}
 ```
  * **See Also**
- * * [Macros Example](/mathlive/guides/macros/)
+ * * [Macros Example](/mathfield/guides/macros/)
+ *
+ * @category Macros
  */
 export type MacroDictionary = Record<
   string,
   string | Partial<MacroDefinition> | MacroPackageDefinition
 >;
 
+/** @internal */
 export type BoxCSSProperties =
   | 'background-color'
   | 'border'
@@ -379,6 +395,7 @@ export type BoxCSSProperties =
   | 'width' // @todo: remove
   | 'z-index';
 
+/** @internal */
 export type MatrixEnvironment =
   | 'matrix'
   | 'matrix*'
@@ -393,8 +410,10 @@ export type MatrixEnvironment =
   | 'Vmatrix'
   | 'Vmatrix*';
 
+/** @internal */
 export type CasesEnvironment = 'cases' | 'dcases' | 'rcases';
 
+/** @internal */
 export type TabularEnvironment =
   | 'array'
   | 'equation'
@@ -420,6 +439,7 @@ export type TabularEnvironment =
   | CasesEnvironment
   | MatrixEnvironment;
 
+/** @internal */
 export type AlignEnvironment =
   | 'align'
   | 'align*'
@@ -430,6 +450,7 @@ export type AlignEnvironment =
   | 'split'
   | 'multline';
 
+/** @internal */
 export type Environment =
   | 'math'
   | 'displaymath'

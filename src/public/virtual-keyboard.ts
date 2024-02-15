@@ -2,6 +2,10 @@ import type { Selector } from './commands';
 import type { ParseMode, Style } from './core-types';
 import type { OriginValidator } from './options';
 
+/**
+ * @category Virtual Keyboard
+ */
+
 export type AlphabeticKeyboardLayout =
   | 'auto'
   | 'qwerty'
@@ -11,7 +15,7 @@ export type AlphabeticKeyboardLayout =
   | 'colemak';
 
 /**
- *
+ * @category Virtual Keyboard
  */
 export interface VirtualKeyboardKeycap {
   /**
@@ -102,6 +106,9 @@ export interface VirtualKeyboardKeycap {
   /** Name of the layer to shift to when the key is pressed */
   layer: string;
 }
+/**
+ * @category Virtual Keyboard
+ */
 export type VirtualKeyboardLayoutCore = {
   /** A human readable string displayed in the layout switcher toolbar */
   label?: string;
@@ -116,6 +123,9 @@ export type VirtualKeyboardLayoutCore = {
   displayEditToolbar?: boolean;
 };
 
+/**
+ * @category Virtual Keyboard
+ */
 export type VirtualKeyboardLayout = VirtualKeyboardLayoutCore &
   (
     | /** The set of layers for this layout */
@@ -125,10 +135,16 @@ export type VirtualKeyboardLayout = VirtualKeyboardLayoutCore &
     | { markup: string }
   );
 
+/**
+ * @category Virtual Keyboard
+ */
 export type NormalizedVirtualKeyboardLayout = VirtualKeyboardLayoutCore & {
   layers: NormalizedVirtualKeyboardLayer[];
 };
 
+/**
+ * @category Virtual Keyboard
+ */
 export interface VirtualKeyboardLayer {
   /** The rows of keycaps in this layer */
   rows?: (Partial<VirtualKeyboardKeycap> | string)[][];
@@ -143,6 +159,9 @@ export interface VirtualKeyboardLayer {
   id?: string;
 }
 
+/**
+ * @category Virtual Keyboard
+ */
 export interface NormalizedVirtualKeyboardLayer {
   rows?: Partial<VirtualKeyboardKeycap>[][];
   markup?: string;
@@ -153,8 +172,14 @@ export interface NormalizedVirtualKeyboardLayer {
   id?: string;
 }
 
+/**
+ * @category Virtual Keyboard
+ */
 export type EditToolbarOptions = 'none' | 'default';
 
+/**
+ * @category Virtual Keyboard
+ */
 export type VirtualKeyboardName =
   | 'default'
   | 'compact'
@@ -165,6 +190,9 @@ export type VirtualKeyboardName =
   | 'alphabetic'
   | 'greek';
 
+/**
+ * @category Virtual Keyboard
+ */
 export interface VirtualKeyboardOptions {
   /**
    * A layout is made up of one or more layers (think of the main layer
@@ -176,7 +204,7 @@ export interface VirtualKeyboardOptions {
    * includes `"numeric"`, `"functions"`, `"symbols"`, `"alphabetic"`
    * and `"greek".
    *
-   * **See* {@link https://cortexjs.io/mathlive/guides/virtual-keyboards | Guide: Virtual Keyboards}
+   * **See* {@link mathfield/guides/virtual-keyboards | Guide: Virtual Keyboards}
    *
    *
    */
@@ -252,6 +280,8 @@ export interface MathfieldProxy {
  * This interface is implemented by:
  * - `VirtualKeyboard`: when the browsing context is a top-level document
  * - `VirtualKeyboardProxy`: when the browsing context is an iframe
+ *
+ * @category Virtual Keyboard
  */
 export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
   show(options?: { animate: boolean }): void;
@@ -273,6 +303,9 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
 
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
+/**
+ * @category Commands
+ */
 export interface VirtualKeyboardCommands {
   switchKeyboardLayer: (mathfield: undefined, layer: string) => boolean;
 
@@ -281,6 +314,9 @@ export interface VirtualKeyboardCommands {
   showVirtualKeyboard: () => boolean;
 }
 
+/**
+ * @category Virtual Keyboard
+ */
 export type VirtualKeyboardMessageAction =
   | 'connect' // From proxy or mf to VK
   | 'disconnect' // From proxy or mf to VK
@@ -296,6 +332,9 @@ export type VirtualKeyboardMessageAction =
   | 'focus'
   | 'blur';
 
+/**
+ * @category Virtual Keyboard
+ */
 export type VirtualKeyboardMessage =
   | {
       type: 'mathlive#virtual-keyboard-message';

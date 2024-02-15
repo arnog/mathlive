@@ -99,6 +99,12 @@ echo -e "$LINECLEAR$BASENAME$CHECK${EMPH}${BUILD}${RESET}${DIM} build done${RESE
 
 if [ "$BUILD" = "production" ]; then
     #
+    # Update the documentation
+    #
+
+    bash ./scripts/update-docs.sh
+
+    #
     # Stamp the SDK version number
     #
 
@@ -120,6 +126,11 @@ if [ "$BUILD" = "production" ]; then
     | tr -d '[[:space:]]')
 
     printf "$BASENAME${DOT}Stamping output files"
+
+    # Substitute in the api.md file
+    sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" ./src/api.md
+
+
     find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
     find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;
     find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\/$(printf '"'"'\r'"'"')/" {}' \;
@@ -132,4 +143,7 @@ if [ "$BUILD" = "production" ]; then
 
 
     echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Output files stamped${RESET}"
+
+
+
 fi

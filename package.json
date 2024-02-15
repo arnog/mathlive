@@ -52,7 +52,7 @@
   },
   "bugs": "https://github.com/arnog/mathlive/issues/",
   "scripts": {
-    "doc": "bash ./scripts/doc.sh",
+    "doc": "bash ./scripts/update-docs.sh",
     "build": "bash ./scripts/build.sh",
     "clean": "bash ./scripts/clean.sh",
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",

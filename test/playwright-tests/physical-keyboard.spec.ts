@@ -139,7 +139,7 @@ test('escape to enter/exit latex mode', async ({ page }) => {
   ).toBe('\\frac{x}{y}');
 
   // attempt to use latex mode for math field with latex mode disabled
-  // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
+  // using instructions from: mathfield/guides/customizing/#turning-off-the-latex-mode
   await page.locator('#mf-5').press('Escape');
   await page.locator('#mf-5').pressSequentially('lozenge');
   await page.locator('#mf-5').press('Escape');
@@ -166,7 +166,7 @@ test('backslash to enter, enter to exit latex mode', async ({ page }) => {
   ).toBe('\\frac{x}{y}');
 
   // attempt to use latex mode for math field with latex mode disabled
-  // using instructions from: https://cortexjs.io/mathlive/guides/customizing/#turning-off-the-latex-mode
+  // using instructions from: mathfield/guides/customizing/#turning-off-the-latex-mode
   await page.locator('#mf-5').pressSequentially('\\lozenge');
   await page.locator('#mf-5').press('Enter');
 

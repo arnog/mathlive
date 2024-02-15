@@ -109,7 +109,7 @@ export type Offset = number;
  * a normalized range.
  *
  * **See Also**
- * * [[`Selection`]]
+ * * {@linkcode Selection}
  */
 
 export type Range = [start: Offset, end: Offset];
@@ -130,7 +130,7 @@ export type Range = [start: Offset, end: Offset];
  * the end of the range.
  *
  * **See Also**
- * * [[`Range`]]
+ * * {@linkcode Range}
  */
 export type Selection = {
   ranges: Range[];
@@ -140,7 +140,7 @@ export type Selection = {
 /** @internal */
 export interface Mathfield {
   /**
-   * Execute a [[`Commands`|command]] defined by a selector.
+   * Execute a {@linkcode Commands|command} defined by a selector.
    * ```javascript
    * mfe.executeCommand('add-column-after');
    * mfe.executeCommand(['switch-mode', 'math']);
@@ -244,7 +244,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
    * The bottom location of the caret (insertion point) in viewport
    * coordinates.
    *
-   * See also [[`setCaretPoint`]]
    */
   getCaretPoint?(): { x: number; y: number } | null;
   setCaretPoint(x: number, y: number): boolean;

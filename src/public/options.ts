@@ -15,6 +15,7 @@ import type { ParseMode, MacroDictionary, Registers } from './core-types';
  *
  * </div>
  *
+ * @category Options
  */
 export type OriginValidator =
   | ((origin: string) => boolean)
@@ -38,7 +39,7 @@ export type OriginValidator =
  *      "command": ['insert', '\\sqrt{#0}'],
  * }
  * ```
- *
+ * @category Options
  */
 export type Keybinding = {
   /**
@@ -190,6 +191,8 @@ export type Keybinding = {
  *  | `"openfence"` | An opening fence, such as `(`|
  *  | `"closefence"` | A closing fence such as `}`|
  *  | `"text"`| Some plain text|
+ *
+ * @category Options
  */
 export type InlineShortcutDefinition =
   | string
@@ -198,6 +201,7 @@ export type InlineShortcutDefinition =
       after?: string;
     };
 
+/** @category Options */
 export type InlineShortcutDefinitions = Record<
   string,
   InlineShortcutDefinition
@@ -207,7 +211,7 @@ export type InlineShortcutDefinitions = Record<
  * These hooks provide an opportunity to intercept or modify an action.
  * When their return value is a boolean, it indicates if the default handling
  * should proceed.
- *
+ * @category Options
  */
 export interface MathfieldHooks {
   /**
@@ -230,7 +234,7 @@ export interface MathfieldHooks {
   onScrollIntoView: ((sender: Mathfield) => void) | null;
 
   /**
-   * This hooks is invoked when the user has requested to export the content
+   * This hook is invoked when the user has requested to export the content
    * of the mathfield, for example when pressing ctrl/command+C.
    *
    * This hook should return as a string what should be exported.
@@ -252,6 +256,7 @@ export interface MathfieldHooks {
 //  Note that this can't be an arbitrary string (e.g. `insertMath`), as it will
 // get normalized when the event is dispatched. It has to be one of the strings
 // from here: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
+/** @category Options */
 export type ContentChangeType =
   | 'insertText'
   | 'insertLineBreak'
@@ -269,6 +274,7 @@ export type ContentChangeType =
   | 'deleteHardLineBackward'
   | 'deleteHardLineForward';
 
+/** @category Options */
 export type ContentChangeOptions = {
   data?: string | null;
   dataTransfer?: DataTransfer | null;
@@ -276,10 +282,12 @@ export type ContentChangeOptions = {
   // isComposing?: boolean;
 };
 
+/** @category Options */
 export type KeyboardOptions = {
   keybindings: readonly Keybinding[];
 };
 
+/** @category Options */
 export type InlineShortcutsOptions = {
   /**
    * The keys of this object literal indicate the sequence of characters
@@ -313,6 +321,7 @@ export type InlineShortcutsOptions = {
   inlineShortcutTimeout: number;
 };
 
+/** @category Options */
 export type EditingOptions = {
   /** When `true`, the user cannot edit the mathfield. The mathfield can still
    * be modified programatically.
@@ -463,6 +472,7 @@ export type EditingOptions = {
   mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
 };
 
+/** @category Options */
 export type LayoutOptions = {
   /**
    * The mode of the element when it is empty:
@@ -565,6 +575,7 @@ mf.macros = {
 };
 
 /**
+ * @category Options
  * @keywords security, trust, sanitize, errors
  */
 export type MathfieldOptions = LayoutOptions &
@@ -592,7 +603,7 @@ export type MathfieldOptions = LayoutOptions &
   };
 
 /**
- * See [[`setKeyboardLayout`]].
+ * See {@linkcode setKeyboardLayout}.
  *
  *  | Name | Platform | Display name |
  *  | :----- | :----- | :----- |
@@ -606,6 +617,8 @@ export type MathfieldOptions = LayoutOptions &
  *  | `"linux.en"`              |  Linux    | English |
  *  | `"linux.french"`          |  Linux    | French (AZERTY) |
  *  | `"linux.german"`          |  Linux    | German (QWERTZ) |
+ *
+ * @category Options
  */
 export type KeyboardLayoutName =
   | 'apple.en-intl'
@@ -629,6 +642,8 @@ export type KeyboardLayoutName =
  *
  * If set to `auto` the keyboard layout is guessed.
  *
+ * @category Options
+ *
  */
 export declare function setKeyboardLayout(
   name: KeyboardLayoutName | 'auto'
@@ -640,9 +655,12 @@ export declare function setKeyboardLayout(
  *
  * Note that this affects some keybindings, but not general text input.
  *
+ * @category Options
+ *
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
+/** @category Static Rendering */
 export type StaticRenderOptions = {
   /**
    * An array of tag names whose content will not be scanned for delimiters
