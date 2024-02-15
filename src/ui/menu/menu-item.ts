@@ -403,6 +403,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     setTimeout(() => {
       this.active = true;
       setTimeout(() => {
+        this.active = false;
         this.rootMenu.hide();
         this.dispatchSelect();
       }, BLINK_SPEED);
