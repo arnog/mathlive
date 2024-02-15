@@ -11,6 +11,8 @@
 - **#2289** When changing the value of the mathfield, the selection is now 
   preserved. In addition, when using a controlled component with React an unnecessary update is avoided.
 - On Safari, the Insert Matrix submenu was displayed incorrectly.
+- **#2297** In some cases, when using touch input, the previously selected
+  item in a context menu would appear to be selected.
 
 ## 0.98.6 _2024-01-27_
 
