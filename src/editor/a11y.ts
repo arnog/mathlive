@@ -1,9 +1,23 @@
 import { Atom } from '../core/atom';
-import { speakableText } from './speech';
 
 import type { _Model } from '../editor-model/model-private';
 import type { _Mathfield } from '../editor-mathfield/mathfield-private';
-import type { AnnounceVerb } from 'editor-model/types';
+import type { AnnounceVerb } from '../editor-model/types';
+import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
+
+/**
+ *
+ * @param arg1 an optional string prefix
+ * @param arg2 an atom or an array of atoms
+ * @returns a string representation of the atoms as spoken text
+ */
+function speakableText(
+  arg1: string | Atom | readonly Atom[],
+  arg2?: Atom | readonly Atom[]
+): string {
+  if (typeof arg1 === 'string') return arg1 + atomToSpeakableText(arg2!);
+  return atomToSpeakableText(arg1);
+}
 
 /**
  * Given an atom, describe the relationship between the atom
@@ -14,16 +28,50 @@ function relationName(atom: Atom): string {
   if (atom.parent!.type === 'prompt') {
     if (atom.parentBranch === 'body') result = 'prompt';
   } else if (atom.parentBranch === 'body') {
-    result = !atom.type
-      ? 'parent'
-      : {
-          enclose: 'cross out',
-          leftright: 'delimiter',
-          surd: 'square root',
-          root: 'math field',
-          mop: 'operator', // E.g. `\operatorname`, a `mop` with a body
-          first: 'first',
+    if (atom.type === 'first') {
+      if (atom.parent!.type === 'root') result = 'mathfield';
+      else if (atom.parent!.type === 'surd') result = 'radicand';
+      else if (atom.parent!.type === 'genfrac') result = 'fraction';
+      else if (atom.parent!.type === 'sizeddelim') result = 'delimiter';
+      if (result) return result;
+    }
+    if (atom.type === 'subsup') {
+      if (atom.superscript && atom.subscript)
+        result = 'superscript and subscript';
+      else if (atom.superscript) result = 'superscript';
+      else if (atom.subscript) result = 'subscript';
+    } else if (atom.type) {
+      result =
+        {
+          'accent': 'accented',
+          'array': 'array',
+          'box': 'box',
+          'chem': 'chemical formula',
+          'delim': 'delimiter',
+          'enclose': 'cross out',
+          'extensible-symbol': 'extensible symbol',
+          'error': 'error',
+          'first': 'first',
+          'genfrac': 'fraction',
+          'group': 'group',
+          'latex': 'LaTeX',
+          'leftright': 'delimiter',
+          'line': 'line',
+          'subsup': 'subscript-superscript',
+          'operator': 'operator',
+          'overunder': 'over-under',
+          'placeholder': 'placeholder',
+          'rule': 'rule',
+          'sizeddelim': 'delimiter',
+          'space': 'space',
+          'spacing': 'spacing',
+          'surd': 'square root',
+          'text': 'text',
+          'prompt': 'prompt',
+          'root': 'math field',
+          'mop': 'operator', // E.g. `\operatorname`, a `mop` with a body
         }[atom.type] ?? 'parent';
+    }
   } else if (atom.parent!.type === 'genfrac') {
     if (atom.parentBranch === 'above') return 'numerator';
 
@@ -50,9 +98,7 @@ export function defaultAnnounceHook(
   previousPosition?: number,
   atoms?: readonly Atom[]
 ): void {
-  //* * Fix: the focus is the end of the selection, so it is before where we want it
   let liveText = '';
-  // Const action = moveAmount > 0 ? "right" : "left";
 
   if (action === 'plonk') {
     // Use this sound to indicate minor errors, for
@@ -60,17 +106,18 @@ export function defaultAnnounceHook(
     globalThis.MathfieldElement.playSound('plonk');
     // As a side effect, reset the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
-  } else if (action === 'delete') liveText = speakableText('deleted: ', atoms!);
-  //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
+    return;
+  }
+
+  if (action === 'delete') liveText = speakableText('deleted: ', atoms!);
   else if (action === 'focus' || action.includes('move')) {
+    //* ** FIX: could also be moveUp or moveDown -- do something different like provide context???
     //* ** FIX -- should be xxx selected/unselected */
-    liveText =
-      getRelationshipAsSpokenText(mathfield.model, previousPosition) +
-      (mathfield.model.selectionIsCollapsed ? '' : 'selected: ') +
-      getNextAtomAsSpokenText(mathfield.model);
+    liveText = getRelationshipAsSpokenText(mathfield.model, previousPosition);
+    liveText += getNextAtomAsSpokenText(mathfield.model);
   } else if (action === 'replacement') {
     // Announce the contents
-    liveText = speakableText('', mathfield.model.at(mathfield.model.position));
+    liveText = speakableText(mathfield.model.at(mathfield.model.position));
   } else if (action === 'line') {
     // Announce the current line -- currently that's everything
     // mathfield.accessibleMathML.innerHTML = mathfield.options.createHTML(
@@ -79,7 +126,7 @@ export function defaultAnnounceHook(
     //         '</math>'
     // );
 
-    const label = speakableText('', mathfield.model.root);
+    const label = speakableText(mathfield.model.root);
     mathfield.keyboardDelegate.setAriaLabel(label);
 
     /** * FIX -- testing hack for setting braille ***/
@@ -99,6 +146,7 @@ export function defaultAnnounceHook(
     )
       ? ' \u202F '
       : ' \u00A0 ';
+    console.log('liveText', liveText);
     mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
   }
 }
@@ -131,21 +179,22 @@ function getRelationshipAsSpokenText(
  */
 function getNextAtomAsSpokenText(model: _Model): string {
   if (!model.selectionIsCollapsed)
-    return speakableText('', model.getAtoms(model.selection));
+    return `selected: ${speakableText(model.getAtoms(model.selection))}`;
 
   let result = '';
 
   // Announce start of denominator, etc
   const cursor = model.at(model.position);
-  const relation = relationName(cursor);
-  if (cursor.isFirstSibling)
-    result = (relation ? 'start of ' + relation : 'unknown') + ': ';
+  if (cursor.isFirstSibling) result = `start of ${relationName(cursor)}: `;
 
   if (cursor.isLastSibling) {
     // Don't say both start and end
-    if (!cursor.isFirstSibling)
-      result += relation ? 'end of ' + relation : 'unknown';
-  } else result += speakableText('', cursor);
+    if (!cursor.isFirstSibling) {
+      if (!cursor.parent!.parent)
+        return `${speakableText(cursor)}; end of mathfield`;
+      result = `${speakableText(cursor)}; end of ${relationName(cursor)}`;
+    }
+  } else result += speakableText(cursor);
 
   return result;
 }

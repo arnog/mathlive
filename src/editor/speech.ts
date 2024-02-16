@@ -16,13 +16,6 @@ declare global {
   }
 }
 
-export function speakableText(
-  prefix: string,
-  atoms: Atom | readonly Atom[]
-): string {
-  return prefix + atomToSpeakableText(atoms);
-}
-
 /**
  *
  * Speak some part of the expression, either with or without synchronized highlighting.
