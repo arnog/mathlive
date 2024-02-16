@@ -298,7 +298,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     // 1/ The keyboard event capture element.
     markup.push(
-      `<span contenteditable=true aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
+      `<span contenteditable=true role=textbox aria-autocomplete=none aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
     );
 
     // 2/ The field, where the math equation will be displayed

@@ -13,6 +13,8 @@
 - On Safari, the Insert Matrix submenu was displayed incorrectly.
 - **#2297** In some cases, when using touch input, the previously selected
   item in a context menu would appear to be selected.
+- **#2298** When using screen readers, pressing the spacebar would not always
+  correctly focus the mathfield.
 
 ## 0.98.6 _2024-01-27_
 
