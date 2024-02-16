@@ -485,26 +485,40 @@ class GrokThemeRenderContext extends MarkdownThemeRenderContext {
         md.push(`<a id="${id}" name="${id}"></a>`);
       }
 
+      let hasCard = false;
       if (!reflection.hasOwnDocument) {
-        if (reflection.kind !== ReflectionKind.Constructor) {
-          let memberName = context.partials.memberTitle(reflection);
-          // if (parentDeclaration?.name)
-          //   memberName = `${parentDeclaration.name}.${memberName}`;
+        hasCard = ![
+          ReflectionKind.Class,
+          ReflectionKind.Interface,
+          ReflectionKind.Enum,
+          ReflectionKind.TypeAlias,
+        ].includes(reflection.kind);
+
+        let memberName = context.partials.memberTitle(reflection);
+
+        // if (memberName.startsWith('parseArgumentsOfUnknownLatexCommands')) {
+        //   console.log('reflection', reflection.parent);
+        // }
+
+        if (reflection.kind === ReflectionKind.Constructor) {
+          memberName = `new ${reflection.parent.name}()`;
+        } else if (reflection.parent?.kind === ReflectionKind.TypeLiteral) {
+          memberName = `${reflection.parent.parent.name}.${memberName}`;
+        } else {
           if (
-            headingLevel > 2 &&
             reflection.parent &&
-            (reflection.parent.kind === ReflectionKind.Enum ||
-              reflection.parent.kind === ReflectionKind.Class ||
-              reflection.parent.kind === ReflectionKind.Interface ||
-              reflection.parent.kind === ReflectionKind.TypeAlias)
+            [
+              ReflectionKind.Class,
+              ReflectionKind.Interface,
+              ReflectionKind.Enum,
+
+              ReflectionKind.TypeAlias,
+            ].includes(reflection.parent.kind)
           )
             memberName = `${reflection.parent.name}.${memberName}`;
-          md.push(`<MemberCard level="${headingLevel}">`);
-          md.push(heading(headingLevel, memberName));
-        } else {
-          md.push(`<MemberCard level="${headingLevel}">`);
-          md.push(heading(headingLevel, `new ${reflection.parent.name}()`));
         }
+        if (hasCard) md.push(`<MemberCard>`);
+        md.push(heading(headingLevel, memberName));
       }
 
       const getMember = (reflection) => {
@@ -570,7 +584,7 @@ class GrokThemeRenderContext extends MarkdownThemeRenderContext {
 
       if (memberMarkdown) md.push(memberMarkdown);
 
-      if (!reflection.hasOwnDocument) md.push('</MemberCard>');
+      if (hasCard) md.push('</MemberCard>');
 
       return md.join('\n\n');
     },

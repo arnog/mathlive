@@ -43,10 +43,11 @@ export type InsertOptions = {
   /**
      * The format of the input string:
      *
-    | <!-- -->    | <!-- -->    |
-    |:------------|:------------|
-    |`"auto"`| The string is LaTeX fragment or command) (default)|
-    |`"latex"`| The string is a LaTeX fragment|
+
+| | |
+|:------------|:------------|
+|`"auto"`| The string is LaTeX fragment or command) (default)|
+|`"latex"`| The string is a LaTeX fragment|
     *
     */
   format?: OutputFormat | 'auto';
@@ -58,12 +59,13 @@ export type InsertOptions = {
   /**
      * Describes where the selection
      * will be after the insertion:
-     | <!-- -->    | <!-- -->    |
-    | :---------- | :---------- |
-    |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-    |`"after"`| The selection will be an insertion point after the inserted text|
-    |`"before"`| The selection will be an insertion point before the inserted text|
-    |`"item"`| The inserted text will be selected|
+
+| | |
+| :---------- | :---------- |
+|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+|`"after"`| The selection will be an insertion point after the inserted text|
+|`"before"`| The selection will be an insertion point before the inserted text|
+|`"item"`| The inserted text will be selected|
     */
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
