@@ -6,7 +6,7 @@ export function eventLocation(
   if (evt instanceof MouseEvent || evt instanceof PointerEvent)
     return { x: evt.clientX, y: evt.clientY };
 
-  if (evt instanceof TouchEvent) {
+  if (typeof TouchEvent !== 'undefined' && evt instanceof TouchEvent) {
     const result = [...evt.touches].reduce(
       (acc, x) => ({ x: acc.x + x.clientX, y: acc.y + x.clientY }),
       { x: 0, y: 0 }
@@ -36,7 +36,7 @@ export function keyboardModifiersFromEvent(ev: Event): KeyboardModifiers {
   if (
     ev instanceof MouseEvent ||
     ev instanceof PointerEvent ||
-    ev instanceof TouchEvent ||
+    (typeof TouchEvent !== 'undefined' && ev instanceof TouchEvent) ||
     ev instanceof KeyboardEvent
   ) {
     if (ev.altKey) result.alt = true;
