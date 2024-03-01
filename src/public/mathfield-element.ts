@@ -1587,8 +1587,18 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /**
    * @inheritDoc _Mathfield.executeCommand
    */
-  executeCommand(command: Selector | [Selector, ...any[]]): boolean {
-    return this._mathfield?.executeCommand(command) ?? false;
+  executeCommand(selector: Selector): boolean;
+  executeCommand(selector: Selector, ...args: unknown[]): boolean;
+  executeCommand(selector: [Selector, ...unknown[]]): boolean;
+  executeCommand(...args: unknown[]): boolean {
+    let selector: Selector | [Selector, ...unknown[]];
+    if (args.length === 1)
+      selector = args[0] as Selector | [Selector, ...unknown[]];
+    else selector = [args[0] as Selector, ...args.slice(1)];
+
+    if (selector) return this._mathfield?.executeCommand(selector) ?? false;
+
+    throw new Error('Invalid selector');
   }
 
   /**
