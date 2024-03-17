@@ -442,3 +442,44 @@ test('keyboard shortcuts with placeholders (#2291, #2293, #2294)', async ({
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
   ).toBe(String.raw`\frac{f\cdot g}{a}\cdot x`);
 });
+
+test('keyboard cut and paste', async ({ page, browserName }) => {
+  const modifierKey = /Mac|iPod|iPhone|iPad/.test(
+    await page.evaluate(() => navigator.platform)
+  )
+    ? 'Meta'
+    : 'Control';
+
+  let selectAllCommand = `${modifierKey}+a`;
+  if (modifierKey === 'Meta' && browserName === 'chromium') {
+    // Cmd-a not working with Chromium on Mac, need to use Control-A
+    // Cmd-a works correctly on Chrome and Edge on Mac
+    selectAllCommand = 'Control+a';
+  }
+
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').pressSequentially('30=r+t');
+
+  // check initial contents
+  expect(
+    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
+  ).toBe('30=r+t');  
+
+  // select all and cut
+  await page.locator('#mf-1').press(selectAllCommand);
+  await page.locator('#mf-1').press(`${modifierKey}+x`);
+
+  // should be empty after cut
+  expect(
+    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
+  ).toBe('');
+
+  // paste contents back
+  await page.locator('#mf-1').press(`${modifierKey}+v`);
+
+  // initial contents should now be there
+  expect(
+    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
+  ).toBe('30=r+t');  
+});

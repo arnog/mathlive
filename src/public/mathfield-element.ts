@@ -417,7 +417,7 @@ const DEPRECATED_OPTIONS = {
  * To style the virtual keyboard toggle, use the `virtual-keyboard-toggle` CSS
  * part. To use it, define a CSS rule with a `::part()` selector
  * for example:
- * 
+ *
  * ```css
  * math-field::part(virtual-keyboard-toggle) {
  *  color: red;

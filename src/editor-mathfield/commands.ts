@@ -136,11 +136,12 @@ registerCommand(
       mathfield.focus();
 
       if (
-        'queryCommandSupported' in document &&
-        document.queryCommandSupported('cut')
-      )
-        document.execCommand('cut');
-      else {
+        !(
+          'queryCommandSupported' in document &&
+          document.queryCommandSupported('cut') &&
+          document.execCommand('cut')
+        )
+      ) {
         mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
           new ClipboardEvent('cut', {
             bubbles: true,
