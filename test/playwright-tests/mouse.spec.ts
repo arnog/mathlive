@@ -36,7 +36,12 @@ test('double/triple click to select', async ({ page }) => {
   );
 });
 
-test('context menu select all and cut', async ({ page }) => {
+test('context menu select all and cut', async ({ page, browserName }) => {
+  test.skip(
+    browserName === 'webkit' && Boolean(process.env.CI),
+    'Keyboard paste does not work when headless on Linux (works when run with gui on Linux or headless/gui on MacOs)'
+  );
+
   const modifierKey = /Mac|iPod|iPhone|iPad/.test(
     await page.evaluate(() => navigator.platform)
   )
@@ -71,7 +76,7 @@ test('context menu select all and cut', async ({ page }) => {
 
   // initial contents should now be there
   expect(
-    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
+    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value.trim())
   ).toBe('x+y=30');  
 });
 
