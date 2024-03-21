@@ -1790,7 +1790,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   onCopy(ev: ClipboardEvent): void {
-    ModeEditor.onCopy(this, ev);
+    if (ev.clipboardData) ModeEditor.onCopy(this, ev);
+    else ModeEditor.copyToClipboard(this, 'latex');
   }
 
   onPaste(ev: ClipboardEvent): boolean {

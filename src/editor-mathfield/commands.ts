@@ -112,11 +112,12 @@ registerCommand(
       if (mathfield.model.selectionIsCollapsed) mathfield.select();
 
       if (
-        'queryCommandSupported' in document &&
-        document.queryCommandSupported('copy')
-      )
-        document.execCommand('copy');
-      else {
+        !(
+          'queryCommandSupported' in document &&
+          document.queryCommandSupported('copy') &&
+          document.execCommand('copy')
+        )
+      ) {
         mathfield.element!.querySelector('.ML__keyboard-sink')!.dispatchEvent(
           new ClipboardEvent('copy', {
             bubbles: true,
