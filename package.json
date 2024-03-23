@@ -141,7 +141,7 @@
     "@typescript-eslint/parser": "^7.0.1",
     "autoprefixer": "^10.4.17",
     "concat-md": "^0.5.1",
-    "cssnano": "^6.0.3",
+    "cssnano": "^6.1.1",
     "esbuild": "^0.20.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
