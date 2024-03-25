@@ -166,7 +166,7 @@ export const LAYOUTS: Partial<
           label: '<i>&#x03f5;</i>',
           class: 'MLK__tex hide-shift',
           insert: '\\epsilon',
-          aside: 'espilon',
+          aside: 'epsilon',
           shift: '\\char"0190',
         },
         {
@@ -346,7 +346,7 @@ export const LAYOUTS: Partial<
           label: '<i>&#x03b5;</i>',
           class: 'MLK__tex',
           insert: '\\varepsilon',
-          aside: 'espilon var.',
+          aside: 'epsilon var.',
         },
         {
           label: '<i>&#x03d1;</i>',
