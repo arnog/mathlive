@@ -1724,11 +1724,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       { once: true, signal }
     );
 
-    // If we haven't received a visibility change after a short delay,
-    // stop waiting for it (the delay has to be longer than at least
-    // 16ms: the documents that are not visible are throttled by the
-    // browser)
-    setTimeout(() => controller.abort(), 100);
+    document.addEventListener('focusin', () => controller.abort(), { once: true });
   }
 
   onInput(text: string): void {
