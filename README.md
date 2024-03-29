@@ -5,7 +5,7 @@
 <h3><strong>MathLive</strong></h3>
 <h1>A Web Component for Math Input</h1>
 
-[![Maintenance](https://img.shields.io/maintenance/yes/2023.svg)]()
+[![Maintenance](https://img.shields.io/maintenance/yes/2024.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
 MathLive is a powerful web component that provides an easy-to-use interface for
