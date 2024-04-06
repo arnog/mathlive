@@ -137,7 +137,7 @@
     "@playwright/test": "^1.41.2",
     "@types/css-font-loading-module": "0.0.13",
     "@types/jest": "^29.5.12",
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.0.1",
     "autoprefixer": "^10.4.17",
     "concat-md": "^0.5.1",
