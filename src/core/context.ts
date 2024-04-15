@@ -79,6 +79,7 @@ export class Context implements ContextInterface {
   readonly color: string;
   readonly backgroundColor: string;
   readonly minFontScale: number;
+  readonly maxMatrixCols: number;
 
   // `size` is the "base" font size (need to add `mathstyle.sizeDelta`
   // to get effective size)
@@ -129,6 +130,7 @@ export class Context implements ContextInterface {
 
     this.letterShapeStyle = template.letterShapeStyle;
     this.minFontScale = template.minFontScale;
+    this.maxMatrixCols = template.maxMatrixCols;
 
     if (style?.color && style.color !== 'none') this.color = style.color;
     else this.color = this.parent?.color ?? '';

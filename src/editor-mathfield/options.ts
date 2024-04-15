@@ -140,6 +140,7 @@ export function getDefault(): Required<_MathfieldOptions> {
     backgroundColorMap: defaultBackgroundColorMap,
     letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
     minFontScale: 0,
+    maxMatrixCols: 10,
 
     smartMode: false,
     smartFence: true,
