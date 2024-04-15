@@ -157,6 +157,7 @@ export interface MathfieldElementAttributes {
   'default-mode': string;
   'letter-shape-style': string;
   'min-font-scale': number;
+  'max-matrix-cols': number;
   'popover-policy': string;
   /**
    * The LaTeX string to insert when the spacebar is pressed (on the physical or
@@ -468,6 +469,7 @@ const DEPRECATED_OPTIONS = {
  * | `default-mode` | `mf.defaultMode` |
  * | `letter-shape-style` | `mf.letterShapeStyle` |
  * | `min-font-scale` | `mf.minFontScale` |
+ * | `max-matrix-cols` | `mf.maxMatrixCols` |
  * | `popover-policy` | `mf.popoverPolicy` |
  * | `math-mode-space` | `mf.mathModeSpace` |
  * | `read-only` | `mf.readOnly` |
@@ -544,6 +546,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'default-mode': 'string',
       'letter-shape-style': 'string',
       'min-font-scale': 'number',
+      'max-matrix-cols': 'number',
       'popover-policy': 'string',
 
       'math-mode-space': 'string',
@@ -2226,6 +2229,16 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set minFontScale(value: number) {
     this._setOptions({ minFontScale: value });
+  }
+
+  /** @category Customization
+   * @inheritDoc LayoutOptions.maxMatrixCols
+   */
+  get maxMatrixCols(): number {
+    return this._getOption('maxMatrixCols');
+  }
+  set maxMatrixCols(value: number) {
+    this._setOptions({ maxMatrixCols: value });
   }
 
   /** @category Customization

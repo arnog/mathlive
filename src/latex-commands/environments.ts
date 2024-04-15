@@ -229,7 +229,8 @@ export function makeEnvironment(
   name: Environment,
   content: (readonly Atom[])[][] = [[[]]],
   rowGaps: readonly Dimension[] = [],
-  args: readonly (null | Argument)[] = []
+  args: readonly (null | Argument)[] = [],
+  maxMatrixCols?: number
 ): ArrayAtom {
   content = defaultContent(
     content,
@@ -272,7 +273,7 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '(',
         rightDelim: ')',
-        columns: defaultColumns(args[0]),
+        columns: defaultColumns(args[0], maxMatrixCols),
       });
     case 'bmatrix':
     case 'bmatrix*':
@@ -280,7 +281,7 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '[',
         rightDelim: ']',
-        columns: defaultColumns(args[0]),
+        columns: defaultColumns(args[0], maxMatrixCols),
       });
     case 'Bmatrix':
     case 'Bmatrix*':
@@ -288,7 +289,7 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '\\lbrace',
         rightDelim: '\\rbrace',
-        columns: defaultColumns(args[0]),
+        columns: defaultColumns(args[0], maxMatrixCols),
       });
     case 'vmatrix':
     case 'vmatrix*':
@@ -296,7 +297,7 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '\\vert',
         rightDelim: '\\vert',
-        columns: defaultColumns(args[0]),
+        columns: defaultColumns(args[0], maxMatrixCols),
       });
     case 'Vmatrix':
     case 'Vmatrix*':
@@ -304,7 +305,7 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '\\Vert',
         rightDelim: '\\Vert',
-        columns: defaultColumns(args[0]),
+        columns: defaultColumns(args[0], maxMatrixCols),
       });
     case 'matrix':
     case 'matrix*':
@@ -314,13 +315,13 @@ export function makeEnvironment(
         mathstyleName: 'textstyle',
         leftDelim: '.',
         rightDelim: '.',
-        columns: defaultColumns(args?.[0]),
+        columns: defaultColumns(args?.[0], maxMatrixCols),
       });
     case 'smallmatrix':
     case 'smallmatrix*':
       return new ArrayAtom(name, content, rowGaps, {
         mathstyleName: 'scriptstyle',
-        columns: defaultColumns(args?.[0]),
+        columns: defaultColumns(args?.[0], maxMatrixCols),
         colSeparationType: 'small',
         arraystretch: 0.5,
       });
@@ -384,19 +385,9 @@ export function makeEnvironment(
   });
 }
 
-function defaultColumns(args: null | Argument): ColumnFormat[] {
-  return (
-    (args as ColumnFormat[]) ?? [
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-      { align: 'c' },
-    ]
-  );
+function defaultColumns(
+  args: null | Argument,
+  maxMatrixCols: number = 10
+): ColumnFormat[] {
+  return (args as ColumnFormat[]) ?? Array(maxMatrixCols).fill({ align: 'c' });
 }

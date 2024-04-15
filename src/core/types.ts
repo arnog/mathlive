@@ -187,6 +187,7 @@ export interface ContextInterface {
   readonly smartFence: boolean;
   readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
   readonly minFontScale: number;
+  readonly maxMatrixCols: number;
   readonly placeholderSymbol: string;
   readonly colorMap: (name: string) => string | undefined;
   readonly backgroundColorMap: (name: string) => string | undefined;

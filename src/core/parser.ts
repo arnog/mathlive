@@ -907,7 +907,13 @@ export class Parser {
 
     this.endContext();
 
-    return def.createAtom(envName, array, rowGaps, args);
+    return def.createAtom(
+      envName,
+      array,
+      rowGaps,
+      args,
+      this.context.maxMatrixCols
+    );
   }
 
   /**

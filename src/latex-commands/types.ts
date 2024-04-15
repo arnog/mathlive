@@ -110,5 +110,6 @@ export type EnvironmentConstructor = (
   name: Environment,
   array: (readonly Atom[])[][],
   rowGaps: readonly Dimension[],
-  args: readonly (null | Argument)[]
+  args: readonly (null | Argument)[],
+  maxMatrixCols: number
 ) => Atom | null;

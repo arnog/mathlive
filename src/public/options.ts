@@ -572,6 +572,13 @@ mf.macros = {
    * **Default**: `0`
    */
   minFontScale: number;
+
+  /**
+   * Sets the maximum number of columns for the matrix environment. The default is
+   * 10 columns to match the behavior of the amsmath matrix environment.
+   * **Default**: `10`
+   */
+  maxMatrixCols: number;
 };
 
 /**
