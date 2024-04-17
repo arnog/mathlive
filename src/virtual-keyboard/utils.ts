@@ -1018,43 +1018,79 @@ export function normalizeKeycap(
       key: KEYCAP_SHORTCUTS[keycap.key].key,
     };
   }
-  if (shortcut) {
-    if (shortcut.command === 'insertDecimalSeparator')
-      shortcut.label = globalThis.MathfieldElement.decimalSeparator ?? '.';
+  if (!shortcut) return keycap;
 
-    if (keycap.label === '[action]') {
-      shortcut = {
-        ...shortcut,
-        ...(window.mathVirtualKeyboard
-          .actionKeycap as Partial<VirtualKeyboardKeycap>),
-      };
-    }
-    if (keycap.label === '[shift]') {
-      shortcut = {
-        ...shortcut,
-        ...(window.mathVirtualKeyboard
-          .shiftKeycap as Partial<VirtualKeyboardKeycap>),
-      };
-    }
-    if (keycap.label === '[backspace]') {
-      shortcut = {
-        ...shortcut,
-        ...(window.mathVirtualKeyboard
-          .backspaceKeycap as Partial<VirtualKeyboardKeycap>),
-      };
-    }
-    if (keycap.label === '[tab]') {
-      shortcut = {
-        ...shortcut,
-        ...(window.mathVirtualKeyboard
-          .tabKeycap as Partial<VirtualKeyboardKeycap>),
-      };
-    }
+  if (shortcut.command === 'insertDecimalSeparator')
+    shortcut.label = globalThis.MathfieldElement.decimalSeparator ?? '.';
 
-    return shortcut;
+  if (keycap.label === '[action]') {
+    shortcut = {
+      ...shortcut,
+      ...(window.mathVirtualKeyboard
+        .actionKeycap as Partial<VirtualKeyboardKeycap>),
+    };
+  }
+  if (keycap.label === '[shift]') {
+    shortcut = {
+      ...shortcut,
+      ...(window.mathVirtualKeyboard
+        .shiftKeycap as Partial<VirtualKeyboardKeycap>),
+    };
+  }
+  if (keycap.label === '[backspace]') {
+    shortcut = {
+      ...shortcut,
+      ...(window.mathVirtualKeyboard
+        .backspaceKeycap as Partial<VirtualKeyboardKeycap>),
+    };
+  }
+  if (keycap.label === '[tab]') {
+    shortcut = {
+      ...shortcut,
+      ...(window.mathVirtualKeyboard
+        .tabKeycap as Partial<VirtualKeyboardKeycap>),
+    };
   }
 
-  return keycap;
+  if (
+    shortcut.tooltip === undefined ||
+    shortcut.tooltip === null ||
+    (shortcut.tooltip as any as boolean) === false
+  ) {
+    delete shortcut.tooltip;
+  }
+
+  // If any of the properties of the shortcut are undefined, remove them
+  if (
+    shortcut.tooltip === undefined ||
+    shortcut.tooltip === null ||
+    (shortcut.tooltip as any as boolean) === false
+  ) {
+    delete shortcut.tooltip;
+  }
+
+  if (
+    shortcut.aside === undefined ||
+    shortcut.aside === null ||
+    (shortcut.aside as any as boolean) === false
+  )
+    delete shortcut.aside;
+
+  if (
+    shortcut.variants === undefined ||
+    shortcut.variants === null ||
+    (shortcut.variants as any as boolean) === false
+  )
+    delete shortcut.variants;
+
+  if (
+    shortcut.shift === undefined ||
+    shortcut.shift === null ||
+    (shortcut.shift as any as boolean) === false
+  )
+    delete shortcut.shift;
+
+  return shortcut;
 }
 
 let pressAndHoldTimer;
