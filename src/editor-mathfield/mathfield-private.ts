@@ -628,6 +628,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return this.options.minFontScale;
   }
 
+  get maxMatrixCols(): number {
+    return this.options.maxMatrixCols;
+  }
+
   /** Returns styles shared by all selected atoms */
   get selectionStyle(): Readonly<Style> {
     if (this.model.selectionIsCollapsed) return this.effectiveStyle;
@@ -767,6 +771,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       'backgroundColorMap' in config ||
       'letterShapeStyle' in config ||
       'minFontScale' in config ||
+      'maxMatrixCols' in config ||
       'readOnly' in config ||
       'placeholderSymbol' in config
     )
@@ -1854,6 +1859,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       smartFence: this.smartFence,
       letterShapeStyle: this.letterShapeStyle,
       minFontScale: this.minFontScale,
+      maxMatrixCols: this.maxMatrixCols,
       placeholderSymbol: this.options.placeholderSymbol ?? '▢',
       colorMap: (name) => this.colorMap(name),
       backgroundColorMap: (name) => this.backgroundColorMap(name),
