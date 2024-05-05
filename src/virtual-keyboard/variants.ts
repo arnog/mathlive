@@ -37,11 +37,22 @@ const VARIANTS: {
   'a': [
     { latex: '\\aleph', aside: 'aleph' },
     { latex: '\\forall', aside: 'for all' },
+    'å',
     'à',
     'á',
     'â',
     'ä',
     'æ',
+  ],
+  'A': [
+    { latex: '\\aleph', aside: 'aleph' },
+    { latex: '\\forall', aside: 'for all' },
+    'Å',
+    'À',
+    'Á',
+    'Â',
+    'Ä',
+    'Æ',
   ],
   'b': [{ latex: '\\beth', aside: 'beth' }],
   'c': [{ latex: '\\C', aside: 'set of complex numbers' }, 'ç'],
@@ -55,22 +66,35 @@ const VARIANTS: {
     'ê',
     'ë',
   ],
+  'E': [
+    { latex: '\\exponentialE', aside: 'exponential e' },
+    { latex: '\\exists', aside: 'there is' },
+    { latex: '\\nexists', aside: 'there isn’t' },
+    'È',
+    'É',
+    'Ê',
+    'Ë',
+  ],
   'g': [{ latex: '\\gimel', aside: 'gimel' }],
   'h': [
     { latex: '\\hbar', aside: 'h bar' },
     { latex: '\\hslash', aside: 'h slash' },
   ],
   'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }, 'ì', 'í', 'î', 'ï'],
+  'I': [{ latex: '\\imaginaryI', aside: 'imaginary i' }, 'Ì', 'Í', 'Î', 'Ï'],
   'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
   'l': [{ latex: '\\ell', aside: 'ell' }],
   'n': [{ latex: '\\mathbb{N}', aside: 'set of natural numbers' }, 'ñ'],
-  'o': ['ø', 'œ', 'ò', 'ó', 'ô', 'ö', 'œ'],
+  'o': ['ø', 'œ', 'ò', 'ó', 'ô', 'ö'],
+  'O': ['ø', 'Œ', 'Ò', 'Ó', 'Ô', 'Ö'],
   'p': [{ latex: '\\mathbb{P}', aside: 'set of primes' }],
   'q': [{ latex: '\\mathbb{Q}', aside: 'set of rational numbers' }],
   'r': [{ latex: '\\mathbb{R}', aside: 'set of real numbers' }],
   'u': ['ù', 'ú', 'û', 'ü'],
+  'U': ['Ù', 'Ú', 'Û', 'Ü'],
   'z': [{ latex: '\\mathbb{Z}', aside: 'set of integers' }],
   'y': ['ý', 'ÿ'],
+  'Y': ['Ÿ'],
 
   'space': [
     {
@@ -125,7 +149,17 @@ export function showVariantsPanel(
   const keyboard = VirtualKeyboard.singleton;
   if (!keyboard) return;
   const keycap = parentKeycap(element);
-  const variantDef = keyboard.getKeycap(keycap?.id)?.variants ?? '';
+  let variantDef: string | (string | Partial<VirtualKeyboardKeycap>)[] = '';
+  if (window.mathVirtualKeyboard.isShifted) {
+    const shiftedDefinition = keyboard.getKeycap(keycap?.id)?.shift;
+    if (
+      typeof shiftedDefinition === 'object' &&
+      'variants' in shiftedDefinition
+    ) {
+      variantDef = shiftedDefinition.variants ?? '';
+    }
+  } else variantDef = keyboard.getKeycap(keycap?.id)?.variants ?? '';
+
   if (
     (typeof variantDef === 'string' && !hasVariants(variantDef)) ||
     (Array.isArray(variantDef) && variantDef.length === 0)

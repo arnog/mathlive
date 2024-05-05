@@ -164,7 +164,12 @@ function alphabeticLayout(): NormalizedVirtualKeyboardLayout {
         row.push({
           label: k,
           class: 'hide-shift',
-          shift: { label: k.toUpperCase() },
+          shift: {
+            label: k.toUpperCase(),
+            variants: hasVariants(k.toUpperCase())
+              ? k.toUpperCase()
+              : undefined,
+          },
           variants: hasVariants(k) ? k : undefined,
         });
       } else if (k === '~') {

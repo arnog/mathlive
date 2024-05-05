@@ -7,6 +7,9 @@
   default value that the amsmath package uses. The property applies to all of
   the matrix environments (matrix, pmatrix, bmatrix, etc.). This property is
   also accessible via the `max-matrix-cols` attribute.
+- The virtual keyboard now supports variants for shifted-keys. This includes
+  support for Swedish specific characters such as `å`, `ä`, and `ö` and their
+  uppercase variants.
 
 ### Issues Resolved
 
