@@ -13,6 +13,7 @@
 
 ### Issues Resolved
 
+- **#2273** Using one of the Chinese locales would result in a runtime error.
 - **#2280** Handle better very deeply nested expressions
 - **#2282** Don't display selection when the mathfield is not focused
 - When the mathfield is an iframe, the `before-virtual-keyboard-toggle` and

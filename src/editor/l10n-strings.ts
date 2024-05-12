@@ -1,5 +1,5 @@
 export const STRINGS = {
-  en: {
+  'en': {
     'keyboard.tooltip.symbols': 'Symbols',
     'keyboard.tooltip.greek': 'Greek Letters',
     'keyboard.tooltip.numeric': 'Numeric',
@@ -76,7 +76,7 @@ export const STRINGS = {
   },
 
   // Arabic
-  ar: {
+  'ar': {
     'keyboard.tooltip.symbols': 'حرف او رمز',
     'keyboard.tooltip.greek': 'حروف يونانية',
     'keyboard.tooltip.numeric': 'الرقمية',
@@ -152,7 +152,7 @@ export const STRINGS = {
   },
 
   // German
-  de: {
+  'de': {
     'keyboard.tooltip.symbols': 'Symbole',
     'keyboard.tooltip.greek': 'Griechische Buchstaben',
     'keyboard.tooltip.numeric': 'Numerisch',
@@ -226,7 +226,7 @@ export const STRINGS = {
   },
 
   // Greek
-  el: {
+  'el': {
     'keyboard.tooltip.symbols': 'σύμβολα',
     'keyboard.tooltip.greek': 'ελληνικά γράμματα',
     'keyboard.tooltip.numeric': 'Αριθμητικός',
@@ -300,7 +300,7 @@ export const STRINGS = {
   },
 
   // Spanish
-  es: {
+  'es': {
     'keyboard.tooltip.symbols': 'Símbolos',
     'keyboard.tooltip.greek': 'Letras griegas',
     'keyboard.tooltip.numeric': 'Numérico',
@@ -374,7 +374,7 @@ export const STRINGS = {
   },
 
   // French
-  fr: {
+  'fr': {
     'keyboard.tooltip.symbols': 'Symboles',
     'keyboard.tooltip.greek': 'Lettres grecques',
     'keyboard.tooltip.numeric': 'Numérique',
@@ -449,7 +449,7 @@ export const STRINGS = {
   },
 
   // Hebrew (Israel)
-  he: {
+  'he': {
     'keyboard.tooltip.symbols': 'סמלים',
     'keyboard.tooltip.greek': 'אותיות יווניות',
     'keyboard.tooltip.numeric': 'מספרי',
@@ -523,7 +523,7 @@ export const STRINGS = {
   },
 
   // Italian
-  it: {
+  'it': {
     'keyboard.tooltip.symbols': 'Simboli',
     'keyboard.tooltip.greek': 'Lettere greche',
     'keyboard.tooltip.numeric': 'Numerico',
@@ -598,7 +598,7 @@ export const STRINGS = {
   },
 
   // Japanese
-  ja: {
+  'ja': {
     'keyboard.tooltip.symbols': 'シンボル',
     'keyboard.tooltip.greek': 'ギリシャ文字',
     'keyboard.tooltip.numeric': '数値',
@@ -673,7 +673,7 @@ export const STRINGS = {
   },
 
   // Korean
-  ko: {
+  'ko': {
     'keyboard.tooltip.symbols': '기호',
     'keyboard.tooltip.greek': '그리스 문자',
     'keyboard.tooltip.numeric': '숫자',
@@ -747,7 +747,7 @@ export const STRINGS = {
   },
 
   // Polish
-  pl: {
+  'pl': {
     'keyboard.tooltip.symbols': 'Symbolika',
     'keyboard.tooltip.greek': 'Litery greckie',
     'keyboard.tooltip.numeric': 'Numeryczne',
@@ -821,7 +821,7 @@ export const STRINGS = {
   },
 
   // Portuguese
-  pt: {
+  'pt': {
     'keyboard.tooltip.symbols': 'Símbolos',
     'keyboard.tooltip.greek': 'Letras gregas',
     'keyboard.tooltip.numeric': 'Numérico',
@@ -895,7 +895,7 @@ export const STRINGS = {
   },
 
   //Ukrainian
-  uk: {
+  'uk': {
     'keyboard.tooltip.symbols': 'Символи',
     'keyboard.tooltip.greek': 'Грецькі літери',
     'keyboard.tooltip.numeric': 'Числовий',
@@ -969,7 +969,7 @@ export const STRINGS = {
   },
 
   // Simplified Chinese
-  zh_cn: {
+  'zh-cn': {
     'keyboard.tooltip.symbols': '符号',
     'keyboard.tooltip.greek': '希腊字母',
     'keyboard.tooltip.numeric': '数字',
@@ -1043,7 +1043,7 @@ export const STRINGS = {
   },
 
   // Traditional Chinese
-  zh_tw: {
+  'zh-tw': {
     'keyboard.tooltip.symbols': '符號',
     'keyboard.tooltip.greek': '希臘字母',
     'keyboard.tooltip.numeric': '數字',
