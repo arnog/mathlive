@@ -969,7 +969,7 @@ export const STRINGS = {
   },
 
   // Simplified Chinese
-  zh_cn: {
+  ['zh-cn']: {
     'keyboard.tooltip.symbols': '符号',
     'keyboard.tooltip.greek': '希腊字母',
     'keyboard.tooltip.numeric': '数字',
@@ -1043,7 +1043,7 @@ export const STRINGS = {
   },
 
   // Traditional Chinese
-  zh_tw: {
+  ['zh-tw']: {
     'keyboard.tooltip.symbols': '符號',
     'keyboard.tooltip.greek': '希臘字母',
     'keyboard.tooltip.numeric': '數字',
