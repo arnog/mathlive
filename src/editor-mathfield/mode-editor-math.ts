@@ -169,10 +169,23 @@ export class MathModeEditor extends ModeEditor {
   }
 
   insert(model: _Model, input: string, options: InsertOptions): boolean {
-    const data =
+    // If trying to insert a special character, escape it
+    if (input === '{') input = '\\lbrace';
+    else if (input === '}') input = '\\rbrace';
+    else if (input === '^') input = '\\^';
+    else if (input === '_') input = '\\_';
+    else if (input === '&') input = '\\&';
+    else if (input === '#') input = '\\#';
+    else if (input === '$') input = '\\$';
+    else if (input === '%') input = '\\%';
+    else if (input === '~') input = '\\~';
+    else if (input === '\\') input = '\\backslash';
+
+    let data =
       typeof input === 'string'
         ? input
         : globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '';
+
     if (
       !options.silenceNotifications &&
       !model.contentWillChange({ data, inputType: 'insertText' })
