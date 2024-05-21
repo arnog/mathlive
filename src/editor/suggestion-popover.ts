@@ -133,7 +133,8 @@ export function updateSuggestionPopoverPosition(
     window.innerWidth - document.documentElement.clientWidth;
   const scrollbarHeight =
     window.innerHeight - document.documentElement.clientHeight;
-  const virtualkeyboardHeight = window.mathVirtualKeyboard.boundingRect.height;
+  const virtualkeyboardHeight =
+    window.mathVirtualKeyboard?.boundingRect.height ?? 0;
   // Prevent screen overflow horizontal.
   const panel = document.getElementById('mathlive-suggestion-popover')!;
   if (position.x + panel.offsetWidth / 2 > viewportWidth - scrollbarWidth) {

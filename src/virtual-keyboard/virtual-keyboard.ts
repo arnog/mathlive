@@ -227,8 +227,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
-  private _container: HTMLElement | null;
+  private _container: HTMLElement | undefined | null;
   get container(): HTMLElement | null {
+    if (this._container === undefined) return window.document.body;
     return this._container;
   }
   set container(value: HTMLElement | null) {
@@ -264,7 +265,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this._layouts = Object.freeze(['default']);
     this._editToolbar = 'default';
 
-    this._container = window.document?.body ?? null;
+    this._container = undefined;
 
     this._visible = false;
     this._rebuilding = false;
@@ -286,7 +287,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     // Listen for when a mathfield gets focused, and show
     // the virtual keyboard if needed
-    document.body.addEventListener('focusin', (event: FocusEvent) => {
+    document.addEventListener('focusin', (event: FocusEvent) => {
       const target = event.target as HTMLElement;
       if (!target?.isConnected) return;
       setTimeout(() => {
