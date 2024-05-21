@@ -15,7 +15,7 @@ import type {
   VirtualKeyboardMessageAction,
 } from '../public/virtual-keyboard';
 import type { OriginValidator } from '../public/options';
-import type { MathfieldElement } from '../public/mathfield-element';
+import { MathfieldElement } from '../public/mathfield-element';
 
 import { isTouchCapable } from '../ui/utils/capabilities';
 import { isArray } from '../common/types';
@@ -303,10 +303,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     });
 
     document.addEventListener('focusout', (evt) => {
-      if ((evt.target as HTMLElement)?.tagName?.toLowerCase() !== 'math-field')
-        return;
-      const target = evt.target as MathfieldElement;
-      if (target.mathVirtualKeyboardPolicy !== 'manual') {
+      if (!(evt.target instanceof MathfieldElement)) return;
+      if (evt.target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
         // a mathfield (or there is no active element), hide the virtual keyboard
 
@@ -880,11 +878,8 @@ function focusedMathfield(): MathfieldElement | null {
   let target: Node | null = deepActiveElement() as unknown as Node | null;
   let mf: MathfieldElement | null = null;
   while (target) {
-    if (
-      'host' in target &&
-      (target.host as HTMLElement)?.tagName?.toLowerCase() === 'math-field'
-    ) {
-      mf = target.host as MathfieldElement;
+    if ('host' in target && target.host instanceof MathfieldElement) {
+      mf = target.host;
       break;
     }
     target = target.parentNode;
