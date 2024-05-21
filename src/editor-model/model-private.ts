@@ -119,13 +119,12 @@ export class _Model implements Model {
     return this._selection;
   }
 
-  set selection(value: Selection) {
+  set selection(value: Selection | Range) {
     this.setSelection(value);
   }
 
   setSelection(from: Offset, to: Offset): boolean;
-  setSelection(range: Range): boolean;
-  setSelection(selection: Selection): boolean;
+  setSelection(range: Range | Selection): boolean;
   setSelection(arg1: Offset | Range | Selection, arg2?: Offset): boolean {
     if (!this.mathfield.contentEditable && this.mathfield.userSelect === 'none')
       return false;
