@@ -49,7 +49,7 @@ export class _MenuListState implements MenuListState {
   }
 
   get children(): readonly MenuItemState[] {
-    return this._menuItems;
+    return Object.freeze([...this._menuItems]);
   }
 
   /** Setting the menu items will reset this item and

@@ -69,7 +69,7 @@ export interface MenuListState {
 
   /** True if at least one item (except a divider) is enabled */
   readonly enabled: boolean;
-  /** True if at least one item (execept a divider) is visible */
+  /** True if at least one item (except a divider) is visible */
   readonly visible: boolean;
 
   /** Set to true by one of its menu items when the menu item need to be refreshed (flows up) */

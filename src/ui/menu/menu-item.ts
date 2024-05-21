@@ -59,6 +59,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     this.parentMenu = parentMenu;
 
     this._declaration = declaration;
+    Object.freeze(this._declaration);
 
     if (isSubmenu(declaration)) {
       this.type = 'submenu';
@@ -329,6 +330,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     if (notCanceled && typeof this._declaration.onMenuSelect === 'function') {
       this._declaration.onMenuSelect({
+        // target: this._host,
         modifiers: this.rootMenu.modifiers,
         id: this._declaration.id,
         data: this._declaration.data,
