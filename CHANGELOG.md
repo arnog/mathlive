@@ -10,6 +10,8 @@
 - The virtual keyboard now supports variants for shifted-keys. This includes
   support for Swedish specific characters such as `å`, `ä`, and `ö` and their
   uppercase variants.
+- Accept `"true"` and `"false"` as values for on/off attributes in the
+  `<math-field>` element, for example `<math-field smart-fence="true">`.
 
 ### Issues Resolved
 
@@ -30,6 +32,9 @@
   correctly focus the mathfield.
 - **#2326** The Cut and Copy commands in the context menu are now working
   correctly in Safari.
+- Better handle the case where the mathlive library gets loaded before the DOM
+  is constructed.
+
 
 ## 0.98.6 _2024-01-27_
 

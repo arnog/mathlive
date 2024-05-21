@@ -2342,6 +2342,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
     return gDeferredState.get(this)?.menuItems ?? [];
   }
+
   set menuItems(menuItems: Readonly<MenuItem[]>) {
     if (this._mathfield) {
       const btn =
@@ -2608,13 +2609,15 @@ function getOptionsFromAttributes(
   const attribs = MathfieldElement.optionsAttributes;
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {
-      const value = mfe.getAttribute(x);
+      let value = mfe.getAttribute(x);
 
       if (x === 'placeholder') result.contentPlaceholder = value ?? '';
       else if (attribs[x] === 'boolean') result[toCamelCase(x)] = true;
       else if (attribs[x] === 'on/off') {
-        if (value === 'on') result[toCamelCase(x)] = true;
-        else if (value === 'off') result[toCamelCase(x)] = false;
+        value = value?.toLowerCase() ?? '';
+        if (value === 'on' || value === 'true') result[toCamelCase(x)] = true;
+        else if (value === 'off' || value === 'false')
+          result[toCamelCase(x)] = false;
         else result[toCamelCase(x)] = undefined;
       } else if (attribs[x] === 'number')
         result[toCamelCase(x)] = Number.parseFloat(value ?? '0');
