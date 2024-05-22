@@ -87,6 +87,7 @@ export interface MenuListState {
   findMenuItem(text: string): MenuItemState | null;
   getMenuItemColumn(menuItem: MenuItemState): number;
   dispatchEvent(ev: Event): boolean;
+  host: HTMLElement | null;
 }
 
 /** @internal */

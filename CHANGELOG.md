@@ -12,6 +12,8 @@
   uppercase variants.
 - Accept `"true"` and `"false"` as values for on/off attributes in the
   `<math-field>` element, for example `<math-field smart-fence="true">`.
+- Added a `target` property (an MathfieldElement) to the `onMenuSelect`
+  arguments.
 
 ### Issues Resolved
 

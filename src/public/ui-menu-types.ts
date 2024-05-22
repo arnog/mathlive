@@ -69,6 +69,7 @@ export type MenuItemCommand<T = unknown> = {
    * and this hook is called.
    */
   onMenuSelect?: (_: {
+    target: EventTarget | undefined;
     modifiers: KeyboardModifiers;
     id?: string;
     data?: T;

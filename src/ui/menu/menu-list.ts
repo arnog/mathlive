@@ -95,6 +95,10 @@ export class _MenuListState implements MenuListState {
     return this.rootMenu.dispatchEvent(ev);
   }
 
+  get host(): HTMLElement | null {
+    return this.rootMenu.host;
+  }
+
   get rootMenu(): RootMenuState {
     return this.parentMenu!.rootMenu;
   }

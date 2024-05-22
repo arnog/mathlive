@@ -330,7 +330,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
     if (notCanceled && typeof this._declaration.onMenuSelect === 'function') {
       this._declaration.onMenuSelect({
-        // target: this._host,
+        target: this.parentMenu.host ?? undefined,
         modifiers: this.rootMenu.modifiers,
         id: this._declaration.id,
         data: this._declaration.data,

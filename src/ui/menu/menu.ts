@@ -271,6 +271,10 @@ export class Menu extends _MenuListState implements RootMenuState {
     return this._host.dispatchEvent(ev);
   }
 
+  get host(): HTMLElement | null {
+    return this._host;
+  }
+
   get scrim(): Element {
     return Scrim.element;
   }
