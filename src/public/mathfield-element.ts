@@ -30,7 +30,11 @@ import {
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
 import { getAtomBounds } from '../editor-mathfield/utils';
-import { isBrowser } from '../ui/utils/capabilities';
+import {
+  isBrowser,
+  isInIframe,
+  isTouchCapable,
+} from '../ui/utils/capabilities';
 import { resolveUrl } from '../common/script-url';
 import { requestUpdate } from '../editor-mathfield/render';
 import { reloadFonts, loadFonts } from '../core/fonts';
@@ -1856,8 +1860,14 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     if (evt.type === 'focus') this._mathfield?.focus();
 
     // Ignore blur events if the scrim is open (case where the variant panel
-    // is open). Otherwise we disconect from the VK and end up in a weird state.
-    if (evt.type === 'blur' && Scrim.scrim?.state === 'closed')
+    // is open), or if we're in an iFrame on a touch device (see #2350).
+
+    // Otherwise we disconnect from the VK and end up in a weird state.
+    if (
+      evt.type === 'blur' &&
+      Scrim.scrim?.state === 'closed' &&
+      !(isTouchCapable() && isInIframe())
+    )
       this._mathfield?.blur();
   }
 
