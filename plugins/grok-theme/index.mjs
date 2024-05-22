@@ -7,22 +7,18 @@ import {
   ReflectionKind,
   ReflectionType,
 } from 'typedoc';
-import {
-  MarkdownHooks,
-  MarkdownPageEvent,
-  MarkdownTheme,
-  MarkdownThemeRenderContext,
-} from 'typedoc-plugin-markdown';
 
 import {
-  backTicks,
+  MarkdownTheme,
+  MarkdownThemeContext,
+} from 'typedoc-plugin-markdown/dist/theme/index.js';
+import { escapeChars } from 'typedoc-plugin-markdown/dist/libs/utils/index.js';
+
+import {
   blockQuoteBlock,
   codeBlock,
   heading,
-  horizontalRule,
-} from 'typedoc-plugin-markdown/dist/theme/resources/markdown/index.js';
-
-import { escapeChars } from 'typedoc-plugin-markdown/dist/theme/resources/utils/index.js';
+} from 'typedoc-plugin-markdown/dist/libs/markdown/index.js';
 
 function getReturnType(context, typeDeclaration, type) {
   if (typeDeclaration?.signatures) return context.partials.someType(type);
@@ -57,7 +53,7 @@ class GrokTheme extends MarkdownTheme {
   }
 }
 
-class GrokThemeRenderContext extends MarkdownThemeRenderContext {
+class GrokThemeRenderContext extends MarkdownThemeContext {
   superPartials = this.partials;
   partials = {
     ...this.partials,
@@ -480,7 +476,7 @@ class GrokThemeRenderContext extends MarkdownThemeRenderContext {
       const context = this;
       const md = [];
 
-      if (context.options.getValue('namedAnchors') && reflection.anchor) {
+      if (context.options.getValue('useHTMLAnchors') && reflection.anchor) {
         const id = reflection.anchor;
         md.push(`<a id="${id}" name="${id}"></a>`);
       }

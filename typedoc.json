@@ -30,7 +30,7 @@
     "./plugins/grok-theme/index.mjs"
   ],
   "theme": "grok-theme",
-  "namedAnchors": true,
+  "useHTMLAnchors": true,
   "hidePageHeader": true,
   "hidePageTitle": true,
   "hideBreadcrumbs": true,
