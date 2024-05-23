@@ -49,7 +49,8 @@
   correctly in Safari.
 - Better handle the case where the mathlive library gets loaded before the DOM
   is constructed.
-
+- **#2384** When using repeating decimals after a comma (i.e. `123{,}4(1)`), 
+  do not use a `\left...\right` command in order to get the proper spacing.
 
 ## 0.98.6 _2024-01-27_
 

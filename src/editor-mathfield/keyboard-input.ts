@@ -691,11 +691,12 @@ function getSelectionStyle(model: _Model): Style {
 
 /**
  * Insert a smart fence '(', '{', '[', etc...
- * If not handled (because `fence` wasn't a fence), return false.
+ * If not handled (because `key` was not a fence), return false.
  */
 function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
   if (!key) return false;
   if (model.mode !== 'math') return false;
+
   const atom = model.at(model.position);
   const { parent } = atom;
 
@@ -885,6 +886,46 @@ function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
     // 2.6 Inserting an open delim, with no body
     //
     if (!(parent instanceof LeftRightAtom && parent.leftDelim === '|')) {
+      // Are we inserting a repeating decimal indicator, i.e. `1.23(456)`
+      // If so, we don't want a left-right, so that the spacing is correct
+      // when using a comma as a decimal separator, i.e. `1,23(456)`
+      if (fence === '(') {
+        // Check if the left siblings follow the pattern of a decimal separator
+        // followed by zero or more digits
+        let i = model.position - 1;
+        let hasDecimalPoint = false;
+        while (i >= 0) {
+          const atom = model.at(i);
+          if (atom.type === 'first') break;
+
+          if (atom.type === 'mord' && atom.value && /^[\d]$/.test(atom.value)) {
+            // Got a digit, keep looking
+            i -= 1;
+            continue;
+          }
+          if (
+            atom.type === 'group' &&
+            atom.body?.length === 2 &&
+            atom.body![0].type === 'first' &&
+            atom.body![1].value === ','
+          ) {
+            hasDecimalPoint = true;
+            break;
+          }
+          if (
+            atom.type === 'mord' &&
+            (atom.value === ',' || atom.value === '.')
+          ) {
+            hasDecimalPoint = true;
+            break;
+          }
+
+          break;
+        }
+
+        if (hasDecimalPoint) return false;
+      }
+
       // We have a valid open fence as input
       model.mathfield.snapshot();
       ModeEditor.insert(model, `\\left${fence}\\right?`, {
@@ -907,6 +948,34 @@ function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
   // 3. Is it a close fence?
   //
   if (lDelim) {
+    // If we have a ), check if we might be in a repeating decimal notation
+    // e.g. 1.23(456). If so, skip the smartfence
+    if (fence === ')') {
+      // Check if the left siblings follow the pattern of one or more digits
+      let i = model.position - 1;
+      let hasDigits = false;
+      while (i >= 0) {
+        const atom = model.at(i);
+        if (atom.type === 'first') break;
+
+        if (atom.type === 'mord' && atom.value && /^[\d]$/.test(atom.value)) {
+          // Got a digit, keep looking
+          hasDigits = true;
+          i -= 1;
+          continue;
+        }
+
+        break;
+      }
+
+      if (
+        hasDigits &&
+        model.at(i).type === 'mopen' &&
+        model.at(i).value === '('
+      )
+        return false;
+    }
+
     // We found a target open fence matching this delim.
     // Note that `targetLeftDelim` may not match `fence`. That's OK.
 
