@@ -17,6 +17,8 @@
 
 ### Issues Resolved
 
+- **#2380** In some cases, when using the menu, some spurious focus/blur events
+  would be dispatched.
 - **#2104**, **#2260** When replacing the selection by typing, the new content would not
   always be correctly styled. The content now inherits the style of the
   selection, or the style of the insertion point if the selection is collapsed.
