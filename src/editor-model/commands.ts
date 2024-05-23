@@ -396,9 +396,15 @@ function getClosestAtomToXPosition(
   x: number
 ): Atom {
   let prevX = Infinity;
+
   let i = 0;
   for (; i < search.length; i++) {
-    const toX = getLocalDOMRect(mathfield.getHTMLElement(search[i])).right;
+    const atom = search[i];
+    const el = mathfield.getHTMLElement(atom);
+
+    if (!el) continue;
+
+    const toX = getLocalDOMRect(el).right;
     const abs = Math.abs(x - toX);
 
     if (abs <= prevX) {
