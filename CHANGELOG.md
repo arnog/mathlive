@@ -17,6 +17,8 @@
 
 ### Issues Resolved
 
+- **#2355** When pressing the down arrow key in `\sqrt[#?]{1}` from the `#?`
+  position, a runtime exception would occur.
 - **#2380** In some cases, when using the menu, some spurious focus/blur events
   would be dispatched.
 - **#2104**, **#2260** When replacing the selection by typing, the new content would not
