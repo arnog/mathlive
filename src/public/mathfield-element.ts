@@ -968,6 +968,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
+   * When switching from a tab to one that contains a mathfield that was
+   * previously focused, restore the focus to the mathfield.
+   *
+   * This is behavior consistent with `<textarea>`, however it can be
+   * disabled if it is not desired.
+   *
+   */
+  static restoreFocusWhenDocumentFocused = true;
+
+  /**
    * The symbol used to separate the integer part from the fractional part of a
    * number.
    *

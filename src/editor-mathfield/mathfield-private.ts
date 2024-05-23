@@ -133,6 +133,7 @@ import 'editor-model/commands-delete';
 import 'editor-model/commands-move';
 import 'editor-model/commands-select';
 import { KeyboardModifiers } from 'public/ui-events-types';
+import MathfieldElement from '../public/mathfield-element';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="width: 21px;"  viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -1697,39 +1698,45 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     hideEnvironmentPopover();
 
-    //
-    // When the document/window loses focus, for example by switching
-    // to another tab, the mathfield will be blured. When the window
-    // regains focus, we'd like the focus to be restored on the mahtfield,
-    // like the browsers do for `<textarea>` elements. However, they
-    // don't do that for custom elements, so we do it ourselves. @futureweb
-    //
+    if (MathfieldElement.restoreFocusWhenDocumentFocused) {
+      //
+      // When the document/window loses focus, for example by switching
+      // to another tab, the mathfield will be blured. When the window
+      // regains focus, we'd like the focus to be restored on the mathfield,
+      // like the browsers do for `<textarea>` elements. However, they
+      // don't do that for custom elements, so we do it ourselves. @futureweb
+      //
 
-    // Wait for the window/document visibility to change
-    // (the mathfield gets blurred before the window)
-    const controller = new AbortController();
-    const signal = controller.signal;
-    document.addEventListener(
-      'visibilitychange',
-      () => {
-        if (document.visibilityState === 'hidden') {
-          document.addEventListener(
-            'visibilitychange',
-            () => {
-              if (
-                isValidMathfield(this) &&
-                document.visibilityState === 'visible'
-              )
-                this.focus({ preventScroll: true });
-            },
-            { once: true, signal }
-          );
-        }
-      },
-      { once: true, signal }
-    );
+      // Wait for the window/document visibility to change
+      // (the mathfield gets blurred before the window)
+      const controller = new AbortController();
+      const signal = controller.signal;
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          if (document.visibilityState === 'hidden') {
+            document.addEventListener(
+              'visibilitychange',
+              () => {
+                if (
+                  isValidMathfield(this) &&
+                  document.visibilityState === 'visible'
+                )
+                  this.focus({ preventScroll: true });
+              },
+              { once: true, signal }
+            );
+          }
+        },
+        { once: true, signal }
+      );
 
-    document.addEventListener('focusin', () => controller.abort(), { once: true });
+      // If something else gets the focus (could be the mathfield too),
+      // cancel the above
+      document.addEventListener('focusin', () => controller.abort(), {
+        once: true,
+      });
+    }
   }
 
   onInput(text: string): void {

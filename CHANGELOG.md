@@ -14,6 +14,10 @@
   `<math-field>` element, for example `<math-field smart-fence="true">`.
 - Added a `target` property (an MathfieldElement) to the `onMenuSelect`
   arguments.
+- **#2337** Added an option `MathfieldElement.restoreFocusWhenDocumentFocused` 
+  to control whether a mathfield that was previously focused regains focus 
+  when the tab or window regains focus. This is true by default and matches
+  the previous behavior, and the behavior of the `<textarea>` element.
 
 ### Issues Resolved
 
