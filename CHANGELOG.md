@@ -17,6 +17,9 @@
 
 ### Issues Resolved
 
+- **#2104**, **#2260** When replacing the selection by typing, the new content would not
+  always be correctly styled. The content now inherits the style of the
+  selection, or the style of the insertion point if the selection is collapsed.
 - **#2376** When `smart-fence` was off, the `{` and `}` keys would not insert
   braces.
 - **#2273** Using one of the Chinese locales would result in a runtime error.

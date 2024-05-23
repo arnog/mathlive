@@ -169,18 +169,6 @@ export class MathModeEditor extends ModeEditor {
   }
 
   insert(model: _Model, input: string, options: InsertOptions): boolean {
-    // If trying to insert a special character, escape it
-    if (input === '{') input = '\\lbrace';
-    else if (input === '}') input = '\\rbrace';
-    else if (input === '^') input = '\\^';
-    else if (input === '_') input = '\\_';
-    else if (input === '&') input = '\\&';
-    else if (input === '#') input = '\\#';
-    else if (input === '$') input = '\\$';
-    else if (input === '%') input = '\\%';
-    else if (input === '~') input = '\\~';
-    else if (input === '\\') input = '\\backslash';
-
     let data =
       typeof input === 'string'
         ? input
