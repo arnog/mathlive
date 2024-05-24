@@ -21,6 +21,7 @@
 
 ### Issues Resolved
 
+- The `\mathrlap` command was incorrectly rendering like `\mathllap`.
 - **#2355** When pressing the down arrow key in `\sqrt[#?]{1}` from the `#?`
   position, a runtime exception would occur.
 - **#2380** In some cases, when using the menu, some spurious focus/blur events

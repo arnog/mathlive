@@ -1237,7 +1237,7 @@ defineFunction('mathrlap', '{:math}', {
     new OverlapAtom({
       ...options,
       body: argAtoms(options.args![0]),
-      align: 'left',
+      align: 'right',
     }),
 });
 
