@@ -58,6 +58,13 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   constructor(declaration: MenuItem<T>, parentMenu: MenuListState) {
     this.parentMenu = parentMenu;
 
+    // if (
+    //   !isDivider(declaration) &&
+    //   !isSubmenu(declaration) &&
+    //   !isHeading(declaration) &&
+    //   !declaration.id
+    // )
+    //   console.log('no id', declaration);
     this._declaration = declaration;
     Object.freeze(this._declaration);
 
