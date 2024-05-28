@@ -86,13 +86,25 @@
   // The border color when a prompt is in "incorrect" state
   --_incorrect-color: var(--incorrect-color, #a01b00);
 
-  // A composition is zone controled by an input method, for example, the
+  // A composition is zone controlled by an input method, for example, the
   // Japanese input method, or dead keys on macOS, i.e. alt+U.
   --_composition-background-color: var(--composition-background-color, #fff1c2);
   --_composition-text-color: var(--composition-text-color, black);
   --_composition-underline-color: var(
     --composition-underline-color,
     transparent
+  );
+
+  // Tooltip displayed with \mathtip or \texttip
+  --_tooltip-border: var(--tooltip-border, 1px solid transparent);
+  --_tooltip-border-radius: var(--tooltip-border-radius, 8px);
+  --_tooltip-background-color: var(--tooltip-background-color, #616161);
+  --_tooltip-color: var(--tooltip-color, #fff);
+  --_tooltip-box-shadow: var(
+    --tooltip-box-shadow,
+    0 2px 2px 0 rgba(0, 0, 0, 0.14), 
+    0 1px 5px 0 rgba(0, 0, 0, 0.12), 
+    0 3px 1px -2px rgba(0, 0, 0, 0.2)
   );
 }
 

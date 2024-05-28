@@ -2,6 +2,7 @@
 
 ### New Features
 
+- Added CSS variables to control the appearance of the toolip displayed with `\mathtip` and `\texttip`: `--toolip-border`, `--tooltip-color`, `--tooltip-background-color`, `--tooltip-box-shadow` and `--tooltip-border-radius`.
 - The `maxMatrixCols` property has been added that specifies the maximum number
   of columns that a matrix may have. The default value is 10, which follows the
   default value that the amsmath package uses. The property applies to all of
