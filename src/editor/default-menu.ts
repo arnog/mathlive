@@ -32,7 +32,9 @@ function getSelectionAtoms(mf: _Mathfield): readonly Atom[] {
   const ranges = model.selection.ranges;
   if (ranges.length !== 1) return [];
 
-  return mf.model.getAtoms(ranges[0]);
+  const atoms = mf.model.getAtoms(ranges[0]);
+  if (atoms.length === 1 && atoms[0].type === 'root') return atoms[0].children;
+  return atoms;
 }
 
 function validVariantAtom(mf: _Mathfield, variant: string): boolean {
@@ -697,8 +699,14 @@ function variantMenuItem(
 ): MenuItem {
   return {
     id: `variant-${variant}`,
-    label: () =>
-      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    label: () => {
+      const textSelection = getSelectionPlainString(mf);
+      if (textSelection.length < 12)
+        return convertLatexToMarkup(
+          `\\${command}{${getSelectionPlainString(mf)}}`
+        );
+      return localize(tooltip) ?? tooltip;
+    },
     tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantAtom(mf, variant),
     checked: () =>
@@ -718,8 +726,14 @@ function variantStyleMenuItem(
 ): MenuItem {
   return {
     id: `variant-style-${variantStyle}`,
-    label: () =>
-      convertLatexToMarkup(`\\${command}{${getSelectionPlainString(mf)}}`),
+    label: () => {
+      const textSelection = getSelectionPlainString(mf);
+      if (textSelection.length < 12)
+        return convertLatexToMarkup(
+          `\\${command}{${getSelectionPlainString(mf)}}`
+        );
+      return localize(tooltip) ?? tooltip;
+    },
     tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantStyleSelection(mf),
     checked: () =>
