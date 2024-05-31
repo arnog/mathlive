@@ -558,10 +558,14 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
     },
     {
       label: () => {
-        if (globalThis.MathfieldElement.computeEngine === null) return '';
+        const ce = globalThis.MathfieldElement.computeEngine;
+        if (ce === null) return '';
+
         const unknown = mf.expression?.unknowns[0];
-        if (unknown)
-          return localize('menu.solve-for', convertLatexToMarkup(unknown))!;
+        if (unknown) {
+          const latex = ce.box(unknown).latex;
+          return localize('menu.solve-for', convertLatexToMarkup(latex))!;
+        }
         return localize('menu.solve')!;
       },
       id: 'ce-solve',
