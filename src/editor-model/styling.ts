@@ -3,7 +3,7 @@ import type { _Model } from './model-private';
 import { Range } from '../public/mathfield';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import type { Style } from '../public/core-types';
+import type { Style, VariantStyle } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
@@ -116,4 +116,34 @@ export function applyStyle(
   for (const atom of atoms) atom.applyStyle(style);
 
   return true;
+}
+
+export function addItalic(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'italic',
+    'bold': 'bolditalic',
+    'italic': 'italic',
+    'bolditalic': 'bolditalic',
+    '': 'italic',
+  }[v ?? ''] as VariantStyle;
+}
+
+export function removeItalic(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'up',
+    'bold': 'bold',
+    'italic': undefined,
+    'bolditalic': 'bold',
+    '': undefined,
+  }[v ?? ''] as VariantStyle;
+}
+
+export function addBold(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'bold',
+    'bold': 'bold',
+    'italic': 'bolditalic',
+    'bolditalic': 'bolditalic',
+    '': 'bold',
+  }[v ?? ''] as VariantStyle;
 }

@@ -18,9 +18,9 @@ import type {
   PrivateStyle,
   ToLatexOptions,
 } from '../core/types';
-import type { Context } from 'core/context';
-import type { Box } from 'core/box';
-import type { Parser } from 'core/parser';
+import type { Context } from '../core/context';
+import type { Box } from '../core/box';
+import type { Parser } from '../core/parser';
 
 export type FunctionArgumentDefinition = {
   isOptional: boolean;

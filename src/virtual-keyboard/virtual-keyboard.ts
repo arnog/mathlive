@@ -34,7 +34,7 @@ import {
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
 import { Style } from '../public/core-types';
-import { deepActiveElement } from 'ui/events/utils';
+import { deepActiveElement } from '../ui/events/utils';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;

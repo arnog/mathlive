@@ -35,7 +35,7 @@ import { Context } from '../core/context';
 import { T, Tc, S, Sc, SS, SSc } from '../core/mathstyle';
 import { VBox } from '../core/v-box';
 import type { Argument } from './types';
-import { addItalic, removeItalic } from 'editor-mathfield/styling';
+import { removeItalic } from '../editor-model/styling';
 
 defineFunction('mathtip', '{:auto}{:math}', {
   createAtom: (

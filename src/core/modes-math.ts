@@ -12,7 +12,7 @@ import type { Style, Variant, VariantStyle } from '../public/core-types';
 import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
-import { addItalic } from 'editor-mathfield/styling';
+import { addItalic } from '../editor-model/styling';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -290,7 +290,7 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string[] {
         'script': '\\mathscr',
         'monospace': '\\mathtt',
         'sans-serif': '\\mathsf',
-        'normal': '\\mathrm',
+        'normal': '',
         'normal-italic': '\\mathnormal',
         'normal-bold': '\\mathbf',
         'normal-bolditalic': '\\mathbfit',

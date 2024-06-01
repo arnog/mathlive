@@ -11,11 +11,11 @@ import type { _Mathfield } from './mathfield-private';
 
 import { updateSuggestionPopoverPosition } from '../editor/suggestion-popover';
 import { gFontsState } from '../core/fonts';
-import { Context } from 'core/context';
-import { Atom } from 'core/atom-class';
+import { Context } from '../core/context';
+import { Atom } from '../core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
-import { convertLatexToMarkup } from 'public/mathlive';
-import { hashCode } from 'common/hash-code';
+import { convertLatexToMarkup } from '../public/mathlive';
+import { hashCode } from '../common/hash-code';
 
 export function requestUpdate(
   mathfield: _Mathfield | undefined | null,

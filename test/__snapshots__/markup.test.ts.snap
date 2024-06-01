@@ -184,7 +184,7 @@ exports[`BOX 5/ \\rlap{x}o renders correctly 1`] = `
 
 exports[`BOX 6/ \\mathrlap{x}o renders correctly 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.44em"></span><span class="ML__base"><span class="ML__llap"><span class="ML__inner"><span class="ML__mathit">x</span></span><span class="ML__fix"></span></span><span class="ML__mathit">o</span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.44em"></span><span class="ML__base"><span class="ML__rlap"><span class="ML__inner"><span class="ML__mathit">x</span></span><span class="ML__fix"></span></span><span class="ML__mathit">o</span></span></span>",
   "no-error",
 ]
 `;

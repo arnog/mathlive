@@ -29,7 +29,7 @@ import { Scrim } from '../ui/utils/scrim';
 import {
   deepActiveElement,
   mightProducePrintableCharacter,
-} from 'ui/events/utils';
+} from '../ui/events/utils';
 
 export interface KeyboardDelegate {
   cancelComposition: () => void;

@@ -1,4 +1,4 @@
-import { deepActiveElement } from 'ui/events/utils';
+import { deepActiveElement } from '../events/utils';
 
 export class Scrim {
   private static _scrim: Scrim | undefined;

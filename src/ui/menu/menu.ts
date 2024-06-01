@@ -3,8 +3,8 @@ import {
   keyboardModifiersFromEvent,
   equalKeyboardModifiers,
   mightProducePrintableCharacter,
-} from 'ui/events/utils';
-import { Scrim } from 'ui/utils/scrim';
+} from '../events/utils';
+import { Scrim } from '../utils/scrim';
 import { _MenuListState } from './menu-list';
 import {
   MenuItem,

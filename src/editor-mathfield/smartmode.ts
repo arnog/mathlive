@@ -5,7 +5,7 @@ import { _Model } from '../editor-model/model-private';
 import { Atom } from '../core/atom-class';
 import { LeftRightAtom } from '../atoms/leftright';
 import { joinLatex } from '../core/tokenizer';
-import { mightProducePrintableCharacter } from 'ui/events/utils';
+import { mightProducePrintableCharacter } from '../ui/events/utils';
 
 /**
  * Convert the atoms before the anchor to 'text' mode
