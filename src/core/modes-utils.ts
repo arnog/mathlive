@@ -115,41 +115,82 @@ export function getModeRuns(atoms: readonly Atom[]): readonly Atom[][] {
   return result;
 }
 
+/** This "weight" is only for math mode. Text mode uses fontSeries. */
+export function weightString(atom: Atom): string {
+  if (!atom || atom.mode !== 'math') return '';
+  const { style } = atom;
+  if (!style) return '';
+  if (!style.variantStyle) return '';
+  if (style.variantStyle === 'bold' || style.variantStyle === 'bolditalic')
+    return 'bold';
+
+  return '';
+}
+
+/** Combine variant and variantStyle in one string */
+export function variantString(atom: Atom): string {
+  if (!atom) return '';
+  const { style } = atom;
+  if (!style) return '';
+
+  let result = style.variant;
+  if (result === undefined) return 'normal';
+
+  if (
+    ![
+      'calligraphic',
+      'fraktur',
+      'double-struck',
+      'script',
+      'monospace',
+      'sans-serif',
+    ].includes(result) &&
+    style.variantStyle &&
+    style.variantStyle !== 'up'
+  )
+    result += '-' + style.variantStyle;
+
+  return result;
+}
+
 /*
  * Return an array of runs (array of atoms with the same value
  *   for the specified property)
  */
 export function getPropertyRuns(
   atoms: readonly Atom[],
-  property: keyof Style
+  property: keyof Style | 'bold'
 ): readonly Atom[][] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
   let currentValue: string | number | undefined = undefined;
   for (const atom of atoms) {
-    if (atom.type !== 'first' && atom.style) {
-      let value: string | number | undefined;
-      if (property === 'variant') {
-        value = atom.style.variant;
-        if (atom.style.variantStyle && atom.style.variantStyle !== 'up')
-          value += '-' + atom.style.variantStyle;
-      } else value = atom.style[property];
+    if (atom.type === 'first') continue;
+    if (!atom.style) {
+      console.log('no style', atom);
+      continue;
+    }
+    // The 'variant' property combines the variant and variantStyle
+    let value;
+    if (property === 'variant') value = variantString(atom);
+    else if (property === 'bold') value = weightString(atom);
+    else value = atom.style[property];
 
-      if (value === currentValue) {
-        // Same value, add it to the current run
-        run.push(atom);
-      } else {
-        // The value of property for this atom is different from the
-        // current value, start a new run
-        if (run.length > 0) result.push(run);
-        run = [atom];
-        currentValue = value;
-      }
+    if (value === currentValue) {
+      // Same value, add it to the current run
+      run.push(atom);
+    } else {
+      // The value of property for this atom is different from the
+      // current value, start a new run
+      if (run.length > 0) result.push(run);
+      run = [atom];
+      currentValue = value;
     }
   }
 
   // Push whatever is left
   if (run.length > 0) result.push(run);
+
   return result;
 }
 

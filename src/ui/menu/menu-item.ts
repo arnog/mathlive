@@ -40,6 +40,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
   /** If this menu _type is 'submenu' */
   submenu?: _MenuListState;
 
+  private _className: string | undefined = '';
   private _label: string;
   private _ariaLabel?: string;
   private _tooltip: string | undefined;
@@ -208,6 +209,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       isSubmenu(declaration)
     ) {
       this.label = dynamicValue(declaration.label, modifiers);
+      this._className = dynamicValue(declaration.class, modifiers);
       this.tooltip = dynamicValue(declaration.tooltip, modifiers);
       this.ariaLabel = dynamicValue(declaration.ariaLabel, modifiers);
     }
@@ -224,8 +226,11 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     if (!this.visible || !this.element) return;
 
     const li = this.element;
-    // Reset the content of the menu item
+    // Reset the content and classes of the menu item
     li.textContent = '';
+    li.className = '';
+
+    li.className = this._className ?? '';
 
     if (!this.enabled) li.setAttribute('aria-disabled', 'true');
     else li.removeAttribute('aria-disabled');
@@ -294,9 +299,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
         isSubmenu(this._declaration)) &&
       this._declaration.class
     )
-      li.className = this._declaration.class;
-
-    li.setAttribute('part', 'menu-item');
+      li.setAttribute('part', 'menu-item');
     li.setAttribute('tabindex', '-1');
     if (this.hasCheck) li.setAttribute('role', 'menuitemcheckbox');
     else li.setAttribute('role', 'menuitem');

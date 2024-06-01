@@ -85,6 +85,7 @@ export type LatexCommandDefinition<T extends Argument[] = Argument[]> = {
   createAtom?: (options: CreateAtomOptions<T>) => Atom;
 
   applyStyle?: (
+    style: PrivateStyle,
     command: string,
     args: readonly (null | Argument)[],
     context: ContextInterface

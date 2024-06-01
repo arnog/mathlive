@@ -35,6 +35,7 @@ import { Context } from '../core/context';
 import { T, Tc, S, Sc, SS, SSc } from '../core/mathstyle';
 import { VBox } from '../core/v-box';
 import type { Argument } from './types';
+import { addItalic, removeItalic } from 'editor-mathfield/styling';
 
 defineFunction('mathtip', '{:auto}{:math}', {
   createAtom: (
@@ -95,7 +96,8 @@ defineFunction('ensuremath', '{:math}', {
 });
 
 defineFunction('color', '{:value}', {
-  applyStyle: (_name, args: [LatexValue | null], context) => ({
+  applyStyle: (style, _name, args: [LatexValue | null], context) => ({
+    ...style,
     verbatimColor: serializeLatexValue(args[0]) ?? undefined,
     color: context.toColor(args[0] ?? { string: 'red' })!,
   }),
@@ -105,7 +107,8 @@ defineFunction('color', '{:value}', {
 // Unlike what its name might suggest, this command does not set the mode to
 // text. That is, it can equally be applied to math and text mode.
 defineFunction('textcolor', '{:value}{content:auto*}', {
-  applyStyle: (_name, args: [LatexValue | null], context) => ({
+  applyStyle: (style, _name, args: [LatexValue | null], context) => ({
+    ...style,
     verbatimColor: serializeLatexValue(args[0]) ?? undefined,
     color: context.toColor(args[0] ?? { string: 'red' })!,
   }),
@@ -130,8 +133,9 @@ defineFunction('boxed', '{content:math}', {
 // Technically, using a BoxAtom is more correct (there is a small margin
 // around it). However, just changing the background color makes editing easier
 defineFunction('colorbox', '{:value}{:text*}', {
-  applyStyle: (_name, args: [LatexValue | null], context) => {
+  applyStyle: (style, _name, args: [LatexValue | null], context) => {
     return {
+      ...style,
       verbatimBackgroundColor: serializeLatexValue(args[0]) ?? undefined,
       backgroundColor: context.toBackgroundColor(
         args[0] ?? { string: 'yellow' }
@@ -269,8 +273,9 @@ defineFunction(
     // TeX behaves very inconsistently when sizing commands are applied
     // to math mode. We allow sizing commands to be applied in both math and
     // text mode
-    applyStyle: (name): PrivateStyle => {
+    applyStyle: (style, name): PrivateStyle => {
       return {
+        ...style,
         fontSize: {
           '\\tiny': 1,
           '\\scriptsize': 2, // Not to be confused with \scriptstyle
@@ -291,23 +296,23 @@ defineFunction(
 // \fontseries only works in text mode
 defineFunction('fontseries', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args: [null | FontSeries]): PrivateStyle => {
-    return { fontSeries: args[0] ?? 'auto' };
+  applyStyle: (style, _name, args: [null | FontSeries]): PrivateStyle => {
+    return { ...style, fontSeries: args[0] ?? 'auto' };
   },
 });
 // SHAPE: italic, small caps
 defineFunction('fontshape', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args: [null | FontShape]): PrivateStyle => {
-    return { fontShape: args[0] ?? 'auto' };
+  applyStyle: (style, _name, args: [null | FontShape]): PrivateStyle => {
+    return { ...style, fontShape: args[0] ?? 'auto' };
   },
 });
 
 // FONT FAMILY: roman, sans-serif, monospace
 defineFunction('fontfamily', '{:string}', {
   ifMode: 'text',
-  applyStyle: (_name, args: [null | FontFamily]): PrivateStyle => {
-    return { fontFamily: args[0] ?? 'roman' };
+  applyStyle: (style, _name, args: [null | FontFamily]): PrivateStyle => {
+    return { ...style, fontFamily: args[0] ?? 'roman' };
   },
 });
 
@@ -316,146 +321,163 @@ defineFunction('fontfamily', '{:string}', {
 // they take effect immediately, and \selectfont is a no-op
 defineFunction('selectfont', '', {
   ifMode: 'text',
-  applyStyle: () => ({}),
+  applyStyle: (style) => style,
 });
 
 // \bf works in any mode
 // As per the LaTeX 2.09 semantics, it overrides shape, family
 defineFunction('bf', '{:rest*}', {
-  applyStyle: () => ({ fontSeries: 'b', fontShape: 'n', fontFamily: 'roman' }),
+  applyStyle: (style) => ({
+    ...style,
+    fontSeries: 'b',
+    fontShape: 'n',
+    fontFamily: 'roman',
+  }),
 });
 
-// Note: These function work a little bit differently than LaTex
-// In LaTeX, \bm{x\mathrm{y}} yield a bold x and an upright y.
-// This is not necesarily intentional, but a side effect of the (current)
-// implementation of \bm
-defineFunction(['boldsymbol', 'bm'], '{:math}', {
+// In LaTeX, \boldsymbol does not preserve proper kerning between characters
+defineFunction(['boldsymbol', 'bm', 'bold'], '{:math*}', {
   applyMode: 'math',
-  createAtom: (options) =>
-    new Atom({ ...options, body: argAtoms(options.args![0]) }),
-  serialize: (atom, options) => `${atom.command}{${atom.bodyToLatex(options)}}`,
-  render: (atom: Atom, context: Context) =>
-    atom.createBox(context, { classes: 'ML__boldsymbol' }),
-});
-
-// Note: switches to math mode
-defineFunction('bold', '{:math*}', {
-  applyMode: 'math',
-  applyStyle: () => ({ variantStyle: 'bold' }),
+  applyStyle: (style) => ({ ...style, variantStyle: 'bold' }),
 });
 
 defineFunction('bfseries', '{:rest*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontSeries: 'b' }),
+  applyStyle: (style) => ({ ...style, fontSeries: 'b' }),
 });
 defineFunction('mdseries', '{:rest*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontSeries: 'm' }),
+  applyStyle: (style) => ({ ...style, fontSeries: 'm' }),
 });
 defineFunction('upshape', '{:rest*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'n' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'n' }),
 });
 defineFunction('slshape', '{:rest*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'sl' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'sl' }),
 });
 // Small caps
 defineFunction('scshape', '{:rest*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'sc' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'sc' }),
 });
 
 defineFunction('textbf', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontSeries: 'b' }),
+  applyStyle: (style) => ({ ...style, fontSeries: 'b' }),
 });
 defineFunction('textmd', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontSeries: 'm' }),
+  applyStyle: (style) => ({ ...style, fontSeries: 'm' }),
 });
 
 defineFunction('textup', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'n' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'n' }),
 });
 
 // @todo: family could be 'none' or 'default'
 // "normal" font of the body text, not necessarily roman
 defineFunction('textnormal', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'n', fontSeries: 'm' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'n', fontSeries: 'm' }),
 });
 
 defineFunction('textsl', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'sl' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'sl' }),
 });
 
 defineFunction('textit', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'it' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'it' }),
 });
 
 defineFunction('textsc', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontShape: 'sc' }),
+  applyStyle: (style) => ({ ...style, fontShape: 'sc' }),
 });
 defineFunction('textrm', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontFamily: 'roman' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'roman' }),
 });
 
 defineFunction('textsf', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontFamily: 'sans-serif' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'sans-serif' }),
 });
 
 defineFunction('texttt', '{:text*}', {
   applyMode: 'text',
-  applyStyle: () => ({ fontFamily: 'monospace' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'monospace' }),
 });
 
 // Note: \mathbf is a no-op in text mode
 defineFunction('mathbf', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'normal', variantStyle: 'bold' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'normal',
+    variantStyle: 'bold',
+  }),
 });
 
 // `\mathnormal` includes italic correction, `\mathit` doesn't
 defineFunction('mathit', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'main', variantStyle: 'italic' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'main',
+    variantStyle: 'italic',
+  }),
 });
 
 // `\mathnormal` includes italic correction, `\mathit` doesn't
 defineFunction('mathnormal', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'normal', variantStyle: 'italic' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'normal',
+    variantStyle: 'italic',
+  }),
 });
 
 // From the ISOMath package
 defineFunction('mathbfit', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'main', variantStyle: 'bolditalic' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'main',
+    variantStyle: 'bolditalic',
+  }),
 });
 
 defineFunction('mathrm', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'normal', variantStyle: 'up' }),
+  applyStyle: (style) => ({ ...style, variant: 'normal', variantStyle: 'up' }),
 });
 
 defineFunction('mathsf', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'sans-serif', variantStyle: 'up' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'sans-serif',
+    variantStyle: 'up',
+  }),
 });
 defineFunction('mathtt', '{:math*}', {
   applyMode: 'math',
-  applyStyle: () => ({ variant: 'monospace', variantStyle: 'up' }),
+  applyStyle: (style) => ({
+    ...style,
+    variant: 'monospace',
+    variantStyle: 'up',
+  }),
 });
 
 defineFunction('it', '{:rest*}', {
-  applyStyle: () => ({
+  applyStyle: (style) => ({
+    ...style,
     fontSeries: 'm',
     fontShape: 'it',
     fontFamily: 'roman',
@@ -465,34 +487,47 @@ defineFunction('it', '{:rest*}', {
 
 // In LaTeX, \rmfamily, \sffamily and \ttfamily are no-op in math mode.
 defineFunction('rmfamily', '{:rest*}', {
-  applyStyle: () => ({ fontFamily: 'roman' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'roman' }),
 });
 
 defineFunction('sffamily', '{:rest*}', {
-  applyStyle: () => ({ fontFamily: 'sans-serif' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'sans-serif' }),
 });
 
 defineFunction('ttfamily', '{:rest*}', {
-  applyStyle: () => ({ fontFamily: 'monospace' }),
+  applyStyle: (style) => ({ ...style, fontFamily: 'monospace' }),
 });
 
 // In LaTeX, \Bbb and \mathbb are no-op in text mode.
 // They also map lowercase characters to different glyphs.
 // Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
 defineFunction(['Bbb', 'mathbb'], '{:math*}', {
-  applyStyle: () => ({ variant: 'double-struck', variantStyle: 'up' }),
+  applyStyle: (style) => ({
+    variant: 'double-struck',
+    variantStyle: removeItalic(style.variantStyle),
+  }),
 });
 
 defineFunction(['frak', 'mathfrak'], '{:math*}', {
-  applyStyle: () => ({ variant: 'fraktur', variantStyle: 'up' }),
+  applyStyle: (style) => ({
+    variant: 'fraktur',
+    variantStyle: removeItalic(style.variantStyle),
+  }),
 });
 
 defineFunction('mathcal', '{:math*}', {
-  applyStyle: () => ({ variant: 'calligraphic', variantStyle: 'up' }),
+  // Note that in LaTeX, \mathcal forces the 'up' variant. Use \bm to get bold
+  applyStyle: (style) => ({
+    variant: 'calligraphic',
+    variantStyle: removeItalic(style.variantStyle),
+  }),
 });
 
 defineFunction('mathscr', '{:math*}', {
-  applyStyle: () => ({ variant: 'script', variantStyle: 'up' }),
+  applyStyle: (style) => ({
+    variant: 'script',
+    variantStyle: removeItalic(style.variantStyle),
+  }),
 });
 
 /*

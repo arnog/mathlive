@@ -51,7 +51,7 @@ export type MenuItemCommand<T = unknown> = {
   tooltip?: DynamicValue<string>;
 
   /** A CSS class applied to the item */
-  class?: string;
+  class?: DynamicValue<string>;
 
   keyboardShortcut?: string;
 
@@ -95,7 +95,7 @@ export type MenuItemHeading = {
   label?: DynamicValue<string>;
   ariaLabel?: DynamicValue<string>;
   tooltip?: DynamicValue<string>;
-  class?: string;
+  class?: DynamicValue<string>;
 };
 
 export type MenuItemSubmenu = {
@@ -104,7 +104,7 @@ export type MenuItemSubmenu = {
   label?: DynamicValue<string>;
   ariaLabel?: DynamicValue<string>;
   tooltip?: DynamicValue<string>;
-  class?: string;
+  class?: DynamicValue<string>;
 
   submenu: readonly MenuItem[];
 

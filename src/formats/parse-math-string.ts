@@ -310,15 +310,15 @@ export const MODE_SHIFT_COMMANDS = [
 ];
 
 export function trimModeShiftCommand(s: string): [boolean, string] {
-  const trimedString = s.trim();
+  const trimmedString = s.trim();
 
   for (const mode of MODE_SHIFT_COMMANDS) {
-    if (trimedString.startsWith(mode[0]) && trimedString.endsWith(mode[1])) {
+    if (trimmedString.startsWith(mode[0]) && trimmedString.endsWith(mode[1])) {
       return [
         true,
-        trimedString.substring(
+        trimmedString.substring(
           mode[0].length,
-          trimedString.length - mode[1].length
+          trimmedString.length - mode[1].length
         ),
       ];
     }

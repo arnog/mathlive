@@ -730,18 +730,30 @@ function variantStyleMenuItem(
 ): MenuItem {
   return {
     id: `variant-style-${variantStyle}`,
+
     label: () => {
       const textSelection = getSelectionPlainString(mf);
-      if (textSelection.length < 12)
+      if (textSelection.length > 0 && textSelection.length < 12)
         return convertLatexToMarkup(
           `\\${command}{${getSelectionPlainString(mf)}}`
         );
       return localize(tooltip) ?? tooltip;
     },
+
+    class: () => {
+      const textSelection = getSelectionPlainString(mf);
+      if (textSelection.length > 0 && textSelection.length < 12) return 'xl';
+      return '';
+    },
+
     tooltip: () => localize(tooltip) ?? tooltip,
-    visible: () => validVariantStyleSelection(mf),
+
+    visible:
+      variantStyle === 'bold' ? true : () => validVariantStyleSelection(mf),
+
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle })] ?? false,
+
     onMenuSelect: () => {
       mf.applyStyle({ variantStyle }, { operation: 'toggle' });
       mf.adoptStyle = 'none';

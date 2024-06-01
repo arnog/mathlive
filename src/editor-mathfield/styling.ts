@@ -171,3 +171,33 @@ export function validateStyle(
 
   return result;
 }
+
+export function addItalic(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'italic',
+    'bold': 'bolditalic',
+    'italic': 'italic',
+    'bolditalic': 'bolditalic',
+    '': 'italic',
+  }[v ?? ''] as VariantStyle;
+}
+
+export function removeItalic(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'up',
+    'bold': 'bold',
+    'italic': undefined,
+    'bolditalic': 'bold',
+    '': undefined,
+  }[v ?? ''] as VariantStyle;
+}
+
+export function addBold(v: VariantStyle | undefined): VariantStyle {
+  return {
+    'up': 'bold',
+    'bold': 'bold',
+    'italic': 'bolditalic',
+    'bolditalic': 'bolditalic',
+    '': 'bold',
+  }[v ?? ''] as VariantStyle;
+}

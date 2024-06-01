@@ -302,6 +302,17 @@
         if (key.variants === 'a') {
           return {
             ...key, variants: [
+              { latex: '(' },
+              { latex: ')' },
+
+              '[(]', '[)]', { key: '(', }, { key: ')' },
+              { latex: '\\right)' },
+              { latex: '\\right(' },
+              { latex: '\\right]' },
+              { latex: '\\right[' },
+              { latex: '\\right\\}' },
+              { latex: '\\right\\{' },
+
               { latex: '\\aleph', aside: 'aleph' },
               { latex: '\\forall', aside: 'for all' },
               'å',

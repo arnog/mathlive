@@ -1,5 +1,54 @@
 ## [Unreleased]
 
+### Bold
+
+The way bold is handled in LaTeX is particularly confusing. This is due to 
+limitations of the text rendering technology of the time.
+Various attempts have been made over the years to improve the rendering of
+bold, but this has resulted in inconsistent behavior. Furthermore, various
+implementations of LaTeX and LaTeX-like systems have implemented bold in
+different ways.
+
+This release introduces a more consistent and intuitive handling of bold, 
+although it may result in different rendering of some formulas compared to 
+some implementations of LaTeX.
+
+The original bold command in LaTeX is `\mathbf`. This command is used to make
+its argument bold, by changing the font to a bold variant. However, this command
+only affect the letters and numbers in the argument. It does not affect the
+symbols, operators, or other characters. For example, `\mathbf{a+b}` will render
+as `𝐚+𝐛`, with the `a` and `b` in bold, but the `+` in normal weight. Greek
+letters are not affected by `\mathbf`, and neither are variants such as 
+`\mathcal{}`. Characters affected by `\mathbf` are rendered upright, even 
+if they would have been rendered as italic otherwise.
+
+The `\boldsymbol` command is an alternative to `\mathbf` that affects more
+characters, including Greek letters and symbols. However, it does not affect
+the style of the characters, so they remain italic if they were italic before.
+The inter-character spacing and italic correction may not be rendered correctly.
+
+The `\bm` command from the `bm` package is a more modern alternative that
+affects even more characters. It also preserves the style of the characters, 
+so they remain italic if they were italic before. The inter-character spacing 
+and italic correction are handled correctly.
+
+So, in general, `\bm` is recommended over `\boldsymbol` and `\mathbf`. However, 
+it is not part of the standard LaTeX distribution, so it may not always be available.
+
+The bold style is now consistently inherited by sub-expressions.
+
+When serializing to LaTeX, MathLive will now use `\mathbf` when possible, and 
+fall back to `\bm` when not. This should result in more consistent rendering 
+of bold text.
+
+When parsing, MathLive will interpret both `\mathbf`, `\boldsymbol` and `\bm` as
+bold.
+
+Similarly, when applying a bold style using `mf.applyStyle({weight: "bold"})`, 
+the bold attribute is applied to the entire selection, not just the letters 
+and numbers.
+
+
 ### New Features
 
 - Added CSS variables to control the appearance of the toolip displayed with `\mathtip` and `\texttip`: `--toolip-border`, `--tooltip-color`, `--tooltip-background-color`, `--tooltip-box-shadow` and `--tooltip-border-radius`.
@@ -22,6 +71,8 @@
 
 ### Issues Resolved
 
+- If the unknown in an expression was a complex identifier, such as `\mathcal{C}`
+  it would not be displayed correctly in the "Solve for" menu.
 - The `\mathrlap` command was incorrectly rendering like `\mathllap`.
 - **#2355** When pressing the down arrow key in `\sqrt[#?]{1}` from the `#?`
   position, a runtime exception would occur.

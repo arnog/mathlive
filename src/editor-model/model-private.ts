@@ -460,7 +460,10 @@ export class _Model implements Model {
       });
     }
 
-    if (format === 'math-ml') return toMathML(atom);
+    if (format === 'math-ml') {
+      console.log(toMathML(atom));
+      return toMathML(atom);
+    }
 
     if (format === 'spoken') return atomToSpeakableText(atom);
 

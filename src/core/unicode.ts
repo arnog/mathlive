@@ -159,10 +159,18 @@ const MATH_UNICODE_BLOCKS: {
 }[] = [
   { start: 0x1d400, len: 26, offset: 65, style: 'bold' },
   { start: 0x1d41a, len: 26, offset: 97, style: 'bold' },
+  { start: 0x1d6a8, len: 25, offset: 0x391, style: 'bold' },
+  { start: 0x1d6c2, len: 25, offset: 0x3b1, style: 'bold' },
   { start: 0x1d434, len: 26, offset: 65, style: 'italic' },
   { start: 0x1d44e, len: 26, offset: 97, style: 'italic' },
+  { start: 0x1d6e2, len: 25, offset: 0x391, style: 'italic' },
+  { start: 0x1d6fc, len: 25, offset: 0x3b1, style: 'italic' },
   { start: 0x1d468, len: 26, offset: 65, style: 'bolditalic' },
   { start: 0x1d482, len: 26, offset: 97, style: 'bolditalic' },
+  { start: 0x1d71c, len: 25, offset: 0x391, style: 'bolditalic' },
+  { start: 0x1d736, len: 25, offset: 0x3b1, style: 'bolditalic' },
+
+  { start: 0x1d7ce, len: 10, offset: 48, variant: 'main', style: 'bold' },
 
   { start: 0x1d49c, len: 26, offset: 65, variant: 'script' },
   { start: 0x1d4b6, len: 26, offset: 97, variant: 'script' },
@@ -176,6 +184,11 @@ const MATH_UNICODE_BLOCKS: {
 
   { start: 0x1d538, len: 26, offset: 65, variant: 'double-struck' },
   { start: 0x1d552, len: 26, offset: 97, variant: 'double-struck' },
+  { start: 0x1d7d8, len: 10, offset: 48, variant: 'double-struck' },
+
+  { start: 0x1d670, len: 26, offset: 65, variant: 'monospace' },
+  { start: 0x1d68a, len: 26, offset: 97, variant: 'monospace' },
+  { start: 0x1d7f6, len: 10, offset: 48, variant: 'monospace' },
 
   { start: 0x1d5a0, len: 26, offset: 65, variant: 'sans-serif' },
   { start: 0x1d5ba, len: 26, offset: 97, variant: 'sans-serif' },
@@ -222,15 +235,6 @@ const MATH_UNICODE_BLOCKS: {
     style: 'bolditalic',
   },
 
-  { start: 0x1d670, len: 26, offset: 65, variant: 'monospace' },
-  { start: 0x1d68a, len: 26, offset: 97, variant: 'monospace' },
-
-  { start: 0x1d6a8, len: 25, offset: 0x391, style: 'bold' },
-  { start: 0x1d6c2, len: 25, offset: 0x3b1, style: 'bold' },
-  { start: 0x1d6e2, len: 25, offset: 0x391, style: 'italic' },
-  { start: 0x1d6fc, len: 25, offset: 0x3b1, style: 'italic' },
-  { start: 0x1d71c, len: 25, offset: 0x391, style: 'bolditalic' },
-  { start: 0x1d736, len: 25, offset: 0x3b1, style: 'bolditalic' },
   {
     start: 0x1d756,
     len: 25,
@@ -260,8 +264,6 @@ const MATH_UNICODE_BLOCKS: {
     style: 'bolditalic',
   },
 
-  { start: 0x1d7ce, len: 10, offset: 48, variant: 'main', style: 'bold' },
-  { start: 0x1d7d8, len: 10, offset: 48, variant: 'double-struck' },
   { start: 0x1d7e3, len: 10, offset: 48, variant: 'sans-serif' },
   {
     start: 0x1d7ec,
@@ -270,7 +272,6 @@ const MATH_UNICODE_BLOCKS: {
     variant: 'sans-serif',
     style: 'bold',
   },
-  { start: 0x1d7f6, len: 10, offset: 48, variant: 'monospace' },
 ];
 
 /**
@@ -281,30 +282,26 @@ export function mathVariantToUnicode(
   char: string,
   variant?: string,
   style?: string
-): string {
-  if (!/[A-Za-z\d]/.test(char)) return char;
+): string | undefined {
+  if (!/[A-Za-z\d]/.test(char)) return undefined;
   if (style === 'up') style = undefined;
-  if (!variant && !style) return char;
+  if (!variant && !style) return undefined;
 
   const codepoint = char.codePointAt(0);
   if (codepoint === undefined) return char;
 
-  for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
-    if (!variant || MATH_UNICODE_BLOCK.variant === variant) {
-      if (!style || MATH_UNICODE_BLOCK.style === style) {
-        if (
-          codepoint >= MATH_UNICODE_BLOCK.offset &&
-          codepoint < MATH_UNICODE_BLOCK.offset + MATH_UNICODE_BLOCK.len
-        ) {
-          const result =
-            MATH_UNICODE_BLOCK.start + codepoint - MATH_UNICODE_BLOCK.offset;
+  for (const block of MATH_UNICODE_BLOCKS) {
+    if (!variant || block.variant === variant) {
+      if (!style || block.style === style) {
+        if (codepoint >= block.offset && codepoint < block.offset + block.len) {
+          const result = block.start + codepoint - block.offset;
           return String.fromCodePoint(MATH_LETTER_EXCEPTIONS[result] || result);
         }
       }
     }
   }
 
-  return char;
+  return undefined;
 }
 
 export function unicodeToMathVariant(codepoint: number): {
@@ -326,17 +323,12 @@ export function unicodeToMathVariant(codepoint: number): {
     }
   }
 
-  for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
-    if (
-      codepoint >= MATH_UNICODE_BLOCK.start &&
-      codepoint < MATH_UNICODE_BLOCK.start + MATH_UNICODE_BLOCK.len
-    ) {
+  for (const block of MATH_UNICODE_BLOCKS) {
+    if (codepoint >= block.start && codepoint < block.start + block.len) {
       return {
-        char: String.fromCodePoint(
-          codepoint - MATH_UNICODE_BLOCK.start + MATH_UNICODE_BLOCK.offset
-        ),
-        variant: MATH_UNICODE_BLOCK.variant,
-        style: MATH_UNICODE_BLOCK.style,
+        char: String.fromCodePoint(codepoint - block.start + block.offset),
+        variant: block.variant,
+        style: block.style,
       };
     }
   }

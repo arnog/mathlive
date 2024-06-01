@@ -1008,7 +1008,7 @@ export class Parser {
     const body = this.scan((token) => token === '<}>');
     if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
 
-    const result = new GroupAtom(body, this.parseMode, this.style);
+    const result = new GroupAtom(body, this.parseMode);
     result.verbatimLatex = tokensToString(
       this.tokens.slice(initialIndex, this.index)
     );
@@ -1279,6 +1279,12 @@ export class Parser {
     return [deferredArg, args];
   }
 
+  /**
+   * This function is similar to `scanSymbolOrCommand` but is is invoked
+   * from a context where commands with arguments are not allowed, specifically
+   * when parsing an unbraced argument, i.e. `\frac1\alpha`.
+   *
+   */
   scanSymbolOrLiteral(): Atom[] | null {
     const token = this.peek();
     if (!token) return null;
@@ -1299,33 +1305,36 @@ export class Parser {
     result = this.scanMacro(token);
     if (result) return [result];
 
+    //
+    // Is this a command?
+    //
     if (token.startsWith('\\')) {
-      const info = getDefinition(token, this.parseMode);
-      if (!info) {
+      const def = getDefinition(token, this.parseMode);
+      if (!def) {
         this.onError({ code: 'unknown-command', arg: token });
         return [new ErrorAtom(token)];
       }
-      if (info.definitionType === 'symbol') {
+      if (def.definitionType === 'symbol') {
         //
         // The command is a simple symbol (no arguments)
         //
         const style = { ...this.style };
-        if (info.variant) style.variant = info.variant;
+        if (def.variant) style.variant = def.variant;
 
         result = new Atom({
-          type: info.type,
+          type: def.type,
           command: token,
           style,
-          value: String.fromCodePoint(info.codepoint),
+          value: String.fromCodePoint(def.codepoint),
           mode: this.parseMode,
           verbatimLatex: token,
         });
-      } else if (info.applyMode || info.applyStyle || info.infix) {
+      } else if (def.applyMode || def.applyStyle || def.infix) {
         // The command modifies the mode or style: can't use here
         this.onError({ code: 'invalid-command', arg: token });
         return [new ErrorAtom(token)];
-      } else if (info.createAtom) {
-        result = info.createAtom({
+      } else if (def.createAtom) {
+        result = def.createAtom({
           command: token,
           args: [],
           style: this.style,
@@ -1333,6 +1342,7 @@ export class Parser {
         });
       }
     }
+
     return result ? [result] : null;
   }
 
@@ -1511,7 +1521,11 @@ export class Parser {
     return result;
   }
 
-  /** Parse a symbol or a command and its arguments */
+  /** Parse a symbol or a command and its arguments
+   * See also `scanSymbolOrLiteral` which is invoked from a context where
+   * commands with arguments are not allowed, specifically when parsing an
+   * unbraced argument, i.e. `\frac1\alpha`.
+   */
   scanSymbolOrCommand(command: string): readonly Atom[] | null {
     if (command === '\\placeholder') {
       const id = this.scanOptionalArgument('string') as string;
@@ -1681,10 +1695,8 @@ export class Parser {
         if (deferredArg)
           result!.body = argAtoms(this.scanArgument(deferredArg));
       } else if (typeof info.applyStyle === 'function') {
-        const style = {
-          ...this.style,
-          ...info.applyStyle(command, args, this.context),
-        };
+        const style = info.applyStyle(this.style, command, args, this.context);
+
         // No type provided -> the parse function will modify
         // the current style rather than create a new Atom.
         const savedMode = this.parseMode;
