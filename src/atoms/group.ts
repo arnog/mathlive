@@ -9,8 +9,8 @@ import { getDefinition } from '../latex-commands/definitions-utils';
 export class GroupAtom extends Atom {
   private boxType?: BoxType;
 
-  constructor(arg: readonly Atom[], mode: ParseMode, style?: Style) {
-    super({ type: 'group', mode, style });
+  constructor(arg: readonly Atom[], mode: ParseMode) {
+    super({ type: 'group', mode });
     this.body = arg;
 
     // Non-empty groups introduce a break in the
@@ -26,7 +26,7 @@ export class GroupAtom extends Atom {
   }
 
   static fromJson(json: AtomJson): GroupAtom {
-    return new GroupAtom(json.body, json.mode, json.style);
+    return new GroupAtom(json.body, json.mode);
   }
 
   render(context: Context): Box | null {
