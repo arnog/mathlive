@@ -9,7 +9,7 @@ set -o pipefail  # don't hide errors within pipes
 export BASENAME="\033[40m MathLive \033[0;0m " # `basename "$0"`
 export CHECK="\033[32m ✔ \033[0;0m"
 export DIM="\033[0;2m"
-export DOT="\033[32m 羽 \033[0;0m" # Hourglass
+export DOT="\033[32m ⌛ \033[0;0m" # Hourglass
 export EMPH="\033[33m"
 export ERROR="\033[31;7m ERROR \033[0;0m"
 export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line

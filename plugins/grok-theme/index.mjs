@@ -53,43 +53,155 @@ class GrokTheme extends MarkdownTheme {
   }
 }
 
+/** Utility functions extracted from the MarkdownTheme plugin */
+function backTicks(text) {
+  return /(`|\||\\)/g.test(text) ? escapeChars(text) : `\`${text}\``;
+}
+
+/**
+ *
+ * THEORY OF OPERATION
+ *
+ * The partials below are based on the default partials provided by the markdown theme. They are modified in some small ways, for example to omit some
+ * labels, or to add a `<MemberCard>` component around certain types of
+ * reflections.
+ */
+
 class GrokThemeRenderContext extends MarkdownThemeContext {
   superPartials = this.partials;
   partials = {
     ...this.partials,
 
-    inheritance: (context, reflection, headingLevel) => {
-      return '';
-    },
+    groups: (model, options) => {
+      const groupsWithChildren = model?.filter(
+        (group) => !group.allChildrenHaveOwnDocument()
+      );
 
-    signatureMemberReturns: (signature, headingLevel) => {
-      const context = this;
       const md = [];
 
-      const typeDeclaration = signature.type?.declaration;
+      const getGroupTitle = (groupTitle) => {
+        const key = PLURAL_KIND_KEY_MAP[groupTitle];
+        return this.getText(key) || groupTitle;
+      };
 
-      // md.push(heading(headingLevel, context.text.getText('label.returns')));
+      groupsWithChildren?.forEach((group, index) => {
+        if (group.categories) {
+          // md.push(heading(options.headingLevel, getGroupTitle(group.title)));
+          if (group.description) {
+            md.push(this.partials.commentParts(group.description));
+          }
+          md.push(
+            this.partials.categories(group.categories, {
+              headingLevel: options.headingLevel + 1,
+            })
+          );
+        } else {
+          const isPropertiesGroup = group.children.every(
+            (child) => child.kind === ReflectionKind.Property
+          );
 
-      md.push(getReturnType(context, typeDeclaration, signature.type));
+          const isEnumGroup = group.children.every(
+            (child) => child.kind === ReflectionKind.EnumMember
+          );
 
-      if (signature.comment?.blockTags.length) {
-        const tags = signature.comment.blockTags
+          // md.push(heading(options.headingLevel, getGroupTitle(group.title)));
+          if (group.description) {
+            md.push(this.partials.commentParts(group.description));
+          }
+          if (
+            isPropertiesGroup &&
+            this.options.getValue('propertiesFormat') === 'table'
+          ) {
+            md.push(
+              this.partials.declarationsTable(group.children, {
+                isEventProps:
+                  getGroupTitle(group.title) ===
+                  this.getText('kind.event.plural'),
+              })
+            );
+          } else if (
+            isEnumGroup &&
+            this.options.getValue('enumMembersFormat') === 'table'
+          ) {
+            md.push(this.partials.enumMembersTable(group.children));
+          } else {
+            if (group.children) {
+              md.push(
+                this.partials.members(group.children, {
+                  headingLevel: options.headingLevel + 1,
+                })
+              );
+            }
+          }
+        }
+      });
+      return md.join('\n\n');
+    },
+
+    inheritance: (model, options) => {
+      return '';
+      // const md = [];
+
+      // if (model.implementationOf) {
+      //   if (options.headingLevel !== -1) {
+      //     md.push(
+      //       heading(options.headingLevel, this.getText('label.implementationOf')),
+      //     );
+      //   }
+      //   md.push(this.partials.typeAndParent(model.implementationOf));
+      // }
+
+      // if (model.inheritedFrom) {
+      //   if (options.headingLevel !== -1) {
+      //     md.push(
+      //       heading(options.headingLevel, this.getText('label.inheritedFrom')),
+      //     );
+      //   }
+      //   md.push(this.partials.typeAndParent(model.inheritedFrom));
+      // }
+
+      // if (model.overwrites) {
+      //   const overridesLabel = this.getText('label.overrides');
+      //   if (options.headingLevel !== -1) {
+      //     md.push(heading(options.headingLevel, overridesLabel));
+      //   }
+      //   md.push(this.partials.typeAndParent(model.overwrites));
+      // }
+
+      // return md.join('\n\n');
+    },
+
+    signatureReturns: (model, options) => {
+      const md = [];
+
+      const typeDeclaration = model.type?.declaration;
+      // md.push(heading(options.headingLevel, this.getText('label.returns')));
+
+      if (typeDeclaration?.signatures) {
+        md.push(backTicks('Function'));
+      } else {
+        md.push(this.helpers.getReturnType(model.type));
+      }
+
+      if (model.comment?.blockTags.length) {
+        const tags = model.comment.blockTags
           .filter((tag) => tag.tag === '@returns')
-          .map((tag) => context.partials.commentParts(tag.content));
+          .map((tag) => this.partials.commentParts(tag.content));
         md.push(tags.join('\n\n'));
       }
 
       if (
-        signature.type instanceof ReferenceType &&
-        signature.type.typeArguments?.length
+        model.type instanceof ReferenceType &&
+        model.type.typeArguments?.length
       ) {
-        if (signature.type.typeArguments[0] instanceof ReflectionType) {
+        if (
+          model.type.typeArguments[0] instanceof ReflectionType &&
+          model.type.typeArguments[0].declaration.children
+        ) {
           md.push(
-            blockQuoteBlock(
-              context.partials.typeDeclarationMember(
-                signature.type.typeArguments[0].declaration,
-                headingLevel
-              )
+            this.partials.typeDeclaration(
+              model.type.typeArguments[0].declaration.children,
+              { headingLevel: options.headingLevel }
             )
           );
         }
@@ -98,423 +210,84 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
       if (typeDeclaration?.signatures) {
         typeDeclaration.signatures.forEach((signature) => {
           md.push(
-            blockQuoteBlock(
-              context.partials.signatureMember(
-                signature,
-                headingLevel + 1,
-                true
-              )
-            )
+            this.partials.signature(signature, {
+              headingLevel: options.headingLevel + 1,
+              nested: true,
+            })
           );
         });
       }
 
       if (typeDeclaration?.children) {
         md.push(
-          context.partials.typeDeclarationMember(typeDeclaration, headingLevel)
+          this.partials.typeDeclaration(typeDeclaration.children, {
+            headingLevel: options.headingLevel,
+          })
         );
       }
 
       return md.join('\n\n');
     },
 
-    constructorMember: (reflection, headingLevel) => {
-      const context = this;
+    members: (model, options) => {
       const md = [];
-
-      reflection.signatures?.forEach((signature) => {
-        // const params = signature.parameters
-        //   ?.map((param) => param.name)
-        //   .join(', ');
-        // md.push(
-        //   heading(headingLevel, `${escapeChars(signature.name)}(${params})`)
-        // );
-        md.push(context.partials.signatureMember(signature, headingLevel + 1));
-      });
-
-      return md.join('\n\n');
-    },
-
-    members: (container, headingLevel) => {
-      const context = this;
-      const md = [];
-
-      const displayHr = (reflection) => {
-        if (context.options.getValue('outputFileStrategy') === 'modules')
-          return context.helpers.isGroupKind(reflection);
-
-        return true;
-      };
-
-      const pushCategories = (categories, headingLevel) => {
-        categories
-          ?.filter((category) => !category.allChildrenHaveOwnDocument())
-          .forEach((item) => {
-            md.push(heading(headingLevel, item.title));
-            pushChildren(item.children, headingLevel + 1);
-          });
-      };
-
-      const pushChildren = (children, memberHeadingLevel) => {
-        const items = children?.filter((item) => !item.hasOwnDocument);
-        items?.forEach((item, index) => {
-          md.push(
-            context.partials.member(item, memberHeadingLevel || headingLevel)
-          );
-          // if (index < items.length - 1 && displayHr(item)) {
-          //   md.push(horizontalRule());
-          // }
-        });
-      };
-
-      if (container.categories?.length)
-        pushCategories(container.categories, headingLevel);
-      else {
-        const containerKinds = [
-          ReflectionKind.Project,
-          ReflectionKind.Module,
-          ReflectionKind.Namespace,
-        ];
-        if (
-          context.options.getValue('excludeGroups') &&
-          containerKinds.includes(container.kind)
-        ) {
-          if (container.categories?.length)
-            pushCategories(container.categories, headingLevel);
-          else pushChildren(container.children, headingLevel);
-        } else {
-          const groupsWithChildren = container.groups?.filter(
-            (group) => !group.allChildrenHaveOwnDocument()
-          );
-          groupsWithChildren?.forEach((group, index) => {
-            if (group.categories) {
-              md.push(
-                heading(
-                  headingLevel,
-                  context.text.getTextFromKindString(group.title, true)
-                )
-              );
-              pushCategories(group.categories, headingLevel + 1);
-            } else {
-              const isPropertiesGroup = group.children.every(
-                (child) => child.kind === ReflectionKind.Property
-              );
-
-              const isEnumGroup = group.children.every(
-                (child) => child.kind === ReflectionKind.EnumMember
-              );
-
-              // md.push(
-              //   heading(
-              //     headingLevel,
-              //     context.text.getTextFromKindString(group.title, true)
-              //   )
-              // );
-
-              if (
-                isPropertiesGroup &&
-                context.options.getValue('propertiesFormat') === 'table'
-              ) {
-                md.push(
-                  context.partials.propertiesTable(
-                    group.children,
-                    context.text.getTextFromKindString(group.title, true) ===
-                      context.text.getText('kind.event.plural')
-                  )
-                );
-              } else if (
-                isEnumGroup &&
-                context.options.getValue('enumMembersFormat') === 'table'
-              )
-                md.push(context.partials.enumMembersTable(group.children));
-              else pushChildren(group.children, headingLevel + 1);
-            }
-          });
-        }
-      }
-
-      return md.join('\n\n');
-    },
-
-    reflectionMember: (reflection, headingLevel) => {
-      const context = this;
-      const md = [];
-
-      if (reflection.comment)
-        md.push(context.partials.comment(reflection.comment, headingLevel));
-
-      if (reflection.typeHierarchy?.next) {
+      // const displayHr = (reflection) => {
+      //   if (this.options.getValue('outputFileStrategy') === 'modules') {
+      //     return this.helpers.isGroupKind(reflection);
+      //   }
+      //   return true;
+      // };
+      const items = model?.filter((item) => !item.hasOwnDocument);
+      items?.forEach((item, index) => {
         md.push(
-          context.partials.memberHierarchy(
-            reflection.typeHierarchy,
-            headingLevel
-          )
+          this.partials.member(item, { headingLevel: options.headingLevel })
         );
-      }
-
-      if (reflection.typeParameters) {
-        // md.push(
-        //   heading(
-        //     headingLevel,
-        //     context.text.getText('kind.typeParameter.plural')
-        //   )
-        // );
-        if (context.options.getValue('parametersFormat') === 'table') {
-          md.push(
-            context.partials.typeParametersTable(reflection.typeParameters)
-          );
-        } else {
-          md.push(
-            context.partials.typeParametersList(reflection.typeParameters)
-          );
-        }
-      }
-
-      // if (reflection.implementedTypes) {
-      //   md.push(
-      //     heading(headingLevel, context.text.getText('label.implements'))
-      //   );
-      //   md.push(
-      //     unorderedList(
-      //       reflection.implementedTypes.map((implementedType) =>
-      //         context.partials.someType(implementedType)
-      //       )
-      //     )
-      //   );
-      // }
-
-      if ('signatures' in reflection && reflection.signatures) {
-        reflection.signatures.forEach((signature) => {
-          md.push(context.partials.signatureMember(signature, headingLevel));
-        });
-      }
-
-      if ('indexSignature' in reflection && reflection.indexSignature) {
-        // md.push(heading(headingLevel, context.text.getText('label.indexable')));
-        md.push(
-          context.partials.indexSignatureTitle(reflection.indexSignature)
-        );
-      }
-
-      if (
-        reflection?.groups?.some((group) => group.allChildrenHaveOwnDocument())
-      ) {
-        const isAbsolute = reflection.groups?.every((group) =>
-          group.allChildrenHaveOwnDocument()
-        );
-        // if (isAbsolute) {
-        //   md.push(heading(headingLevel, context.text.getText('label.index')));
+        // if (index < items.length - 1 && displayHr(item)) {
+        //   md.push(horizontalRule());
         // }
-        md.push(
-          context.partials.reflectionIndex(
-            reflection,
-            isAbsolute ? headingLevel + 1 : headingLevel
-          )
-        );
-      }
-
-      md.push(context.partials.members(reflection, headingLevel));
-
+      });
       return md.join('\n\n');
     },
 
-    signatureMember: (signature, headingLevel, nested = false, accessor) => {
-      const context = this;
+    member: (model, options) => {
       const md = [];
 
-      md.push(context.partials.reflectionFlags(signature));
-
-      if (!nested) {
-        md.push(
-          context.partials.signatureMemberIdentifier(signature, {
-            accessor,
-          })
-        );
-      }
-
-      if (signature.comment) {
-        md.push(
-          context.partials.comment(signature.comment, headingLevel, true, false)
-        );
-      }
-
-      if (
-        signature.typeParameters?.length &&
-        signature.kind !== ReflectionKind.ConstructorSignature
-      ) {
-        // md.push(
-        //   heading(
-        //     headingLevel,
-        //     context.text.getText('kind.typeParameter.plural')
-        //   )
-        // );
-        if (context.options.getValue('parametersFormat') === 'table') {
-          md.push(
-            context.partials.typeParametersTable(signature.typeParameters)
-          );
-        } else {
-          md.push(
-            context.partials.typeParametersList(signature.typeParameters)
-          );
-        }
-      }
-
-      if (signature.parameters?.length) {
-        // md.push(
-        //   heading(headingLevel, context.text.getText('kind.parameter.plural'))
-        // );
-        if (context.options.getValue('parametersFormat') === 'table')
-          md.push(context.partials.parametersTable(signature.parameters));
-        else md.push(context.partials.parametersList(signature.parameters));
-      }
-
-      // if (signature.type) {
-      //   md.push(
-      //     context.partials.signatureMemberReturns(signature, headingLevel)
-      //   );
-      // }
-
-      md.push(context.partials.inheritance(signature, headingLevel));
-
-      if (signature.comment) {
-        md.push(
-          context.partials.comment(signature.comment, headingLevel, false, true)
-        );
-      }
-
-      if (
-        !nested &&
-        signature.sources &&
-        !context.options.getValue('disableSources')
-      )
-        md.push(context.partials.sources(signature, headingLevel));
-
-      return md.join('\n\n');
-    },
-
-    accessorMember: (declaration, headingLevel) => {
-      const context = this;
-      const md = [];
-
-      if (declaration.getSignature) {
-        md.push(
-          context.partials.signatureMemberIdentifier(declaration.getSignature, {
-            accessor: 'get',
-          })
-        );
-      }
-      if (declaration.setSignature) {
-        md.push(
-          context.partials.signatureMemberIdentifier(declaration.setSignature, {
-            accessor: 'set',
-          })
-        );
-      }
-
-      if (declaration.getSignature?.comment) {
-        md.push(
-          context.partials.comment(
-            declaration.getSignature.comment,
-            headingLevel
-          )
-        );
-      }
-      if (declaration.setSignature?.comment) {
-        md.push(
-          context.partials.comment(
-            declaration.setSignature.comment,
-            headingLevel
-          )
-        );
-      }
-
-      if (declaration.getSignature?.type) {
-        md.push(
-          context.partials.signatureMemberReturns(
-            declaration.getSignature,
-            headingLevel
-          )
-        );
-      }
-
-      if (declaration.setSignature?.parameters?.length) {
-        // md.push(
-        //   heading(headingLevel, context.text.getText('kind.parameter.plural'))
-        // );
-        if (context.options.getValue('parametersFormat') === 'table') {
-          md.push(
-            context.partials.parametersTable(
-              declaration.setSignature.parameters
-            )
-          );
-        } else {
-          md.push(
-            context.partials.parametersList(declaration.setSignature.parameters)
-          );
-        }
-      }
-
-      const showSources =
-        declaration?.parent?.kind !== ReflectionKind.TypeLiteral;
-
-      if (showSources && !context.options.getValue('disableSources')) {
-        if (declaration.getSignature?.sources) {
-          md.push(
-            context.partials.sources(declaration.getSignature, headingLevel)
-          );
-        } else if (declaration.setSignature?.sources) {
-          md.push(
-            context.partials.sources(declaration.setSignature, headingLevel)
-          );
-        }
-      }
-
-      return md.join('\n\n');
-    },
-
-    member: (reflection, headingLevel, nested, parentDeclaration) => {
-      const context = this;
-      const md = [];
-
-      if (context.options.getValue('useHTMLAnchors') && reflection.anchor) {
-        const id = reflection.anchor;
+      if (this.options.getValue('useHTMLAnchors') && model.anchor) {
+        const id = model.anchor;
         md.push(`<a id="${id}" name="${id}"></a>`);
       }
 
       let hasCard = false;
-      if (!reflection.hasOwnDocument) {
+
+      if (!model.hasOwnDocument) {
         hasCard = ![
           ReflectionKind.Class,
           ReflectionKind.Interface,
           ReflectionKind.Enum,
           ReflectionKind.TypeAlias,
-        ].includes(reflection.kind);
+        ].includes(model.kind);
 
-        let memberName = context.partials.memberTitle(reflection);
+        let memberName = this.partials.memberTitle(model);
 
-        // if (memberName.startsWith('parseArgumentsOfUnknownLatexCommands')) {
-        //   console.log('reflection', reflection.parent);
-        // }
-
-        if (reflection.kind === ReflectionKind.Constructor) {
-          memberName = `new ${reflection.parent.name}()`;
-        } else if (reflection.parent?.kind === ReflectionKind.TypeLiteral) {
-          memberName = `${reflection.parent.parent.name}.${memberName}`;
+        if (model.kind === ReflectionKind.Constructor) {
+          memberName = `new ${model.parent.name}()`;
+        } else if (model.parent?.kind === ReflectionKind.TypeLiteral) {
+          memberName = `${model.parent.parent.name}.${memberName}`;
         } else {
           if (
-            reflection.parent &&
+            model.parent &&
             [
               ReflectionKind.Class,
               ReflectionKind.Interface,
               ReflectionKind.Enum,
 
               ReflectionKind.TypeAlias,
-            ].includes(reflection.parent.kind)
+            ].includes(model.parent.kind)
           )
-            memberName = `${reflection.parent.name}.${memberName}`;
+            memberName = `${model.parent.name}.${memberName}`;
         }
         if (hasCard) md.push(`<MemberCard>`);
-        md.push(heading(headingLevel, memberName));
+        md.push(heading(options.headingLevel, memberName));
       }
 
       const getMember = (reflection) => {
@@ -525,17 +298,20 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
             ReflectionKind.Enum,
           ].includes(reflection.kind)
         ) {
-          return context.partials.reflectionMember(
-            reflection,
-            headingLevel + 1
-          );
+          return this.partials.memberWithGroups(reflection, {
+            headingLevel: options.headingLevel + 1,
+          });
         }
 
         if (reflection.kind === ReflectionKind.Constructor)
-          return context.partials.constructorMember(reflection, headingLevel);
+          return this.partials.constructor(reflection, {
+            headingLevel: options.headingLevel,
+          });
 
         if (reflection.kind === ReflectionKind.Accessor)
-          return context.partials.accessorMember(reflection, headingLevel + 1);
+          return this.partials.accessor(reflection, {
+            headingLevel: options.headingLevel + 1,
+          });
 
         if (reflection.signatures) {
           return reflection.signatures
@@ -547,7 +323,7 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
               if (multipleSignatures) {
                 signatureMd.push(
                   heading(
-                    headingLevel + 1,
+                    options.headingLevel + 1,
                     `${escapeChars(signature.name)}(${signature.parameters
                       ?.map((param) => param.name)
                       .join(', ')})`
@@ -555,11 +331,12 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
                 );
               }
               signatureMd.push(
-                context.partials.signatureMember(
-                  signature,
-                  multipleSignatures ? headingLevel + 2 : headingLevel + 1,
-                  nested
-                )
+                this.partials.signature(signature, {
+                  headingLevel: multipleSignatures
+                    ? options.headingLevel + 2
+                    : options.headingLevel + 1,
+                  nested: options.nested,
+                })
               );
               return signatureMd.join('\n\n');
             })
@@ -567,20 +344,172 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
         }
 
         if (reflection instanceof ReferenceReflection)
-          return context.partials.referenceMember(reflection);
+          return this.partials.referenceMember(reflection);
 
-        return context.partials.declarationMember(
-          reflection,
-          headingLevel + 1,
-          nested
-        );
+        return this.partials.declaration(reflection, {
+          headingLevel: options.headingLevel + 1,
+          nested: options.nested,
+        });
       };
 
-      const memberMarkdown = getMember(reflection);
+      const memberMarkdown = getMember(model);
 
       if (memberMarkdown) md.push(memberMarkdown);
 
       if (hasCard) md.push('</MemberCard>');
+
+      return md.join('\n\n');
+    },
+
+    accessor: (model, options) => {
+      const md = [];
+
+      if (model.getSignature) {
+        md.push(
+          this.partials.signatureTitle(model.getSignature, {
+            accessor: 'get',
+          })
+        );
+        if (model.getSignature.comment) {
+          md.push(
+            this.partials.comment(model.getSignature.comment, {
+              headingLevel: options.headingLevel,
+            })
+          );
+        }
+      }
+      if (model.setSignature) {
+        md.push(
+          this.partials.signatureTitle(model.setSignature, {
+            accessor: 'set',
+          })
+        );
+        if (model.setSignature.comment) {
+          md.push(
+            this.partials.comment(model.setSignature.comment, {
+              headingLevel: options.headingLevel,
+            })
+          );
+        }
+      }
+
+      if (model.setSignature?.parameters?.length) {
+        // md.push(
+        //   heading(options.headingLevel, this.getText('kind.parameter.plural'))
+        // );
+        if (this.options.getValue('parametersFormat') === 'table') {
+          md.push(this.partials.parametersTable(model.setSignature.parameters));
+        } else {
+          md.push(this.partials.parametersList(model.setSignature.parameters));
+        }
+      }
+
+      if (model.getSignature?.type) {
+        md.push(
+          this.partials.signatureReturns(model.getSignature, {
+            headingLevel: options.headingLevel,
+          })
+        );
+      }
+
+      const showSources = model?.parent?.kind !== ReflectionKind.TypeLiteral;
+
+      if (showSources && !this.options.getValue('disableSources')) {
+        if (model.getSignature?.sources) {
+          md.push(
+            this.partials.sources(model.getSignature, {
+              headingLevel: options.headingLevel,
+            })
+          );
+        } else if (model.setSignature?.sources) {
+          md.push(
+            this.partials.sources(model.setSignature, {
+              headingLevel: options.headingLevel,
+            })
+          );
+        }
+      }
+
+      return md.join('\n\n');
+    },
+
+    signature: (model, options) => {
+      const md = [];
+
+      md.push(this.partials.reflectionFlags(model));
+
+      if (!options.nested) {
+        md.push(
+          this.partials.signatureTitle(model, {
+            accessor: options.accessor,
+          })
+        );
+      }
+
+      if (model.comment) {
+        md.push(
+          this.partials.comment(model.comment, {
+            headingLevel: options.headingLevel,
+            showTags: false,
+          })
+        );
+      }
+
+      if (
+        model.typeParameters?.length &&
+        model.kind !== ReflectionKind.ConstructorSignature
+      ) {
+        // md.push(
+        //   heading(options.headingLevel, this.getText('kind.typeParameter.plural')),
+        // );
+        if (this.options.getValue('parametersFormat') === 'table') {
+          md.push(this.partials.typeParametersTable(model.typeParameters));
+        } else {
+          md.push(this.partials.typeParametersList(model.typeParameters));
+        }
+      }
+
+      if (model.parameters?.length) {
+        // md.push(
+        //   heading(options.headingLevel, this.getText('kind.parameter.plural')),
+        // );
+        if (this.options.getValue('parametersFormat') === 'table') {
+          md.push(this.partials.parametersTable(model.parameters));
+        } else {
+          md.push(this.partials.parametersList(model.parameters));
+        }
+      }
+
+      if (model.type) {
+        md.push(
+          this.partials.signatureReturns(model, {
+            headingLevel: options.headingLevel,
+          })
+        );
+      }
+
+      md.push(
+        this.partials.inheritance(model, { headingLevel: options.headingLevel })
+      );
+
+      if (model.comment) {
+        md.push(
+          this.partials.comment(model.comment, {
+            headingLevel: options.headingLevel,
+            showSummary: false,
+          })
+        );
+      }
+
+      if (
+        !options.nested &&
+        model.sources &&
+        !this.options.getValue('disableSources')
+      ) {
+        md.push(
+          this.partials.sources(model, { headingLevel: options.headingLevel })
+        );
+      }
 
       return md.join('\n\n');
     },
