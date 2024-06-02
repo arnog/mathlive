@@ -1329,10 +1329,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.getPromptValue(placeholderId, format) ?? '';
   }
 
-  /**
-   * @inheritDoc _Mathfield.setPromptValue
-   * @category Prompts
-   * */
+  /**  {@inheritDoc _Mathfield.setPromptValue} */
+  /** @category Prompts */
   setPromptValue(
     id: string,
     content: string,
@@ -1619,8 +1617,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @inheritDoc _Mathfield.getValue
-   * @category Accessing and changing the content
+   * @inheritDoc _Mathfield.getValue */
+  /** @category Accessing and changing the content
    */
   getValue(format?: OutputFormat): string;
   getValue(start: Offset, end: Offset, format?: OutputFormat): string;
@@ -2212,8 +2210,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Customization
-   * @inheritDoc LayoutOptions.colorMap
    */
+  /** {@inheritDoc LayoutOptions.colorMap} */
   get colorMap(): (name: string) => string | undefined {
     return this._getOption('colorMap');
   }
@@ -2221,9 +2219,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ colorMap: value });
   }
 
-  /** @category Customization
-   * @inheritDoc LayoutOptions.backgroundColorMap
-   */
+  /** @category Customization */
+  /** {@inheritDoc LayoutOptions.backgroundColorMap} */
   get backgroundColorMap(): (name: string) => string | undefined {
     return this._getOption('backgroundColorMap');
   }
@@ -2231,9 +2228,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ backgroundColorMap: value });
   }
 
-  /** @category Customization
-   * @inheritDoc LayoutOptions.letterShapeStyle
-   */
+  /** @category Customization */
+  /** {@inheritDoc LayoutOptions.letterShapeStyle} */
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
     return this._getOption('letterShapeStyle');
   }
@@ -2241,9 +2237,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ letterShapeStyle: value });
   }
 
-  /** @category Customization
-   * @inheritDoc LayoutOptions.minFontScale
-   */
+  /** @category Customization */
+  /** {@inheritDoc LayoutOptions.minFontScale} */
   get minFontScale(): number {
     return this._getOption('minFontScale');
   }
@@ -2251,9 +2246,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ minFontScale: value });
   }
 
-  /** @category Customization
-   * @inheritDoc LayoutOptions.maxMatrixCols
-   */
+  /** @category Customization */
+  /**  {@inheritDoc LayoutOptions.maxMatrixCols} */
   get maxMatrixCols(): number {
     return this._getOption('maxMatrixCols');
   }
@@ -2261,9 +2255,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ maxMatrixCols: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.smartMode
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.smartMode}*/
   get smartMode(): boolean {
     return this._getOption('smartMode');
   }
@@ -2271,9 +2264,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ smartMode: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.smartFence
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.smartFence}*/
   get smartFence(): boolean {
     return this._getOption('smartFence');
   }
@@ -2281,9 +2273,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ smartFence: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.smartSuperscript
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.smartSuperscript} */
   get smartSuperscript(): boolean {
     return this._getOption('smartSuperscript');
   }
@@ -2291,9 +2282,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ smartSuperscript: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.scriptDepth
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.scriptDepth} */
   get scriptDepth(): number | [number, number] {
     return this._getOption('scriptDepth');
   }
@@ -2301,9 +2291,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ scriptDepth: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.removeExtraneousParentheses
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.removeExtraneousParentheses} */
   get removeExtraneousParentheses(): boolean {
     return this._getOption('removeExtraneousParentheses');
   }
@@ -2311,9 +2300,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ removeExtraneousParentheses: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.mathModeSpace
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.mathModeSpace} */
   get mathModeSpace(): string {
     return this._getOption('mathModeSpace');
   }
@@ -2321,9 +2309,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ mathModeSpace: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.placeholderSymbol
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.placeholderSymbol} */
   get placeholderSymbol(): string {
     return this._getOption('placeholderSymbol');
   }
@@ -2331,9 +2318,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ placeholderSymbol: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.popoverPolicy
-   */
+  /** @category Customization */
+  /** {@inheritDoc EditingOptions.popoverPolicy} */
   get popoverPolicy(): 'auto' | 'off' {
     return this._getOption('popoverPolicy');
   }
@@ -2342,9 +2328,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
-   * @category Customization
-   * @inheritDoc EditingOptions.environmentPopoverPolicy
-   */
+   * @category Customization */
+  /** {@inheritDoc EditingOptions.environmentPopoverPolicy}   */
   get environmentPopoverPolicy(): 'auto' | 'off' | 'on' {
     return this._getOption('environmentPopoverPolicy');
   }
@@ -2391,8 +2376,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /**
    * @category Customization
    * @category Virtual Keyboard
-   * @inheritDoc EditingOptions.mathVirtualKeyboardPolicy
    */
+  /**    * {@inheritDoc EditingOptions.mathVirtualKeyboardPolicy} */
   get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy {
     return this._getOption('mathVirtualKeyboardPolicy');
   }
@@ -2400,9 +2385,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ mathVirtualKeyboardPolicy: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.inlineShortcuts
-   */
+  /** @category Customization */
+  /**    * {@inheritDoc EditingOptions.inlineShortcuts} */
   get inlineShortcuts(): Readonly<InlineShortcutDefinitions> {
     return this._getOption('inlineShortcuts');
   }
@@ -2411,7 +2395,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /** @category Customization
-   * @inheritDoc EditingOptions.inlineShortcutTimeout
+   * {@inheritDoc EditingOptions.inlineShortcutTimeout}
    */
   get inlineShortcutTimeout(): number {
     return this._getOption('inlineShortcutTimeout');
@@ -2420,9 +2404,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     this._setOptions({ inlineShortcutTimeout: value });
   }
 
-  /** @category Customization
-   * @inheritDoc EditingOptions.keybindings
-   */
+  /** @category Customization   */
+  /**    * {@inheritDoc EditingOptions.keybindings} */
   get keybindings(): readonly Keybinding[] {
     return this._getOption('keybindings');
   }
