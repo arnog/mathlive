@@ -283,24 +283,34 @@ function emitVariantRun(run: Atom[], options: ToLatexOptions): string[] {
     const variant = variantString(x[0]);
     let command = '';
     if (variant && variant !== contextVariant) {
+      // Note that bold is handled separately, so we ignore it here.
       command = {
         'calligraphic': '\\mathcal',
+        'calligraphic-uo': '\\mathcal',
         'fraktur': '\\mathfrak',
+        'fraktur-uo': '\\mathfrak',
         'double-struck': '\\mathbb',
+        'double-struck-uo': '\\mathbb',
         'script': '\\mathscr',
+        'script-uo': '\\mathscr',
         'monospace': '\\mathtt',
+        'monospace-uo': '\\mathtt',
         'sans-serif': '\\mathsf',
+        'sans-serif-uo': '\\mathsf',
         'normal': '',
+        'normal-up': '\\mathrm',
         'normal-italic': '\\mathnormal',
-        'normal-bold': '\\mathbf',
+        'normal-bold': '',
         'normal-bolditalic': '\\mathbfit',
         'ams': '',
+        'ams-up': '\\mathrm',
         'ams-italic': '\\mathit',
-        'ams-bold': '\\mathbf',
+        'ams-bold': '',
         'ams-bolditalic': '\\mathbfit',
         'main': '',
+        'main-up': '\\mathrm',
         'main-italic': '\\mathit',
-        'main-bold': '\\mathbf',
+        'main-bold': '',
         'main-bolditalic': '\\mathbfit',
         // There are a few rare font families possible, which
         // are not supported:

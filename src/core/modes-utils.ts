@@ -145,8 +145,7 @@ export function variantString(atom: Atom): string {
       'monospace',
       'sans-serif',
     ].includes(result) &&
-    style.variantStyle &&
-    style.variantStyle !== 'up'
+    style.variantStyle
   )
     result += '-' + style.variantStyle;
 
