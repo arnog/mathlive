@@ -84,6 +84,7 @@ export class LatexModeEditor extends ModeEditor {
     // Insert the new atoms
     //
     let cursor = model.at(model.position);
+
     // In some cases (after a SelectAll command, for example), the cursor
     // can be positoned *after* the LatexGroup. In that case, adjust to be
     // the last atom inside the LatexGroup.
@@ -92,7 +93,7 @@ export class LatexModeEditor extends ModeEditor {
     // If there is no LatexGroup (for example, it was deleted, but we're still
     // in LaTeX mode), insert one.
     if (!(cursor.parent instanceof LatexGroupAtom)) {
-      const group = new LatexGroupAtom('');
+      const group = new LatexGroupAtom();
       cursor.parent!.addChildAfter(group, cursor);
       cursor = group.firstChild;
     }
@@ -120,10 +121,9 @@ export function getLatexGroup(model: _Model): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
-export function getLatexGroupBody(model: _Model): LatexAtom[] {
-  const atom = model.atoms.find((x) => x.type === 'latexgroup');
-  if (!atom) return [];
-  return (atom.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
+export function getLatexGroupBody(model: _Model): readonly LatexAtom[] {
+  const atom = getLatexGroup(model);
+  return (atom?.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }
 
 export function getCommandSuggestionRange(

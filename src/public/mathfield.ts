@@ -12,6 +12,7 @@ import type { ParseMode, Style } from './core-types';
 | `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
 | `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
+' `"plain-text"`        | A plain text rendering of the content. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
@@ -32,6 +33,7 @@ export type OutputFormat =
   | 'latex-without-placeholders'
   | 'math-json'
   | 'math-ml'
+  | 'plain-text'
   | 'spoken'
   | 'spoken-text'
   | 'spoken-ssml'

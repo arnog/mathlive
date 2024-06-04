@@ -49,6 +49,18 @@ the bold attribute is applied to the entire selection, not just the letters
 and numbers.
 
 
+### Mode Switching
+
+- **#2375** The `switch-mode` command has two optionals arguments, a prefix 
+  and suffix. The prefix is inserted before the mode switch, and the suffix 
+  after. The command was behaving incorrectly. It now behaves as expected.
+- It is now possible to roundtrip between math and text mode. For example, 
+  selecting a fraction `\frac{a}{b}` and pressing `alt+shift+T` will convert the 
+  selection to `(a)/(b)`. Pressing `alt+shift+T` again will convert it back to 
+  `\frac{a}{b}`.
+- When in LaTeX mode, changing the selection would sometimes unexpectedly exit 
+  LaTeX mode. This has been fixed.
+
 ### New Features
 
 - Added CSS variables to control the appearance of the toolip displayed with `\mathtip` and `\texttip`: `--toolip-border`, `--tooltip-color`, `--tooltip-background-color`, `--tooltip-box-shadow` and `--tooltip-border-radius`.

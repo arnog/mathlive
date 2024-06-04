@@ -60,13 +60,13 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   {
     key: '\\',
     ifMode: 'math',
-    command: ['switchMode', 'latex', '\\'],
+    command: ['switchMode', 'latex', '', '\\'],
   },
   // { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
   {
     key: '[IntlBackslash]',
     ifMode: 'math',
-    command: ['switchMode', 'latex', '\\'],
+    command: ['switchMode', 'latex', '', '\\'],
   }, // On UK QWERTY keyboards
 
   {
@@ -260,22 +260,24 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'math',
     command: ['switchMode', 'text', '', ''],
-  },
-  {
-    key: 'shift+alt+[KeyT]',
-    ifMode: 'math',
-    command: ['switchMode', 'text', '', ''],
+    // command: ['switchMode', 'text', '', '«'],
   },
   {
     key: 'shift+[Quote]',
     ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
     ifMode: 'text',
     command: ['switchMode', 'math', '', ''],
+    // command: ['switchMode', 'math', '»', ''],
+  },
+  {
+    key: 'shift+alt+[KeyT]',
+    ifMode: 'math',
+    command: ['switchMode', 'text'],
   },
   {
     key: 'shift+alt+[KeyT]',
     ifMode: 'text',
-    command: ['switchMode', 'math', '', ''],
+    command: ['switchMode', 'math'],
   },
   {
     key: '/',

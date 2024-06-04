@@ -95,7 +95,6 @@ import {
 } from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
-import { getLatexGroupBody } from './mode-editor-latex';
 import './mode-editor-math';
 import './mode-editor-text';
 
@@ -123,7 +122,7 @@ import {
 } from 'editor/environment-popover';
 import { Menu } from 'ui/menu/menu';
 import { onContextMenu } from 'ui/menu/context-menu';
-import { keyboardModifiersFromEvent } from 'ui/events/utils';
+import { keyboardModifiersFromEvent } from '../ui/events/utils';
 import { getDefaultMenuItems } from 'editor/default-menu';
 import type { ModelState } from 'editor-model/types';
 import { _Model } from 'editor-model/model-private';
@@ -134,6 +133,9 @@ import 'editor-model/commands-move';
 import 'editor-model/commands-select';
 import { KeyboardModifiers } from 'public/ui-events-types';
 import MathfieldElement from '../public/mathfield-element';
+import { parseMathString } from 'formats/parse-math-string';
+import { TextAtom } from 'atoms/text';
+import { getLatexGroup } from './mode-editor-latex';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="width: 21px;"  viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -1173,6 +1175,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return true;
   }
 
+  /**
+   * Switch from the current mode to the new mode, if different.
+   * Prefix and suffix are optional strings to be inserted before and after
+   * the mode change, so prefix is interpreted with the current mode and
+   * suffix with the new mode.
+   */
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
     if (
       this.model.mode === mode ||
@@ -1182,13 +1190,18 @@ If you are using Vue, this may be because you are using the runtime-only build o
     )
       return;
 
-    // Dispatch event with option of canceling
-    // Set the mode to the requested mode so the event handler
-    // can inspect it.
-    const previousMode = this.model.mode;
-    this.model.mode = mode;
+    const { model } = this;
+
+    //
+    // 1. Confirm that the mode change is allowed
+    //
+    // Dispatch event with the option of canceling.
+    // Set the mode to the requested mode so the event handler can inspect it.
+    const previousMode = model.mode;
+    model.mode = mode;
     if (
-      !this.host?.dispatchEvent(
+      this.host &&
+      !this.host.dispatchEvent(
         new Event('mode-change', {
           bubbles: true,
           composed: true,
@@ -1196,91 +1209,113 @@ If you are using Vue, this may be because you are using the runtime-only build o
         })
       )
     ) {
-      this.model.mode = previousMode;
+      model.mode = previousMode;
       return;
     }
 
-    // Notify of mode change
-    const currentMode = this.model.mode;
-    const { model } = this;
+    // Restore to the current mode
+    model.mode = previousMode;
+
+    //
+    // 2. Perform the mode change, accounting for selection and prefix/suffix
+    //
     model.deferNotifications(
       {
         content: Boolean(suffix) || Boolean(prefix),
-        selection: true,
+        selection: true, // Boolean(suffix) || Boolean(prefix),
         type: 'insertText',
       },
       (): boolean => {
-        let contentChanged = false;
-        this.flushInlineShortcutBuffer();
-        this.stopCoalescingUndo();
-        if (prefix && mode !== 'latex') {
-          const atoms = parseLatex(prefix, {
-            context: this.context,
-            parseMode: mode,
-          });
-          model.collapseSelection('forward');
-          const cursor = model.at(model.position);
-          model.position = model.offsetOf(
-            cursor.parent!.addChildrenAfter(atoms, cursor)
-          );
-          contentChanged = true;
-        }
+        let cursor = model.at(model.position);
 
-        this.model.mode = mode;
+        const insertString = (s: string, options: { select: boolean }) => {
+          if (!s) return;
+          // if (s.length === 1) debugger;
+          // console.log('inserting, s=', s);
+          const atoms =
+            model.mode === 'math'
+              ? parseLatex(parseMathString(s, { format: 'ascii-math' })[1], {
+                  context: this.context,
+                })
+              : [...s].map((c) => new TextAtom(c, c, {}));
 
-        if (mode === 'latex') {
-          let wasCollapsed = model.selectionIsCollapsed;
-          // We can have only a single latex group at a time.
-          // If a latex group is open, close it first
-          complete(this, 'accept');
-
-          // Insert a latex group atom
-          let latex: string;
-          let cursor = model.at(model.position);
-          if (wasCollapsed) latex = '\\';
-          else {
-            const selRange = range(model.selection);
-            latex = this.model.getValue(selRange, 'latex');
-            const extractedAtoms = this.model.extractAtoms(selRange);
-            if (
-              extractedAtoms.length === 1 &&
-              extractedAtoms[0].type === 'placeholder'
-            ) {
-              // If we just had a placeholder selected, pretend we had an empty
-              // selection
-              latex = prefix;
-              wasCollapsed = true;
-            }
-            cursor = model.at(selRange[0]);
+          if (options.select) {
+            const end = cursor.parent!.addChildrenAfter(atoms, cursor);
+            model.setSelection(
+              model.offsetOf(atoms[0].leftSibling),
+              model.offsetOf(end)
+            );
+          } else {
+            model.position = model.offsetOf(
+              cursor.parent!.addChildrenAfter(atoms, cursor)
+            );
           }
+          contentChanged = true;
+        };
 
+        const insertLatexGroup = (
+          latex: string,
+          options: { select: boolean }
+        ) => {
           const atom = new LatexGroupAtom(latex);
           cursor.parent!.addChildAfter(atom, cursor);
-          if (wasCollapsed) model.position = model.offsetOf(atom.lastChild);
-          else {
+          if (options.select) {
             model.setSelection(
               model.offsetOf(atom.firstChild),
               model.offsetOf(atom.lastChild)
             );
-          }
-        } else {
-          // Remove any error indicator on the current command sequence (if there is one)
-          getLatexGroupBody(model).forEach((x) => {
-            x.isError = false;
-          });
-        }
-
-        if (suffix) {
-          const atoms = parseLatex(suffix, {
-            context: this.context,
-            parseMode: currentMode,
-          });
-          model.collapseSelection('forward');
-          const cursor = model.at(model.position);
-          model.position = model.offsetOf(
-            cursor.parent!.addChildrenAfter(atoms, cursor)
-          );
+          } else model.position = model.offsetOf(atom.lastChild);
           contentChanged = true;
+        };
+
+        const getContent = () => {
+          const format =
+            mode === 'latex'
+              ? 'latex'
+              : mode === 'math'
+                ? 'plain-text'
+                : 'ascii-math';
+
+          const selRange = range(model.selection);
+          let content = this.model.getValue(selRange, format);
+
+          const atoms = this.model.extractAtoms(selRange);
+
+          // If we just had a placeholder selected, pretend we had an empty
+          // selection
+          if (atoms.length === 1 && atoms[0].type === 'placeholder')
+            content = suffix;
+
+          cursor = model.at(selRange[0]);
+
+          return content;
+        };
+
+        let contentChanged = false;
+
+        // 2.1. Disregard any pending inline shortcut
+        this.flushInlineShortcutBuffer();
+        this.stopCoalescingUndo();
+
+        // 2.2 If there is a LaTeX group, remove it
+        complete(this, 'accept');
+
+        if (model.selectionIsCollapsed) {
+          //
+          // 2.4a. If empty selection: insert prefix and suffix
+          //
+          insertString(prefix, { select: false });
+          model.mode = mode;
+          if (mode === 'latex') insertLatexGroup(suffix, { select: false });
+          else insertString(suffix, { select: false });
+        } else {
+          //
+          // 2.4b. Non-empty selection: convert the selection to the new mode
+          //
+          const content = getContent();
+          model.mode = mode;
+          if (mode === 'latex') insertLatexGroup(content, { select: true });
+          else insertString(content, { select: true });
         }
 
         requestUpdate(this);
@@ -1289,7 +1324,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     );
 
-    this.model.mode = mode;
+    model.mode = mode;
 
     // Update the toolbar
     window.mathVirtualKeyboard.update(makeProxy(this));
@@ -1587,18 +1622,35 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Keep the content of the keyboard sink in sync with the selection.
     // Safari will not dispatch cut/copy/paste unless there is a DOM selection.
     this.keyboardDelegate.setValue(
-      model.getValue(this.model.selection, 'latex-expanded')
+      model.getValue(model.selection, 'latex-expanded')
     );
 
-    // Adjust mode
-    {
-      const cursor = model.at(model.position);
-      const newMode = cursor.mode ?? effectiveMode(this.options);
-      if (this.model.mode !== newMode) {
-        if (this.model.mode === 'latex') {
-          complete(this, 'accept', { mode: newMode });
-          model.position = model.offsetOf(cursor);
-        } else this.switchMode(newMode);
+    // If we move the selection outside of a LaTeX group, close the group
+    if (model.selectionIsCollapsed) {
+      const latexGroup = getLatexGroup(model);
+      const pos = model.position;
+      const cursor = model.at(pos);
+      const mode = cursor.mode ?? effectiveMode(this.options);
+      if (
+        latexGroup &&
+        (pos < model.offsetOf(latexGroup.firstChild) - 1 ||
+          pos > model.offsetOf(latexGroup.lastChild) + 1)
+      ) {
+        // We moved outside a LaTeX group
+        complete(this, 'accept', { mode });
+        model.position = model.offsetOf(cursor);
+      } else {
+        // If we're at the start or the end of a LaTeX group,
+        // move inside the group and don't switch mode.
+        const sibling = model.at(pos + 1);
+        if (sibling?.type === 'first' && sibling.mode === 'latex') {
+          model.position = pos + 1;
+        } else if (latexGroup && sibling?.mode !== 'latex') {
+          model.position = pos - 1;
+        } else {
+          // We may have moved from math to text, or text to math.
+          this.switchMode(mode);
+        }
       }
     }
 

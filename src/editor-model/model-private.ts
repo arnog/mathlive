@@ -490,6 +490,8 @@ export class _Model implements Model {
       return result;
     }
 
+    if (format === 'plain-text') return atomToAsciiMath(atom, { plain: true });
+
     if (format === 'ascii-math') return atomToAsciiMath(atom);
 
     console.error(`MathLive {{SDK_VERSION}}: Unexpected format "${format}`);

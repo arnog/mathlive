@@ -55,16 +55,17 @@ export class LatexAtom extends Atom {
 /**
  * A group that represents a raw LaTeX editing zone.
  * There is only one LatexGroupAtom at a time in an expression.
+ * All the children of a LatexGroupAtom are LatexAtom.
  */
 export class LatexGroupAtom extends Atom {
-  constructor(latex: string) {
+  constructor(latex = '') {
     super({ type: 'latexgroup', mode: 'latex' });
-    this.body = [...latex].map((x) => new LatexAtom(x));
-    this.skipBoundary = false;
+    this.body = [...latex].map((c) => new LatexAtom(c));
+    this.skipBoundary = true;
   }
 
   static fromJson(_json: AtomJson): LatexGroupAtom {
-    return new LatexGroupAtom('');
+    return new LatexGroupAtom();
   }
 
   toJson(): AtomJson {
