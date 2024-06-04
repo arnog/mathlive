@@ -3224,6 +3224,7 @@ type OutputFormat:
   | "latex-without-placeholders"
   | "math-json"
   | "math-ml"
+  | "plain-text"
   | "spoken"
   | "spoken-text"
   | "spoken-ssml"
@@ -3239,6 +3240,7 @@ type OutputFormat:
 | `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
 | `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
+' `"plain-text"`        | A plain text rendering of the content. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
@@ -5632,26 +5634,6 @@ set macros(value): void
 
 </MemberCard>
 
-<a id="mathvirtualkeyboardpolicy" name="mathvirtualkeyboardpolicy"></a>
-
-<MemberCard>
-
-##### MathfieldElement.mathVirtualKeyboardPolicy
-
-```ts
-get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy
-```
-
-```ts
-set mathVirtualKeyboardPolicy(value): void
-```
-
-• **value**: [`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
-
-[`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
-
-</MemberCard>
-
 <a id="menuitems" name="menuitems"></a>
 
 <MemberCard>
@@ -5717,29 +5699,6 @@ set registers(value): void
 </MemberCard>
 
 #### Customization
-{@inheritDoc EditingOptions.environmentPopoverPolicy}
-
-<a id="environmentpopoverpolicy" name="environmentpopoverpolicy"></a>
-
-<MemberCard>
-
-##### MathfieldElement.environmentPopoverPolicy
-
-```ts
-get environmentPopoverPolicy(): "auto" | "off" | "on"
-```
-
-```ts
-set environmentPopoverPolicy(value): void
-```
-
-• **value**: `"auto"` \| `"off"` \| `"on"`
-
-`"auto"` \| `"off"` \| `"on"`
-
-</MemberCard>
-
-#### Customization
 {@inheritDoc EditingOptions.inlineShortcutTimeout}
 
 <a id="inlineshortcuttimeout" name="inlineshortcuttimeout"></a>
@@ -5754,98 +5713,6 @@ get inlineShortcutTimeout(): number
 
 ```ts
 set inlineShortcutTimeout(value): void
-```
-
-• **value**: `number`
-
-`number`
-
-</MemberCard>
-
-#### Customization
-{@inheritDoc EditingOptions.inlineShortcuts}
-
-<a id="inlineshortcuts" name="inlineshortcuts"></a>
-
-<MemberCard>
-
-##### MathfieldElement.inlineShortcuts
-
-```ts
-get inlineShortcuts(): Readonly<InlineShortcutDefinitions>
-```
-
-```ts
-set inlineShortcuts(value): void
-```
-
-• **value**: [`InlineShortcutDefinitions`](#inlineshortcutdefinitions)
-
-`Readonly`\<[`InlineShortcutDefinitions`](#inlineshortcutdefinitions)\>
-
-</MemberCard>
-
-#### Customization
-{@inheritDoc EditingOptions.keybindings}
-
-<a id="keybindings" name="keybindings"></a>
-
-<MemberCard>
-
-##### MathfieldElement.keybindings
-
-```ts
-get keybindings(): readonly Keybinding[]
-```
-
-```ts
-set keybindings(value): void
-```
-
-• **value**: readonly [`Keybinding`](#keybinding)[]
-
-readonly [`Keybinding`](#keybinding)[]
-
-</MemberCard>
-
-#### Customization
-{@inheritDoc EditingOptions.popoverPolicy}
-
-<a id="popoverpolicy" name="popoverpolicy"></a>
-
-<MemberCard>
-
-##### MathfieldElement.popoverPolicy
-
-```ts
-get popoverPolicy(): "auto" | "off"
-```
-
-```ts
-set popoverPolicy(value): void
-```
-
-• **value**: `"auto"` \| `"off"`
-
-`"auto"` \| `"off"`
-
-</MemberCard>
-
-#### Customization
-{@inheritDoc LayoutOptions.minFontScale}
-
-<a id="minfontscale" name="minfontscale"></a>
-
-<MemberCard>
-
-##### MathfieldElement.minFontScale
-
-```ts
-get minFontScale(): number
-```
-
-```ts
-set minFontScale(value): void
 ```
 
 • **value**: `number`
@@ -6307,6 +6174,28 @@ set disabled(value): void
 
 </MemberCard>
 
+<a id="environmentpopoverpolicy" name="environmentpopoverpolicy"></a>
+
+<MemberCard>
+
+##### MathfieldElement.environmentPopoverPolicy
+
+```ts
+get environmentPopoverPolicy(): "auto" | "off" | "on"
+```
+
+{@inheritDoc EditingOptions.environmentPopoverPolicy}
+
+```ts
+set environmentPopoverPolicy(value): void
+```
+
+• **value**: `"auto"` \| `"off"` \| `"on"`
+
+`"auto"` \| `"off"` \| `"on"`
+
+</MemberCard>
+
 <a id="form" name="form"></a>
 
 <MemberCard>
@@ -6321,6 +6210,28 @@ get form(): HTMLFormElement
 
 </MemberCard>
 
+<a id="inlineshortcuts" name="inlineshortcuts"></a>
+
+<MemberCard>
+
+##### MathfieldElement.inlineShortcuts
+
+```ts
+get inlineShortcuts(): Readonly<InlineShortcutDefinitions>
+```
+
+* {@inheritDoc EditingOptions.inlineShortcuts}
+
+```ts
+set inlineShortcuts(value): void
+```
+
+• **value**: [`InlineShortcutDefinitions`](#inlineshortcutdefinitions)
+
+`Readonly`\<[`InlineShortcutDefinitions`](#inlineshortcutdefinitions)\>
+
+</MemberCard>
+
 <a id="isselectioneditable" name="isselectioneditable"></a>
 
 <MemberCard>
@@ -6332,6 +6243,28 @@ get isSelectionEditable(): boolean
 ```
 
 `boolean`
+
+</MemberCard>
+
+<a id="keybindings" name="keybindings"></a>
+
+<MemberCard>
+
+##### MathfieldElement.keybindings
+
+```ts
+get keybindings(): readonly Keybinding[]
+```
+
+* {@inheritDoc EditingOptions.keybindings}
+
+```ts
+set keybindings(value): void
+```
+
+• **value**: readonly [`Keybinding`](#keybinding)[]
+
+readonly [`Keybinding`](#keybinding)[]
 
 </MemberCard>
 
@@ -6393,6 +6326,28 @@ set mathModeSpace(value): void
 
 </MemberCard>
 
+<a id="mathvirtualkeyboardpolicy" name="mathvirtualkeyboardpolicy"></a>
+
+<MemberCard>
+
+##### MathfieldElement.mathVirtualKeyboardPolicy
+
+```ts
+get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy
+```
+
+* {@inheritDoc EditingOptions.mathVirtualKeyboardPolicy}
+
+```ts
+set mathVirtualKeyboardPolicy(value): void
+```
+
+• **value**: [`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
+
+[`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
+
+</MemberCard>
+
 <a id="maxmatrixcols" name="maxmatrixcols"></a>
 
 <MemberCard>
@@ -6407,6 +6362,28 @@ get maxMatrixCols(): number
 
 ```ts
 set maxMatrixCols(value): void
+```
+
+• **value**: `number`
+
+`number`
+
+</MemberCard>
+
+<a id="minfontscale" name="minfontscale"></a>
+
+<MemberCard>
+
+##### MathfieldElement.minFontScale
+
+```ts
+get minFontScale(): number
+```
+
+{@inheritDoc LayoutOptions.minFontScale}
+
+```ts
+set minFontScale(value): void
 ```
 
 • **value**: `number`
@@ -6468,6 +6445,28 @@ set placeholderSymbol(value): void
 • **value**: `string`
 
 `string`
+
+</MemberCard>
+
+<a id="popoverpolicy" name="popoverpolicy"></a>
+
+<MemberCard>
+
+##### MathfieldElement.popoverPolicy
+
+```ts
+get popoverPolicy(): "auto" | "off"
+```
+
+{@inheritDoc EditingOptions.popoverPolicy}
+
+```ts
+set popoverPolicy(value): void
+```
+
+• **value**: `"auto"` \| `"off"`
+
+`"auto"` \| `"off"`
 
 </MemberCard>
 
@@ -7608,29 +7607,6 @@ set static soundsDirectory(value): void
 • **value**: `string`
 
 `string`
-
-</MemberCard>
-
-#### Virtual Keyboard
-{@inheritDoc EditingOptions.mathVirtualKeyboardPolicy}
-
-<a id="mathvirtualkeyboardpolicy" name="mathvirtualkeyboardpolicy"></a>
-
-<MemberCard>
-
-##### MathfieldElement.mathVirtualKeyboardPolicy
-
-```ts
-get mathVirtualKeyboardPolicy(): VirtualKeyboardPolicy
-```
-
-```ts
-set mathVirtualKeyboardPolicy(value): void
-```
-
-• **value**: [`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
-
-[`VirtualKeyboardPolicy`](#virtualkeyboardpolicy)
 
 </MemberCard>
 
