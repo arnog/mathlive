@@ -124,7 +124,7 @@ test('escape to enter/exit latex mode', async ({ page }) => {
 
   // use latex mode for math field with default settings
   await page.locator('#mf-1').press('Escape');
-  await page.locator('#mf-1').pressSequentially('frac');
+  await page.locator('#mf-1').pressSequentially('\\frac');
   await page.locator('#mf-1').press('Escape');
   // full fraction will be selected, navigate back to numerator
   await page.locator('#mf-1').press('ArrowLeft');
@@ -469,7 +469,7 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
   // check initial contents
   expect(
     await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
-  ).toBe('30=r+t');  
+  ).toBe('30=r+t');
 
   // select all and cut
   await page.locator('#mf-1').press(selectAllCommand);
@@ -485,6 +485,8 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
 
   // initial contents should now be there
   expect(
-    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value.trim())
-  ).toBe('30=r+t');  
+    await page
+      .locator('#mf-1')
+      .evaluate((mfe: MathfieldElement) => mfe.value.trim())
+  ).toBe('30=r+t');
 });
