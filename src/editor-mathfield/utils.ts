@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom-class';
-import type { Range } from '../public/mathfield';
+import type { ElementInfo, Offset, Range } from '../public/mathfield';
 import { OriginValidator } from '../public/options';
 import { _Mathfield } from './mathfield-private';
 
@@ -212,4 +212,63 @@ export function getLocalDOMRect(el: HTMLElement): DOMRect {
   }
 
   return new DOMRect(offsetLeft, offsetTop, width, height);
+}
+
+export function getElementInfo(
+  mf: _Mathfield | undefined | null,
+  offset: Offset
+): ElementInfo | undefined {
+  if (!mf) return undefined;
+
+  const atom = mf.model.at(offset);
+  if (!atom) return undefined;
+
+  let result: ElementInfo = {};
+
+  const bounds = getAtomBounds(mf, atom);
+  if (bounds)
+    result.bounds = new DOMRect(
+      bounds.left,
+      bounds.top,
+      bounds.right - bounds.left,
+      bounds.bottom - bounds.top
+    );
+
+  result.depth = atom.treeDepth - 2;
+
+  // Look for some 'htmlData' in the atom or its ancestors
+  let a: undefined | Atom = atom;
+  while (a) {
+    if (a.command === '\\htmlData' && a.args && typeof a.args[0] === 'string') {
+      const entries = a.args[0].split(',');
+      for (const entry of entries) {
+        const matched = entry.match(/([^=]+)=(.+$)/);
+        if (matched) {
+          const key = matched[1].trim().replace(/ /g, '-');
+          if (key) {
+            if (!result.data) result.data = {};
+            result.data[key] = matched[2];
+          }
+        } else {
+          const key = entry.trim().replace(/ /g, '-');
+          if (key) {
+            if (!result.data) result.data = {};
+            result.data[key] = undefined;
+          }
+        }
+      }
+    }
+
+    if (a.command === '\\htmlId' || a.command === '\\cssId') {
+      if (!result.id && a.args && typeof a.args[0] === 'string') {
+        result.id = a.args[0];
+      }
+    }
+    a = a.parent;
+  }
+
+  if (atom.mode === 'math' || atom.mode === 'text')
+    result.latex = Atom.serialize([atom], { defaultMode: 'math' });
+
+  return result;
 }

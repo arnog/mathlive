@@ -94,6 +94,34 @@ export type ApplyStyleOptions = {
 };
 
 /**
+ * Some additional information about an element in the formula
+ */
+
+export type ElementInfo = {
+  /** The depth in the expression tree. 0 for top-level elements */
+  depth?: number;
+
+  /** The bounding box of the element */
+  bounds?: DOMRect;
+
+  /** id associated with this element or its ancestor, set with `\htmlId` or 
+     `\cssId`   
+  */
+  id?: string;
+
+  /** HTML attributes associated with element or its ancestores, set with
+   * `\htmlData`
+   */
+  data?: Record<string, string | undefined>;
+
+  /** The mode (math, text or latex) */
+  mode?: ParseMode;
+
+  /* A LaTeX representation of the element */
+  latex?: string;
+};
+
+/**
  * A position of the caret/insertion point from the beginning of the formula.
  */
 export type Offset = number;

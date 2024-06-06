@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The `mf.scriptDepth()` and `mf.hitboxFromOffset()` have been replaced with
+  `mf.getElementInfo()`. The `getElementInfo()` method provides more information
+  including any id that may have been applied with `\htmlId{}`. It is useful from
+  within a `click` handler to get more information about the element that was 
+  clicked, e.g.`mf.getElementInfo(mf.offsetFromPoint(ev.clientX, ev.clientY))`
+- The `mf.offsetFromPoint()` method has been renamed `mf.getOffsetFromPoint()`
+
 ### Bold
 
 The way bold is handled in LaTeX is particularly confusing. This is due to 

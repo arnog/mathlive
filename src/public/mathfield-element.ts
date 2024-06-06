@@ -14,6 +14,7 @@ import type {
   Range,
   Selection,
   Mathfield,
+  ElementInfo,
 } from './mathfield';
 import type {
   InlineShortcutDefinitions,
@@ -29,7 +30,7 @@ import {
 } from '../editor-mathfield/options';
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
-import { getAtomBounds } from '../editor-mathfield/utils';
+import { getElementInfo } from '../editor-mathfield/utils';
 import {
   isBrowser,
   isInIframe,
@@ -65,34 +66,33 @@ if (!isBrowser()) {
 // Custom Events
 //
 
-/*
-    ## Event re-targeting
-    Some events bubble up through the DOM tree, so that they are detectable by
-     any element on the page.
-
-    Bubbling events fired from within shadow DOM are re-targeted so that, to any
-    listener external to your component, they appear to come from your component itself.
-
-    ## Custom Event Bubbling
-
-    By default, a bubbling custom event fired inside shadow DOM will stop
-    bubbling when it reaches the shadow root.
-
-    To make a custom event pass through shadow DOM boundaries, you must set
-    both the `composed` and `bubbles` flags to true.
-*/
-
 /**
- * The `move-out` event signals that the user pressed an **arrow** key or
- * **tab** key but there was no navigation possible inside the mathfield.
- *
- * This event provides an opportunity to handle this situation, for example
- * by focusing an element adjacent to the mathfield.
- *
- * If the event is canceled (i.e. `evt.preventDefault()` is called inside your
- * event handler), the default behavior is to play a "plonk" sound.
- *
- * @category Web Component
+  *  ## Event re-targeting
+  *  Some events bubble up through the DOM tree, so that they are detectable by
+  *   any element on the page.
+  *
+  * Bubbling events fired from within shadow DOM are re-targeted so that, to any
+  *  listener external to your component, they appear to come from your
+  *  component itself.
+
+  *  ## Custom Event Bubbling
+
+  *  By default, a bubbling custom event fired inside shadow DOM will stop
+  *  bubbling when it reaches the shadow root.
+
+  *  To make a custom event pass through shadow DOM boundaries, you must set
+  *  both the `composed` and `bubbles` flags to true.
+
+  * The `move-out` event signals that the user pressed an **arrow** key or
+  * **tab** key but there was no navigation possible inside the mathfield.
+  *
+  * This event provides an opportunity to handle this situation, for example
+  * by focusing an element adjacent to the mathfield.
+  *
+  * If the event is canceled (i.e. `evt.preventDefault()` is called inside your
+  * event handler), the default behavior is to play a "plonk" sound.
+  *
+  * @category Web Component
  */
 export type MoveOutEvent = {
   direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -1759,6 +1759,12 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
 
   /**
+   * If there is a selection, return if all the atoms in the selection,
+   * some of them or none of them match the `style` argument.
+   *
+   * If there is no selection, return 'all' if the current implicit style
+   * (determined by a combination of the style of the previous atom and
+   * the current style) matches the `style` argument, 'none' if it does not.
    *
    * @category Accessing and changing the content
    */
@@ -1799,7 +1805,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    *
    * @category Selection
    */
-  offsetFromPoint(
+  getOffsetFromPoint(
     x: number,
     y: number,
     options?: { bias?: -1 | 0 | 1 }
@@ -1808,23 +1814,8 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return offsetFromPoint(this._mathfield, x, y, options);
   }
 
-  /** The bounding rect of the atom at offset
-   *
-   * @category Selection
-   *
-   */
-  hitboxFromOffset(offset: number): DOMRect | null {
-    if (!this._mathfield) return null;
-    const atom = this._mathfield.model.at(offset);
-    if (!atom) return null;
-    const bounds = getAtomBounds(this._mathfield, atom);
-    if (!bounds) return null;
-    return new DOMRect(
-      bounds.left,
-      bounds.top,
-      bounds.right - bounds.left,
-      bounds.bottom - bounds.top
-    );
+  getElementInfo(offset: Offset): ElementInfo | undefined {
+    return getElementInfo(this._mathfield, offset);
   }
 
   /**
@@ -2572,15 +2563,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       options: getOptionsFromAttributes(this),
       menuItems: undefined,
     });
-  }
-
-  /**
-   * The depth of an offset represent the depth in the expression tree.
-   * @category Selection
-   */
-  getOffsetDepth(offset: Offset): number {
-    if (!this._mathfield) return 0;
-    return (this._mathfield.model.at(offset)?.treeDepth ?? 2) - 2;
   }
 
   /**
