@@ -2921,6 +2921,102 @@ optional silenceNotifications: boolean;
 
 </MemberCard>
 
+<a id="elementinfo" name="elementinfo"></a>
+
+### ElementInfo
+
+```ts
+type ElementInfo: object;
+```
+
+Some additional information about an element in the formula
+
+#### Type declaration
+
+<a id="bounds" name="bounds"></a>
+
+<MemberCard>
+
+##### ElementInfo.bounds?
+
+```ts
+optional bounds: DOMRect;
+```
+
+The bounding box of the element
+
+</MemberCard>
+
+<a id="data-1" name="data-1"></a>
+
+<MemberCard>
+
+##### ElementInfo.data?
+
+```ts
+optional data: Record<string, string | undefined>;
+```
+
+HTML attributes associated with element or its ancestores, set with
+`\htmlData`
+
+</MemberCard>
+
+<a id="depth" name="depth"></a>
+
+<MemberCard>
+
+##### ElementInfo.depth?
+
+```ts
+optional depth: number;
+```
+
+The depth in the expression tree. 0 for top-level elements
+
+</MemberCard>
+
+<a id="id-2" name="id-2"></a>
+
+<MemberCard>
+
+##### ElementInfo.id?
+
+```ts
+optional id: string;
+```
+
+id associated with this element or its ancestor, set with `\htmlId` or 
+`\cssId`
+
+</MemberCard>
+
+<a id="latex-1" name="latex-1"></a>
+
+<MemberCard>
+
+##### ElementInfo.latex?
+
+```ts
+optional latex: string;
+```
+
+</MemberCard>
+
+<a id="mode-1" name="mode-1"></a>
+
+<MemberCard>
+
+##### ElementInfo.mode?
+
+```ts
+optional mode: ParseMode;
+```
+
+The mode (math, text or latex)
+
+</MemberCard>
+
 <a id="fontfamily-1" name="fontfamily-1"></a>
 
 ### FontFamily
@@ -3044,7 +3140,7 @@ optional insertionMode: "replaceSelection" | "replaceAll" | "insertBefore" | "in
 
 </MemberCard>
 
-<a id="mode-1" name="mode-1"></a>
+<a id="mode-2" name="mode-2"></a>
 
 <MemberCard>
 
@@ -3181,7 +3277,7 @@ code: T;
 
 </MemberCard>
 
-<a id="latex-1" name="latex-1"></a>
+<a id="latex-2" name="latex-2"></a>
 
 <MemberCard>
 
@@ -5060,7 +5156,7 @@ If false, keycaps that have a shifted variant will be displayed as if they don't
 
 </MemberCard>
 
-<a id="id-2" name="id-2"></a>
+<a id="id-3" name="id-3"></a>
 
 <MemberCard>
 
@@ -5561,6 +5657,13 @@ insert(s, options?): boolean
 ```ts
 queryStyle(style): "some" | "all" | "none"
 ```
+
+If there is a selection, return if all the atoms in the selection,
+some of them or none of them match the `style` argument.
+
+If there is no selection, return 'all' if the current implicit style
+(determined by a combination of the style of the previous atom and
+the current style) matches the `style` argument, 'none' if it does not.
 
 • **style**: `Readonly`\<[`Style`](#style-1)\>
 
@@ -6990,6 +7093,22 @@ executeCommand(selector): boolean
 
 </MemberCard>
 
+<a id="getelementinfo" name="getelementinfo"></a>
+
+<MemberCard>
+
+##### MathfieldElement.getElementInfo()
+
+```ts
+getElementInfo(offset): ElementInfo
+```
+
+• **offset**: `number`
+
+[`ElementInfo`](#elementinfo)
+
+</MemberCard>
+
 <a id="getpromptstate" name="getpromptstate"></a>
 
 <MemberCard>
@@ -7048,6 +7167,22 @@ static loadSound(sound): Promise<void>
   \| `"return"`
 
 `Promise`\<`void`\>
+
+</MemberCard>
+
+<a id="openurl" name="openurl"></a>
+
+<MemberCard>
+
+##### MathfieldElement.openUrl()
+
+```ts
+static openUrl(href): void
+```
+
+• **href**: `string`
+
+`void`
 
 </MemberCard>
 
@@ -7313,50 +7448,14 @@ get selectionIsCollapsed(): boolean
 
 </MemberCard>
 
-<a id="getoffsetdepth" name="getoffsetdepth"></a>
+<a id="getoffsetfrompoint" name="getoffsetfrompoint"></a>
 
 <MemberCard>
 
-##### MathfieldElement.getOffsetDepth()
+##### MathfieldElement.getOffsetFromPoint()
 
 ```ts
-getOffsetDepth(offset): number
-```
-
-The depth of an offset represent the depth in the expression tree.
-
-• **offset**: `number`
-
-`number`
-
-</MemberCard>
-
-<a id="hitboxfromoffset" name="hitboxfromoffset"></a>
-
-<MemberCard>
-
-##### MathfieldElement.hitboxFromOffset()
-
-```ts
-hitboxFromOffset(offset): DOMRect
-```
-
-The bounding rect of the atom at offset
-
-• **offset**: `number`
-
-`DOMRect`
-
-</MemberCard>
-
-<a id="offsetfrompoint" name="offsetfrompoint"></a>
-
-<MemberCard>
-
-##### MathfieldElement.offsetFromPoint()
-
-```ts
-offsetFromPoint(
+getOffsetFromPoint(
    x, 
    y, 
    options?): number
@@ -7913,6 +8012,22 @@ of mathfield component.
 ```ts
 type MoveOutEvent: object;
 ```
+
+## Event re-targeting
+ Some events bubble up through the DOM tree, so that they are detectable by
+  any element on the page.
+
+Bubbling events fired from within shadow DOM are re-targeted so that, to any
+ listener external to your component, they appear to come from your
+ component itself.
+
+ ## Custom Event Bubbling
+
+ By default, a bubbling custom event fired inside shadow DOM will stop
+ bubbling when it reaches the shadow root.
+
+ To make a custom event pass through shadow DOM boundaries, you must set
+ both the `composed` and `bubbles` flags to true.
 
 The `move-out` event signals that the user pressed an **arrow** key or
 **tab** key but there was no navigation possible inside the mathfield.
