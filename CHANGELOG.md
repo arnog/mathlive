@@ -72,7 +72,21 @@ and numbers.
 
 ### New Features
 
-- Added CSS variables to control the appearance of the toolip displayed with `\mathtip` and `\texttip`: `--toolip-border`, `--tooltip-color`, `--tooltip-background-color`, `--tooltip-box-shadow` and `--tooltip-border-radius`.
+- **`\href`** 
+  
+  The `\href{url}{content}` command, a MathJax extension that allows a link 
+  to be associated with some content. 
+  
+  Clicking on the content will open the link. By default, the link is opened 
+  in a new window, and only links with a HTTP, HTTPS or FILE protocol are 
+  allowed. This can be controlled by the new `MathfieldElement.openUrl` 
+  property. This property is a function with a single argument, the URL to 
+  be opened, that is called when the content of the `\href` command is clicked on.
+- **Tooltip appearance** 
+  
+  Added CSS variables to control the appearance of the toolip displayed with 
+  `\mathtip` and `\texttip`: `--toolip-border`, `--tooltip-color`, 
+  `--tooltip-background-color`, `--tooltip-box-shadow` and `--tooltip-border-radius`.
 - The `maxMatrixCols` property has been added that specifies the maximum number
   of columns that a matrix may have. The default value is 10, which follows the
   default value that the amsmath package uses. The property applies to all of

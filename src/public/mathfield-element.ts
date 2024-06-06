@@ -30,7 +30,7 @@ import {
 } from '../editor-mathfield/options';
 import { _Mathfield } from '../editor-mathfield/mathfield-private';
 import { offsetFromPoint } from '../editor-mathfield/pointer-input';
-import { getElementInfo } from '../editor-mathfield/utils';
+import { getElementInfo, getHref } from '../editor-mathfield/utils';
 import {
   isBrowser,
   isInIframe,
@@ -628,6 +628,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       reloadFonts();
     }
   }
+
+  static openUrl = (href: string): void => {
+    if (!href) return;
+    const url = new URL(href);
+    if (!['http:', 'https:', 'file:'].includes(url.protocol.toLowerCase())) {
+      MathfieldElement.playSound('plonk');
+      return;
+    }
+    window.open(url, '_blank');
+  };
 
   /** @internal */
   get fontsDirectory(): never {
@@ -1297,8 +1307,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     window.addEventListener(
       'pointerup',
       (evt) => {
+        const mf = this._mathfield;
+        if (!mf) return;
         // Disabled elements do not dispatch 'click' events
-        if (evt.target === this && !this._mathfield?.disabled) {
+        if (evt.target === this && !mf.disabled) {
           this.dispatchEvent(
             new MouseEvent('click', {
               altKey: evt.altKey,
@@ -1316,6 +1328,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               shiftKey: evt.shiftKey,
             })
           );
+
+          // Check if a \href command was clicked on (or its children)
+          const offset = this.getOffsetFromPoint(evt.clientX, evt.clientY);
+          if (offset >= 0) MathfieldElement.openUrl(getHref(mf, offset));
         }
       },
       { once: true }

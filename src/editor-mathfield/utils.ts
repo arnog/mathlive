@@ -272,3 +272,16 @@ export function getElementInfo(
 
   return result;
 }
+
+export function getHref(mf: _Mathfield, offset: Offset): string {
+  let a: Atom | undefined = mf.model.at(offset);
+  while (a) {
+    if (a.command === '\\href') {
+      const url = a.args[0];
+      if (typeof url === 'string') return url;
+    }
+
+    a = a.parent;
+  }
+  return '';
+}

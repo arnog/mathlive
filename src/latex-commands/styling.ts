@@ -626,6 +626,17 @@ defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
   },
 });
 
+defineFunction('href', '{url:string}{content:auto}', {
+  createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
+    new Atom({ ...options, body: argAtoms(options.args![1]) }),
+  render: (atom, context) => {
+    const box = atom.createBox(context);
+    const href = (atom.args![0] as string) ?? '';
+    if (href) box.htmlData = `href=${href}`;
+    return box;
+  },
+});
+
 /* Note: in TeX, \em is restricted to text mode. We extend it to math
  * This is the 'switch' variant of \emph, i.e:
  * `\emph{important text}`
