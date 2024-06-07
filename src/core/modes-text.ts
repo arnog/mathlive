@@ -2,12 +2,12 @@
 
 import { TextAtom } from '../atoms/text';
 
-import { Atom } from './atom';
-import { Box } from './box';
+import type { Atom } from './atom';
+import type { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
 import type { FontSeries, FontShape, Style } from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
-import type { TokenDefinition } from 'latex-commands/types';
+import type { TokenDefinition } from '../latex-commands/types';
 import type { ToLatexOptions, FontName } from './types';
 
 function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
@@ -78,15 +78,25 @@ function emitFontFamilyTextRun(
   needsWrap: boolean
 ): string[] {
   return getPropertyRuns(run, 'fontFamily').map((x: Atom[]) => {
+    needsWrap =
+      needsWrap &&
+      !x.every(
+        (x) =>
+          x.style.fontFamily ||
+          x.style.fontShape ||
+          x.style.fontSeries ||
+          x.style.fontSize
+      );
     const s = emitSizeTextRun(x, options);
+    const { fontFamily } = x[0].style;
     const command =
       {
         'roman': 'textrm',
         'monospace': 'texttt',
         'sans-serif': 'textsf',
-      }[x[0].style.fontFamily ?? ''] ?? '';
+      }[fontFamily ?? ''] ?? '';
     if (command) return `\\${command}{${joinLatex(s)}}`;
-    if (x[0].style.fontFamily)
+    if (fontFamily)
       return `{\\fontfamily{${x[0].style.fontFamily}} ${joinLatex(s)}}`;
 
     if (needsWrap) return `\\text{${joinLatex(s)}}`;

@@ -106,6 +106,9 @@ and numbers.
 
 ### Issues Resolved
 
+- **#2309** When using styled text (e.g. `\textit{}`), the content could 
+  sometimes be serialized with an unnecessary `\text{}` command, i.e. 
+  `\text{\textit{...}}`.
 - If the unknown in an expression was a complex identifier, such as `\mathcal{C}`
   it would not be displayed correctly in the "Solve for" menu.
 - The `\mathrlap` command was incorrectly rendering like `\mathllap`.
