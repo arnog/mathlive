@@ -1,8 +1,8 @@
->  Please follow the template below. 
->  If you don't, your issue may be closed without being addressed.
+> Following the template below will ensure that your issue is addressed as quickly as possible.
+> If you don't follow the template, it may be closed without being addressed.
 
-
->  Include code fragments or CodePen.io links to illustrate the issue. Do not include screenshots of code.
+> Include code fragments or CodePen.io links to illustrate the issue. Do not include screenshots of code.
+> Simplify the code fragment as much as possible. Remove anything that is not directly related to the issue.
   
 >  If you get a runtime or TypeScript error, copy the text of the error message, from the JavaScript console, for example. Do not include a screenshot of the error message.
 
@@ -14,7 +14,9 @@
 >  Do not include screenshots of code, error messages or LaTeX.
 
 
->  If you use React, Vue or some other framework, try to provide some code that replicates the issue using only plain JavaScript. If you can't, then include a link to a minimal project demonstrating the issue. This will make it **much** easier to reproduce the issue and fix it.
+>  If you use React, Vue or some other framework, try to provide some code that replicates the issue using only plain JavaScript. 
+>  If you can't, then include a link to a minimal project demonstrating the issue. 
+>  This will make it **much** easier to reproduce the issue and fix it.
 
 > If the issue has to do with the Compute Engine or MathJSON, please report it
 here: https://github.com/cortex-js/compute-engine/issues
@@ -35,20 +37,22 @@ here: https://github.com/cortex-js/compute-engine/issues
 
 ### Actual Behavior
 
-> (Required) What happened when you followed the steps above?
+> (Required) What happens when you follow the steps above?
 
 ### Expected Behavior
 
-> (Required) What did you expect to happen instead? It may be obvious to you what should have happened, but if you don't state it explicitly it may not be obvious to others.
+> (Required) What did you expect to happen instead? 
+> It may be obvious to you what should have happened, but if you don't state it explicitly it may not be obvious to others.
 
 
 ### Environment
 
-> Is this a regression: did it use to work in a previous version?
-
 **MathLive version**  _If using the cortexjs.io site, the version is displayed
-at the bottom of the page. If using the library, the version is available as 
-`MathfieldElement.version`_
+at the bottom of the page. If using the library, the version is available by
+typing `console.log(MathfieldElement.version)` in the console. Include the
+output of that command here.
+
+> Is this a regression: did it use to work in a previous version?
 
 **Operating System** _macOS, Windows, iOS. Include the version_
 
