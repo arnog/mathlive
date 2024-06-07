@@ -55,7 +55,7 @@ export class MacroAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    const result = Atom.createBox(context, this.body);
+    const result = Atom.createBox(context, this.body, { type: 'lift' });
     if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);

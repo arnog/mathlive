@@ -112,6 +112,8 @@ and numbers.
 
 ### Issues Resolved
 
+- **#2387** When using a macro, the spacing around the macro was incorrect in
+  some cases.
 - **#2370** The order of the `keydown` and `input` event is now consistent
   with the `<textarea>` element.
 - **#2369** After typing a shortcut, using the backspace key could result
