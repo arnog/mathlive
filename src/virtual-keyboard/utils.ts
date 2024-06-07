@@ -576,6 +576,7 @@ function makeLayout(
   if (!('layers' in layout)) return '';
   for (const layer of layout.layers) {
     markup.push(`<div tabindex="-1" class="MLK__layer" id="${layer.id}">`);
+
     if (keyboard.normalizedLayouts.length > 1 || layout.displayEditToolbar) {
       markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
       markup.push(makeLayoutsToolbar(keyboard, index));

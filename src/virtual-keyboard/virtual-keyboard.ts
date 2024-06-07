@@ -20,7 +20,7 @@ import { MathfieldElement } from '../public/mathfield-element';
 import { isTouchCapable } from '../ui/utils/capabilities';
 import { isArray } from '../common/types';
 import { validateOrigin } from '../editor-mathfield/utils';
-import { getCommandTarget, COMMANDS } from '../editor/commands';
+import { getCommandTarget, COMMANDS, parseCommand } from '../editor/commands';
 import { SelectorPrivate } from '../editor/types';
 
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
@@ -842,6 +842,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ): boolean {
+    command = parseCommand(command) as
+      | SelectorPrivate
+      | [SelectorPrivate, ...any[]];
+    if (!command) return false;
+
     let selector: SelectorPrivate;
     let args: string[] = [];
     let target = getCommandTarget(command);
@@ -854,11 +859,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       }
       args = command.slice(1);
     } else selector = command;
-
-    // Convert kebab case (like-this) to camel case (likeThis).
-    selector = selector.replace(/-\w/g, (m) =>
-      m[1].toUpperCase()
-    ) as SelectorPrivate;
 
     if (target === 'virtual-keyboard')
       return COMMANDS[selector]!.fn(undefined, ...args);

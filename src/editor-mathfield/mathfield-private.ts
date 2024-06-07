@@ -53,6 +53,7 @@ import {
   SelectorPrivate,
   perform,
   getCommandTarget,
+  parseCommand,
 } from '../editor/commands';
 import {
   _MathfieldOptions,
@@ -817,7 +818,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
       const { action } = evt.data;
 
       if (action === 'execute-command') {
-        const command = evt.data.command!;
+        const command = parseCommand(evt.data.command);
+        if (!command) return;
         if (getCommandTarget(command) === 'virtual-keyboard') return;
         this.executeCommand(command);
       } else if (action === 'update-state') {

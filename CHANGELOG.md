@@ -103,6 +103,12 @@ and numbers.
   to control whether a mathfield that was previously focused regains focus 
   when the tab or window regains focus. This is true by default and matches
   the previous behavior, and the behavior of the `<textarea>` element.
+- An alternate syntax for selectors with arguments. Selectors are used for 
+  example to associate actions with a keycap, such as `switchKeyboardLayer`.
+  The previous syntax was `command: ["switchKeyboardLayer", "alt-layer"]`, 
+  the new syntax is `command: 'switchKeyboardLayer("alt-layer")'`. This is more
+  concise and easier to read.
+
 
 ### Issues Resolved
 
