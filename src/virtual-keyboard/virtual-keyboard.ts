@@ -772,7 +772,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   stateWillChange(visible: boolean): boolean {
-    const defaultNotPrevented = this.dispatchEvent(
+    const success = this.dispatchEvent(
       new CustomEvent('before-virtual-keyboard-toggle', {
         detail: { visible },
         bubbles: true,
@@ -780,7 +780,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         composed: true,
       })
     );
-    return defaultNotPrevented;
+    return success;
   }
 
   stateChanged(): void {

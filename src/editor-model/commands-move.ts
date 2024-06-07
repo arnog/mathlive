@@ -325,11 +325,7 @@ function leapTo(model: _Model, target: Atom | number): boolean {
  * empty child list.
  * @return `false` if no placeholder found and did not move
  */
-function leap(
-  model: _Model,
-  dir: 'forward' | 'backward',
-  callHooks = true
-): boolean {
+function leap(model: _Model, dir: 'forward' | 'backward'): boolean {
   const dist = dir === 'forward' ? 1 : -1;
 
   // If we're already at a placeholder, move by one more (the placeholder
@@ -354,19 +350,17 @@ function leap(
     (dir === 'forward' && model.offsetOf(target) < origin) ||
     (dir === 'backward' && model.offsetOf(target) > origin)
   ) {
-    const handled =
-      !callHooks ||
-      !(
-        model.mathfield.host?.dispatchEvent(
-          new CustomEvent('move-out', {
-            detail: { direction: dir },
-            cancelable: true,
-            bubbles: true,
-            composed: true,
-          })
-        ) ?? true
-      );
-    if (handled) {
+    const success =
+      model.mathfield.host?.dispatchEvent(
+        new CustomEvent('move-out', {
+          detail: { direction: dir },
+          cancelable: true,
+          bubbles: true,
+          composed: true,
+        })
+      ) ?? true;
+
+    if (!success) {
       model.announce('plonk');
       return false;
     }

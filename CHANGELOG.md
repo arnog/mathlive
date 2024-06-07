@@ -112,6 +112,8 @@ and numbers.
 
 ### Issues Resolved
 
+- **#2370** The order of the `keydown` and `input` event is now consistent
+  with the `<textarea>` element.
 - **#2309** When using styled text (e.g. `\textit{}`), the content could 
   sometimes be serialized with an unnecessary `\text{}` command, i.e. 
   `\text{\textit{...}}`.

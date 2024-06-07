@@ -38,6 +38,8 @@ import '../virtual-keyboard/global';
 import type { ModelState, GetAtomOptions, AnnounceVerb } from './types';
 import type { BranchName, ToLatexOptions } from 'core/types';
 
+import { isValidMathfield } from '../editor-mathfield/utils';
+
 /** @internal */
 export class _Model implements Model {
   readonly mathfield: _Mathfield;
@@ -656,7 +658,7 @@ export class _Model implements Model {
     previousPosition?: number,
     atoms: readonly Atom[] = []
   ): void {
-    const result =
+    const success =
       this.mathfield.host?.dispatchEvent(
         new CustomEvent('announce', {
           detail: { command, previousPosition, atoms },
@@ -665,7 +667,7 @@ export class _Model implements Model {
           composed: true,
         })
       ) ?? true;
-    if (result)
+    if (success)
       defaultAnnounceHook(this.mathfield, command, previousPosition, atoms);
   }
 
@@ -809,17 +811,32 @@ export class _Model implements Model {
     const save = this.silenceNotifications;
     this.silenceNotifications = true;
 
-    this.mathfield.host.dispatchEvent(
-      new InputEvent('input', {
-        ...options,
-        // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-        data: options.data ? options.data : options.inputType ?? '',
-        bubbles: true,
-        composed: true,
-      } as InputEventInit)
-    );
-    this.silenceNotifications = save;
+    // In a textarea field, the 'input' event is fired after the keydown
+    // event. However, in our case we're inside the 'keydown' event handler
+    // so we need to 'defer' the 'input' event to the next event loop
+    // iteration.
+
+    setTimeout(() => {
+      if (
+        !this.mathfield ||
+        !isValidMathfield(this.mathfield) ||
+        !this.mathfield.host
+      )
+        return;
+
+      this.mathfield.host.dispatchEvent(
+        new InputEvent('input', {
+          ...options,
+          // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
+          data: options.data ? options.data : options.inputType ?? '',
+          bubbles: true,
+          composed: true,
+        } as InputEventInit)
+      );
+      this.silenceNotifications = save;
+    }, 0);
   }
+
   selectionDidChange(): void {
     // The mathfield could be undefined if the mathfield was disposed
     // while the selection was changing

@@ -90,7 +90,7 @@ export class VirtualKeyboardProxy
   }
 
   show(options?: { animate: boolean }): void {
-    const defaultNotPrevented = this.dispatchEvent(
+    const success = this.dispatchEvent(
       new CustomEvent('before-virtual-keyboard-toggle', {
         detail: { visible: true },
         bubbles: true,
@@ -98,14 +98,14 @@ export class VirtualKeyboardProxy
         composed: true,
       })
     );
-    if (defaultNotPrevented) {
+    if (success) {
       this.sendMessage('show', options);
       this.dispatchEvent(new Event('virtual-keyboard-toggle'));
     }
   }
 
   hide(options?: { animate: boolean }): void {
-    const defaultNotPrevented = this.dispatchEvent(
+    const success = this.dispatchEvent(
       new CustomEvent('before-virtual-keyboard-toggle', {
         detail: { visible: false },
         bubbles: true,
@@ -113,7 +113,7 @@ export class VirtualKeyboardProxy
         composed: true,
       })
     );
-    if (defaultNotPrevented) {
+    if (success) {
       this.sendMessage('hide', options);
       this.dispatchEvent(new Event('virtual-keyboard-toggle'));
     }

@@ -336,9 +336,9 @@ export class _MenuItemState<T> implements MenuItemState<T> {
       },
     });
 
-    const notCanceled = this.parentMenu.dispatchEvent(ev);
+    const success = this.parentMenu.dispatchEvent(ev);
 
-    if (notCanceled && typeof this._declaration.onMenuSelect === 'function') {
+    if (success && typeof this._declaration.onMenuSelect === 'function') {
       this._declaration.onMenuSelect({
         target: this.parentMenu.host ?? undefined,
         modifiers: this.rootMenu.modifiers,
