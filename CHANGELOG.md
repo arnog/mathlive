@@ -121,6 +121,8 @@ and numbers.
   would be dispatched.
 - **#2384** When using repeating decimals after a comma (i.e. `123{,}4(1)`), 
   do not use a `\left...\right` command in order to get the proper spacing.
+- **#2349** The positioning of subscripts for extensible symbols, such as `\int`
+  was incorrect.
 - **#2326** The Cut and Copy commands in the context menu are now working
   correctly in Safari.
 - **#2309** When using styled text (e.g. `\textit{}`), the content could 

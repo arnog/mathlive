@@ -554,7 +554,7 @@ function isImplicitArg(atom: Atom): boolean {
     /^(mord|surd|subsup|leftright|mop|mclose)$/.test(atom.type)
   ) {
     // Exclude `\int`, \`sum`, etc...
-    if (atom.isExtensibleSymbol) return false;
+    if (atom.type === 'extensible-symbol') return false;
 
     return true;
   }

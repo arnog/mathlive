@@ -248,7 +248,7 @@ function onDelete(
     return true;
   }
 
-  if (atom.isExtensibleSymbol || atom.type === 'subsup') {
+  if (atom.type === 'extensible-symbol' || atom.type === 'subsup') {
     //
     // Extensible operator: \sum, \int, etc...
     // Superscript/subscript carrier

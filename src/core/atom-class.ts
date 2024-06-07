@@ -118,10 +118,6 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   // parentheses) e.g. "f" or "\sin"
   isFunction: boolean;
 
-  // If true, the atom is an operator such as `\int` or `\sum`
-  // (affects layout of supsub)
-  isExtensibleSymbol: boolean;
-
   // If true, when the caret reaches the first position in this element's body,
   // (moving right to left) it automatically moves to the outside of the
   // element.
@@ -278,7 +274,6 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
     if (this.isFunction) result.isFunction = true;
     if (this.displayContainsHighlight) result.displayContainsHighlight = true;
-    if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
     if (this.skipBoundary) result.skipBoundary = true;
     if (this.captureSelection) result.captureSelection = true;
     if (this.args) result.args = argumentsToJson(this.args);
@@ -941,7 +936,8 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
       // Subscripts shouldn't be shifted by the nucleus' italic correction.
       // Account for that by shifting the subscript back the appropriate
       // amount. Note we only do this when the nucleus is a single symbol.
-      const slant = this.isExtensibleSymbol && base.italic ? -base.italic : 0;
+      const slant =
+        this.type === 'extensible-symbol' && base.italic ? -base.italic : 0;
       supsub = new VBox({
         individualShift: [
           { box: subBox, shift: subShift, marginLeft: slant },

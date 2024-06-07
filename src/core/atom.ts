@@ -118,7 +118,6 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (json.explicitSubsupPlacement) result.explicitSubsupPlacement = true;
 
   if (json.isFunction) result.isFunction = true;
-  if (json.isExtensibleSymbol) result.isExtensibleSymbol = true;
   if (json.skipBoundary) result.skipBoundary = true;
   if (json.captureSelection) result.captureSelection = true;
 

@@ -44,7 +44,6 @@ export class ExtensibleSymbolAtom extends Atom {
 
     if (this.variant) result.variant = this.variant;
     if (this.subsupPlacement) result.limits = this.subsupPlacement;
-    if (this.isExtensibleSymbol) result.isExtensibleSymbol = true;
     if (this.value) result.symbol = this.value;
     return result;
   }
@@ -81,9 +80,10 @@ export class ExtensibleSymbolAtom extends Atom {
 
     let result = base;
     if (this.superscript || this.subscript) {
-      const limits = this.subsupPlacement ?? 'auto';
+      let limits = this.subsupPlacement ?? 'auto';
+      if (limits === 'auto' && context.isDisplayStyle) limits = 'over-under';
       result =
-        limits === 'over-under' || (limits === 'auto' && context.isDisplayStyle)
+        limits === 'over-under'
           ? this.attachLimits(context, { base, baseShift, slant })
           : this.attachSupsub(context, { base });
     }
