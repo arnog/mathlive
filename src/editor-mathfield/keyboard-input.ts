@@ -25,7 +25,7 @@ import type { ParseMode, Style } from 'public/core-types';
 import type { _Model } from 'editor-model/model-private';
 import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
-import { mightProducePrintableCharacter } from 'ui/events/utils';
+import { mightProducePrintableCharacter } from '../ui/events/utils';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
@@ -99,8 +99,10 @@ export function onKeystroke(
   if (mathfield.isSelectionEditable) {
     if (model.mode === 'math') {
       if (keystroke === '[Backspace]') {
-        // Discard the last keystroke
-        buffer.pop();
+        // If there was a previous shortcut "undo" the conversion of the last
+        // keystroke, otherwise, discard the last keystroke
+        if (buffer.length > 1) selector = 'undo';
+        else buffer.pop();
       } else if (!mightProducePrintableCharacter(evt)) {
         // It was a non-alpha character (PageUp, End, etc...)
         mathfield.flushInlineShortcutBuffer();
@@ -194,27 +196,25 @@ export function onKeystroke(
 
     // 5.4 Handle the return/enter key
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
-      let result = false;
+      let success = true;
       if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
 
         if (mathfield.host) {
-          result = !mathfield.host.dispatchEvent(
+          success = mathfield.host.dispatchEvent(
             new Event('change', { bubbles: true, composed: true })
           );
         }
 
-        if (!result) {
-          if (evt.preventDefault) {
-            evt.preventDefault();
-            evt.stopPropagation();
-          }
+        if (!success && evt.preventDefault) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        } else {
+          // Dispatch an 'input' event matching the behavior of `<textarea>`
+          model.contentDidChange({ inputType: 'insertLineBreak' });
         }
-
-        // Dispatch an 'input' event matching the behavior of `<textarea>`
-        model.contentDidChange({ inputType: 'insertLineBreak' });
       }
-      return result;
+      return success;
     }
 
     if ((!selector || keystroke === '[Space]') && model.mode === 'math') {

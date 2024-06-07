@@ -114,42 +114,46 @@ and numbers.
 
 - **#2370** The order of the `keydown` and `input` event is now consistent
   with the `<textarea>` element.
+- **#2369** After typing a shortcut, using the backspace key could result
+  in unexpected behavior. Now, pressing the backspace key after a shortcut 
+  has been typed will undo the conversion of the shortcut.
+- **#2380** In some cases, when using the menu, some spurious focus/blur events
+  would be dispatched.
+- **#2384** When using repeating decimals after a comma (i.e. `123{,}4(1)`), 
+  do not use a `\left...\right` command in order to get the proper spacing.
+- **#2326** The Cut and Copy commands in the context menu are now working
+  correctly in Safari.
 - **#2309** When using styled text (e.g. `\textit{}`), the content could 
   sometimes be serialized with an unnecessary `\text{}` command, i.e. 
   `\text{\textit{...}}`.
-- If the unknown in an expression was a complex identifier, such as `\mathcal{C}`
-  it would not be displayed correctly in the "Solve for" menu.
-- The `\mathrlap` command was incorrectly rendering like `\mathllap`.
-- **#2355** When pressing the down arrow key in `\sqrt[#?]{1}` from the `#?`
-  position, a runtime exception would occur.
-- **#2380** In some cases, when using the menu, some spurious focus/blur events
-  would be dispatched.
-- **#2104**, **#2260** When replacing the selection by typing, the new content would not
-  always be correctly styled. The content now inherits the style of the
-  selection, or the style of the insertion point if the selection is collapsed.
 - **#2376** When `smart-fence` was off, the `{` and `}` keys would not insert
   braces.
 - **#2273** Using one of the Chinese locales would result in a runtime error.
-- **#2280** Handle better very deeply nested expressions
+- **#2355** When pressing the down arrow key in `\sqrt[#?]{1}` from the `#?`
+  position, a runtime exception would occur.
+- **#2298** When using screen readers, pressing the spacebar would not always
+  correctly focus the mathfield.
+- **#2297** In some cases, when using touch input, the previously selected item
+  in a context menu would appear to be selected.
+- **#2289** When changing the value of the mathfield, the selection is now
+  preserved. In addition, when using a controlled component with React an
+  unnecessary update is avoided.
 - **#2282** Don't display selection when the mathfield is not focused
+- **#2280** Handle better very deeply nested expressions
+- **#2104**, **#2260** When replacing the selection by typing, the new content would not
+  always be correctly styled. The content now inherits the style of the
+  selection, or the style of the insertion point if the selection is collapsed.
+- Better handle the case where the mathlive library gets loaded before the DOM
+  is constructed.
+- On Safari, the Insert Matrix submenu was displayed incorrectly.
 - When the mathfield is an iframe, the `before-virtual-keyboard-toggle` and
   `virtual-keyboard-toggle` events are now dispatched on the
   `window.mathVirtualKeyboard` object of the iframe. This can be used to detect
   a request (and prevent) for the virtual keyboard to be displayed.
-- **#2289** When changing the value of the mathfield, the selection is now
-  preserved. In addition, when using a controlled component with React an
-  unnecessary update is avoided.
-- On Safari, the Insert Matrix submenu was displayed incorrectly.
-- **#2297** In some cases, when using touch input, the previously selected item
-  in a context menu would appear to be selected.
-- **#2298** When using screen readers, pressing the spacebar would not always
-  correctly focus the mathfield.
-- **#2326** The Cut and Copy commands in the context menu are now working
-  correctly in Safari.
-- Better handle the case where the mathlive library gets loaded before the DOM
-  is constructed.
-- **#2384** When using repeating decimals after a comma (i.e. `123{,}4(1)`), 
-  do not use a `\left...\right` command in order to get the proper spacing.
+- If the unknown in an expression was a complex identifier, such as `\mathcal{C}`
+  it would not be displayed correctly in the "Solve for" menu.
+- The `\mathrlap` command was incorrectly rendering like `\mathllap`.
+
 
 ## 0.98.6 _2024-01-27_
 
