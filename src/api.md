@@ -3013,6 +3013,8 @@ id associated with this element or its ancestor, set with `\htmlId` or
 optional latex: string;
 ```
 
+A LaTeX representation of the element
+
 </MemberCard>
 
 <a id="mode-1" name="mode-1"></a>
@@ -3025,7 +3027,7 @@ optional latex: string;
 optional mode: ParseMode;
 ```
 
-The mode (math, text or latex)
+The mode (math, text or LaTeX)
 
 </MemberCard>
 
@@ -3039,8 +3041,7 @@ The mode (math, text or latex)
 optional style: Style;
 ```
 
-`style` is the style (color, weight, variant, etc...) directly applied
- to this element.
+The style (color, weight, variant, etc...) of this element.
 
 </MemberCard>
 

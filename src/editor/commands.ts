@@ -239,7 +239,8 @@ export function parseCommand(
 
   // Is it a string of the form `selector(arg1, arg2)`?
   if (typeof command !== 'string') return undefined;
-  const match = command.match(/^([a-zA-Z0-9-]+)\((.*)\)$/);
+
+  const match = command.trim().match(/^([a-zA-Z0-9-]+)\((.*)\)$/);
   if (match) {
     const selector = match[1];
     selector.replace(/-\w/g, (m) => m[1].toUpperCase());
@@ -251,7 +252,16 @@ export function parseCommand(
         if (/'[^']*'/.test(arg)) return arg.slice(1, -1);
         if (/^true$/.test(arg)) return true;
         if (/^false$/.test(arg)) return false;
-        if (/^\d+$/.test(arg)) return parseInt(arg, 10);
+        if (/^[-]?\d+$/.test(arg)) return parseInt(arg, 10);
+        // Is it an object literal?
+        if (/^\{.*\}$/.test(arg)) {
+          try {
+            return JSON.parse(arg);
+          } catch (e) {
+            console.error('Invalid argument:', arg);
+            return arg;
+          }
+        }
         return parseCommand(arg);
       }),
     ];

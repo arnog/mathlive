@@ -114,15 +114,13 @@ export type ElementInfo = {
    */
   data?: Record<string, string | undefined>;
 
-  /** The mode (math, text or latex) */
+  /** The mode (math, text or LaTeX) */
   mode?: ParseMode;
 
-  /* A LaTeX representation of the element */
+  /** A LaTeX representation of the element */
   latex?: string;
 
-  /** `style` is the style (color, weight, variant, etc...) directly applied
-   *  to this element.
-   */
+  /** The style (color, weight, variant, etc...) of this element. */
   style?: Style;
 };
 
