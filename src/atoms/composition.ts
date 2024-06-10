@@ -18,10 +18,6 @@ export class CompositionAtom extends Atom {
     return super.toJson();
   }
 
-  get computedStyle(): Style {
-    return {};
-  }
-
   render(context: Context): Box {
     // In theory one would like to be able to draw the clauses
     // in an active composition. Unfortunately, there are

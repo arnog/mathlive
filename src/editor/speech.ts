@@ -44,8 +44,8 @@ function speak(
 ): boolean {
   speakOptions = speakOptions ?? { withHighlighting: false };
   const { model } = mathfield;
-  function getAtoms(scope: SpeechScope): Atom | readonly Atom[] | null {
-    let result: Atom | readonly Atom[] | null = null;
+  function getAtoms(scope: SpeechScope): Atom | Readonly<Atom[]> | null {
+    let result: Atom | Readonly<Atom[]> | null = null;
     switch (scope) {
       case 'all':
         result = model.root;
@@ -93,7 +93,7 @@ function speak(
     let result = '';
     switch (scope) {
       case 'all':
-        console.log('Internal failure: speak all failed');
+        console.error('Internal failure: speak all failed');
         break;
       case 'selection':
         result = 'no selection';
@@ -105,13 +105,13 @@ function speak(
         result = 'at end';
         break;
       case 'group':
-        console.log('Internal failure: speak group failed');
+        console.error('Internal failure: speak group failed');
         break;
       case 'parent':
         result = 'no parent';
         break;
       default:
-        console.log('unknown speak_ param value: "' + scope + '"');
+        console.error('unknown speak_ param value: "' + scope + '"');
         break;
     }
 
@@ -197,7 +197,7 @@ export function defaultSpeakHook(text: string): void {
           const url = URL.createObjectURL(blob);
 
           const audioElement = new Audio(url);
-          audioElement.play().catch((error) => console.log(error));
+          audioElement.play().catch((error) => console.error(error));
         } else console.log('polly.synthesizeSpeech():', data);
       });
 

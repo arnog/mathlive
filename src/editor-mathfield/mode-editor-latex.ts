@@ -121,7 +121,7 @@ export function getLatexGroup(model: _Model): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
-export function getLatexGroupBody(model: _Model): readonly LatexAtom[] {
+export function getLatexGroupBody(model: _Model): Readonly<LatexAtom[]> {
   const atom = getLatexGroup(model);
   return (atom?.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }

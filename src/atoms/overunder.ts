@@ -21,9 +21,9 @@ export class OverunderAtom extends Atom {
   paddedLabels: boolean;
   constructor(
     options: CreateAtomOptions & {
-      body?: readonly Atom[];
-      above?: readonly Atom[];
-      below?: readonly Atom[];
+      body?: Readonly<Atom[]>;
+      above?: Readonly<Atom[]>;
+      below?: Readonly<Atom[]>;
       svgBody?: string;
       svgAbove?: string;
       svgBelow?: string;

@@ -77,7 +77,6 @@ function scanIdentifier(stream: MathMLStream, final: number, options) {
         'bolditalicsans-serif': 'sans-serif-bold-italic',
         'monospace': 'monospace',
       }[(variantStyle ?? '') + (variant ?? '')] ?? '';
-    // if (!variantProp) debugger;
     if (variantProp) variantProp = ` mathvariant="${variantProp}"`;
   }
 
@@ -509,7 +508,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
  * @param final last index of the input to stop conversion to
  */
 export function toMathML(
-  input: number | boolean | string | Atom | readonly Atom[] | undefined,
+  input: number | boolean | string | Atom | Readonly<Atom[]> | undefined,
   options?: { generateID?: boolean },
   initial?: number,
   final?: number

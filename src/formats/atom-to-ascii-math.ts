@@ -160,7 +160,7 @@ function joinAsciiMath(xs: string[]): string {
  * If `plain` is true, the output will not include quotes around text mode
  */
 export function atomToAsciiMath(
-  atom: Atom | readonly Atom[] | undefined,
+  atom: Atom | Readonly<Atom[]> | undefined,
   options?: { plain: boolean }
 ): string {
   if (!atom) return '';

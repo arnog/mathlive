@@ -175,11 +175,17 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   ) {
     // Clicking or tapping the field resets the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
-    mathfield.adoptStyle = 'left';
 
     anchor = offsetFromPoint(mathfield, anchorX, anchorY, {
       bias: 0,
     });
+
+    // Reset the style bias if the anchor is different
+    if (anchor !== mathfield.model.anchor) {
+      mathfield.defaultStyle = {};
+      mathfield.styleBias = 'left';
+    }
+
     if (anchor >= 0) {
       // Set a `tracking` class to avoid triggering the hover of the virtual
       // keyboard toggle, for example
@@ -207,8 +213,6 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
         else dirty = 'selection';
       }
 
-      // Reset any user-specified style
-      mathfield.defaultStyle = {};
       // `evt.detail` contains the number of consecutive clicks
       // for double-click, triple-click, etc...
       // (note that `evt.detail` is not set when using pointerEvent)

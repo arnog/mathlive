@@ -33,7 +33,7 @@ import type {
 } from './types';
 import type { Parser } from 'core/parser';
 
-export function argAtoms(arg: Argument | null | undefined): readonly Atom[] {
+export function argAtoms(arg: Argument | null | undefined): Readonly<Atom[]> {
   if (!arg) return [];
   if (Array.isArray(arg)) return arg as Atom[];
   if (typeof arg === 'object' && 'group' in arg) return arg.group;
@@ -631,7 +631,7 @@ function parseParameterTemplate(
  * If possible, i.e. if they are all simple atoms, return a string made up of
  * their body
  */
-export function parseArgAsString(atoms: readonly Atom[]): string {
+export function parseArgAsString(atoms: Readonly<Atom[]>): string {
   if (!atoms) return '';
   let result = '';
   let success = true;

@@ -48,6 +48,7 @@ import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
 import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
 import { KeyboardModifiers } from './ui-events-types';
+import { defaultInsertStyleHook } from 'editor-mathfield/styling';
 
 /** @category MathJSON */
 export declare type Expression =
@@ -329,14 +330,20 @@ const DEPRECATED_OPTIONS = {
   fontsDirectory: '`MathfieldElement.fontsDirectory`',
   soundsDirectory: '`MathfieldElement.soundsDirectory`',
   createHTML: '`MathfieldElement.createHTML`',
-  onExport: '`MathfieldElement.onExport`',
-  onInlineShortcut: '`MathfieldElement.onInlineShortcut`',
-  onScrollIntoView: '`MathfieldElement.onScrollIntoView`',
+  onExport: '`mf.onExport`',
+  onInlineShortcut: '`mf.onInlineShortcut`',
+  onScrollIntoView: '`mf.onScrollIntoView`',
   locale: 'MathfieldElement.locale = ...',
   strings: 'MathfieldElement.strings = ...',
   decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
   fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
 };
+
+export type InsertStyleHook = (
+  sender: Mathfield,
+  at: Offset,
+  info: { before: Offset; after: Offset }
+) => Readonly<Style>;
 
 /**
  * The `MathfieldElement` class represent a DOM element that displays
@@ -571,7 +578,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * Custom elements lifecycle hooks
    * @internal
    */
-  static get observedAttributes(): readonly string[] {
+  static get observedAttributes(): Readonly<string[]> {
     return [
       ...Object.keys(this.optionsAttributes),
       'contenteditable', // Global attribute
@@ -1451,7 +1458,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
-  get errors(): readonly LatexSyntaxError[] {
+  get errors(): Readonly<LatexSyntaxError[]> {
     return this._mathfield?.errors ?? [];
   }
 
@@ -1788,31 +1795,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
     return this._mathfield?.queryStyle(style) ?? 'none';
   }
 
-  /**
-   * @inheritDoc _Mathfield.getCaretPoint
-   * @category Selection
-   */
-  get caretPoint(): null | Readonly<{ x: number; y: number }> {
-    return this._mathfield?.getCaretPoint() ?? null;
-  }
-
-  set caretPoint(point: null | { x: number; y: number }) {
-    if (!point) return;
-    this._mathfield?.setCaretPoint(point.x, point.y);
-  }
-
-  /**
-   * `x` and `y` are in viewport coordinates.
-   *
-   * Return true if the location of the point is a valid caret location.
-   *
-   * See also [[`caretPoint`]]
-   * @category Selection
-   */
-  setCaretPoint(x: number, y: number): boolean {
-    return this._mathfield?.setCaretPoint(x, y) ?? false;
-  }
-
   /** The offset closest to the location `(x, y)` in viewport coordinate.
    *
    * **`bias`**:  if `0`, the vertical midline is considered to the left or
@@ -1891,9 +1873,9 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @internal
    */
   connectedCallback(): void {
-    const computedStyle = window.getComputedStyle(this);
     const shadowRoot = this.shadowRoot!;
     const host = shadowRoot.host;
+    const computedStyle = window.getComputedStyle(this);
     const userSelect = computedStyle.userSelect !== 'none';
 
     if (userSelect) host.addEventListener('pointerdown', this, true);
@@ -2183,6 +2165,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @inheritDoc LayoutOptions.macros
    */
   get macros(): Readonly<MacroDictionary> {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     return this._getOption('macros');
   }
   set macros(value: MacroDictionary) {
@@ -2193,6 +2176,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @inheritDoc Registers
    */
   get registers(): Readonly<Registers> {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     const that = this;
     return new Proxy(
       {},
@@ -2348,14 +2332,13 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @category Customization
    */
 
-  get menuItems(): readonly MenuItem[] {
-    if (this._mathfield)
-      return this._mathfield.menu._menuItems.map((x) => x.menuItem) ?? [];
-
-    return gDeferredState.get(this)?.menuItems ?? [];
+  get menuItems(): Readonly<MenuItem[]> {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
+    return this._mathfield.menu._menuItems.map((x) => x.menuItem) ?? [];
   }
 
   set menuItems(menuItems: Readonly<MenuItem[]>) {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     if (this._mathfield) {
       const btn =
         this._mathfield.element?.querySelector<HTMLElement>(
@@ -2363,20 +2346,6 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         );
       if (btn) btn.style.display = menuItems.length === 0 ? 'none' : '';
       this._mathfield.menu.menuItems = menuItems;
-    }
-
-    if (gDeferredState.has(this)) {
-      gDeferredState.set(this, {
-        ...gDeferredState.get(this)!,
-        menuItems,
-      });
-    } else {
-      gDeferredState.set(this, {
-        value: undefined,
-        selection: { ranges: [[0, 0]] },
-        options: getOptionsFromAttributes(this),
-        menuItems,
-      });
     }
   }
 
@@ -2395,9 +2364,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization */
   /**    * {@inheritDoc EditingOptions.inlineShortcuts} */
   get inlineShortcuts(): Readonly<InlineShortcutDefinitions> {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     return this._getOption('inlineShortcuts');
   }
   set inlineShortcuts(value: InlineShortcutDefinitions) {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     this._setOptions({ inlineShortcuts: value });
   }
 
@@ -2413,11 +2384,25 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /** @category Customization   */
   /**    * {@inheritDoc EditingOptions.keybindings} */
-  get keybindings(): readonly Keybinding[] {
+  get keybindings(): Readonly<Keybinding[]> {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     return this._getOption('keybindings');
   }
-  set keybindings(value: readonly Keybinding[]) {
+  set keybindings(value: Readonly<Keybinding[]>) {
+    if (!this._mathfield) throw new Error('Mathfield not mounted');
     this._setOptions({ keybindings: value });
+  }
+
+  /** @category Hooks
+   * @inheritDoc _MathfieldHooks.onInsertStyle
+   */
+  get onInsertStyle(): InsertStyleHook | undefined | null {
+    let hook = this._getOption('onInsertStyle');
+    if (hook === undefined) return defaultInsertStyleHook;
+    return hook;
+  }
+  set onInsertStyle(value: InsertStyleHook | undefined | null) {
+    this._setOptions({ onInsertStyle: value });
   }
 
   /** @category Hooks

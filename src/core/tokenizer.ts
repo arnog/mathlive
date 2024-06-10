@@ -181,7 +181,7 @@ class Tokenizer {
 function expand(
   lex: Tokenizer,
   args: null | ((arg: string) => string | undefined)
-): Token[] {
+): Readonly<Token[]> {
   const result: Token[] = [];
   let token = lex.next();
   if (token) {
@@ -299,7 +299,7 @@ export function tokenize(
   return result;
 }
 
-export function joinLatex(segments: string[]): string {
+export function joinLatex(segments: Readonly<string[]>): string {
   let sep = '';
   const result: string[] = [];
   for (const segment of segments) {
@@ -327,7 +327,10 @@ export function joinLatex(segments: string[]): string {
  * Return a LaTeX fragment given a command and its arguments.
  * Note that `command` may include optional arguments, e.g. `\\bbox[red]`
  */
-export function latexCommand(command: string, ...args: string[]): string {
+export function latexCommand(
+  command: string,
+  ...args: Readonly<string[]>
+): string {
   console.assert(command.startsWith('\\'));
 
   if (args.length === 0) return command;

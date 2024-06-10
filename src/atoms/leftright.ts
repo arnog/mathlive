@@ -26,7 +26,7 @@ export class LeftRightAtom extends Atom {
 
   constructor(
     variant: '' | 'left...right' | 'mleft...mright',
-    body: readonly Atom[],
+    body: Readonly<Atom[]>,
     options: {
       leftDelim: string;
       rightDelim: string;

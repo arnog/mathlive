@@ -381,9 +381,9 @@ function convertStringToAtoms(
   s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions
-): [OutputFormat, readonly Atom[]] {
+): [OutputFormat, Readonly<Atom[]>] {
   let format: OutputFormat | undefined = undefined;
-  let result: readonly Atom[] = [];
+  let result: Readonly<Atom[]> = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
     const ce = globalThis.MathfieldElement.computeEngine;

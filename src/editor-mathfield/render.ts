@@ -186,14 +186,19 @@ export function render(
   const menuToggle =
     mathfield.element.querySelector<HTMLElement>('[part=menu-toggle]');
   if (menuToggle) {
+    let hideMenu = false;
     if (
-      mathfield.model.atoms.length <= 1 ||
       mathfield.disabled ||
       (mathfield.readOnly && !mathfield.hasEditableContent) ||
       mathfield.userSelect === 'none'
     )
-      menuToggle.style.display = 'none';
-    else menuToggle.style.display = '';
+      hideMenu = true;
+    // If the width of the element is less than 50px, hide the menu
+    if (!hideMenu && field.offsetWidth < 50) {
+      hideMenu = true;
+    }
+
+    menuToggle.style.display = hideMenu ? 'none' : '';
   }
 
   //

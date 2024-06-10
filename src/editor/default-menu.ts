@@ -20,21 +20,20 @@ function getSelectionPlainString(mf: _Mathfield): string {
   const atoms = getSelectionAtoms(mf);
   let result = '';
   for (const atom of atoms) {
-    if (atom.type === 'first') continue;
     if (typeof atom.value !== 'string') return '';
     result += atom.value;
   }
   return result;
 }
 
-function getSelectionAtoms(mf: _Mathfield): readonly Atom[] {
+function getSelectionAtoms(mf: _Mathfield): Readonly<Atom[]> {
   const model = mf.model;
   const ranges = model.selection.ranges;
   if (ranges.length !== 1) return [];
 
-  const atoms = mf.model.getAtoms(ranges[0]);
-  if (atoms.length === 1 && atoms[0].type === 'root') return atoms[0].children;
-  return atoms;
+  let atoms = mf.model.getAtoms(ranges[0]);
+  if (atoms.length === 1 && atoms[0].type === 'root') atoms = atoms[0].children;
+  return atoms.filter((x) => x.type !== 'first');
 }
 
 function validVariantAtom(mf: _Mathfield, variant: string): boolean {
@@ -66,6 +65,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
   return [
     {
       id: 'accent-vec',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\vec{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length === 1,
@@ -73,6 +73,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-overrightarrow',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(
           `\\overrightarrow{${getSelectionPlainString(mf)}}`
@@ -83,6 +84,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-overleftarrow',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\overleftarrow{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -91,6 +93,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-dot',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\dot{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length === 1,
@@ -98,6 +101,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-ddot',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\ddot{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length === 1,
@@ -105,6 +109,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-bar',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\bar{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length === 1,
@@ -112,6 +117,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-overline',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\overline{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -120,6 +126,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-overgroup',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\overgroup{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -128,6 +135,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-overbrace',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\overbrace{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -136,6 +144,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-underline',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\underline{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -144,6 +153,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-undergroup',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\undergroup{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -152,6 +162,7 @@ function getAccentSubmenu(mf: _Mathfield): MenuItem[] {
     },
     {
       id: 'accent-underbrace',
+      class: 'ML__center-menu',
       label: () =>
         convertLatexToMarkup(`\\underbrace{${getSelectionPlainString(mf)}}`),
       visible: () => getSelectionPlainString(mf).length > 0,
@@ -206,7 +217,7 @@ function getDecorationSubmenu(mf: _Mathfield): MenuItem[] {
   ];
 }
 
-function getBackgroundColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
+function getBackgroundColorSubmenu(mf: _Mathfield): Readonly<MenuItem[]> {
   const result: MenuItem[] = [];
   for (const color of Object.keys(BACKGROUND_COLORS)) {
     result.push({
@@ -225,16 +236,14 @@ function getBackgroundColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
           mf.queryStyle({ backgroundColor: color })
         ] ?? false,
 
-      onMenuSelect: () => {
-        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
-        mf.adoptStyle = 'none';
-      },
+      onMenuSelect: () =>
+        mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' }),
     });
   }
   return result;
 }
 
-function getColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
+function getColorSubmenu(mf: _Mathfield): Readonly<MenuItem[]> {
   const result: MenuItem[] = [];
   for (const color of Object.keys(FOREGROUND_COLORS)) {
     result.push({
@@ -251,10 +260,7 @@ function getColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
       checked: () =>
         ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
 
-      onMenuSelect: () => {
-        mf.applyStyle({ color }, { operation: 'toggle' });
-        mf.adoptStyle = 'none';
-      },
+      onMenuSelect: () => mf.applyStyle({ color }, { operation: 'toggle' }),
     });
   }
   return result;
@@ -273,8 +279,9 @@ class InsertMatrixMenuItem extends _MenuItemState<{
   }
 
   set active(value: boolean) {
-    const cells = this.parentMenu
-      .children as unknown as readonly InsertMatrixMenuItem[];
+    const cells = this.parentMenu.children as unknown as Readonly<
+      InsertMatrixMenuItem[]
+    >;
     if (value) {
       // Make all the items with a smaller column or row active as well
       for (const cell of cells) {
@@ -711,14 +718,12 @@ function variantMenuItem(
         );
       return localize(tooltip) ?? tooltip;
     },
+    class: 'ML__xl',
     tooltip: () => localize(tooltip) ?? tooltip,
     visible: () => validVariantAtom(mf, variant),
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variant })] ?? false,
-    onMenuSelect: () => {
-      mf.applyStyle({ variant }, { operation: 'toggle' });
-      mf.adoptStyle = 'none';
-    },
+    onMenuSelect: () => mf.applyStyle({ variant }, { operation: 'toggle' }),
   };
 }
 
@@ -754,9 +759,7 @@ function variantStyleMenuItem(
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle })] ?? false,
 
-    onMenuSelect: () => {
-      mf.applyStyle({ variantStyle }, { operation: 'toggle' });
-      mf.adoptStyle = 'none';
-    },
+    onMenuSelect: () =>
+      mf.applyStyle({ variantStyle }, { operation: 'toggle' }),
   };
 }

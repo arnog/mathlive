@@ -82,7 +82,7 @@ function moveToSuperscript(model: _Model): boolean {
     // add an adjacent `subsup` atom instead.
     if (target.rightSibling?.type !== 'subsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom({ style: target.computedStyle }),
+        new SubsupAtom({ style: target.style }),
         target
       );
     }
@@ -117,7 +117,7 @@ function moveToSubscript(model: _Model): boolean {
     // add an adjacent `subsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'subsup') {
       target.parent!.addChildAfter(
-        new SubsupAtom({ style: model.at(model.position).computedStyle }),
+        new SubsupAtom({ style: model.at(model.position).style }),
         target
       );
     }
@@ -280,7 +280,7 @@ function getTabbableElements(): HTMLElement[] {
 // Select all the children of an atom, or a branch
 function select(
   model: _Model,
-  target: Atom | readonly Atom[],
+  target: Atom | Readonly<Atom[]>,
   direction: 'backward' | 'forward' = 'forward'
 ): boolean {
   const previousPosition = model.position;

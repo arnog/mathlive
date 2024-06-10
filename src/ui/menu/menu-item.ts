@@ -294,10 +294,9 @@ export class _MenuItemState<T> implements MenuItemState<T> {
     const li = document.createElement('li');
     this._element = li;
     if (
-      (isCommand(this._declaration) ||
-        isHeading(this._declaration) ||
-        isSubmenu(this._declaration)) &&
-      this._declaration.class
+      isCommand(this._declaration) ||
+      isHeading(this._declaration) ||
+      isSubmenu(this._declaration)
     )
       li.setAttribute('part', 'menu-item');
     li.setAttribute('tabindex', '-1');

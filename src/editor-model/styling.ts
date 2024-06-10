@@ -7,7 +7,7 @@ import type { Style, VariantStyle } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
-  atom: Atom | readonly Atom[] | undefined,
+  atom: Atom | Readonly<Atom[]> | undefined,
   style?: Style
 ): void {
   if (!atom || !style) return;

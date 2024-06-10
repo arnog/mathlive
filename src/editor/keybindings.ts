@@ -37,7 +37,7 @@ function matchPlatform(p: string): boolean {
  *
  */
 export function getCommandForKeybinding(
-  keybindings: readonly Keybinding[],
+  keybindings: Readonly<Keybinding[]>,
   mode: ParseMode,
   evt: KeyboardEvent
 ): Selector | [Selector, ...any[]] | '' {
@@ -84,7 +84,7 @@ function commandToString(command: string | Selector | string[]): string {
 }
 
 export function getKeybindingsForCommand(
-  keybindings: readonly Keybinding[],
+  keybindings: Readonly<Keybinding[]>,
   command: string
 ): string[] {
   let result: string[] = [];
@@ -236,7 +236,7 @@ function selectorToString(selector: Selector | [Selector, ...any[]]): string {
  * - keybindings that don't apply to the current platform are removed
  */
 export function normalizeKeybindings(
-  keybindings: readonly Keybinding[],
+  keybindings: Readonly<Keybinding[]>,
   layout: KeyboardLayout
 ): [result: Keybinding[], errors: string[]] {
   const errors: string[] = [];

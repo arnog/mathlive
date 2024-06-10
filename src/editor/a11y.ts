@@ -12,8 +12,8 @@ import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
  * @returns a string representation of the atoms as spoken text
  */
 function speakableText(
-  arg1: string | Atom | readonly Atom[],
-  arg2?: Atom | readonly Atom[]
+  arg1: string | Atom | Readonly<Atom[]>,
+  arg2?: Atom | Readonly<Atom[]>
 ): string {
   if (typeof arg1 === 'string') return arg1 + atomToSpeakableText(arg2!);
   return atomToSpeakableText(arg1);
@@ -96,7 +96,7 @@ export function defaultAnnounceHook(
   mathfield: _Mathfield,
   action: AnnounceVerb,
   previousPosition?: number,
-  atoms?: readonly Atom[]
+  atoms?: Readonly<Atom[]>
 ): void {
   let liveText = '';
 

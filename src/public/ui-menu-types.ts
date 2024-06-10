@@ -106,7 +106,7 @@ export type MenuItemSubmenu = {
   tooltip?: DynamicValue<string>;
   class?: DynamicValue<string>;
 
-  submenu: readonly MenuItem[];
+  submenu: Readonly<MenuItem[]>;
 
   visible?: DynamicValue<boolean>;
   enabled?: DynamicValue<boolean>;

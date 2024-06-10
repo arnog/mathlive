@@ -32,10 +32,6 @@ export class LatexAtom extends Atom {
     return { type: 'latex', value: this.value, ...options };
   }
 
-  get computedStyle(): Style {
-    return {};
-  }
-
   render(context: Context): Box | null {
     const result = new Box(this.value, {
       classes: this.isSuggestion

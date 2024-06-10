@@ -14,7 +14,10 @@ function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
   return run.map((x) => x._serialize(options));
 }
 
-function emitFontShapeTextRun(run: Atom[], options: ToLatexOptions): string[] {
+function emitFontShapeTextRun(
+  run: Readonly<Atom[]>,
+  options: ToLatexOptions
+): string[] {
   return getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {
     const s = emitStringTextRun(x, options);
     const { fontShape } = x[0].style;

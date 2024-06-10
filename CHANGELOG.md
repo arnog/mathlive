@@ -144,6 +144,9 @@ and numbers.
   unnecessary update is avoided.
 - **#2282** Don't display selection when the mathfield is not focused
 - **#2280** Handle better very deeply nested expressions
+- **#2261** When a style was applied to an empty range, the style was ignored.
+- **#2208** When setting a variant style (i.e. blackboard, fraktur, etc...) the
+  style is no longer adopted by subsequent characters.
 - **#2104**, **#2260** When replacing the selection by typing, the new content would not
   always be correctly styled. The content now inherits the style of the
   selection, or the style of the insertion point if the selection is collapsed.

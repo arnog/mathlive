@@ -26,6 +26,7 @@ import type { _Model } from 'editor-model/model-private';
 import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
 import { mightProducePrintableCharacter } from '../ui/events/utils';
+import { computeInsertStyle } from './styling';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
@@ -223,8 +224,9 @@ export function onKeystroke(
       // a text zone, or if `mathModeSpace` is enabled, insert the space
       //
       if (keystroke === '[Space]') {
-        // Temporarily stop adopting the style from surrounding atoms
-        mathfield.adoptStyle = 'none';
+        // Stop adopting the style from surrounding atoms
+        // (the bias is reset when the selection changes)
+        mathfield.styleBias = 'none';
 
         // The space bar can be used to separate inline shortcuts
         mathfield.flushInlineShortcutBuffer();
@@ -332,7 +334,7 @@ export function onKeystroke(
       insertSmartFence(
         model,
         keyboardEventToChar(evt),
-        mathfield.effectiveStyle
+        computeInsertStyle(mathfield)
       )
     ) {
       mathfield.dirty = true;
@@ -387,7 +389,7 @@ export function onKeystroke(
     //
     // 6.4 Insert the shortcut
     //
-    const style = mathfield.effectiveStyle;
+    const style = computeInsertStyle(mathfield);
     //
     // Make the substitution to be undoable
     //
@@ -537,7 +539,6 @@ export function onInput(
   // 4/ Insert the specified text at the current insertion point.
   // If the selection is not collapsed, the content will be deleted first
   //
-  const style = { ...getSelectionStyle(model), ...mathfield.defaultStyle };
 
   if (!model.selectionIsCollapsed) model.deleteAtoms(range(model.selection));
 
@@ -555,10 +556,11 @@ export function onInput(
       }
     );
   } else if (model.mode === 'text') {
+    const style = { ...getSelectionStyle(model), ...mathfield.defaultStyle };
     for (const c of graphemes) ModeEditor.insert(model, c, { style });
     mathfield.snapshot('insert-text');
   } else if (model.mode === 'math')
-    for (const c of graphemes) insertMathModeChar(mathfield, c, style);
+    for (const c of graphemes) insertMathModeChar(mathfield, c);
 
   //
   // 5/ Render the mathfield
@@ -581,11 +583,7 @@ function getLeftSiblings(mf: _Mathfield): Atom[] {
   return result;
 }
 
-function insertMathModeChar(
-  mathfield: _Mathfield,
-  c: string,
-  style: Style
-): void {
+function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   const model = mathfield.model;
 
   // Some characters are mapped to commands. Handle them here.
@@ -613,6 +611,8 @@ function insertMathModeChar(
     return;
   }
 
+  let style = { ...computeInsertStyle(mathfield) };
+
   const atom = model.at(model.position);
 
   if (
@@ -634,18 +634,17 @@ function insertMathModeChar(
     return;
   }
 
-  if (/[a-zA-Z0-9]/.test(c) && mathfield.adoptStyle !== 'none') {
+  if (/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {
     // If adding an alphabetic character, and the neighboring atom is an
     // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
     const sibling =
-      mathfield.adoptStyle === 'left'
+      mathfield.styleBias === 'left'
         ? atom
         : atom.parent
           ? atom.rightSibling
           : null;
     if (sibling?.type === 'mord' && /[a-zA-Z0-9]/.test(sibling.value)) {
-      style = { ...style };
-      if (sibling.style.variant) style.variant = sibling.style.variant;
+      // if (sibling.style.variant) style.variant = sibling.style.variant;
       if (sibling.style.variantStyle)
         style.variantStyle = sibling.style.variantStyle;
     }
@@ -676,17 +675,16 @@ function clearSelection(model: _Model) {
   }
 }
 
-function getSelectionStyle(model: _Model): Style {
+function getSelectionStyle(model: _Model): Readonly<Style> {
   // When the selection is collapsed, we inherit the style from the
   // preceding atom
-  if (model.selectionIsCollapsed)
-    return model.at(model.position)?.computedStyle ?? {};
+  if (model.selectionIsCollapsed) return model.at(model.position)?.style ?? {};
 
   // Otherwise pick the style of the first (leftmost) atom **in** the
   // selection. This is a behavior consistent with text editors such as
   // TextEdit
   const first = range(model.selection)[0];
-  return model.at(first + 1)?.computedStyle ?? {};
+  return model.at(first + 1)?.style ?? {};
 }
 
 /**

@@ -18,7 +18,7 @@ export class _MenuListState implements MenuListState {
 
   hasCheck?: boolean; // If true, has at least one checkbox or radio menu item
 
-  _menuItems: readonly MenuItemState[];
+  _menuItems: Readonly<MenuItemState[]>;
 
   private _element: HTMLElement | null = null;
   private _activeMenuItem: MenuItemState | null = null;
@@ -32,7 +32,7 @@ export class _MenuListState implements MenuListState {
   readonly columnCount: number;
 
   constructor(
-    items: readonly MenuItem[],
+    items: Readonly<MenuItem[]>,
     options?: {
       parentMenu?: MenuListState;
       submenuClass?: string;
@@ -48,14 +48,14 @@ export class _MenuListState implements MenuListState {
     this.menuItems = items;
   }
 
-  get children(): readonly MenuItemState[] {
+  get children(): Readonly<MenuItemState[]> {
     return Object.freeze([...this._menuItems]);
   }
 
   /** Setting the menu items will reset this item and
    * redefine a set of _MenuItem objects
    */
-  set menuItems(items: readonly MenuItem[]) {
+  set menuItems(items: Readonly<MenuItem[]>) {
     // Clear any existing menu items
     const parent = this.parentMenu;
     this.dispose();

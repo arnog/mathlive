@@ -20,6 +20,7 @@ import type {
   Branch,
 } from './types';
 import type { Argument } from 'latex-commands/types';
+import { addBold } from 'editor-model/styling';
 
 /**
  * The order of these branches specify the default keyboard navigation order.
@@ -95,7 +96,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
   // Cached list of children, invalidated when isDirty = true
   /** @internal */
-  protected _children: readonly Atom[] | undefined;
+  protected _children: Readonly<Atom[]> | undefined;
 
   /** @internal */
   private _branches: Branches;
@@ -180,7 +181,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
    */
   static createBox(
     context: Context,
-    atoms: readonly Atom[] | undefined,
+    atoms: Readonly<Atom[]> | undefined,
     options?: { type?: BoxType; classes?: string }
   ): Box | null {
     if (!atoms) return null;
@@ -212,7 +213,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
    * Given an atom or an array of atoms, return a LaTeX string representation
    */
   static serialize(
-    value: readonly Atom[] | undefined,
+    value: Readonly<Atom[]> | undefined,
     options: ToLatexOptions
   ): string {
     return Mode.serialize(value, options);
@@ -441,7 +442,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   /**
    * Return the atoms in the branch, if it exists, otherwise null
    */
-  branch(name: Branch): readonly Atom[] | undefined {
+  branch(name: Branch): Readonly<Atom[]> | undefined {
     if (!isNamedBranch(name)) return undefined;
     if (!this._branches) return undefined;
     return this._branches[name];
@@ -451,7 +452,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
    * Return all the branches that exist.
    * Some of them may be empty.
    */
-  get branches(): readonly Branch[] {
+  get branches(): Readonly<Branch[]> {
     if (!this._branches) return [];
     const result: BranchName[] = [];
     for (const branch of NAMED_BRANCHES)
@@ -490,63 +491,44 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     return this.parentBranch[1];
   }
 
-  get body(): readonly Atom[] | undefined {
+  get body(): Readonly<Atom[]> | undefined {
     return this._branches?.body;
   }
 
-  set body(atoms: readonly Atom[] | undefined) {
+  set body(atoms: Readonly<Atom[]> | undefined) {
     this.setChildren(atoms, 'body');
   }
 
-  get superscript(): readonly Atom[] | undefined {
+  get superscript(): Readonly<Atom[]> | undefined {
     return this._branches?.superscript;
   }
 
-  set superscript(atoms: readonly Atom[] | undefined) {
+  set superscript(atoms: Readonly<Atom[]> | undefined) {
     this.setChildren(atoms, 'superscript');
   }
 
-  get subscript(): readonly Atom[] | undefined {
+  get subscript(): Readonly<Atom[]> | undefined {
     return this._branches?.subscript;
   }
 
-  set subscript(atoms: readonly Atom[] | undefined) {
+  set subscript(atoms: Readonly<Atom[]> | undefined) {
     this.setChildren(atoms, 'subscript');
   }
 
-  get above(): readonly Atom[] | undefined {
+  get above(): Readonly<Atom[]> | undefined {
     return this._branches?.above;
   }
 
-  set above(atoms: readonly Atom[] | undefined) {
+  set above(atoms: Readonly<Atom[]> | undefined) {
     this.setChildren(atoms, 'above');
   }
 
-  get below(): readonly Atom[] | undefined {
+  get below(): Readonly<Atom[]> | undefined {
     return this._branches?.below;
   }
 
-  set below(atoms: readonly Atom[] | undefined) {
+  set below(atoms: Readonly<Atom[]> | undefined) {
     this.setChildren(atoms, 'below');
-  }
-
-  get computedStyle(): PrivateStyle {
-    const hadVerbatimColor = typeof this.style.verbatimColor === 'string';
-    const hadVerbatimBackgroundColor =
-      typeof this.style.verbatimBackgroundColor === 'string';
-
-    const isBold = this.parent ? weightString(this.parent) === 'bold' : false;
-    let result = { ...(this.parent?.computedStyle ?? {}), ...this.style };
-
-    // Variants are not included in the computed style (they're not inherited)
-    // (except bold)
-    delete result.variant;
-    if (isBold) result.variantStyle = 'bold';
-    else delete result.variantStyle;
-
-    if (!hadVerbatimBackgroundColor) delete result.verbatimBackgroundColor;
-    if (!hadVerbatimColor) delete result.verbatimColor;
-    return result;
   }
 
   applyStyle(style: Style): void {
@@ -614,7 +596,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
    * The children should *not* start with a `"first"` atom:
    * the `first` atom will be added if necessary
    */
-  setChildren(children: readonly Atom[] | undefined, branch: Branch): void {
+  setChildren(children: Readonly<Atom[]> | undefined, branch: Branch): void {
     if (!children) return;
     console.assert(isNamedBranch(branch));
     if (!isNamedBranch(branch)) return;
@@ -676,7 +658,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     child.parentBranch = after.parentBranch;
   }
 
-  addChildren(children: readonly Atom[], branchName: Branch): void {
+  addChildren(children: Readonly<Atom[]>, branchName: Branch): void {
     const branch = this.createBranch(branchName);
 
     for (const child of children) {
@@ -691,7 +673,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   /**
    * Return the last atom that was added
    */
-  addChildrenAfter(children: readonly Atom[], after: Atom): Atom {
+  addChildrenAfter(children: Readonly<Atom[]>, after: Atom): Atom {
     console.assert(children.length === 0 || children[0].type !== 'first');
     console.assert(after.parentBranch !== undefined);
     const branch = this.createBranch(after.parentBranch!);
@@ -706,7 +688,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     return children[children.length - 1];
   }
 
-  removeBranch(name: Branch): readonly Atom[] {
+  removeBranch(name: Branch): Readonly<Atom[]> {
     const children = this.branch(name);
     if (isNamedBranch(name)) this._branches[name] = undefined;
 
@@ -741,7 +723,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     child.parentBranch = undefined;
   }
 
-  get siblings(): readonly Atom[] {
+  get siblings(): Readonly<Atom[]> {
     if (!this.parent) return [];
     return this.parent.branch(this.parentBranch!)!;
   }
@@ -802,7 +784,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
    * The order of the atoms is the order in which they
    * are navigated using the keyboard.
    */
-  get children(): readonly Atom[] {
+  get children(): Readonly<Atom[]> {
     if (this._children) return this._children;
     if (!this._branches) return [];
     const result: Atom[] = [];
@@ -1127,14 +1109,15 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   }
 }
 
-function getStyleRuns(atoms: readonly Atom[]): readonly Atom[][] {
+function getStyleRuns(atoms: Readonly<Atom[]>): Readonly<Atom[]>[] {
   let style: Style | undefined = undefined;
   const runs: Atom[][] = [];
   let run: Atom[] = [];
   for (const atom of atoms) {
+    if (atom.type === 'first') run.push(atom);
     if (!style && !atom.style) run.push(atom);
     else {
-      const atomStyle = atom.computedStyle;
+      const atomStyle = atom.style;
       if (
         style &&
         atomStyle.color === style.color &&
@@ -1162,7 +1145,7 @@ function getStyleRuns(atoms: readonly Atom[]): readonly Atom[][] {
  */
 function renderStyleRun(
   parentContext: Context,
-  atoms: readonly Atom[] | undefined,
+  atoms: Readonly<Atom[]> | undefined,
   options: {
     mode?: ParseMode;
     type?: BoxType;

@@ -46,8 +46,8 @@ export class GenfracAtom extends Atom {
     | 'denominator-numerator';
 
   constructor(
-    above: readonly Atom[],
-    below: readonly Atom[],
+    above: Readonly<Atom[]>,
+    below: Readonly<Atom[]>,
     options: GenfracOptions
   ) {
     super({
@@ -93,7 +93,7 @@ export class GenfracAtom extends Atom {
 
   // The order of the children, which is used for keyboard navigation order,
   // may be customized for fractions...
-  get children(): readonly Atom[] {
+  get children(): Readonly<Atom[]> {
     if (this._children) return this._children;
 
     const result: Atom[] = [];

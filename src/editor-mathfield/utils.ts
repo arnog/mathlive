@@ -236,6 +236,8 @@ export function getElementInfo(
 
   result.depth = atom.treeDepth - 2;
 
+  result.style = atom.style;
+
   // Look for some 'htmlData' in the atom or its ancestors
   let a: undefined | Atom = atom;
   while (a) {

@@ -276,7 +276,10 @@ function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
   });
 }
 
-function emitVariantRun(run: Atom[], options: ToLatexOptions): string[] {
+function emitVariantRun(
+  run: Readonly<Atom[]>,
+  options: ToLatexOptions
+): string[] {
   const { parent } = run[0];
   const contextVariant = variantString(parent!);
   return getPropertyRuns(run, 'variant').map((x) => {

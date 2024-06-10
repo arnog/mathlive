@@ -37,7 +37,7 @@ export function boxType(type: AtomType | undefined): BoxType | undefined {
   return result;
 }
 
-export function atomsBoxType(atoms: readonly Atom[]): BoxType {
+export function atomsBoxType(atoms: Readonly<Atom[]>): BoxType {
   if (atoms.length === 0) return 'ord';
   const first = boxType(atoms[0].type);
   const last = boxType(atoms[atoms.length - 1].type);

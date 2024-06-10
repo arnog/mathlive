@@ -159,7 +159,7 @@ function getSpokenName(latex: string): string {
   return result;
 }
 
-function isAtomic(atoms: undefined | readonly Atom[]): boolean {
+function isAtomic(atoms: undefined | Readonly<Atom[]>): boolean {
   let count = 0;
   if (isArray<Atom>(atoms))
     for (const atom of atoms) if (atom.type !== 'first') count += 1;
@@ -167,7 +167,7 @@ function isAtomic(atoms: undefined | readonly Atom[]): boolean {
   return count === 1;
 }
 
-function atomicID(atoms: undefined | readonly Atom[]): string {
+function atomicID(atoms: undefined | Readonly<Atom[]>): string {
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms)
       if (atom.type !== 'first' && atom.id) return atom.id.toString();
@@ -176,7 +176,7 @@ function atomicID(atoms: undefined | readonly Atom[]): string {
   return '';
 }
 
-function atomicValue(atoms: undefined | readonly Atom[]): string {
+function atomicValue(atoms: undefined | Readonly<Atom[]>): string {
   let result = '';
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -188,7 +188,7 @@ function atomicValue(atoms: undefined | readonly Atom[]): string {
   return result;
 }
 
-function atomsAsText(atoms: readonly Atom[] | undefined): string {
+function atomsAsText(atoms: Readonly<Atom[]> | undefined): string {
   if (!atoms) return '';
   return atoms.map((atom) => atom.value).join('');
 }
@@ -199,7 +199,7 @@ function emph(s: string) {
 
 function atomsToSpeakableFragment(
   mode: 'text' | 'math',
-  atom: readonly Atom[]
+  atom: Readonly<Atom[]>
 ) {
   let result = '';
   let isInDigitRun = false; // Need to group sequence of digits
@@ -243,7 +243,7 @@ function atomsToSpeakableFragment(
 
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
-  atom: undefined | Atom | readonly Atom[]
+  atom: undefined | Atom | Readonly<Atom[]>
 ): string {
   function letter(c: string): string {
     if (!globalThis.MathfieldElement.textToSpeechMarkup) {
@@ -685,7 +685,7 @@ function atomToSpeakableFragment(
 /**
  * @param  atoms The atoms to represent as speakable text.
  */
-export function atomToSpeakableText(atoms: Atom | readonly Atom[]): string {
+export function atomToSpeakableText(atoms: Atom | Readonly<Atom[]>): string {
   const mfe = globalThis.MathfieldElement;
   if (mfe.textToSpeechRules === 'sre' && ('sre' in window || 'SRE' in window)) {
     const mathML = toMathML(atoms);

@@ -11,6 +11,7 @@ import type {
   VariantStyle,
 } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
+import { Offset } from 'mathlive';
 
 export function applyStyle(mathfield: _Mathfield, inStyle: Style): boolean {
   mathfield.flushInlineShortcutBuffer();
@@ -170,4 +171,59 @@ export function validateStyle(
   }
 
   return result;
+}
+
+/** Default hook to determine the style to be applied when a new
+ *  element is inserted
+ */
+
+export function defaultInsertStyleHook(
+  mathfield: _Mathfield,
+  offset: Offset,
+  info: { before: Offset; after: Offset; latex: string }
+): Readonly<Style> {
+  const model = mathfield.model;
+
+  if (model.mode === 'latex') return {};
+
+  if (model.mode === 'math') {
+    // Depending on the value of `styleBias` return the style of the
+    // sibling or the default style.
+    if (mathfield.styleBias === 'none') return mathfield.defaultStyle;
+
+    const atom = model.at(offset);
+    const sibling = mathfield.styleBias === 'right' ? atom.rightSibling : atom;
+    if (!sibling) return mathfield.defaultStyle;
+    if (sibling.type === 'group') {
+      const branch = sibling.branch('body');
+      if (!branch || branch.length < 2) return {};
+      if (mathfield.styleBias === 'right') return branch[1].style;
+      return branch[branch.length - 1].style;
+    }
+
+    return sibling.style;
+  }
+
+  if (model.mode === 'text') {
+    // In text mode, we inherit the style of the previous atom
+    const atom = model.at(info.before);
+    // Use the style, not the computed style, since any parent style
+    // will be inherited by the new atom
+    if (atom) return atom.style;
+  }
+
+  return {};
+}
+
+export function computeInsertStyle(mathfield: _Mathfield): Readonly<Style> {
+  let hook = mathfield.options.onInsertStyle;
+  if (hook === null) return {};
+  if (hook === undefined) hook = defaultInsertStyleHook;
+
+  const model = mathfield.model;
+  const atom = model.at(model.position);
+  const before = atom.type === 'first' ? -1 : model.position;
+  const after = atom ? model.offsetOf(atom.rightSibling) : -1;
+
+  return hook(mathfield, model.position, { before, after });
 }

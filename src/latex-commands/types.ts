@@ -32,8 +32,8 @@ export type Argument =
   | LatexValue
   | BBoxParameter
   | ColumnFormat[]
-  | { group: readonly Atom[] }
-  | readonly Atom[];
+  | { group: Readonly<Atom[]> }
+  | Readonly<Atom[]>;
 
 export type TokenDefinition = LatexSymbolDefinition | LatexCommandDefinition;
 
@@ -109,8 +109,8 @@ export type EnvironmentDefinition = {
 
 export type EnvironmentConstructor = (
   name: Environment,
-  array: (readonly Atom[])[][],
-  rowGaps: readonly Dimension[],
+  array: Readonly<Atom[]>[][],
+  rowGaps: Readonly<Dimension[]>,
   args: readonly (null | Argument)[],
   maxMatrixCols: number
 ) => Atom | null;

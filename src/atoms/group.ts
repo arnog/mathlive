@@ -9,7 +9,7 @@ import { getDefinition } from '../latex-commands/definitions-utils';
 export class GroupAtom extends Atom {
   private boxType?: BoxType;
 
-  constructor(arg: readonly Atom[], mode: ParseMode) {
+  constructor(arg: Readonly<Atom[]>, mode: ParseMode) {
     super({ type: 'group', mode });
     this.body = arg;
 

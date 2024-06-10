@@ -1405,7 +1405,7 @@ with a mode token such as `$$` or `\(`.
 
 • **options.context?**: `unknown`
 
-• **options.letterShapeStyle?**: `"tex"` \| `"iso"` \| `"french"` \| `"upright"`
+• **options.letterShapeStyle?**: `"french"` \| `"tex"` \| `"iso"` \| `"upright"`
 
 • **options.mathstyle?**: `"displaystyle"` \| `"textstyle"`
 
@@ -1729,6 +1729,18 @@ for example `\mathrm{${symbol}}`.
 • **symbol**: `string`
 
 `string`
+
+</MemberCard>
+
+<a id="oninsertstyle-1" name="oninsertstyle-1"></a>
+
+<MemberCard>
+
+##### MathfieldHooks.onInsertStyle
+
+```ts
+onInsertStyle: InsertStyleHook;
+```
 
 </MemberCard>
 
@@ -2445,7 +2457,7 @@ type KeyboardOptions: object;
 ##### KeyboardOptions.keybindings
 
 ```ts
-keybindings: readonly Keybinding[];
+keybindings: Readonly<Keybinding[]>;
 ```
 
 </MemberCard>
@@ -3017,6 +3029,21 @@ The mode (math, text or latex)
 
 </MemberCard>
 
+<a id="style-3" name="style-3"></a>
+
+<MemberCard>
+
+##### ElementInfo.style?
+
+```ts
+optional style: Style;
+```
+
+`style` is the style (color, weight, variant, etc...) directly applied
+ to this element.
+
+</MemberCard>
+
 <a id="fontfamily-1" name="fontfamily-1"></a>
 
 ### FontFamily
@@ -3203,7 +3230,7 @@ optional silenceNotifications: boolean;
 
 </MemberCard>
 
-<a id="style-3" name="style-3"></a>
+<a id="style-4" name="style-4"></a>
 
 <MemberCard>
 
@@ -3214,6 +3241,26 @@ optional style: Style;
 ```
 
 </MemberCard>
+
+<a id="insertstylehook" name="insertstylehook"></a>
+
+### InsertStyleHook()
+
+```ts
+type InsertStyleHook: (sender, at, info) => Readonly<Style>;
+```
+
+• **sender**: `Mathfield`
+
+• **at**: [`Offset`](#offset)
+
+• **info**
+
+• **info.after**: [`Offset`](#offset)
+
+• **info.before**: [`Offset`](#offset)
+
+`Readonly`\<[`Style`](#style-1)\>
 
 <a id="latexsyntaxerrort" name="latexsyntaxerrort"></a>
 
@@ -5935,6 +5982,28 @@ set onInlineShortcut(value): void
 
 </MemberCard>
 
+<a id="oninsertstyle" name="oninsertstyle"></a>
+
+<MemberCard>
+
+##### MathfieldElement.onInsertStyle
+
+```ts
+get onInsertStyle(): InsertStyleHook
+```
+
+###### Inherit Doc
+
+```ts
+set onInsertStyle(value): void
+```
+
+• **value**: [`InsertStyleHook`](#insertstylehook)
+
+[`InsertStyleHook`](#insertstylehook)
+
+</MemberCard>
+
 <a id="onscrollintoview" name="onscrollintoview"></a>
 
 <MemberCard>
@@ -6380,9 +6449,9 @@ readonly [`Keybinding`](#keybinding)[]
 ```ts
 get letterShapeStyle(): 
   | "auto"
+  | "french"
   | "tex"
   | "iso"
-  | "french"
   | "upright"
 ```
 
@@ -6394,15 +6463,15 @@ set letterShapeStyle(value): void
 
 • **value**: 
   \| `"auto"`
+  \| `"french"`
   \| `"tex"`
   \| `"iso"`
-  \| `"french"`
   \| `"upright"`
 
   \| `"auto"`
+  \| `"french"`
   \| `"tex"`
   \| `"iso"`
-  \| `"french"`
   \| `"upright"`
 
 </MemberCard>
@@ -7325,52 +7394,6 @@ setPromptValue(
 
 #### Selection
 
-<a id="caretpoint" name="caretpoint"></a>
-
-<MemberCard>
-
-##### MathfieldElement.caretPoint
-
-```ts
-get caretPoint(): Readonly<object>
-```
-
-###### Inherit Doc
-
-```ts
-set caretPoint(point): void
-```
-
-• **point**
-
-• **point.x**: `number`
-
-• **point.y**: `number`
-
-`Readonly`\<`object`\>
-
-<MemberCard>
-
-###### caretPoint.x
-
-```ts
-x: number;
-```
-
-</MemberCard>
-
-<MemberCard>
-
-###### caretPoint.y
-
-```ts
-y: number;
-```
-
-</MemberCard>
-
-</MemberCard>
-
 <a id="lastoffset" name="lastoffset"></a>
 
 <MemberCard>
@@ -7492,30 +7515,6 @@ select(): void
 Select the content of the mathfield.
 
 `void`
-
-</MemberCard>
-
-<a id="setcaretpoint" name="setcaretpoint"></a>
-
-<MemberCard>
-
-##### MathfieldElement.setCaretPoint()
-
-```ts
-setCaretPoint(x, y): boolean
-```
-
-`x` and `y` are in viewport coordinates.
-
-Return true if the location of the point is a valid caret location.
-
-See also [[`caretPoint`]]
-
-• **x**: `number`
-
-• **y**: `number`
-
-`boolean`
 
 </MemberCard>
 
