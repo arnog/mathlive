@@ -89,6 +89,7 @@ export function onKeystroke(
 
   // 4. Let's try to find a matching inline shortcut
   let shortcut: string | undefined;
+  let shortcutLength = 0; // How many keys were consumed by the shortcut
   let selector: Selector | '' | [Selector, ...any[]] = '';
   let stateIndex = 0;
 
@@ -100,9 +101,10 @@ export function onKeystroke(
   if (mathfield.isSelectionEditable) {
     if (model.mode === 'math') {
       if (keystroke === '[Backspace]') {
-        // If there was a previous shortcut "undo" the conversion of the last
-        // keystroke, otherwise, discard the last keystroke
-        if (buffer.length > 1) selector = 'undo';
+        // If last operation was a shortcut conversion, "undo" the
+        // conversion, otherwise, discard the last keystroke
+        if (mathfield.undoManager.lastOp === 'insert-shortcut')
+          selector = 'undo';
         else buffer.pop();
       } else if (!mightProducePrintableCharacter(evt)) {
         // It was a non-alpha character (PageUp, End, etc...)
@@ -125,11 +127,11 @@ export function onKeystroke(
         // Loop  over possible candidates, from the longest possible
         // to the shortest
         //
-        let i = 0;
+        shortcutLength = 0;
         let candidate = '';
-        while (!shortcut && i < keystrokes.length) {
-          stateIndex = buffer.length - (keystrokes.length - i);
-          candidate = keystrokes.slice(i).join('');
+        while (!shortcut && shortcutLength < keystrokes.length) {
+          stateIndex = buffer.length - (keystrokes.length - shortcutLength);
+          candidate = keystrokes.slice(shortcutLength).join('');
 
           //
           // Is this a simple inline shortcut?
@@ -149,7 +151,7 @@ export function onKeystroke(
           )
             shortcut = mathfield.options.onInlineShortcut(mathfield, candidate);
 
-          i += 1;
+          shortcutLength += 1;
         }
 
         // Don't flush the inline shortcut buffer yet, but schedule a deferred
@@ -396,7 +398,8 @@ export function onKeystroke(
     // Revert to the state before the beginning of the shortcut
     model.setState(buffer[stateIndex].state);
     // Insert the keystrokes as regular characters
-    const keystrokes = buffer[buffer.length - 1].keystrokes;
+    let keystrokes = buffer[buffer.length - 1].keystrokes;
+    keystrokes = keystrokes.slice(shortcutLength - 1);
     for (const c of keystrokes) {
       ModeEditor.insert(model, c, {
         silenceNotifications: true,

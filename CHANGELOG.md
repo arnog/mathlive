@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Bug Fixes
+
+ - **#2392** Pressing the backspace key after typing several digits would 
+    delete all the digits.
+
 ## 0.99.0 _2024-06-10_
 
 ### Breaking Changes

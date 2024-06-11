@@ -23,7 +23,7 @@ export class UndoManager {
   // The last operation recorded. If the next operation is of the same
   // category (has the same "op" value), it gets coalesced with the previous
   // one.
-  private lastOp: string;
+  lastOp: string;
 
   constructor(model: _Model) {
     this.model = model;
