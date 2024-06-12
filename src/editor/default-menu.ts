@@ -339,12 +339,14 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: () => localize('menu.array.add row above')!,
       id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
+      keyboardShortcut: 'shift+alt+[Return]',
       visible: () => inMatrix(mf),
     },
     {
       label: () => localize('menu.array.add row below')!,
       id: 'add-row-below',
       onMenuSelect: () => mf.executeCommand('addRowAfter'),
+      keyboardShortcut: 'alt+[Return]',
       visible: () => inMatrix(mf),
     },
     {
@@ -352,6 +354,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'add-column-before',
       onMenuSelect: () => mf.executeCommand('addColumnBefore'),
       visible: () => inMatrix(mf),
+      keyboardShortcut: 'shift+alt+[Tab]',
       enabled: () => {
         const array = mf.model.parentEnvironment;
         if (!array) return false;
@@ -363,6 +366,7 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: () => localize('menu.array.add column after')!,
       id: 'add-column-after',
       onMenuSelect: () => mf.executeCommand('addColumnAfter'),
+      keyboardShortcut: 'alt+[Tab]',
       visible: () => inMatrix(mf),
     },
     {
@@ -747,7 +751,8 @@ function variantStyleMenuItem(
 
     class: () => {
       const textSelection = getSelectionPlainString(mf);
-      if (textSelection.length > 0 && textSelection.length < 12) return 'xl';
+      if (textSelection.length > 0 && textSelection.length < 12)
+        return 'ML__xl';
       return '';
     },
 
