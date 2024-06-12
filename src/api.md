@@ -419,6 +419,28 @@ commit: (mathfield) => boolean;
 
 </MemberCard>
 
+<a id="dispatchevent" name="dispatchevent"></a>
+
+<MemberCard>
+
+##### Commands.dispatchEvent()
+
+```ts
+dispatchEvent: (mathfield, name, detail) => boolean;
+```
+
+Dispatch a custom event on the host (mathfield)
+
+• **mathfield**: `Mathfield`
+
+• **name**: `string`
+
+• **detail**: `number`
+
+`boolean`
+
+</MemberCard>
+
 <a id="insert-1" name="insert-1"></a>
 
 <MemberCard>
@@ -4680,9 +4702,9 @@ CSS classes to apply to the keycap.
 
 ```ts
 command: 
+  | string
   | string[]
   | [string, any]
-  | Selector
   | [string, any, any]
   | [string, any, any, any];
 ```
