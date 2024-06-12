@@ -4,6 +4,28 @@
 
  - **#2392** Pressing the backspace key after typing several digits would 
     delete all the digits.
+- **#2395** Added a `dispatchEvent` command which can be attached to a 
+  custom keycap. 
+
+  Its first argument is the name of the dispatched event, and the second
+  argument is an object with the `detail` property, which is the data
+  associated with the event.
+
+  ```ts
+    { 
+      label: "✨",
+      command: "displatchEvent('customEvent', {detail: 'some data'})"
+    }
+  ```
+
+  To handle the event, add an event listener to the mathfield element:
+
+  ```js
+  mf.addEventListener('customEvent', (ev) => {
+    console.log(ev.detail);
+  });
+  ```
+
 
 ## 0.99.0 _2024-06-10_
 

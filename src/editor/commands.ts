@@ -207,6 +207,19 @@ register(
 );
 
 register(
+  {
+    dispatchEvent: (
+      mathfield: _Mathfield,
+      event: string,
+      detail: number
+    ): boolean =>
+      mathfield.host?.dispatchEvent(new CustomEvent(event, { detail })) ??
+      false,
+  },
+  { target: 'mathfield' }
+);
+
+register(
   { nextSuggestion, previousSuggestion },
   {
     target: 'mathfield',

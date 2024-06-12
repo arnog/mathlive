@@ -55,6 +55,13 @@ export interface Commands {
    */
   performWithFeedback: (mathfield: Mathfield, command: string) => boolean;
 
+  /** Dispatch a custom event on the host (mathfield) */
+  dispatchEvent: (
+    mathfield: Mathfield,
+    name: string,
+    detail: number
+  ) => boolean;
+
   commit: (mathfield: Mathfield) => boolean;
 
   /**
