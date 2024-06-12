@@ -238,7 +238,7 @@ register(
  */
 export function parseCommand(
   command: undefined | string | [string, ...any[]]
-): [SelectorPrivate, ...any[]] | undefined {
+): [SelectorPrivate, ...any[]] | SelectorPrivate | undefined {
   if (!command) return undefined;
   if (isArray(command) && command.length > 0) {
     let selector = command[0];
@@ -283,5 +283,5 @@ export function parseCommand(
   let selector = command;
   selector.replace(/-\w/g, (m) => m[1].toUpperCase());
 
-  return [selector as SelectorPrivate];
+  return selector as SelectorPrivate;
 }

@@ -718,54 +718,54 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[left]': {
     class: 'action hide-shift',
     label: '<svg class=svg-glyph><use xlink:href=#svg-arrow-left /></svg>',
-    command: ['performWithFeedback', 'moveToPreviousChar'],
+    command: 'performWithFeedback(moveToPreviousChar)',
     shift: {
       label:
         '<svg class=svg-glyph><use xlink:href=#svg-angle-double-left /></svg>',
-      command: ['performWithFeedback', 'extendSelectionBackward'],
+      command: 'performWithFeedback(extendSelectionBackward)',
     },
   },
   '[right]': {
     class: 'action hide-shift',
     label: '<svg class=svg-glyph><use xlink:href=#svg-arrow-right /></svg>',
-    command: ['performWithFeedback', 'moveToNextChar'],
+    command: 'performWithFeedback(moveToNextChar)',
     shift: {
       label:
         '<svg class=svg-glyph><use xlink:href=#svg-angle-double-right /></svg>',
-      command: ['performWithFeedback', 'extendSelectionForward'],
+      command: 'performWithFeedback(extendSelectionForward)',
     },
   },
   '[up]': {
     class: 'action hide-shift',
     label: '↑',
-    command: ['performWithFeedback', 'moveUp'],
+    command: 'performWithFeedback(moveUp)',
     shift: {
       label: '↟',
-      command: ['performWithFeedback', 'extendSelectionUpward'],
+      command: 'performWithFeedback(extendSelectionUpward)',
     },
   },
   '[down]': {
     class: 'action hide-shift',
     label: '↓',
-    command: ['performWithFeedback', 'moveDown'],
+    command: 'performWithFeedback(moveDown)',
     shift: {
       label: '↡',
-      command: ['performWithFeedback', 'extendSelectionDownward'],
+      command: 'performWithFeedback(extendSelectionDownward)',
     },
   },
   '[return]': {
     class: 'action hide-shift',
-    command: ['performWithFeedback', 'commit'],
-    shift: { command: ['performWithFeedback', 'addRowAfter'] },
+    command: 'performWithFeedback(commit)',
+    shift: { command: 'performWithFeedback(addRowAfter)' },
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
   },
   '[action]': {
     class: 'action hide-shift',
-    command: ['performWithFeedback', 'commit'],
+    command: 'performWithFeedback(commit)',
     shift: {
       label: '<svg class=svg-glyph><use xlink:href=#circle-plus /></svg>',
-      command: ['performWithFeedback', 'addRowAfter'],
+      command: 'performWithFeedback(addRowAfter)',
     },
     width: 1.5,
     label: '<svg class=svg-glyph><use xlink:href=#svg-commit /></svg>',
@@ -782,14 +782,14 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   },
   '[.]': {
     variants: '.',
-    command: ['performWithFeedback', 'insertDecimalSeparator'],
+    command: 'performWithFeedback(insertDecimalSeparator)',
     shift: ',',
     class: 'big-op hide-shift',
     label: '.',
   },
   '[,]': {
     variants: ',',
-    command: ['performWithFeedback', 'insertDecimalSeparator'],
+    command: 'performWithFeedback(insertDecimalSeparator)',
     shift: '.',
     class: 'big-op hide-shift',
     label: ',',
@@ -849,7 +849,7 @@ const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
   '[backspace]': {
     class: 'action bottom right hide-shift',
     width: 1.5,
-    command: ['performWithFeedback', 'deleteBackward'],
+    command: 'performWithFeedback(deleteBackward)',
     label: '<svg class=svg-glyph><use xlink:href=#svg-delete-backward /></svg>',
     shift: {
       class: 'action warning',

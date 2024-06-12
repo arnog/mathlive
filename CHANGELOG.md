@@ -2,10 +2,12 @@
 
 ### Bug Fixes
 
- - **#2392** Pressing the backspace key after typing several digits would 
-    delete all the digits.
+- **#2396** Pressing the arrow keys in the virtual keyboard would not move the
+  selection in the mathfield and display a runtime error in the console.
 - **#2395** Added a `dispatchEvent` command which can be attached to a 
   custom keycap. 
+- **#2392** Pressing the backspace key after typing several digits would 
+    delete all the digits.
 
   Its first argument is the name of the dispatched event, and the second
   argument is an object with the `detail` property, which is the data

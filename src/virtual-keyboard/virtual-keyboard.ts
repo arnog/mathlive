@@ -854,8 +854,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     if (isArray(command)) {
       selector = command[0];
       if (selector === 'performWithFeedback') {
-        command = command.slice(1) as [SelectorPrivate, ...any[]];
-        target = getCommandTarget(command);
+        target = getCommandTarget(
+          command.slice(1) as [SelectorPrivate, ...any[]]
+        );
       }
       args = command.slice(1);
     } else selector = command;

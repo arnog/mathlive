@@ -29,6 +29,7 @@ export interface VirtualKeyboardKeycap {
    * Command to perform when the keycap is pressed
    */
   command:
+    | string
     | Selector
     | string[]
     | [string, any]
