@@ -1,6 +1,6 @@
 {
   "name": "mathlive",
-  "version": "0.102.0",
+  "version": "0.100.0",
   "description": "A web component for math input",
   "license": "MIT",
   "funding": {
@@ -60,8 +60,7 @@
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
-    "version": "bash ./scripts/version.sh",
-    "postversion": "bash ./scripts/github-release.sh"
+    "version": "bash ./scripts/version.sh"
   },
   "author": "Arno Gourdol <arno@arno.org>",
   "contributors": [
