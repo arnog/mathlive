@@ -56,7 +56,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf"></math-field>
+    <math-field id="mf">\placeholder{}</math-field>
     <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -221,71 +221,113 @@
     // ];
 
     const mf = document.getElementById("mf");
-    mf.applyStyle({ color: 'red' }, { range: [0, -1] });
+
+    mf.addEventListener('mount', () => {
+      console.log('Mounted');
 
 
 
-    // mf.menu = [
-    //   {
-    //     label: "My Menu Item",
-    //     id: "my-menu-item",
-    //   },
-    // ];
+      // mf.menu = [
+      //   {
+      //     label: "My Menu Item",
+      //     id: "my-menu-item",
+      //   },
+      // ];
 
-    // mf.keybindings = [
-    //   { key: 'shift+[Quote]', command: ['switchMode', 'text', "aa", "xx\""], ifMode: "math" },
-    //   { key: 'shift+[Quote]', command: ['switchMode', 'math', "\"xx", "yy"], ifMode: "text" },
-    // ];
+      // mf.keybindings = [
+      //   { key: 'shift+[Quote]', command: ['switchMode', 'text', "aa", "xx\""], ifMode: "math" },
+      //   { key: 'shift+[Quote]', command: ['switchMode', 'math', "\"xx", "yy"], ifMode: "text" },
+      // ];
 
-    // mf.inlineShortcuts = {
-    //   // ...mf.inlineShortcuts,
-    //   "[": { mode: "math", value: "$foo$" },
-    //   "[BracketLeft]": { mode: "math", value: "$toto$" },
-    //   "--": "\\_",
-    // };
-    // eslint-disable-next-line no-undef
-    // mathVirtualKeyboard.layouts = [
-    //   'alphabetic',
-    //   {
-    //     label: 'Test Keyboard',
-    //     rows: [[{ key: '-' }]],
-    //   },
-    // ];
-    // mf.mathModeSpace = '\\;';
+      // mf.inlineShortcuts = {
+      //   // ...mf.inlineShortcuts,
+      //   "[": { mode: "math", value: "$foo$" },
+      //   "[BracketLeft]": { mode: "math", value: "$toto$" },
+      //   "--": "\\_",
+      // };
+      // eslint-disable-next-line no-undef
+      // mathVirtualKeyboard.layouts = [
+      //   'alphabetic',
+      //   {
+      //     label: 'Test Keyboard',
+      //     rows: [[{ key: '-' }]],
+      //   },
+      // ];
+      // mf.mathModeSpace = '\\;';
 
-    // mf.scriptDepth = [0, 0];
+      // mf.scriptDepth = [0, 0];
 
-    // mf.onInlineShortcut = (_mf, s) =>
-    //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
-    // mf.onInlineShortcut = (_mf, s) => {
-    //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-    //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-    //     if (m) {
-    //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
-    //         return `\\${m[1]}_{${m[2]}}`;
-    //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
-    //     }
-    //     return '\\mathrm{' + s + '}';
-    //   }
-    //   return '';
-    // };
+      // mf.onInlineShortcut = (_mf, s) =>
+      //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
+      // mf.onInlineShortcut = (_mf, s) => {
+      //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+      //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+      //     if (m) {
+      //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
+      //         return `\\${m[1]}_{${m[2]}}`;
+      //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
+      //     }
+      //     return '\\mathrm{' + s + '}';
+      //   }
+      //   return '';
+      // };
 
 
-    // mf.macros = {
-    //   ...mf.macros,
-    //   // Alpha: undefined,
-    //   minutes: "\\prime",
-    //   smolfrac: {
-    //     args: 2,
-    //     def: "{}^{#1}\\!\\!/\\!{}_{#2}",
-    //     captureSelection: false,
-    //   },
-    //   funfunction: {
-    //     captureSelection: false,
-    //     args: 2,
-    //     def: "FunFunction\\left({#1},{#2}\\right)",
-    //   },
-    // };
+      // mf.macros = {
+      //   ...mf.macros,
+      //   // Alpha: undefined,
+      //   minutes: "\\prime",
+      //   smolfrac: {
+      //     args: 2,
+      //     def: "{}^{#1}\\!\\!/\\!{}_{#2}",
+      //     captureSelection: false,
+      //   },
+      //   funfunction: {
+      //     captureSelection: false,
+      //     args: 2,
+      //     def: "FunFunction\\left({#1},{#2}\\right)",
+      //   },
+      // };
+
+
+      mf.addEventListener("beforeinput", (ev) => {
+        if (ev.inputType === "insertLineBreak") console.log("enter");
+      });
+
+      mf.addEventListener("input", (ev) => updateContent(mf));
+
+
+
+      mf.addEventListener("selection-change", (ev) => {
+        const selection = mf.selection;
+        document.getElementById("selection").innerHTML =
+          `${label("value     ")}"${escapeHtml(
+            mf.getValue(selection, "latex")
+          )}"<br>` +
+          // `${label('MathJson  ')}"${escapeHtml(
+          //   mf.getValue(selection, 'math-json')
+          // )}"<br>` +
+          label("start     ") +
+          selection.ranges[0][0] +
+          "<br>" +
+          label("end       ") +
+          selection.ranges[0][1] +
+          "<br>" +
+          label("position  ") +
+          mf.position +
+          "<br>" +
+          label("direction ") +
+          '"' +
+          selection.direction +
+          '"<br>' +
+          label("mode      ") +
+          mf.mode +
+          '<br>' +
+          label("style     ") +
+          mf.queryStyle({ color: "red" });
+        // mf.queryStyle({ variant: "double-struck" });
+      });
+    });
 
     mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
       console.log(
@@ -297,43 +339,6 @@
     });
 
 
-    mf.addEventListener("beforeinput", (ev) => {
-      if (ev.inputType === "insertLineBreak") console.log("enter");
-    });
-
-    mf.addEventListener("input", (ev) => updateContent(mf));
-
-
-
-    mf.addEventListener("selection-change", (ev) => {
-      const selection = mf.selection;
-      document.getElementById("selection").innerHTML =
-        `${label("value     ")}"${escapeHtml(
-          mf.getValue(selection, "latex")
-        )}"<br>` +
-        // `${label('MathJson  ')}"${escapeHtml(
-        //   mf.getValue(selection, 'math-json')
-        // )}"<br>` +
-        label("start     ") +
-        selection.ranges[0][0] +
-        "<br>" +
-        label("end       ") +
-        selection.ranges[0][1] +
-        "<br>" +
-        label("position  ") +
-        mf.position +
-        "<br>" +
-        label("direction ") +
-        '"' +
-        selection.direction +
-        '"<br>' +
-        label("mode      ") +
-        mf.mode +
-        '<br>' +
-        label("style     ") +
-        mf.queryStyle({ color: "red" });
-      // mf.queryStyle({ variant: "double-struck" });
-    });
 
     document.getElementById("grow").addEventListener("click", () => {
       for (let i = 0; i < 1000; i++) {
