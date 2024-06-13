@@ -146,7 +146,6 @@ export function defaultAnnounceHook(
     )
       ? ' \u202F '
       : ' \u00A0 ';
-    console.log('liveText', liveText);
     mathfield.ariaLiveText.textContent = liveText + ariaLiveChangeHack;
   }
 }
