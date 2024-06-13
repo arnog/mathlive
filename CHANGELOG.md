@@ -2,6 +2,8 @@
 
 ### Issues Resolved
 
+- **#2397** When a `beforeinput` event was canceled, the text would still 
+  be inserted when using the physical keyboard.
 - **#2398** When a placeholder was the only element in a group, i.e. 
   `{\placeholder{}}`, the placeholder was not automatically selected.
 

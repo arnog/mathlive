@@ -145,7 +145,7 @@ export class MathModeEditor extends ModeEditor {
 
     //
     // 4/ If that didn't work, try some plain text
-    // (could be LaTeX, could be ASIIMath)
+    // (could be LaTeX, could be ASCIIMath)
     //
     if (!text)
       text = typeof data === 'string' ? data : data.getData('text/plain');
@@ -179,6 +179,7 @@ export class MathModeEditor extends ModeEditor {
       !model.contentWillChange({ data, inputType: 'insertText' })
     )
       return false;
+
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
     if (!options.selectionMode) options.selectionMode = 'placeholder';
     if (!options.format) options.format = 'auto';
@@ -207,10 +208,7 @@ export class MathModeEditor extends ModeEditor {
     //
     // Delete any selected items
     //
-    if (
-      options.insertionMode === 'replaceSelection' &&
-      !model.selectionIsCollapsed
-    )
+    if (options.insertionMode === 'replaceSelection')
       model.deleteAtoms(range(model.selection));
     else if (options.insertionMode === 'replaceAll') model.deleteAtoms();
     else if (options.insertionMode === 'insertBefore')

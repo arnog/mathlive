@@ -543,15 +543,14 @@ export function onInput(
   // If the selection is not collapsed, the content will be deleted first
   //
 
-  if (!model.selectionIsCollapsed) model.deleteAtoms(range(model.selection));
-
   if (model.mode === 'latex') {
     model.deferNotifications(
       { content: true, selection: true, data: text, type: 'insertText' },
       () => {
         removeSuggestion(mathfield);
 
-        for (const c of graphemes) ModeEditor.insert(model, c);
+        for (const c of graphemes)
+          ModeEditor.insert(model, c, { insertionMode: 'replaceSelection' });
 
         mathfield.snapshot('insert-latex');
 
@@ -560,7 +559,8 @@ export function onInput(
     );
   } else if (model.mode === 'text') {
     const style = { ...getSelectionStyle(model), ...mathfield.defaultStyle };
-    for (const c of graphemes) ModeEditor.insert(model, c, { style });
+    for (const c of graphemes)
+      ModeEditor.insert(model, c, { style, insertionMode: 'replaceSelection' });
     mathfield.snapshot('insert-text');
   } else if (model.mode === 'math')
     for (const c of graphemes) insertMathModeChar(mathfield, c);
@@ -629,11 +629,14 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   ) {
     // We are inserting a digit into an empty superscript
     // If smartSuperscript is on, insert the digit, and exit the superscript.
-    clearSelection(model);
-    ModeEditor.insert(model, c, { style });
-    mathfield.snapshot();
+    if (
+      !ModeEditor.insert(model, c, { style, insertionMode: 'replaceSelection' })
+    ) {
+      mathfield.undoManager.pop();
+      return;
+    }
+    mathfield.snapshot('insert-mord');
     moveAfterParent(model);
-    mathfield.snapshot();
     return;
   }
 
@@ -666,16 +669,15 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   else if (input === '\\') input = '\\backslash';
 
   // General purpose character insertion
-  ModeEditor.insert(model, input, { style });
+  if (
+    !ModeEditor.insert(model, input, {
+      style,
+      insertionMode: 'replaceSelection',
+    })
+  )
+    return;
 
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
-}
-
-function clearSelection(model: _Model) {
-  if (!model.selectionIsCollapsed) {
-    model.deleteAtoms(range(model.selection));
-    model.mathfield.snapshot('delete');
-  }
 }
 
 function getSelectionStyle(model: _Model): Readonly<Style> {

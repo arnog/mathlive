@@ -106,6 +106,7 @@ export class _Model implements Model {
       this.selection = state.selection;
       this.silenceNotifications = didSuppress;
       this.contentDidChange(changeOption);
+      this.selectionDidChange();
     }
     this.silenceNotifications = wasSuppressing;
   }
@@ -833,8 +834,8 @@ export class _Model implements Model {
           composed: true,
         } as InputEventInit)
       );
-      this.silenceNotifications = save;
     }, 0);
+    this.silenceNotifications = save;
   }
 
   selectionDidChange(): void {
