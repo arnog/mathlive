@@ -1000,6 +1000,8 @@ export class Parser {
    *
    * Return a group Atom with an empty body if an empty
    * group (i.e. `{}`).
+   *
+   * If the group only contains a placeholder, return a placeholder,
    */
   scanGroup(): Atom | null {
     const initialIndex = this.index;
@@ -1007,6 +1009,8 @@ export class Parser {
 
     const body = this.scan((token) => token === '<}>');
     if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
+
+    if (body.length === 1 && body[0].type === 'placeholder') return body[0];
 
     const result = new GroupAtom(body, this.parseMode);
     result.verbatimLatex = tokensToString(

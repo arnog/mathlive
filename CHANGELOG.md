@@ -1,6 +1,13 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2398** When a placeholder was the only element in a group, i.e. 
+  `{\placeholder{}}`, the placeholder was not automatically selected.
+
 ## 0.100.0 _2024-06-12_
 
-### Bug Fixes
+### Issues Resolved
 
 - **#2396** Pressing the arrow keys in the virtual keyboard would not move the
   selection in the mathfield and display a runtime error in the console.
