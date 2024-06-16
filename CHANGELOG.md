@@ -2,6 +2,12 @@
 
 ### Issues Resolved
 
+- There are now CSS selectors to customize the size of glyphs in the
+  virtual keyboard (shift, enter, etc...): 
+  - `--keycap-glyph-size` 
+  - `--keycap-glyph-size-lg` 
+  - `--keycap-glyph-size-xl` 
+  
 - **#2397** When a `beforeinput` event was canceled, the text would still 
   be inserted when using the physical keyboard.
 - **#2398** When a placeholder was the only element in a group, i.e. 
