@@ -718,7 +718,17 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     payload: any,
     target?: MessageEventSource | null
   ): void {
+    // Dispatch an event. The listeners must listen to `mathVirtualKeyboard`
+    if (payload.command) {
+      this.dispatchEvent(
+        new CustomEvent('math-virtual-keyboard-command', {
+          detail: payload.command,
+        })
+      );
+    }
+
     if (!target) target = this.connectedMathfieldWindow;
+
     if (
       this.targetOrigin === null ||
       this.targetOrigin === 'null' ||
@@ -736,6 +746,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       );
       return;
     }
+
     if (target) {
       target.postMessage(
         {
@@ -746,13 +757,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         { targetOrigin: this.targetOrigin }
       );
     } else {
-      if (payload.command) {
-        this.dispatchEvent(
-          new CustomEvent('math-virtual-keyboard-command', {
-            detail: payload.command,
-          })
-        );
-      }
       if (
         action === 'execute-command' &&
         Array.isArray(payload.command) &&

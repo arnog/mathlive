@@ -2,6 +2,8 @@
 
 ### Issues Resolved
 
+- The `math-virtual-keyboard-command` event was not dispatched when a 
+  mathfield was focused and a keycap was pressed.
 - There are now CSS selectors to customize the size of glyphs in the
   virtual keyboard (shift, enter, etc...): 
   - `--keycap-glyph-size` 
@@ -31,7 +33,7 @@
   ```ts
     { 
       label: "✨",
-      command: "displatchEvent('customEvent', {detail: 'some data'})"
+      command: "dispatchEvent('customEvent', {detail: 'some data'})"
     }
   ```
 
