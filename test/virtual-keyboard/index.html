@@ -21,6 +21,11 @@
         --keycap-extra-small-font-size: 9px; */
     }
 
+
+    .MLK__row svg {
+      scale: 0.8;
+    }
+
     math-field,
     textarea {
       margin-top: 1em;
@@ -87,14 +92,12 @@
   <script type="module">
     import { MathfieldElement } from "/dist/mathlive.mjs";
     let keyboardFrozen = false;
-
     const kbd = window.mathVirtualKeyboard;
-    kbd.shiftKeycap = { label: "Shift" };
-    kbd.actionKeycap = { label: "Continue", class: "action primary small" };
-    kbd.backspaceKeycap = {
-      label: "Backspace",
-      class: "action small hide-shift",
-    };
+    console.log(kbd.getKeycap('[action]'));
+    kbd.setKeycap('[shift]', { ...kbd.getKeycap('[shift]'), class: 'action', label: "Shift" });
+    kbd.setKeycap('[action]', { ...kbd.getKeycap('[action]'), label: "Continue", class: "action primary small" });
+    kbd.setKeycap('[backspace]', { ...kbd.getKeycap('[backspace]'), label: "Backspace", class: "action small hide-shift" });
+
     // kbd.layouts = 'minimalist';
     // kbd.alphabeticLayout = 'dvorak';
     // k.addEventListener('virtual-keyboard-toggle', (ev) =>
