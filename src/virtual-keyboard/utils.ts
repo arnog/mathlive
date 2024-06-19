@@ -714,7 +714,10 @@ export function renderKeycap(
   return [markup, cls || 'MLK__keycap'];
 }
 
-const KEYCAP_SHORTCUTS: Record<string, Partial<VirtualKeyboardKeycap>> = {
+export const KEYCAP_SHORTCUTS: Record<
+  string,
+  Partial<VirtualKeyboardKeycap>
+> = {
   '[left]': {
     class: 'action hide-shift',
     label: '<svg class=svg-glyph><use xlink:href=#svg-arrow-left /></svg>',

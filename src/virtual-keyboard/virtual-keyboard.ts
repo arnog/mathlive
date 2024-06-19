@@ -30,6 +30,8 @@ import {
   releaseStylesheets,
   normalizeLayout,
   renderKeycap,
+  normalizeKeycap,
+  KEYCAP_SHORTCUTS,
 } from './utils';
 
 import { hideVariantsPanel, showVariantsPanel } from './variants';
@@ -110,6 +112,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     this.keycapRegistry[id] = keycap;
     return id;
+  }
+
+  setKeycap(
+    keycap: string,
+    value: string | Partial<VirtualKeyboardKeycap>
+  ): void {
+    KEYCAP_SHORTCUTS[keycap] = normalizeKeycap(value);
+    this.rebuild();
   }
 
   getKeycap(
@@ -693,6 +703,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       if (msg.alphabeticLayout) this.alphabeticLayout = msg.alphabeticLayout;
       if (msg.layouts) this.layouts = msg.layouts;
       if (msg.editToolbar) this.editToolbar = msg.editToolbar;
+      if (msg.setKeycap) {
+        const { keycap, value } = msg.setKeycap;
+        this.setKeycap(keycap, value);
+        this.render();
+      }
       return;
     }
 

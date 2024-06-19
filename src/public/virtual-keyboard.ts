@@ -218,9 +218,29 @@ export interface VirtualKeyboardOptions {
       | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
   );
 
+  /**
+   * This property is the "expanded" version of the `layouts` property.
+   * It is normalized to include all the default values for the properties
+   * of the layout and layers.
+   */
   readonly normalizedLayouts: (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
   })[];
+
+  /**
+   * Some keycaps can be customized:
+   * `[left]`, `[right]`, `[up]`, `[down]`, `[return]`, `[action]`,
+   * `[space]`, `[tab]`, `[backspace]`, `[shift]`,
+   * `[undo]`, `[redo]`, `[foreground-color]`, `[background-color]`,
+   * `[hide-keyboard]`,
+   * `[.]`, `[,]`,
+   * `[0]`, `[1]`, `[2]`, `[3]`, `[4]`,
+   * `[5]`, `[6]`, `[7]`, `[8]`, `[9]`,
+   * `[+]`, `[-]`, `[*]`, `[/]`, `[^]`, `[_]`, `[=]`, `[.]`,
+   * `[(]`, `[)]`,
+   */
+  getKeycap(keycap: string): Partial<VirtualKeyboardKeycap> | undefined;
+  setKeycap(keycap: string, value: Partial<VirtualKeyboardKeycap>): void;
 
   /**
    * Configuration of the action toolbar, displayed on the right-hand side.
@@ -376,6 +396,7 @@ export type VirtualKeyboardMessage =
       shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
       backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
       tabKeycap: string | Partial<VirtualKeyboardKeycap>;
+      setKeycap: { keycap: string; value: Partial<VirtualKeyboardKeycap> };
     }
   | {
       // From proxy to VK

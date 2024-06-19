@@ -58,6 +58,14 @@ export class VirtualKeyboardProxy
     this.sendMessage('proxy-created');
     this.listeners = {};
   }
+
+  getKeycap(keycap: string): VirtualKeyboardKeycap | undefined {
+    return undefined;
+  }
+  setKeycap(keycap: string, value: string | Partial<VirtualKeyboardKeycap>) {
+    this.sendMessage('update-setting', { setKeycap: { keycap, value } });
+  }
+
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this.sendMessage('update-setting', { alphabeticLayout: value });
   }

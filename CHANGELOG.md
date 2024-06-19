@@ -1,5 +1,32 @@
 ## [Unreleased]
 
+### New Features
+
+- Some keycaps in the virtual keyboard can be customized without having
+  to define an entire virtual keyboard layout.
+
+  The `mathVirtualKeyboard.getKeycap()` give access to the definition of 
+  special keycaps and `mathVirtualKeyboard.setKeycap()` can be used to 
+  change that definition.
+
+  The keycaps are one of these special shortcuts:
+   * `[left]`, `[right]`, `[up]`, `[down]`, `[return]`, `[action]`,
+   * `[space]`, `[tab]`, `[backspace]`, `[shift]`,
+   * `[undo]`, `[redo]`, `[foreground-color]`, `[background-color]`,
+   * `[hide-keyboard]`,
+   * `[.]`, `[,]`,
+   * `[0]`, `[1]`, `[2]`, `[3]`, `[4]`,
+   * `[5]`, `[6]`, `[7]`, `[8]`, `[9]`,
+   * `[+]`, `[-]`, `[*]`, `[/]`, `[^]`, `[_]`, `[=]`, `[.]`,
+   * `[(]`, `[)]`
+
+  For example, to change the LaTeX inserted when the multiplication key is 
+  pressed use:
+  
+  ```js
+  mathVirtualKeyboard.setKeycap('[*]', {latex: '\\times'});
+  ```
+
 ### Issues Resolved
 
 - In the virtual keyboard, the background of the variant panel was sometimes
