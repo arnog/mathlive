@@ -253,11 +253,6 @@ export interface VirtualKeyboardOptions {
   /** Layout of the alphabetic layers: AZERTY, QWERTY, etc... */
   set alphabeticLayout(value: AlphabeticKeyboardLayout);
 
-  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>);
-  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>);
-  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>);
-  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>);
-
   /**
    * Element the virtual keyboard element gets appended to.
    *
@@ -378,10 +373,7 @@ export type VirtualKeyboardMessage =
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
       layouts: Readonly<(string | VirtualKeyboardLayout)[]>;
       editToolbar?: EditToolbarOptions;
-      actionKeycap: string | Partial<VirtualKeyboardKeycap>;
-      shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
-      backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
-      tabKeycap: string | Partial<VirtualKeyboardKeycap>;
+      setKeycap: { keycap: string; value: Partial<VirtualKeyboardKeycap> };
       isShifted: boolean;
     }
   | {
@@ -392,10 +384,6 @@ export type VirtualKeyboardMessage =
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
       layouts: Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;
       editToolbar?: EditToolbarOptions;
-      actionKeycap: string | Partial<VirtualKeyboardKeycap>;
-      shiftKeycap: string | Partial<VirtualKeyboardKeycap>;
-      backspaceKeycap: string | Partial<VirtualKeyboardKeycap>;
-      tabKeycap: string | Partial<VirtualKeyboardKeycap>;
       setKeycap: { keycap: string; value: Partial<VirtualKeyboardKeycap> };
     }
   | {

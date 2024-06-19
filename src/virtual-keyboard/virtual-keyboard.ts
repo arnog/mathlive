@@ -125,7 +125,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   getKeycap(
     id: string | undefined
   ): Partial<VirtualKeyboardKeycap> | undefined {
-    return id ? this.keycapRegistry[id] : undefined;
+    return id ? (KEYCAP_SHORTCUTS[id] ?? this.keycapRegistry[id]) : undefined;
   }
 
   getLayer(id: string): NormalizedVirtualKeyboardLayer | undefined {
@@ -143,36 +143,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this._alphabeticLayout = value;
     this.rebuild();
-  }
-
-  private _actionKeycap: Partial<VirtualKeyboardKeycap>;
-  get actionKeycap(): Partial<VirtualKeyboardKeycap> {
-    return this._actionKeycap;
-  }
-  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this._actionKeycap = typeof value === 'string' ? { label: value } : value;
-  }
-  private _shiftKeycap: Partial<VirtualKeyboardKeycap>;
-  get shiftKeycap(): Partial<VirtualKeyboardKeycap> {
-    return this._shiftKeycap;
-  }
-  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this._shiftKeycap = typeof value === 'string' ? { label: value } : value;
-  }
-  private _backspaceKeycap: Partial<VirtualKeyboardKeycap>;
-  get backspaceKeycap(): Partial<VirtualKeyboardKeycap> {
-    return this._backspaceKeycap;
-  }
-  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this._backspaceKeycap =
-      typeof value === 'string' ? { label: value } : value;
-  }
-  private _tabKeycap: Partial<VirtualKeyboardKeycap>;
-  get tabKeycap(): Partial<VirtualKeyboardKeycap> {
-    return this._tabKeycap;
-  }
-  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this._tabKeycap = typeof value === 'string' ? { label: value } : value;
   }
 
   private _layouts: Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;

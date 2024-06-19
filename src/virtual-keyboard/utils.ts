@@ -1032,35 +1032,6 @@ export function normalizeKeycap(
   if (shortcut.command === 'insertDecimalSeparator')
     shortcut.label = globalThis.MathfieldElement.decimalSeparator ?? '.';
 
-  if (keycap.label === '[action]') {
-    shortcut = {
-      ...shortcut,
-      ...(window.mathVirtualKeyboard
-        .actionKeycap as Partial<VirtualKeyboardKeycap>),
-    };
-  }
-  if (keycap.label === '[shift]') {
-    shortcut = {
-      ...shortcut,
-      ...(window.mathVirtualKeyboard
-        .shiftKeycap as Partial<VirtualKeyboardKeycap>),
-    };
-  }
-  if (keycap.label === '[backspace]') {
-    shortcut = {
-      ...shortcut,
-      ...(window.mathVirtualKeyboard
-        .backspaceKeycap as Partial<VirtualKeyboardKeycap>),
-    };
-  }
-  if (keycap.label === '[tab]') {
-    shortcut = {
-      ...shortcut,
-      ...(window.mathVirtualKeyboard
-        .tabKeycap as Partial<VirtualKeyboardKeycap>),
-    };
-  }
-
   if (
     shortcut.tooltip === undefined ||
     shortcut.tooltip === null ||

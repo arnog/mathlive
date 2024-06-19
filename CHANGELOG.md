@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The properties `mathVirtualKeyboard.actionKeycap`, 
+ `mathVirtualKeyboard.shiftKeycap`, `mathVirtualKeyboard.backspaceKeycap`,
+ and `mathVirtualKeyboard.tabKeycap` have been removed. Use the more general
+  `mathVirtualKeyboard.setKeycap()` method to customize these keycaps, that
+  is `mathVirtualKeyboard.setKeycap('[action]', {...})` etc...
+
 ### New Features
 
 - Some keycaps in the virtual keyboard can be customized without having

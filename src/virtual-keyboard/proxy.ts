@@ -80,18 +80,6 @@ export class VirtualKeyboardProxy
   set editToolbar(value: EditToolbarOptions) {
     this.sendMessage('update-setting', { editToolbar: value });
   }
-  set actionKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this.sendMessage('update-setting', { actionKeycap: value });
-  }
-  set shiftKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this.sendMessage('update-setting', { shiftKeycap: value });
-  }
-  set backspaceKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this.sendMessage('update-setting', { backspaceKeycap: value });
-  }
-  set tabKeycap(value: string | Partial<VirtualKeyboardKeycap>) {
-    this.sendMessage('update-setting', { tabKeycap: value });
-  }
 
   set container(value: HTMLElement | null) {
     throw new Error('Container inside an iframe cannot be changed');
