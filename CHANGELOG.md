@@ -37,6 +37,8 @@
 
 ### Issues Resolved
 
+- **#2403** The virtual keyboard Keycap Variants panel was positioned incorrectly
+  when the page used a RTL layout direction.
 - In the virtual keyboard, the background of the variant panel was sometimes
   displayed transparently.
 - **#2402** Characters inserted after a `\mathbb{}` command were not styled
