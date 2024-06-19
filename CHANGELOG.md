@@ -2,6 +2,8 @@
 
 ### Issues Resolved
 
+- In the virtual keyboard, the background of the variant panel was sometimes
+  displayed transparently.
 - **#2402** Characters inserted after a `\mathbb{}` command were not styled
   correctly.
 - The `math-virtual-keyboard-command` event was not dispatched when a 
