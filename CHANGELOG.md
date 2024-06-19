@@ -2,6 +2,8 @@
 
 ### Issues Resolved
 
+- **#2402** Characters inserted after a `\mathbb{}` command were not styled
+  correctly.
 - The `math-virtual-keyboard-command` event was not dispatched when a 
   mathfield was focused and a keycap was pressed.
 - There are now CSS selectors to customize the size of glyphs in the

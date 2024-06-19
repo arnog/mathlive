@@ -503,6 +503,7 @@ defineFunction('ttfamily', '{:rest*}', {
 // Note that \Bbb has been deprecated for over 20 years (as well as \rm, \it, \bf)
 defineFunction(['Bbb', 'mathbb'], '{:math*}', {
   applyStyle: (style) => ({
+    ...style,
     variant: 'double-struck',
     variantStyle: removeItalic(style.variantStyle),
   }),
@@ -510,6 +511,7 @@ defineFunction(['Bbb', 'mathbb'], '{:math*}', {
 
 defineFunction(['frak', 'mathfrak'], '{:math*}', {
   applyStyle: (style) => ({
+    ...style,
     variant: 'fraktur',
     variantStyle: removeItalic(style.variantStyle),
   }),
@@ -518,6 +520,7 @@ defineFunction(['frak', 'mathfrak'], '{:math*}', {
 defineFunction('mathcal', '{:math*}', {
   // Note that in LaTeX, \mathcal forces the 'up' variant. Use \bm to get bold
   applyStyle: (style) => ({
+    ...style,
     variant: 'calligraphic',
     variantStyle: removeItalic(style.variantStyle),
   }),
@@ -525,13 +528,14 @@ defineFunction('mathcal', '{:math*}', {
 
 defineFunction('mathscr', '{:math*}', {
   applyStyle: (style) => ({
+    ...style,
     variant: 'script',
     variantStyle: removeItalic(style.variantStyle),
   }),
 });
 
 /*
- * Rough synomym for \text{}
+ * Rough synonym for \text{}
  * An \mbox within math mode does not use the current math font; rather it uses
  * the typeface of the surrounding running text.
  */

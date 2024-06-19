@@ -12,6 +12,8 @@ import type {
 } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 import { Offset } from 'mathlive';
+import { Atom } from 'core/atom';
+import { _Model } from 'editor-model/model-private';
 
 export function applyStyle(mathfield: _Mathfield, inStyle: Style): boolean {
   mathfield.flushInlineShortcutBuffer();
@@ -186,30 +188,20 @@ export function defaultInsertStyleHook(
 
   if (model.mode === 'latex') return {};
 
+  const bias = mathfield.styleBias;
+  if (bias === 'none') return mathfield.defaultStyle;
+
+  // In text mode, we inherit the style of the sibling atom
+  if (model.mode === 'text')
+    return (
+      model.at(bias === 'right' ? info.after : info.before)?.style ??
+      mathfield.defaultStyle
+    );
+
   if (model.mode === 'math') {
-    // Depending on the value of `styleBias` return the style of the
-    // sibling or the default style.
-    if (mathfield.styleBias === 'none') return mathfield.defaultStyle;
-
-    const atom = model.at(offset);
-    const sibling = mathfield.styleBias === 'right' ? atom.rightSibling : atom;
-    if (!sibling) return mathfield.defaultStyle;
-    if (sibling.type === 'group') {
-      const branch = sibling.branch('body');
-      if (!branch || branch.length < 2) return {};
-      if (mathfield.styleBias === 'right') return branch[1].style;
-      return branch[branch.length - 1].style;
-    }
-
-    return sibling.style;
-  }
-
-  if (model.mode === 'text') {
-    // In text mode, we inherit the style of the previous atom
-    const atom = model.at(info.before);
-    // Use the style, not the computed style, since any parent style
-    // will be inherited by the new atom
-    if (atom) return atom.style;
+    const atom = model.at(bias === 'right' ? info.after : info.before);
+    if (!atom) return mathfield.defaultStyle;
+    return { ...atom.style, variant: 'normal' };
   }
 
   return {};
@@ -221,9 +213,25 @@ export function computeInsertStyle(mathfield: _Mathfield): Readonly<Style> {
   if (hook === undefined) hook = defaultInsertStyleHook;
 
   const model = mathfield.model;
+  const bias = mathfield.styleBias;
   const atom = model.at(model.position);
-  const before = atom.type === 'first' ? -1 : model.position;
-  const after = atom ? model.offsetOf(atom.rightSibling) : -1;
+
+  const before = ungroup(model, atom, bias);
+  const after = ungroup(model, atom.rightSibling, bias);
 
   return hook(mathfield, model.position, { before, after });
+}
+
+function ungroup(
+  model: _Model,
+  atom: Atom | undefined,
+  bias: 'left' | 'right' | 'none'
+): Offset {
+  if (!atom) return -1;
+  if (atom.type === 'first' && bias !== 'right') return -1;
+  if (atom.type !== 'group') return model.offsetOf(atom);
+  if (!atom.body || atom.body.length < 2) return -1;
+  if (atom.body?.length === 1) return model.offsetOf(atom.body[0]);
+  if (bias !== 'right') return model.offsetOf(atom.body[0]);
+  return model.offsetOf(atom.body[atom.body.length - 1]);
 }

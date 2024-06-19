@@ -616,6 +616,12 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
 
   let style = { ...computeInsertStyle(mathfield) };
 
+  // If we're inserting a non-alphanumeric character, reset the variant
+  if (!/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {
+    style.variant = 'normal';
+    style.variantStyle = undefined;
+  }
+
   const atom = model.at(model.position);
 
   if (
@@ -638,22 +644,6 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     mathfield.snapshot('insert-mord');
     moveAfterParent(model);
     return;
-  }
-
-  if (/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {
-    // If adding an alphabetic character, and the neighboring atom is an
-    // alphanumeric character, use the same variant/variantStyle (\mathit, \mathrm...)
-    const sibling =
-      mathfield.styleBias === 'left'
-        ? atom
-        : atom.parent
-          ? atom.rightSibling
-          : null;
-    if (sibling?.type === 'mord' && /[a-zA-Z0-9]/.test(sibling.value)) {
-      // if (sibling.style.variant) style.variant = sibling.style.variant;
-      if (sibling.style.variantStyle)
-        style.variantStyle = sibling.style.variantStyle;
-    }
   }
 
   // If trying to insert a special character, that is a character that could
