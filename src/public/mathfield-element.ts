@@ -1339,6 +1339,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
           // Check if a \href command was clicked on (or its children)
           const offset = this.getOffsetFromPoint(evt.clientX, evt.clientY);
           if (offset >= 0) MathfieldElement.openUrl(getHref(mf, offset));
+          // set cursor position if selection is collapsed on touch events
+          if (evt.pointerType === 'touch' && this.selectionIsCollapsed)
+            this.position = offset;
         }
       },
       { once: true }
