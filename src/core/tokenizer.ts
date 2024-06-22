@@ -279,6 +279,7 @@ export function tokenize(
   s: string,
   args: null | ((arg: string) => string | undefined) = null
 ): Token[] {
+  if (!s) return [];
   // Merge multiple lines into one, and remove comments
   const lines: string[] = [];
   let sep = '';

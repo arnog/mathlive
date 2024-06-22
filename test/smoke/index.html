@@ -1,419 +1,1019 @@
 <!doctype html>
-<html>
+<html">
 
-<head>
-  <meta charset="utf-8" />
-  <title>Smoke Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <link rel="stylesheet" href="../style.css" />
-  <link rel="icon" href="data:," />
-  <style>
-    math-field {
-      border: 1px solid var(--editable-border);
-      padding: 5px;
-      margin: 10px 0 10px 0;
-      border-radius: 5px;
-      background: var(--editable);
-      color: var(--on-editable);
-      max-width: 640px;
-      width: 100%;
-      position: relative;
-      z-index: 1;
-      font-size: clamp(1rem, 1.5vw, 4rem);
-    }
+  <head>
+    <meta charset="utf-8" />
+    <title>Smoke Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      math-field {
+        border: 1px solid var(--editable-border);
+        padding: 5px;
+        margin: 10px 0 10px 0;
+        border-radius: 5px;
+        background: var(--editable);
+        color: var(--on-editable);
+        max-width: 640px;
+        width: 100%;
+        position: relative;
+        z-index: 1;
+        font-size: clamp(1rem, 1.5vw, 4rem);
+      }
 
-    @media (prefers-color-scheme: dark) {
+      /* @media (prefers-color-scheme: dark) {
       math-field {
         --contains-highlight-background-color: hsl(212, 40%, 25%);
-      }
-    }
+      } */
 
-    /* math-field::part(menu-toggle) {
+      /* math-field::part(menu-toggle) {
         display: none;
       }
  */
-    #mathml-render {
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-    }
-  </style>
-</head>
+    </style>
+  </head>
 
-<body>
-  <header>
-    <h1>Smoke Test</h1>
-    <ul>
-      <li class="current"><a href="../smoke/">Smoke</a></li>
-      <li>
-        <a href="../virtual-keyboard/">Virtual Keyboard</a>
-      </li>
-      <li>
-        <a href="../mathfield-states/">States</a>
-      </li>
-      <li>
-        <a href="../prompts/">Prompts</a>
-      </li>
-    </ul>
-  </header>
-  <main>
-    <math-field id="mf">\placeholder{}</math-field>
-    <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
-    <!-- <math-field id="mf"
+  <body>
+    <header>
+      <h1>Smoke Test</h1>
+      <ul>
+        <li class="current"><a href="../smoke/">Smoke</a></li>
+        <li>
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+        <li>
+          <a href="../mathfield-states/">States</a>
+        </li>
+        <li>
+          <a href="../prompts/">Prompts</a>
+        </li>
+      </ul>
+    </header>
+    <main>
+      <math-field id="mf">\lbrace 2x\mid x\in\mathbb{R}</math-field>
+      <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
+      <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
 
-    <!-- <math-field id="mf"
+      <!-- <math-field id="mf"
         >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
       > -->
-    <!-- <math-field id="mf"
+      <!-- <math-field id="mf"
         >\phase{abc}\enclose{box}{\sqrt{\frac{1}{x+1}}}\enclose{roundedbox}{\sqrt{\frac{1}{x+1}}}\enclose{circle}{\sqrt{\frac{1}{x+1}}}\enclose{top}{\sqrt{\frac{1}{x+1}}}\enclose{left}{\sqrt{\frac{1}{x+1}}}\enclose{right}{\sqrt{\frac{1}{x+1}}}\enclose{bottom}{\sqrt{\frac{1}{x+1}}}\enclose{horizontalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{verticalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{phasorangle}{\sqrt{\frac{1}{x+1}}}\enclose{radical}{\sqrt{\frac{1}{x+1}}}\enclose{longdiv}{\sqrt{\frac{1}{x+1}}}\enclose{actuarial}{\sqrt{\frac{1}{x+1}}}\enclose{madruwb}{\sqrt{\frac{1}{x+1}}}</math-field
       > -->
-    <!-- <math-field id="mf"
+      <!-- <math-field id="mf"
         >\phase{abc}\phase{\frac{x}{x+1}}\enclose{downdiagonalstrike}{\frac{1}{x+1}}</math-field -->
-    <!-- <math-field id="mf"
+      <!-- <math-field id="mf"
         >\text{Hello
         World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
       > -->
 
-    <h2>Selection</h2>
-    <div class="output" id="selection"></div>
+      <h2>Selection</h2>
+      <div class="output" id="selection"></div>
 
-    <h2 style="margin-top: 1em">LaTeX</h2>
-    <div class="output" id="latex"></div>
+      <h2 style="margin-top: 1em">LaTeX</h2>
+      <div class="output" id="latex"></div>
 
-    <h2>MathJSON</h2>
-    <div class="output" style="white-space: nowrap">
-      <div id="math-json"></div>
-      <div id="result"></div>
-      <div id="result-latex"></div>
-    </div>
+      <h2>MathJSON</h2>
+      <div class="output" style="white-space: nowrap">
+        <div id="math-json"></div>
+        <div id="result"></div>
+        <div id="result-latex"></div>
+      </div>
 
-    <h2>ASCII Math</h2>
-    <div class="output" id="ascii-math"></div>
+      <h2>ASCII Math</h2>
+      <div class="output" id="ascii-math"></div>
 
-    <h2>MathML</h2>
-    <div class="output" id="mathml"></div>
-    <div id="mathml-render"></div>
+      <h2>MathML</h2>
+      <div class="output" id="mathml"></div>
+      <div id="mathml-render"></div>
 
-    <h2>Latex to Speakable Text</h2>
-    <div class="output" id="latex2speech"></div>
+      <h2>Latex to Speakable Text</h2>
+      <div class="output" id="latex2speech"></div>
 
-    <div class="button-bar">
-      <button id="grow">Grow</button>
-      <button id="shrink">Shrink</button>
-    </div>
-    <div style="height: 800px"></div>
-  </main>
+      <div class="button-bar">
+        <button id="grow">Grow</button>
+        <button id="shrink">Shrink</button>
+      </div>
+      <div style="height: 800px"></div>
+    </main>
 
-  <script type="module">
-    import {
-      renderMathInDocument,
-      renderMathInElement,
-      MathfieldElement,
-      convertLatexToMarkup,
-      convertLatexToSpeakableText,
-    } from "/dist/mathlive.mjs";
+    <script type="module">
+      import {
+        renderMathInDocument,
+        renderMathInElement,
+        MathfieldElement,
+        convertLatexToMarkup,
+        convertLatexToSpeakableText,
+      } from "/dist/mathlive.mjs";
+      // } from "https://unpkg.com/mathlive?module";
 
-    import {
-      ComputeEngine,
-      version,
-    } from "https://unpkg.com/@cortex-js/compute-engine?module";
+      import {
+        ComputeEngine,
+        version,
+      } from "https://unpkg.com/@cortex-js/compute-engine?module";
 
-    const MAX_LINE_LENGTH = 74;
+      const MAX_LINE_LENGTH = 74;
 
-    // renderMathInDocument({ renderAccessibleContent: false });
-    renderMathInDocument({
-      renderAccessibleContent: false,
-      TeX: {
-        delimiters: {
-          display: [["$$", "$$"]],
-          inline: [["$", "$"]],
+      // renderMathInDocument({ renderAccessibleContent: false });
+      renderMathInDocument({
+        renderAccessibleContent: false,
+        TeX: {
+          delimiters: {
+            display: [["$$", "$$"]],
+            inline: [["$", "$"]],
+          },
+          className: { display: "display_math" },
         },
-        className: { display: "display_math" },
-      },
-    });
+      });
 
-    // const ce = new ComputeEngine({
-    //   latexDictionary: [
-    //     ...ComputeEngine.getLatexDictionary(),
-    //     {
-    //       trigger: ['\\smallfrac'],
-    //       parse: (parser) => {
-    //         return [
-    //           'Smallfrac',
-    //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
-    //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
-    //         ];
-    //       },
-    //     },
-    //   ],
-    // });
-    // ce.defineFunction('Smallfrac', {
-    //   signature: {
-    //     domain: 'NumericFunction',
-    //     evaluate: (ce, args) => ce.box(args[0].N() / args[1].N()),
-    //   },
-    // });
-
-    // MathfieldElement.computeEngine = ce;
-
-    MathfieldElement.computeEngine.latexOptions = {
-      ...MathfieldElement.computeEngine.latexOptions,
-      parseUnknownIdentifier: (s) =>
-        /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
-    };
-
-    MathfieldElement.computeEngine.declare("f", "Functions");
-
-    // mathVirtualKeyboard.layouts = [
-    //   {
-    //     label: 'minimal',
-    //     tooltip: 'Only the essential',
-    //     layers: [
-    //       {
-    //         style: `
-    //           .digit { background: blue !important; color: white !important }
-    //           .variant_indicator::before { content: '•'; color: #38d; }`,
-    //         rows: [
-    //           [
-    //             // {
-    //             //   latex: 'x',
-    //             //   insert: 'x',
-    //             //   shift: { latex: 'a', insert: 's' },
-    //             // },
-    //             {
-    //               label: 'Aa',
-    //               class: 'if-math-mode',
-    //               command: ['perform-with-feedback', ['switch-mode', 'text']],
-    //             },
-    //             {
-    //               label: '√x',
-    //               class: 'if-text-mode',
-    //               command: ['perform-with-feedback', ['switch-mode', 'math']],
-    //             },
-    //             '-',
-    //             '\\times',
-    //             '\\frac{#@}{#?}',
-    //             '=',
-    //             '.',
-    //             '(',
-    //             ')',
-    //             '\\sqrt{#0}',
-    //             '#@^{#?}',
-    //           ],
-    //           [
-    //             { class: 'variant_indicator', latex: '1' },
-    //             { class: 'digit', latex: '2' },
-    //             { class: 'digit', latex: '3' },
-    //             { class: 'digit', latex: '4' },
-    //             { class: 'digit', latex: '5' },
-    //             { class: 'digit', latex: '6' },
-    //             { class: 'digit', latex: '7' },
-    //             { class: 'digit', latex: '8' },
-    //             { class: 'digit', latex: '9' },
-    //             { class: 'digit', latex: '0' },
-    //           ],
-    //         ],
-    //       },
-    //     ],
-    //   },
-    //   'alphabetic',
-    // ];
-
-    const mf = document.getElementById("mf");
-
-    mf.addEventListener('mount', () => {
-      console.log('Mounted');
-
-
-
-      // mf.menu = [
-      //   {
-      //     label: "My Menu Item",
-      //     id: "my-menu-item",
+      // const ce = new ComputeEngine({
+      //   latexDictionary: [
+      //     ...ComputeEngine.getLatexDictionary(),
+      //     {
+      //       trigger: ['\\smallfrac'],
+      //       parse: (parser) => {
+      //         return [
+      //           'Smallfrac',
+      //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
+      //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
+      //         ];
+      //       },
+      //     },
+      //   ],
+      // });
+      // ce.defineFunction('Smallfrac', {
+      //   signature: {
+      //     domain: 'NumericFunction',
+      //     evaluate: (ce, args) => ce.box(args[0].N() / args[1].N()),
       //   },
-      // ];
+      // });
 
-      // mf.keybindings = [
-      //   { key: 'shift+[Quote]', command: ['switchMode', 'text', "aa", "xx\""], ifMode: "math" },
-      //   { key: 'shift+[Quote]', command: ['switchMode', 'math', "\"xx", "yy"], ifMode: "text" },
-      // ];
+      // MathfieldElement.computeEngine = ce;
 
-      // mf.inlineShortcuts = {
-      //   // ...mf.inlineShortcuts,
-      //   "[": { mode: "math", value: "$foo$" },
-      //   "[BracketLeft]": { mode: "math", value: "$toto$" },
-      //   "--": "\\_",
-      // };
-      // eslint-disable-next-line no-undef
+      MathfieldElement.computeEngine.latexOptions = {
+        ...MathfieldElement.computeEngine.latexOptions,
+        parseUnknownIdentifier: (s) =>
+          /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
+      };
+
+      MathfieldElement.computeEngine.declare("f", "Functions");
+
+      // mathVirtualKeyboard.setKeycap('[*]', {
+      //   latex: '\\times',
+      // });
+      // mathVirtualKeyboard.layouts = mathVirtualKeyboard.normalizedLayouts.map((layout) => {
+      //   console.log("Layout", layout);
+      //   if (layout.label !== "123") return layout;
+      //   return {
+      //     label: layout.label,
+      //     tooltip: layout.tooltip,
+      //     rows: layout.layers[0].rows.map((row) =>
+      //       row.map((key) => {
+      //         if (key.label !== '&times;') return key;
+      //         return {
+      //           class: 'big-op',
+      //           label: "&times;",
+      //           latex: '\\times',
+      //           variants: ['A', '\\alpha']
+      //         };
+      //       })
+      //     ),
+      //   };
+      // });
+
       // mathVirtualKeyboard.layouts = [
-      //   'alphabetic',
       //   {
-      //     label: 'Test Keyboard',
-      //     rows: [[{ key: '-' }]],
+      //     label: 'minimal',
+      //     tooltip: 'Only the essential',
+      //     layers: [
+      //       {
+      //         style: `
+      //           .digit { background: blue !important; color: white !important }
+      //           .variant_indicator::before { content: '•'; color: #38d; }`,
+      //         rows: [
+      //           [
+      //             // {
+      //             //   latex: 'x',
+      //             //   insert: 'x',
+      //             //   shift: { latex: 'a', insert: 's' },
+      //             // },
+      //             {
+      //               label: 'Aa',
+      //               class: 'if-math-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'text']],
+      //             },
+      //             {
+      //               label: '√x',
+      //               class: 'if-text-mode',
+      //               command: ['perform-with-feedback', ['switch-mode', 'math']],
+      //             },
+      //             '-',
+      //             '\\times',
+      //             '\\frac{#@}{#?}',
+      //             '=',
+      //             '.',
+      //             '(',
+      //             ')',
+      //             '\\sqrt{#0}',
+      //             '#@^{#?}',
+      //           ],
+      //           [
+      //             { class: 'variant_indicator', latex: '1' },
+      //             { class: 'digit', latex: '2' },
+      //             { class: 'digit', latex: '3' },
+      //             { class: 'digit', latex: '4' },
+      //             { class: 'digit', latex: '5' },
+      //             { class: 'digit', latex: '6' },
+      //             { class: 'digit', latex: '7' },
+      //             { class: 'digit', latex: '8' },
+      //             { class: 'digit', latex: '9' },
+      //             { class: 'digit', latex: '0' },
+      //           ],
+      //         ],
+      //       },
+      //     ],
       //   },
+      //   'alphabetic',
       // ];
-      // mf.mathModeSpace = '\\;';
+      function getColorSubmenu(mf) {
+        const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#000000", "#ffffff"];
+        const result = [];
+        for (const color of colors) {
+          result.push({
+            class: ' menu-swatch',
+            label: `<span style="background:${color} "></span>`,
 
-      // mf.scriptDepth = [0, 0];
+            checked: () =>
+              ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
 
-      // mf.onInlineShortcut = (_mf, s) =>
-      //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
-      // mf.onInlineShortcut = (_mf, s) => {
-      //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-      //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-      //     if (m) {
-      //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
-      //         return `\\${m[1]}_{${m[2]}}`;
-      //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
-      //     }
-      //     return '\\mathrm{' + s + '}';
-      //   }
-      //   return '';
-      // };
-
-
-      // mf.macros = {
-      //   ...mf.macros,
-      //   // Alpha: undefined,
-      //   minutes: "\\prime",
-      //   smolfrac: {
-      //     args: 2,
-      //     def: "{}^{#1}\\!\\!/\\!{}_{#2}",
-      //     captureSelection: false,
-      //   },
-      //   funfunction: {
-      //     captureSelection: false,
-      //     args: 2,
-      //     def: "FunFunction\\left({#1},{#2}\\right)",
-      //   },
-      // };
-
-
-      mf.addEventListener("beforeinput", (ev) => {
-        if (ev.inputType === "insertLineBreak") console.log("enter");
-      });
-
-      mf.addEventListener("input", (ev) => updateContent(mf));
-
-
-
-      mf.addEventListener("selection-change", (ev) => {
-        const selection = mf.selection;
-        document.getElementById("selection").innerHTML =
-          `${label("value     ")}"${escapeHtml(
-            mf.getValue(selection, "latex")
-          )}"<br>` +
-          // `${label('MathJson  ')}"${escapeHtml(
-          //   mf.getValue(selection, 'math-json')
-          // )}"<br>` +
-          label("start     ") +
-          selection.ranges[0][0] +
-          "<br>" +
-          label("end       ") +
-          selection.ranges[0][1] +
-          "<br>" +
-          label("position  ") +
-          mf.position +
-          "<br>" +
-          label("direction ") +
-          '"' +
-          selection.direction +
-          '"<br>' +
-          label("mode      ") +
-          mf.mode +
-          '<br>' +
-          label("style     ") +
-          mf.queryStyle({ color: "red" });
-        // mf.queryStyle({ variant: "double-struck" });
-      });
-    });
-
-    mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
-      console.log(
-        "geometrychange",
-        ev,
-        "bounds",
-        mathVirtualKeyboard.boundingRect
-      );
-    });
-
-
-
-    document.getElementById("grow").addEventListener("click", () => {
-      for (let i = 0; i < 1000; i++) {
-        document.body.appendChild(new MathfieldElement());
-      }
-    });
-
-    document.getElementById("shrink").addEventListener("click", () => {
-      document.querySelectorAll("math-field").forEach((x) => x.remove());
-    });
-
-    // First time update
-    updateContent(mf);
-
-    //
-    // Handler called when the mathfield content has changed
-    //
-    function updateContent(mf) {
-      const latex = mf.getValue("latex-expanded");
-      try {
-        setHtml("latex", mf.getValue("latex-expanded"));
-        setHtml("ascii-math", mf.getValue("ascii-math"));
-        setHtml("mathml", mf.getValue("math-ml"));
-        document.getElementById("mathml-render").innerHTML =
-          `<math>${mf.getValue("math-ml")}</math>`;
-        // setHtml('math-json', ce.parse(mf.value));
-        setHtml("latex2speech", convertLatexToSpeakableText(mf.getValue()));
-
-        const expr = mf.expression;
-        if (expr) {
-          setHtml("math-json", exprToString(expr));
-          const result = expr.evaluate().latex ?? "";
-          document.getElementById("result").innerText = result;
-          document.getElementById("result-latex").innerText = `$$${result}$$`;
-          renderMathInElement("result-latex");
+            onMenuSelect: () => {
+              mf.applyStyle({ color }, { operation: 'toggle' });
+              mf.adoptStyle = 'none';
+            },
+          });
         }
-      } catch (e) {
-        console.error("Error converting", e.toString());
+        return result;
       }
-    }
+      function getBackGroundColorSubmenu(mf) {
+        const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#000000", "#ffffff"];
+        const result = [];
+        for (const color of colors) {
+          result.push({
+            class: ' menu-swatch',
+            label: `<span style="background:${color} "></span>`,
 
-    function setHtml(id, text) {
-      document.getElementById(id).innerHTML = escapeHtml(text);
-    }
+            checked: () =>
+              ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
 
-    function label(s) {
-      return `<span class='label'>${s}</span>`;
-    }
+            onMenuSelect: () => {
+              mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
+              mf.adoptStyle = 'none';
+            },
+          });
+        }
+        return result;
+      }
 
-    function escapeHtml(string) {
-      return String(string).replace(
-        /[&<>"'`= /\u200b]/g,
-        (s) =>
-          ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-            "/": "&#x2F;",
-            "`": "&#x60;",
-            "=": "&#x3D;",
-            "\u200b": "&amp;#zws;",
-          })[s] ?? s
-      );
-    }
+      // function getVariantSubmenu(mf) {
+      //   let commands=[['bold','bm']];
+      //   let submenus=[];
+      //   for(let i=0;i<commands.length;i++){
+      //     let submenu=mf.menuItems.find((x) => x.id === "variant").submenu;
+      //     let submenu1=submenu[4];
+      //     let baseOnSelect=submenu1.onMenuSelect;
+      //     submenu1.visible=()=>mf.isSelectionEditable
+      //     // submenu1.label=()=>'<span class="ML__latex"><span class="ML__strut" style="height:0.65em"></span><span class="ML__base"><span class="ML__'+commands[i][0]+'">A</span></span></span>'
+      //     submenu1.onMenuSelect=() => {
+      //       if(submenu1.checked()){
+      //         let str=mf.getValue(mf.selection);
+      //         mf.insert(str.substring('\\class{red}'.length,str.length-1))
+      //       }
+      //       else{
+      //         mf.insert("\\class{red}{#0}");
+      //         mf.appl
+      //       }
+      //     };
+      //       ({ some: 'mixed', all: true })[mf.queryStyle({bold:'bold'})] ?? false;
+      //     submenus.push(submenu1);
+      //   }
+      //   return submenus;
+      // }
 
-    function makeVirtualKeyboard(customKeys = []) {
-      const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
+      function setupMathfield(mf) {
+        // Add a mutation observer to ensure we can target the tooltip after it is created
+        const observer = new MutationObserver((mutations, obs) => {
+          const tooltipContents = mf.shadowRoot.querySelectorAll('.ML__tooltip-content');
+          const mathContent = mf.shadowRoot.querySelector('.ML__container .ML__content')
 
-      return {
-        label: "",
-        layers: [
+          for (let tooltipContent of tooltipContents) {
+            if (tooltipContent && mathContent) {
+              // Disconnect the observer to prevent infinite loop
+              obs.disconnect();
+
+              mathContent.style.overflow = 'visible';
+              //Style tooltip appearance
+              tooltipContent.style.color = 'rgb(226,227,228)';
+              tooltipContent.style.border = '4px solid #555'
+              tooltipContent.style.maxWidth = '10000px'
+              tooltipContent.style.padding = '15px 15px 15px 15px'
+              tooltipContent.style.borderRadius = '18px'
+              tooltipContent.style.backgroundColor = 'rgb(43,43,43)'
+              tooltipContent.style.fontSize = '1.1rem'
+              tooltipContent.style.lineHeight = '0.2rem'
+
+              // Center the tooltip relative to the trigger and move it down
+              tooltipContent.style.position = 'absolute';
+              tooltipContent.style.left = '50%';
+              tooltipContent.style.top = '0%'
+              tooltipContent.style.transform = 'scale(1) translate(-50%,3em)';
+              tooltipContent.style.zIndex = '1000';
+
+              // Add the triangle if it doesn't already exist
+              if (!tooltipContent.querySelector('.triangle')) {
+                const triangle = document.createElement('div');
+                triangle.className = 'triangle';
+                triangle.style.position = 'absolute';
+                triangle.style.top = '-15px'; // Adjust to position the triangle
+                triangle.style.left = '50%';
+                triangle.style.transform = 'translateX(-50%)';
+                triangle.style.borderLeft = '10px solid transparent';
+                triangle.style.borderRight = '10px solid transparent';
+                triangle.style.borderBottom = '15px solid #555'; // Match the background color of the tooltip
+                tooltipContent.appendChild(triangle);
+              }
+
+              // Reconnect the observer
+              obs.observe(mf.shadowRoot, { childList: true, subtree: true });
+            }
+          }
+        });
+
+        // Start observing the shadow DOM for changes
+        observer.observe(mf.shadowRoot, { childList: true, subtree: true });
+
+
+
+        // let menu=mf.menuItems
+        // let ids=['add-row-above','add-row-below','add-column-before','add-column-after','delete-row','delete-column','insert-matrix','accent'];
+        // let subMenuClasses=['border-submenu']
+        // menu=menu.filter(t=>!ids.includes(t.id)&&!(t.submenuClass!==undefined&&subMenuClasses.includes(t.submenuClass)));
+        // //edit copy
+        // let i=range(menu.length).filter(i=>menu[i].id==='copy')[0];
+        // menu[i]=menu[i].submenu[0];
+        // menu[i].label='Copy';
+        // //edit colors
+        // i=range(menu.length).filter(i=>menu[i].id==='color')[0];
+        // menu[i].submenu[0].label='<span style="background: rgb(193,83,79)"></span>';
+        // menu[i].submenu[0].onMenuSelect=() => mf.applyStyle({color:'rgb(64,181,226)'},{operation:'toggle'})
+        let menu = [
+          // {
+          //   label: 'Submenu',
+          //   submenu: [
+          //     {
+          //       label: 'Submenu 1',
+          //       onMenuSelect: () => console.log('Submenu 1')
+          //     },
+          //   ]
+          // },
           {
-            style: `
+            label: 'Copy',
+            onMenuSelect: () => mf.executeCommand("copyToClipboard"),
+            keyboardShortcut: "meta+C"
+          },
+          {
+            label: 'Cut',
+            visible: () => mf.isSelectionEditable,
+            onMenuSelect: () => mf.executeCommand("cutToClipboard"),
+            keyboardShortcut: "meta+X"
+          },
+          {
+            label: 'Paste',
+            visible: () => mf.isSelectionEditable,
+            onMenuSelect: () => mf.executeCommand("pasteFromClipboard"),
+            keyboardShortcut: "meta+V"
+          },
+          {
+            label: 'Undo',
+            visible: () => mf.isSelectionEditable,
+            onMenuSelect: () => mf.executeCommand("undo"),
+            keyboardShortcut: "meta+Z"
+          },
+          {
+            label: 'Redo',
+            visible: () => mf.isSelectionEditable,
+            onMenuSelect: () => mf.executeCommand("redo"),
+            keyboardShortcut: "meta+Y"
+          },
+          {
+            label: 'Delete All',
+            visible: () => mf.isSelectionEditable,
+            onMenuSelect: () => mf.executeCommand('deleteAll')
+          },
+          {
+            label: () => 'Color',
+            id: 'color',
+            visible: () => mf.isSelectionEditable,
+            submenu: getColorSubmenu(mf),
+            columnCount: 4,
+            submenuClass: 'swatches-submenu',
+          },
+          {
+            label: () => 'Background Color',
+            id: 'color',
+            visible: () => mf.isSelectionEditable,
+            submenu: getBackGroundColorSubmenu(mf),
+            columnCount: 4,
+            submenuClass: 'swatches-submenu',
+          },
+          // {
+          //   label: ()=>'Font Style',
+          //   id:'font-style',
+          //   visible: () => mf.isSelectionEditable,
+          //   submenu: getVariantSubmenu(mf),
+          //   submenuClass: 'variant-submenu',
+          // }
+          // {
+          //   label:'Color',
+          //   columnCount:4,
+          //   submenu: [
+          //     // {
+          //     //   submenuClass:'light-contrast menu-swatch',
+          //     //   ariaLabel:'text',
+          //     //   label:'<span style="background:rgb(193,83,79) "></span>',
+          //     //   onMenuSelect:()=>mf.applyStyle({color:'rgb(193,83,79)'},{operation:'toggle'})
+          //     // },
+          //     {
+          //       //submenuClass:'dark-contrast menu-swatch',
+          //       class:'dark-contrast menu-swatch',
+          //       ariaLabel:'text',
+          //       checked:false,
+          //       type:'radio',
+          //       label:'<span style="background:rgb(193,83,79) "></span>',
+          //       onMenuSelect:()=>{mf.applyStyle({color:'rgb(193,83,79)'},{operation:'toggle'});mf.menuItems[mf.menuItems.length-1].submenu[0].checked=!mf.menuItems[mf.menuItems.length-1].submenu[0].checked}
+          //     }
+          //   ]
+          // },
+        ];
+        mf.menuItems = menu;
+        mf.mathVirtualKeyboardPolicy = "manual";
+        // When the space key is pressed, insert a spacing command
+        mf.mathModeSpace = "\\;";
+
+        // Disable smart mode (we are handling the mode change via
+        // a special key in the virtual keyboard)
+        mf.smartMode = false;
+
+        // When ESC is pressed, move to the next/previous group
+        mf.addEventListener(
+          "keydown",
+          (ev) => {
+            if (ev.key === "Escape") {
+              if (ev.shiftKey) mf.executeCommand("moveToPreviousGroup");
+              else mf.executeCommand("moveToNextGroup");
+              ev.preventDefault();
+            }
+          },
+          { capture: true }
+        );
+        const inlineShortcuts = {
+          "!=": "\\ne",
+          $: "\\$",
+          "%": "\\%",
+          "&": "\\&",
+          "*": "\\cdot",
+          "+-": "\\pm",
+          "+...": "+\\cdots",
+          "-...": "-\\cdots",
+          divide: "\\div",
+          "->": "\\to",
+          "<=": "\\le",
+          ">=": "\\ge",
+          "=>": "\\Longrightarrow",
+          "<=>": "\\iff",
+          "**": "\\star",
+          times: "\\times",
+          // "?=":"\\questeq"
+          of: "\\circ",
+          infinity: "\\infty",
+          defint: "\\int_{#?}^{#?}",
+          lim: "\\lim_{#?\\to#?}",
+          log: "\\log_{#?}",
+          approaches: "\\to",
+          ss: { after: "nothing+digit:operator", value: "\\operatorname{s}" },
+          th: {
+            after: "nothing+digit:operator",
+            value: "\\operatorname{th}",
+          },
+          // "per":"//",
+          oo: {
+            after:
+              "nothing+digit+frac+surd+binop+relop+punct+array+openfence+closefence+space",
+            value: "\\infty",
+          },
+          ceil: "\\left\\lceil#?\\right\\rceil",
+          floor: "\\left\\lfloor#?\\right\\rfloor",
+          // RR: "\\R",
+          cbrt: "\\sqrt[3]{#?}",
+          union: "\\cup",
+          "÷": "\\div",
+          "∑": "\\sum",
+          "∞": "\\infty",
+          "≈": "\\approx",
+          "≠": "\\ne",
+          "≤": "\\le",
+          "≥": "\\ge",
+          "'": "^{\\prime}",
+          "''": "^{\\prime\\prime}",
+          "'''": "^{\\prime\\prime\\prime}",
+          "''''": "^{\\prime\\prime\\prime\\prime}",
+          deg: { after: "digit+space", value: "\\degree" },
+          epsilon: '\\varepsilon',
+          asterisk: '\\ast',
+          int: '\\int\\limits',
+
+        };
+        let strs = [
+          "circ",
+          "Delta",
+          "pi",
+          "theta",
+          "delta",
+          "downarrow",
+          "frac",
+          "infty",
+          "ln",
+          "max",
+          "min",
+          "backslash",
+          "sqrt",
+          "sum",
+          "approx",
+          "mp", 'times', 'bullet', 'star', 'degree',
+          "uparrow",
+          "varepsilon",
+          "exp",
+          "}",
+          "{",
+        ]; //"partial",
+        let trig = ["sin", "cos", "tan", "cot", "sec", "csc"];
+        for (let str of trig) {
+          strs.push(str);
+          strs.push("arc" + str);
+          strs.push("arc" + str + "h");
+          strs.push(str + "h")
+        }
+        for (let str of strs) {
+          inlineShortcuts[str] = "\\" + str;
+        }
+        let units = [
+          // "cm",
+          // "kg",
+          // "km",
+          // "ft",
+          // "sec",
+          // "hr",
+          // "in",
+          // "min",
+          // "units",
+          // "mi",
+          // "yd",
+        ];
+        for (let str of units) {
+          inlineShortcuts[str] = {
+            after: "nothing+digit:operator",
+            value: "\\operatorname{" + str + "}",
+          };
+        }
+        for (let i = 0; i < 26; i++) {
+          for (let j = 0; j < 2; j++) {
+            let ch = String.fromCharCode((j === 0 ? 65 : 97) + i);
+            inlineShortcuts["d" + ch] = "\\differentialD " + ch;
+          }
+        }
+        let macros = {
+          //environments
+          a: '\\begin{aligned}#1\\end{aligned}',
+          ga: '\\begin{gathered}#1\\end{gathered}',
+          cases: '\\begin{cases}#1\\end{cases}',
+
+          //checkmark
+          check: '\\btipg{\\textcolor{Dandelion}{\\checkmark}}{\\a{{\\small\\textcolor{Dandelion}{\\t{we checked' +
+            ' that}}}&\\\\\\ga{#1}}}',
+
+          //bullets
+          bua: '{\\small\\bullet}~~',
+          bu: '&\\bua',
+          buia: '\\qquad{\\small\\circ}~~',
+          bui: '&\\buia',
+          bwia: '\\qquad\\w{{\\small\\circ}~~}',
+          bwi: '&\\bwia',
+          bwa: '\\w{\\bua}',
+          bw: '&\\bwa',
+          buiia: '\\qquad\\qquad{\\tiny\\blacksquare}~~',
+          buii: '&\\buiia',
+          bwiia: '\\qquad\\qquad\`\w{{\\tiny\\blacksquare}~~}',
+          bwii: '&\\bwiia',
+
+
+          //tooltips
+          btipgw: '\\w{\\underbrace{\\ga{#1}}}',
+          btipg: { def: '\\p{\\class{tip-bot}{\\mathtip{{\\mg{\\underbrace{#1}}}}{\\ds\\a{#2}}}}', args: 2 },
+
+          //other
+          pa: '\\p{\\left(#1\\right)}',
+          ds: '\\displaystyle',
+          dol: '\\$',
+          do: '\\$',
+          nhspace: '\\hspace{-#1}',
+
+          //avoid -- becoming + and +- becoming -
+          m: '-',
+          mnp: '-',
+          pms: '+-',
+
+          //links (not working!)
+          linkCalcI: '#4',//<a href="https://lendalcalc.com/ma141/#1/#2/section-#3">#4</a>',
+          //['\\href{https://lendalcalc.com/ma141/#1/#2/section-#3}{\\underline{#4}}',4],
+          linkCalcINew: ['\\href{http://127.0.0.1:8000/ma141/#1/#2\\##3}{\\underline{#4}}', 4],
+
+          //pause
+          p: '\\class{invisible}{#1}',
+          Dp: '\\p{\\differentialD}',
+          ppa: '\\p{\\pa{#1}}',
+
+
+          //pause word
+          pt: '\\class{word}{\\p{\\t{#1}}}',//['\\class{word}{\\p{#1}}',//change to  after parser is fixed
+          ptextbf: '\\class{word}{\\p{\\textbf{#1}}}',
+          pgt: '\\class{word}{\\p{\\gt{#1}}}',
+          pbt: '\\class{word}{\\p{\\bt{#1}}}',
+          pbkt: '\\class{word}{\\p{\\bkt{#1}}}',
+          prt: '\\class{word}{\\p{\\rt{#1}}}',
+          pgot: '\\class{word}{\\p{\\got{#1}}}',
+          ppkt: '\\class{word}{\\p{\\pkt{#1}}}',
+          pwt: '\\class{word}{\\p{\\wt{#1}}}',
+          pput: '\\class{word}{\\p{\\put{#1}}}',
+          pot: '\\class{word}{\\p{\\ot{#1}}}',
+          pcdbt: '\\class{word}{\\p{\\cdbt{#1}}}',
+          lbrac: '\\{',
+          rbrac: '\\}',
+          lsbrac: '[',
+          rsbrac: ']',
+
+          //colors non-text
+          b: { args: 1, def: '\\class{blue}{#1}', captureSelection: false },
+          bk: { args: 1, def: '\\class{black}{#1}', captureSelection: false },
+          cdb: { args: 1, def: '\\class{cadet}{#1}', captureSelection: false },
+          g: { args: 1, def: '\\class{green}{#1}', captureSelection: false },
+          go: { args: 1, def: '\\class{gold}{#1}', captureSelection: false },
+          greyOut: { args: 1, def: '\\class{greyedOut}{#1}', captureSelection: false },
+          mg: { args: 1, def: '\\class{mediumGray}{#1}', captureSelection: false },
+          o: { args: 1, def: '\\class{orange}{#1}', captureSelection: false },
+          pk: { args: 1, def: '\\class{pink}{#1}', captureSelection: false },
+          pu: { args: 1, def: '\\class{purple}{#1}', captureSelection: false },
+          r: { args: 1, def: '\\class{red}{#1}', captureSelection: false },
+          w: { args: 1, def: '\\phantom{#1}', captureSelection: false },
+
+
+          //text and colored text
+          t: { args: 1, def: '\\text{#1}', captureSelection: false },
+          bt: { args: 1, def: '\\b{\\t{#1}}', captureSelection: false },
+          bkt: { args: 1, def: '\\bk{\\t{#1}}', captureSelection: false },
+          cdbt: { args: 1, def: '\\cdb{\\t{#1}}', captureSelection: false },
+          gt: { args: 1, def: '\\g{\\t{#1}}', captureSelection: false },
+          got: { args: 1, def: '\\go{\\t{#1}}', captureSelection: false },
+          greyOutt: { args: 1, def: '\\greyOut{\\t{#1}}', captureSelection: false },
+          mgt: { args: 1, def: '\\mg{\\t{#1}}', captureSelection: false },
+          ot: { args: 1, def: '\\o{\\t{#1}}', captureSelection: false },
+          pkt: { args: 1, def: '\\pk{\\t{#1}}', captureSelection: false },
+          put: { args: 1, def: '\\pu{\\t{#1}}', captureSelection: false },
+          rt: { args: 1, def: '\\r{\\t{#1}}', captureSelection: false },
+          wt: { args: 1, def: '\\w{\\t{#1}}', captureSelection: false },
+
+          //boxes
+          gb: '\\,\\bbox[10px, border: 6px solid LimeGreen]{#1}',
+          ob: '\\,\\bbox[10px, border: 6px solid DarkOrange]{#1}',
+          // bb: ['\\,\\bbox[10px, border: 6px solid CornflowerBlue]{#1}',1],
+          bb: '\\,\\bbox[8px, border: 4px solid CornflowerBlue]{#1}',
+
+          //dotted boxes
+          // tbs:['\\,\\bbox[10px, border: 1.5px solid Cyan]{#1}\\,',1],//String.raw`\colorbox{textbox}{$#1$}`
+          // tb:['\\quad\\tbs{#1}',1],
+          //group selections
+          hb: { def: '\\,\\bbox[5px, border: 1.5px dashed Cyan]{\\b{#1}}', args: 1, captureSelection: false },
+          hbr: { def: '\\,\\bbox[5px, border: 1.5px dashed Red]{\\r{#1}}\\,', args: 1, captureSelection: false },
+          hbg: { def: '\\,\\bbox[5px, border: 1.5px dashed Green]{\\g{#1}}\\,', args: 1, captureSelection: false },
+          hbo: { def: '\\,\\bbox[5px, border: 1.5px dashed Orange]{\\o{#1}}\\,', args: 1, captureSelection: false },
+          hbgo: { def: '\\,\\bbox[5px, border: 1.5px dashed Gold]{\\go{#1}}\\,', args: 1, captureSelection: false },
+          hbpu: { def: '\\,\\bbox[5px, border: 1.5px dashed Magenta]{\\pu{#1}}\\,', args: 1, captureSelection: false },
+
+
+
+          //derivatives
+          d: { args: 1, def: '\\frac{\\differentialD}{\\differentialD x}\\pa{#1}', captureSelection: false },
+          dp: { args: 1, def: '\\frac{\\Dp}{\\Dp x}\\ppa{#1}', captureSelection: false },
+
+          //limits
+          limfu: { def: '\\lim\\limits_{#1\\to#2}', args: 2, captureSelection: false },
+          limx: { def: '\\limfu{x}{#1}', args: 1, captureSelection: false },
+          limlc: { def: '\\limfu{#1}{#2^{\\bf\\Large\\r{-}}}', args: 2, captureSelection: false },
+          limrc: { def: '\\limfu{#1}{#2^{\\bf\\Large\\g{+}}}', args: 2, captureSelection: false },
+          limlw: { def: '\\limfu{#1}{#2^{\\bf\\Large-}}', args: 2, captureSelection: false },
+          limrw: { def: '\\limfu{#1}{#2^{\\bf\\Large+}}', args: 2, captureSelection: false },
+          limxl: { def: '\\limlc{x}{#1}', args: 1, captureSelection: false },
+          limxr: { def: '\\limrc{x}{#1}', args: 1, captureSelection: false },
+          limxlw: { def: '\\limlw{x}{#1}', args: 1, captureSelection: false },
+          limxrw: { def: '\\limrw{x}{#1}', args: 1, captureSelection: false },
+          linf: { def: '\\limfu{x}{\\infty}', captureSelection: false },
+          lminf: { def: '\\limfu{x}{-\\infty}', captureSelection: false },
+          limh: { def: '\\limfu{h}{0}', captureSelection: false },
+          limhgo: { def: '\\limfu{h}{\\go{0}}', captureSelection: false },
+
+          //limits pauses
+          limxp: { def: '\\limfu{\\p{x}}{#1}', args: 1, captureSelection: false },
+          limlcp: { def: '\\limfu{#1}{#2^{\\bf\\Large\\p{\\r{-}}}}', args: 2, captureSelection: false },
+          limrcp: { def: '\\limfu{#1}{#2^{\\bf\\Large\\p{+}}}', args: 2, captureSelection: false },
+          limlwp: { def: '\\limfu{#1}{#2^{\\bf\\Large\\p{-}}}', args: 2, captureSelection: false },
+          limrwp: { def: '\\limfu{#1}{#2^{\\bf\\Large\\p{+}}}', args: 2, captureSelection: false },
+          limxlp: { def: '\\limlc{\\p{x}}{#1}', args: 1, captureSelection: false },
+          limxrp: { def: '\\limrc{\\p{x}}{#1}', args: 1, captureSelection: false },
+          limxlwp: { def: '\\limlw{\\p{x}}{#1}', args: 1, captureSelection: false },
+          limxrwp: { def: '\\limrw{\\p{x}}{#1}', args: 1, captureSelection: false },
+          linfp: { def: '\\limfu{\\p{x}}{\\p{\\infty}}', captureSelection: false },
+          lminfp: { def: '\\limfu{\\p{x}}{\\p{-}\\p{\\infty}}', captureSelection: false },
+          limhp: { def: '\\limfu{\\p{h}}{0}', captureSelection: false },
+          limhgop: { def: '\\limfu{\\p{h}}{\\p{\\go{0}}}', captureSelection: false },
+
+          //integrals
+          i: { def: '\\ds\\int\\limits#1\\,\\differentialD x', args: 1, captureSelection: false },
+          ie: { def: '\\ds\\int\\limits_{#1}^{#2}#3\\,\\differentialD x', args: 3, captureSelection: false },
+          iey: { def: '\\ds\\int\\limits_{#1}^{#2}#3\\,\\differentialD y', args: 3, captureSelection: false },
+          iet: { def: '\\ds\\int\\limits_{#1}^{#2}#3\\,\\differentialD t', args: 3, captureSelection: false },
+          iu: { def: '\\ds\\int\\limits#1\\,\\differentialD #2', args: 2, captureSelection: false },
+          idu: { def: '\\ds\\int\\limits#1\\,\\b{\\differentialD #2}', args: 2, captureSelection: false },
+          idv: { def: '\\ds\\int\\limits#1\\,\\go{\\differentialD #2}', args: 2, captureSelection: false },
+          ieu: { def: '\\ds\\int\\limits_{#1}^{#2}#3\\,\\differentialD #4', args: 4, captureSelection: false },
+
+          //integrals pauses
+          ip: { def: '\\ds\\int\\limits#1\\,\\Dp x', args: 1, captureSelection: false },
+          iep: { def: '\\ds{\\int\\limits_{#1}^{#2}#3}\\,\\Dp \\p{x}', args: 3, captureSelection: false },
+          ieyp: { def: '\\ds{\\int\\limits_{#1}^{#2}#3}\\,\\Dp \\p{y}', args: 3, captureSelection: false },
+          ietp: { def: '\\ds{\\int\\limits_{#1}^{#2}#3}\\,\\Dp \\p{t}', args: 3, captureSelection: false },
+          iup: { def: '\\ds\\int\\limits#1\\,\\Dp #2', args: 2, captureSelection: false },
+          idup: { def: '\\ds\\int\\limits#1\\,\\b{\\Dp #2}', args: 2, captureSelection: false },
+          idvp: { def: '\\ds\\int\\limits#1\\,\\go{\\Dp #2}', args: 2, captureSelection: false },
+          ieup: { def: '\\ds{\\int\\limits_{#1}^{#2}#3}\\,\\Dp #4', args: 4, captureSelection: false },
+
+          //eval bars
+          ev: { def: '\\hspace{6px}\\bk{\\rule[-10pt]{1.25pt}{24pt}}\\w{\\rule[-11pt]{1.5pt}{25pt}}_{#1}^{#2}', args: 2, captureSelection: false },
+
+
+          //MA 141 only
+          ve: '\\varepsilon',
+          iff: '\\Longleftrightarrow',
+
+        };
+
+        let simpleTrig = ['sin', 'cos', 'tan']
+        for (let t of simpleTrig) {
+          macros['arc' + t + 'h'] = '\\operatorname{arc' + t + 'h}';
+        }
+
+        let otherTrig = ['cot', 'sec', 'csc']
+        for (let t of otherTrig) {
+          macros['arc' + t] = '\\operatorname{arc' + t + '}';
+          macros[t + 'h'] = '\\operatorname{' + t + 'h}';
+          macros['arc' + t + 'h'] = '\\operatorname{arc' + t + 'h}';
+        }
+        macros['ch'] = undefined;
+        macros['href', '\\htmlClass{href}{\\text{#1}}\\htmlData{href}{#2}']
+
+        mf.inlineShortcuts = inlineShortcuts;
+        mf.macros = {
+          ...mf.macros,
+          ...macros,
+        };
+      }
+
+      const mf = document.getElementById("mf");
+      setupMathfield(mf);
+      window.addEventListener('message', (ev) => {
+        console.log('Message', ev.data);
+      });
+      mathVirtualKeyboard.addEventListener('math-virtual-keyboard-command', (ev) => {
+        console.log('Command', ev.detail);
+      });
+      mf.addEventListener('mount', () => {
+        console.log('Mounted');
+
+
+
+        // mf.menu = [
+        //   {
+        //     label: "My Menu Item",
+        //     id: "my-menu-item",
+        //   },
+        // ];
+
+        // mf.keybindings = [
+        //   { key: 'shift+[Quote]', command: ['switchMode', 'text', "aa", "xx\""], ifMode: "math" },
+        //   { key: 'shift+[Quote]', command: ['switchMode', 'math', "\"xx", "yy"], ifMode: "text" },
+        // ];
+
+        // mf.inlineShortcuts = {
+        //   // ...mf.inlineShortcuts,
+        //   "[": { mode: "math", value: "$foo$" },
+        //   "[BracketLeft]": { mode: "math", value: "$toto$" },
+        //   "--": "\\_",
+        // };
+        // eslint-disable-next-line no-undef
+        // mathVirtualKeyboard.layouts = [
+        //   'alphabetic',
+        //   {
+        //     label: 'Test Keyboard',
+        //     rows: [[{ key: '-' }]],
+        //   },
+        // ];
+        // mf.mathModeSpace = '\\;';
+
+        // mf.scriptDepth = [0, 0];
+
+        // mf.onInlineShortcut = (_mf, s) =>
+        //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
+        // mf.onInlineShortcut = (_mf, s) => {
+        //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
+        //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
+        //     if (m) {
+        //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
+        //         return `\\${m[1]}_{${m[2]}}`;
+        //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
+        //     }
+        //     return '\\mathrm{' + s + '}';
+        //   }
+        //   return '';
+        // };
+
+
+        // mf.macros = {
+        //   ...mf.macros,
+        //   // Alpha: undefined,
+        //   minutes: "\\prime",
+        //   smolfrac: {
+        //     args: 2,
+        //     def: "{}^{#1}\\!\\!/\\!{}_{#2}",
+        //     captureSelection: false,
+        //   },
+        //   funfunction: {
+        //     captureSelection: false,
+        //     args: 2,
+        //     def: "FunFunction\\left({#1},{#2}\\right)",
+        //   },
+        // };
+
+        mf.mathVirtualKeyboardPolicy = "sandboxed";
+
+        // mf.addEventListener("focusin", (e) => {
+        //   window.mathVirtualKeyboard.show();
+        // });
+        // mf.addEventListener("focusout", (e) => {
+        //   window.mathVirtualKeyboard.hide();
+        // });
+
+        mf.addEventListener("beforeinput", (ev) => {
+          if (ev.inputType === "insertLineBreak") console.log("enter");
+          // ev.preventDefault();
+        });
+
+        mf.addEventListener("input", (ev) => updateContent(mf));
+
+
+
+        mf.addEventListener("selection-change", (ev) => {
+          const selection = mf.selection;
+          document.getElementById("selection").innerHTML =
+            `${label("value     ")}"${escapeHtml(
+              mf.getValue(selection, "latex")
+            )}"<br>` +
+            // `${label('MathJson  ')}"${escapeHtml(
+            //   mf.getValue(selection, 'math-json')
+            // )}"<br>` +
+            label("start     ") +
+            selection.ranges[0][0] +
+            "<br>" +
+            label("end       ") +
+            selection.ranges[0][1] +
+            "<br>" +
+            label("position  ") +
+            mf.position +
+            "<br>" +
+            label("direction ") +
+            '"' +
+            selection.direction +
+            '"<br>' +
+            label("mode      ") +
+            mf.mode +
+            '<br>' +
+            label("style     ")
+          mf.queryStyle({ color: "red" });
+          // mf.queryStyle({ variant: "double-struck" });
+        });
+      });
+
+      mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
+        console.log(
+          "geometrychange",
+          ev,
+          "bounds",
+          mathVirtualKeyboard.boundingRect
+        );
+      });
+
+
+
+      document.getElementById("grow").addEventListener("click", () => {
+        console.time("grow");
+        for (let i = 0; i < 200; i++) {
+          const mf = new MathfieldElement();
+          mf.value = '\\frac{\\sqrt{2}}{2}';
+          document.body.appendChild(mf);
+        }
+        document.querySelectorAll("math-field").forEach((x) => {
+          setupMathfield(x);
+        });
+        console.timeLog("grow");
+      });
+
+      document.getElementById("shrink").addEventListener("click", () => {
+        document.querySelectorAll("math-field").forEach((x) => x.remove());
+      });
+
+      // First time update
+      updateContent(mf);
+
+      //
+      // Handler called when the mathfield content has changed
+      //
+      function updateContent(mf) {
+        const latex = mf.getValue("latex-expanded");
+        try {
+          setHtml("latex", mf.getValue("latex-expanded"));
+          setHtml("ascii-math", mf.getValue("ascii-math"));
+          setHtml("mathml", mf.getValue("math-ml"));
+          document.getElementById("mathml-render").innerHTML =
+            `<math>${mf.getValue("math-ml")}</math>`;
+          // setHtml('math-json', ce.parse(mf.value));
+          setHtml("latex2speech", convertLatexToSpeakableText(mf.getValue()));
+
+          const expr = mf.expression;
+          if (expr) {
+            setHtml("math-json", exprToString(expr));
+            const result = expr.evaluate().latex ?? "";
+            document.getElementById("result").innerText = result;
+            document.getElementById("result-latex").innerText = `$$${result}$$`;
+            renderMathInElement("result-latex");
+          }
+        } catch (e) {
+          console.error("Error converting", e.toString());
+        }
+      }
+
+      function setHtml(id, text) {
+        document.getElementById(id).innerHTML = escapeHtml(text);
+      }
+
+      function label(s) {
+        return `<span class='label'>${s}</span>`;
+      }
+
+      function escapeHtml(string) {
+        return String(string).replace(
+          /[&<>"'`= /\u200b]/g,
+          (s) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+              "/": "&#x2F;",
+              "`": "&#x60;",
+              "=": "&#x3D;",
+              "\u200b": "&amp;#zws;",
+            })[s] ?? s
+        );
+      }
+
+      function makeVirtualKeyboard(customKeys = []) {
+        const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
+
+        return {
+          label: "",
+          layers: [
+            {
+              style: `
                         .ML__keyboard {
                           --keyboard-zindex: 2000;
 
@@ -507,89 +1107,89 @@
                           opacity: 1;
                         }
                       `,
-            backdrop: "minimalist-backdrop",
-            container: "minimalist-container",
-            rows: [
-              customKeys,
-              customKeys.length > 0 ? ["[hr]"] : [],
-              [
-                "+",
-                "-",
-                "\\times",
-                {
-                  insert: "\\frac{#@}{#0}",
-                  latex: "\\frac{#?}{#?}",
-                  class: "small",
-                },
-                "=",
-                "[.]",
-                "(",
-                ")",
-                { latex: "\\sqrt{#0}", class: "small" },
-                { insert: "#@^{#?}", class: "small", latex: "#?^{#?}" },
+              backdrop: "minimalist-backdrop",
+              container: "minimalist-container",
+              rows: [
+                customKeys,
+                customKeys.length > 0 ? ["[hr]"] : [],
+                [
+                  "+",
+                  "-",
+                  "\\times",
+                  {
+                    insert: "\\frac{#@}{#0}",
+                    latex: "\\frac{#?}{#?}",
+                    class: "small",
+                  },
+                  "=",
+                  "[.]",
+                  "(",
+                  ")",
+                  { latex: "\\sqrt{#0}", class: "small" },
+                  { insert: "#@^{#?}", class: "small", latex: "#?^{#?}" },
+                ],
+                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+                ["[hr]"],
+                [
+                  { label: "[undo]" },
+                  "[redo]",
+                  "[separator]",
+                  "[separator]",
+                  "[separator]",
+                  { label: "[separator]", width: 1.5 },
+                  "[left]",
+                  "[right]",
+                  { label: "[backspace]", class: "action hide-shift" },
+                ],
               ],
-              ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-              ["[hr]"],
-              [
-                { label: "[undo]" },
-                "[redo]",
-                "[separator]",
-                "[separator]",
-                "[separator]",
-                { label: "[separator]", width: 1.5 },
-                "[left]",
-                "[right]",
-                { label: "[backspace]", class: "action hide-shift" },
-              ],
-            ],
-          },
-        ],
-      };
-    }
-
-    function exprToStringRecursive(expr, start) {
-      let indent = " ".repeat(start);
-      if (Array.isArray(expr)) {
-        const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
-        let result = `[${elements.join(", ")}]`;
-        if (start + result.length < MAX_LINE_LENGTH) return result;
-        return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
+            },
+          ],
+        };
       }
-      if (expr === null) return "null";
-      if (typeof expr === "object") {
-        const elements = {};
-        Object.keys(expr).forEach(
-          (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
-        );
-        let result = `{${Object.keys(expr)
-          .map((key) => `"${key}": ${elements[key]}`)
-          .join("; ")}}`;
-        if (start + result.length < MAX_LINE_LENGTH) return result;
-        result = `\n${indent}{${Object.keys(expr)
-          .map((key) => {
-            return `"${key}": ${elements[key]}`;
-          })
-          .join("; ")}}`;
-        if (start + result.length < MAX_LINE_LENGTH) return result;
-        return (
-          `\n${indent}{\n` +
-          Object.keys(expr)
+
+      function exprToStringRecursive(expr, start) {
+        let indent = " ".repeat(start);
+        if (Array.isArray(expr)) {
+          const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
+          let result = `[${elements.join(", ")}]`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
+        }
+        if (expr === null) return "null";
+        if (typeof expr === "object") {
+          const elements = {};
+          Object.keys(expr).forEach(
+            (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
+          );
+          let result = `{${Object.keys(expr)
+            .map((key) => `"${key}": ${elements[key]}`)
+            .join("; ")}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          result = `\n${indent}{${Object.keys(expr)
             .map((key) => {
-              return `${indent}  "${key}": ${elements[key]}`;
+              return `"${key}": ${elements[key]}`;
             })
-            .join(`;\n${indent}`) +
-          "\n" +
-          indent +
-          "}"
-        );
+            .join("; ")}}`;
+          if (start + result.length < MAX_LINE_LENGTH) return result;
+          return (
+            `\n${indent}{\n` +
+            Object.keys(expr)
+              .map((key) => {
+                return `${indent}  "${key}": ${elements[key]}`;
+              })
+              .join(`;\n${indent}`) +
+            "\n" +
+            indent +
+            "}"
+          );
+        }
+        return JSON.stringify(expr, null, 2);
       }
-      return JSON.stringify(expr, null, 2);
-    }
 
-    function exprToString(expr) {
-      return exprToStringRecursive(expr.json, 0);
-    }
-  </script>
-</body>
+      function exprToString(expr) {
+        return exprToStringRecursive(expr.json, 0);
+      }
+    </script>
+  </body>
 
-</html>
+  </html>

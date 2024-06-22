@@ -138,6 +138,7 @@ import MathfieldElement from '../public/mathfield-element';
 import { parseMathString } from 'formats/parse-math-string';
 import { TextAtom } from 'atoms/text';
 import { getLatexGroup } from './mode-editor-latex';
+import { MenuItem } from 'public/ui-menu-types';
 
 const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="width: 21px;"  viewBox="0 0 576 512" role="img" aria-label="${localize(
   'tooltip.toggle virtual keyboard'
@@ -209,7 +210,10 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   private connectedToVirtualKeyboard: boolean;
 
   private eventController: AbortController;
-  private resizeObserver: ResizeObserver;
+  resizeObserver: ResizeObserver;
+  // ResizeObserver, sadly, fire at least once, even if no size has changed.
+  // Workaround this by tracking its state. See https://github.com/WICG/resize-observer/issues/38#issuecomment-532833484
+  resizeObserverStarted: boolean;
 
   /**
    *
@@ -402,8 +406,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
         { signal }
       );
 
-    this._menu = new Menu(getDefaultMenuItems(this), { host: this.host });
-
     // Listen for contextmenu events on the field
     this.field.addEventListener('contextmenu', this, { signal });
 
@@ -413,11 +415,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       'pointerdown',
       (ev) => {
         if (ev.currentTarget !== menuToggle) return;
-        if (this._menu.state !== 'closed') return;
+        const menu = this.menu;
+        if (menu.state !== 'closed') return;
         this.element!.classList.add('tracking');
         const bounds = menuToggle.getBoundingClientRect();
-        this._menu.modifiers = keyboardModifiersFromEvent(ev);
-        this._menu.show({
+        menu.modifiers = keyboardModifiersFromEvent(ev);
+        menu.show({
           target: menuToggle,
           location: { x: bounds.left, y: bounds.bottom },
           onDismiss: () => this.element!.classList.remove('tracking'),
@@ -452,7 +455,18 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // to adjust the UI (popover, etc...)
     window.addEventListener('resize', this, { signal });
     document.addEventListener('scroll', this, { signal });
-    this.resizeObserver = new ResizeObserver(() => requestUpdate(this));
+    this.resizeObserver = new ResizeObserver((entries) => {
+      if (this.resizeObserverStarted) {
+        this.resizeObserverStarted = false;
+        return;
+      }
+      console.log(
+        entries[0].devicePixelContentBoxSize[0].blockSize,
+        entries[0].devicePixelContentBoxSize[0].inlineSize
+      );
+      requestUpdate(this);
+    });
+    this.resizeObserverStarted = true;
     this.resizeObserver.observe(this.field);
 
     window.mathVirtualKeyboard.addEventListener(
@@ -682,7 +696,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   get menu(): Menu {
+    this._menu ??= new Menu(getDefaultMenuItems(this), { host: this.host });
     return this._menu;
+  }
+
+  set menuItems(menuItems: Readonly<MenuItem[]>) {
+    if (this._menu) this._menu.menuItems = menuItems;
+    else this._menu = new Menu(menuItems, { host: this.host });
   }
 
   setOptions(config: Partial<_MathfieldOptions>): void {
@@ -720,7 +740,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         silenceNotifications: true,
         mode: 'math',
       });
+      const wasSilent = this.model.silenceNotifications;
+      this.model.silenceNotifications = true;
       this.model.selection = selection;
+      this.model.silenceNotifications = wasSilent;
     }
 
     if (
@@ -809,7 +832,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
               await onContextMenu(
                 evt,
                 this.element!.querySelector<HTMLElement>('[part=container]')!,
-                this._menu
+                this.menu
               )
             )
               PointerTracker.stop();
@@ -826,7 +849,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
             await onContextMenu(
               evt,
               this.element!.querySelector<HTMLElement>('[part=container]')!,
-              this._menu
+              this.menu
             )
           )
             PointerTracker.stop();
@@ -1371,15 +1394,16 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   toggleContextMenu(): boolean {
-    if (!this._menu.visible) return false;
-    if (this._menu.state === 'open') {
-      this._menu.hide();
+    const menu = this.menu;
+    if (!menu.visible) return false;
+    if (menu.state === 'open') {
+      menu.hide();
       return true;
     }
     const caretBounds = getElementInfo(this, this.model.position)?.bounds;
     if (!caretBounds) return false;
     const location = { x: caretBounds.right, y: caretBounds.bottom };
-    this._menu.show({
+    menu.show({
       target: this.element!.querySelector<HTMLElement>('[part=container]')!,
       location,
       onDismiss: () => this.element?.focus(),
@@ -1819,7 +1843,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   private onGeometryChange(): void {
-    this._menu.hide();
+    this._menu?.hide();
     updateSuggestionPopoverPosition(this);
     updateEnvironmentPopover(this);
   }

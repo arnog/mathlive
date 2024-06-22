@@ -21,14 +21,16 @@ export function requestUpdate(
   mathfield: _Mathfield | undefined | null,
   options?: { interactive: boolean }
 ): void {
-  if (!mathfield) return;
-  if (mathfield.dirty) return;
+  if (!mathfield || mathfield.dirty) return;
+  mathfield.resizeObserver!.unobserve(mathfield.field);
   mathfield.dirty = true;
   requestAnimationFrame(() => {
     if (isValidMathfield(mathfield) && mathfield.dirty) {
       mathfield.atomBoundsCache = new Map<string, Rect>();
       render(mathfield, options);
       mathfield.atomBoundsCache = undefined;
+      mathfield.resizeObserver!.observe(mathfield.field);
+      mathfield.resizeObserverStarted = true;
     }
   });
 }
@@ -255,22 +257,31 @@ export function renderSelection(
       if (gFontsState === 'ready') renderSelection(mathfield);
       else setTimeout(() => renderSelection(mathfield), 128);
     }, 32);
+    return;
   }
 
   const model = mathfield.model;
 
-  // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
-  // Without this, the selection indicator will not be in the right place.
+  // Cache the scale factor
+  // In some cases we don't need it, so we want to avoid computing it
+  // since it can trigger a reflow
+  let _scaleFactor: number | undefined;
+  const scaleFactor = () => {
+    if (_scaleFactor !== undefined) return _scaleFactor;
+    // Logic to accommodate mathfield hosted in an isotropically scale-transformed element.
+    // Without this, the selection indicator will not be in the right place.
 
-  // 1. Inquire how big the mathfield thinks it is
-  const offsetWidth = field.offsetWidth;
+    // 1. Inquire how big the mathfield thinks it is
+    const offsetWidth = field.offsetWidth;
 
-  // 2. Get the actual screen width of the box
-  const actualWidth = field.getBoundingClientRect().width;
+    // 2. Get the actual screen width of the box
+    const actualWidth = field.getBoundingClientRect().width;
+    // 3. Divide the two to get the scale factor
+    _scaleFactor = Math.floor(actualWidth) / offsetWidth;
+    if (isNaN(_scaleFactor)) _scaleFactor = 1;
 
-  // 3. Divide the two to get the scale factor
-  let scaleFactor = Math.floor(actualWidth) / offsetWidth;
-  scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
+    return _scaleFactor;
+  };
 
   if (model.selectionIsCollapsed) {
     //
@@ -290,17 +301,18 @@ export function renderSelection(
       atom = atom.parent!;
 
     if (atom?.containsCaret && atom.displayContainsHighlight) {
+      const s = scaleFactor();
       const bounds = adjustForScrolling(
         mathfield,
         getAtomBounds(mathfield, atom),
-        scaleFactor
+        s
       );
 
       if (bounds) {
-        bounds.left /= scaleFactor;
-        bounds.right /= scaleFactor;
-        bounds.top /= scaleFactor;
-        bounds.bottom /= scaleFactor;
+        bounds.left /= s;
+        bounds.right /= s;
+        bounds.top /= s;
+        bounds.bottom /= s;
 
         const element = document.createElement('div');
         element.classList.add('ML__contains-highlight');
@@ -323,10 +335,11 @@ export function renderSelection(
   for (const x of unionRects(
     getSelectionBounds(mathfield, { excludeAtomsWithBackground: true })
   )) {
-    x.left /= scaleFactor;
-    x.right /= scaleFactor;
-    x.top /= scaleFactor;
-    x.bottom /= scaleFactor;
+    const s = scaleFactor();
+    x.left /= s;
+    x.right /= s;
+    x.top /= s;
+    x.bottom /= s;
 
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');

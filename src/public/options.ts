@@ -1,11 +1,6 @@
 import type { Mathfield, Offset, Range } from './mathfield';
 import type { Selector } from './commands';
-import type {
-  ParseMode,
-  MacroDictionary,
-  Registers,
-  Style,
-} from './core-types';
+import type { ParseMode, MacroDictionary, Registers } from './core-types';
 import { InsertStyleHook } from './mathfield-element';
 
 /**

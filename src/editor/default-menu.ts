@@ -433,6 +433,17 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       columnCount: 5,
     },
     {
+      type: 'divider',
+    },
+    {
+      label: () => localize('menu.insert')!,
+      id: 'insert',
+      submenu: insertMenu(mf),
+    },
+    {
+      type: 'divider',
+    },
+    {
       label: () => localize('menu.mode')!,
       id: 'mode',
       visible: () => mf.isSelectionEditable && mf.model.selectionIsCollapsed,
@@ -767,4 +778,101 @@ function variantStyleMenuItem(
     onMenuSelect: () =>
       mf.applyStyle({ variantStyle }, { operation: 'toggle' }),
   };
+}
+
+function insertMenu(mf: _Mathfield): MenuItem[] {
+  return [
+    {
+      label: () => insertLabel('abs'),
+      id: 'insert-abs',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('|#?|'),
+    },
+    {
+      label: () => insertLabel('nth-root'),
+      id: 'insert-nth-root',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\sqrt[#?]{#?}'),
+    },
+    {
+      label: () => insertLabel('log-base'),
+      id: 'insert-log-base',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\log_{#?}{#?}'),
+    },
+    {
+      type: 'heading',
+      label: () => localize('menu.insert.heading-calculus')!,
+    },
+    {
+      label: () => insertLabel('derivative'),
+      id: 'insert-derivative',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () =>
+        mf.insert('\\dfrac{\\mathrm{d}}{\\mathrm{d}x}#?\\bigm|_{x=#?}'),
+    },
+    {
+      label: () => insertLabel('nth-derivative'),
+      id: 'insert-nth-derivative',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () =>
+        mf.insert('\\dfrac{\\mathrm{d}^#?}{\\mathrm{d}x^#?}#?\\bigm|_{x=#?}'),
+    },
+    {
+      label: () => insertLabel('integral'),
+      id: 'insert-integral',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\int_#?^#?#?\\,\\mathrm{d}#?'),
+    },
+    {
+      label: () => insertLabel('sum'),
+      id: 'insert-sum',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\sum_#?^#?#?'),
+    },
+    {
+      label: () => insertLabel('product'),
+      id: 'insert-product',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\prod_#?^#?#?'),
+    },
+    {
+      type: 'heading',
+      label: () => localize('menu.insert.heading-complex-numbers')!,
+    },
+    {
+      label: () => insertLabel('modulus'),
+      id: 'insert-modulus',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\lvert#?\\rvert'),
+    },
+    {
+      label: () => insertLabel('argument'),
+      id: 'insert-argument',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\arg(#?)'),
+    },
+    {
+      label: () => insertLabel('real-part'),
+      id: 'insert-real-part',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\Re(#?)'),
+    },
+    {
+      label: () => insertLabel('imaginary-part'),
+      id: 'insert-imaginary-part',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\Im(#?)'),
+    },
+    {
+      label: () => insertLabel('conjugate'),
+      id: 'insert-conjugate',
+      visible: () => mf.isSelectionEditable,
+      onMenuSelect: () => mf.insert('\\overline{#?}'),
+    },
+  ];
+}
+
+function insertLabel(id: string) {
+  return `<span class='ML__insert-template'> ${convertLatexToMarkup(localize(`menu.insert.${id}-template`)!)}</span><span class="ML__insert-label">${localize(`menu.insert.${id}`)}</span>`;
 }

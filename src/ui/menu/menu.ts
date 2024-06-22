@@ -63,7 +63,10 @@ export class Menu extends _MenuListState implements RootMenuState {
    * The host is the element that the events will be dispatched from
    *
    */
-  constructor(menuItems: MenuItem[], options?: { host?: HTMLElement | null }) {
+  constructor(
+    menuItems: Readonly<MenuItem[]>,
+    options?: { host?: HTMLElement | null }
+  ) {
     super(menuItems);
     this._host = options?.host ?? null;
     this.isDynamic = menuItems.some(isDynamic);

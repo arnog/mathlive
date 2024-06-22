@@ -8,8 +8,10 @@
   `mathVirtualKeyboard.setKeycap()` method to customize these keycaps, that
   is `mathVirtualKeyboard.setKeycap('[action]', {...})` etc...
 
-### New Features
+### Improvements and New Features
 
+- Performance improvements for pages with many mathfields. The initial rendering
+  can be up to 2x as fast.
 - Some keycaps in the virtual keyboard can be customized without having
   to define an entire virtual keyboard layout.
 
@@ -92,6 +94,8 @@
 ### Breaking Changes
 
 - The `mf.offsetFromPoint()` method has been renamed `mf.getOffsetFromPoint()`
+
+- The `mf.setCaretPoint()` method has been replaced with `mf.position = mf.getOffsetFromPoint()`
 
 - The `mf.scriptDepth()` and `mf.hitboxFromOffset()` methodds have been 
   replaced with `mf.getElementInfo()`.
