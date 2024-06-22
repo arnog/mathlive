@@ -78,6 +78,9 @@
 }
 
 :where(.ui-menu-container > li > .label) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   appearance: none;
   background: none;
   outline: none;
@@ -88,6 +91,7 @@
   border: 1px solid transparent;
   white-space: nowrap;
   text-align: start;
+  align-content: center;
 }
 
 :where(.ui-menu-container > li:has(.heading)) {
