@@ -671,7 +671,7 @@ export declare function setKeyboardLayout(
 export declare function setKeyboardLayoutLocale(locale: string): void;
 
 /** @category Static Rendering */
-export type StaticRenderOptions = {
+export type StaticRenderOptions = Partial<LayoutOptions> & {
   /**
    * An array of tag names whose content will not be scanned for delimiters
    * (unless their class matches the `processClass` pattern below).

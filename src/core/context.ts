@@ -73,7 +73,7 @@ export class Context implements ContextInterface {
   readonly isPhantom: boolean;
 
   // Inherited from `Style`: size, letterShapeStyle, color and backgroundColor.
-  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
+  letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
   readonly smartFence: boolean;
 
   readonly color: string;

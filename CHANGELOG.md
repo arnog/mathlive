@@ -10,6 +10,13 @@
 
 ### Improvements and New Features
 
+- Macros can now be specified with `renderMathInElement()` and `renderMathInDocument()`
+  using the `macros` option. For example:
+
+  ```js
+  renderMathInElement(element, {macros: {RR: '\\mathbb{R}'}})
+  ```
+
 - Performance improvements for pages with many mathfields. The initial rendering
   can be up to 2x as fast.
 - Some keycaps in the virtual keyboard can be customized without having

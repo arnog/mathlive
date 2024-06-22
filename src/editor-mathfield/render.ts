@@ -206,7 +206,7 @@ export function render(
   //
   // 3. Render the content placeholder, if applicable
   //
-  // If the mathfield is emply, display a placeholder
+  // If the mathfield is empty, display a placeholder
   if (mathfield.model.atoms.length <= 1) {
     const placeholder = mathfield.options.contentPlaceholder;
     if (placeholder) {

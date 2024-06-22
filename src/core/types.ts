@@ -177,7 +177,7 @@ export type PrivateStyle = Style & {
  *
  */
 export interface ContextInterface {
-  readonly registers: Registers;
+  registers: Registers;
   atomIdsSettings?: {
     overrideID?: string;
     groupNumbers: boolean;
@@ -185,7 +185,7 @@ export interface ContextInterface {
   };
   renderPlaceholder?: ((context: Context) => BoxInterface) | undefined;
   readonly smartFence: boolean;
-  readonly letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
+  letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright';
   readonly minFontScale: number;
   readonly maxMatrixCols: number;
   readonly placeholderSymbol: string;

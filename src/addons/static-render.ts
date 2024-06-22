@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 
-import type { StaticRenderOptions } from '../public/options';
+import type { LayoutOptions, StaticRenderOptions } from '../public/options';
 import { injectStylesheet } from '../common/stylesheet';
 import { loadFonts } from '../core/fonts';
 import { parseMathString } from '../formats/parse-math-string';
@@ -12,13 +12,7 @@ export type StaticRenderOptionsPrivate = StaticRenderOptions & {
   /** A function that will convert any LaTeX found to
    * HTML markup. This is only useful to override the default MathLive renderer
    */
-  renderToMarkup?: (
-    text: string,
-    options: {
-      mathstyle?: 'displaystyle' | 'textstyle';
-      format?: string;
-    }
-  ) => string;
+  renderToMarkup?: (text: string, options: Partial<LayoutOptions>) => string;
 
   /**
    * A function that will convert any LaTeX found to
@@ -254,8 +248,8 @@ function createMarkupNode(
 
   try {
     const html = options.renderToMarkup!(text, {
-      mathstyle: mathstyle,
-      format: 'html',
+      ...options,
+      defaultMode: mathstyle === 'displaystyle' ? 'math' : 'inline-math',
     });
     const element = document.createElement('span');
     element.dataset.latex = text;
