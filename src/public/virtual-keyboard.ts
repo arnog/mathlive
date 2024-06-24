@@ -73,14 +73,6 @@ export interface VirtualKeyboardKeycap {
   width: 0.5 | 1.0 | 1.5 | 2.0 | 5.0;
 
   /**
-   * HTML markup to represent the keycap.
-   *
-   * This property is only useful when using a custom keycap shape or appearance.
-   * Usually, setting the `label` property is sufficient.
-   */
-  // content: string;
-
-  /**
    * Markup displayed with the key label (for example to explain what the
    * symbol of the key is)
    */

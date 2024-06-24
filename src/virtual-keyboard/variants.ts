@@ -9,7 +9,6 @@ import { VirtualKeyboard } from './virtual-keyboard';
 import { FOREGROUND_COLORS, BACKGROUND_COLORS } from '../core/color';
 import MathfieldElement from '../public/mathfield-element';
 import type { VirtualKeyboardKeycap } from '../public/virtual-keyboard';
-import { getComputedDir } from 'ui/i18n/utils';
 
 const VARIANTS: {
   [variantID: string]: (string | Partial<VirtualKeyboardKeycap>)[];
