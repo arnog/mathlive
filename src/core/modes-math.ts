@@ -255,7 +255,7 @@ export class MathMode extends Mode {
 function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
   return getPropertyRuns(run, 'bold').map((x) => {
     const weight = weightString(x[0]);
-    if (weight !== 'bold') return emitVariantRun(x, options).join('');
+    if (weight !== 'bold') return joinLatex(emitVariantRun(x, options));
 
     // If the parent is already bold, don't emit the bold command
     if (weightString(x[0].parent!) === 'bold')
@@ -266,7 +266,7 @@ function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
     // (i.e. greek letters, operators, variants, etc...)
 
     // Get the content of the run
-    const value = x.map((x) => x.value ?? '').join('');
+    const value = joinLatex(x.map((x) => x.value ?? ''));
     if (/^[a-zA-Z0-9]+$/.test(value)) {
       return latexCommand('\\mathbf', joinLatex(emitVariantRun(x, options)));
     }
