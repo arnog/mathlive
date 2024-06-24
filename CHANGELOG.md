@@ -46,7 +46,7 @@
 
 ### Issues Resolved
 
-- The serialization of some expressions to LaTeX could result in some spaces
+- **#2412** The serialization of some expressions to LaTeX could result in some spaces
   being omitted. For example, `\lnot p` would serialize as `\lnotp`.
 - **#2403** The virtual keyboard Keycap Variants panel was positioned incorrectly
   when the page used a RTL layout direction.
