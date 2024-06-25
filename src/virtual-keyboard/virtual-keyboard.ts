@@ -125,7 +125,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   getKeycap(
     id: string | undefined
   ): Partial<VirtualKeyboardKeycap> | undefined {
-    return id ? (KEYCAP_SHORTCUTS[id] ?? this.keycapRegistry[id]) : undefined;
+    return id ? KEYCAP_SHORTCUTS[id] ?? this.keycapRegistry[id] : undefined;
   }
 
   getLayer(id: string): NormalizedVirtualKeyboardLayer | undefined {
@@ -142,6 +142,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
     this._alphabeticLayout = value;
+    this._normalizedLayouts = undefined;
     this.rebuild();
   }
 
