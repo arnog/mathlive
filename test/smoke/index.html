@@ -51,7 +51,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">\lbrace 2x\mid x\in\mathbb{R}</math-field>
+    <math-field id="mf">\lnot p</math-field>
     <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -801,8 +801,14 @@
       };
     }
 
-    const mf = document.getElementById("mf");
-    setupMathfield(mf);
+
+    mf.addEventListener('contextmenu', (ev) => {
+      console.log('Context menu', ev);
+      ev.preventDefault();
+    }, { capture: true });
+
+
+    // setupMathfield(mf);
     window.addEventListener('message', (ev) => {
       console.log('Message', ev.data);
     });

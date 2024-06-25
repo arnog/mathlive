@@ -824,7 +824,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         break;
 
       case 'pointerdown':
-        if (this.userSelect !== 'none') {
+        if (!evt.defaultPrevented && this.userSelect !== 'none') {
           onPointerDown(this, evt as PointerEvent);
           // Firefox convention: holding the shift key disables custom context menu
           if ((evt as PointerEvent).shiftKey === false) {

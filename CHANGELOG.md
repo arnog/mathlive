@@ -46,6 +46,8 @@
 
 ### Issues Resolved
 
+- Dispatch a `contextmenu` event any time the context menu is about to be
+  displayed. This allows the event to be canceled.
 - **#2413** When setting the `alphabeticLayout`, the current keyboard would not
   be updated in some cases.
 - **#2412** The serialization of some expressions to LaTeX could result in some spaces
