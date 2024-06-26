@@ -966,6 +966,7 @@
     // Handler called when the mathfield content has changed
     //
     function updateContent(mf) {
+      console.log('input', mf.getValue());
       const latex = mf.getValue("latex-expanded");
       try {
         setHtml("latex", mf.getValue("latex-expanded"));

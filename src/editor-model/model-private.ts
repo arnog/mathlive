@@ -131,7 +131,10 @@ export class _Model implements Model {
   setSelection(arg1: Offset | Range | Selection, arg2?: Offset): boolean {
     if (!this.mathfield.contentEditable && this.mathfield.userSelect === 'none')
       return false;
-    return this.deferNotifications({ selection: true }, () => {
+    // Note: a side effect of changing the selection may be to change the
+    // content: for example when exiting LaTeX mode, so dispatch the
+    // content change as well
+    return this.deferNotifications({ selection: true, content: true }, () => {
       //
       // 1/ Normalize the input
       // (account for offset < 0, etc...)
@@ -693,20 +696,21 @@ export class _Model implements Model {
 
     f();
 
-    const contentChanged = this.root.changeCounter !== previousCounter;
+    this.silenceNotifications = saved;
+
+    // If the selection has effectively changed, notify
+    // Dispatch selectionChanged first, as it may affect the content
+    // for example when exiting LaTeX mode.
     const selectionChanged =
       oldAnchor !== this._anchor ||
       oldPosition !== this._position ||
       compareSelection(this._selection, oldSelection) === 'different';
-
-    this.silenceNotifications = saved;
+    if (options.selection && selectionChanged) this.selectionDidChange();
 
     // Notify of content change, if requested
+    const contentChanged = this.root.changeCounter !== previousCounter;
     if (options.content && contentChanged)
       this.contentDidChange({ inputType: options.type });
-
-    // If the selection has effectively changed, notify
-    if (options.selection && selectionChanged) this.selectionDidChange();
 
     return contentChanged || selectionChanged;
   }

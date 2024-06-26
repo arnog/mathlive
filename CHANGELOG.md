@@ -46,6 +46,9 @@
 
 ### Issues Resolved
 
+- **#2415** A content change event is now dispatched when the value of the
+  mathfield is changed as a result of switch from LaTeX mode to math mode
+  by changing the selection.
 - Dispatch a `contextmenu` event any time the context menu is about to be
   displayed. This allows the event to be canceled.
 - **#2413** When setting the `alphabeticLayout`, the current keyboard would not
