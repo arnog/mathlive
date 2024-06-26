@@ -460,10 +460,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.resizeObserverStarted = false;
         return;
       }
-      console.log(
-        entries[0].devicePixelContentBoxSize[0].blockSize,
-        entries[0].devicePixelContentBoxSize[0].inlineSize
-      );
       requestUpdate(this);
     });
     this.resizeObserverStarted = true;

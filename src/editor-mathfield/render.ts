@@ -22,14 +22,14 @@ export function requestUpdate(
   options?: { interactive: boolean }
 ): void {
   if (!mathfield || mathfield.dirty) return;
-  mathfield.resizeObserver!.unobserve(mathfield.field);
+  mathfield.resizeObserver.unobserve(mathfield.field);
   mathfield.dirty = true;
   requestAnimationFrame(() => {
     if (isValidMathfield(mathfield) && mathfield.dirty) {
       mathfield.atomBoundsCache = new Map<string, Rect>();
       render(mathfield, options);
       mathfield.atomBoundsCache = undefined;
-      mathfield.resizeObserver!.observe(mathfield.field);
+      mathfield.resizeObserver.observe(mathfield.field);
       mathfield.resizeObserverStarted = true;
     }
   });
