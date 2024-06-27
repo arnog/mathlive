@@ -895,7 +895,7 @@ export const KEYCAP_SHORTCUTS: Record<
       '\\rangle',
       '\\rfloor',
       '\\rceil',
-      { latex: '\\rbrace', key: ']' },
+      { latex: '\\rbrace', key: '}' },
     ],
     key: ')',
     label: ')',
