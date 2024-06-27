@@ -37,7 +37,7 @@ import {
   isTouchCapable,
 } from '../ui/utils/capabilities';
 import { resolveUrl } from '../common/script-url';
-import { requestUpdate } from '../editor-mathfield/render';
+import { reparse, requestUpdate } from '../editor-mathfield/render';
 import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
@@ -1097,6 +1097,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   static set isFunction(value: (command: string) => boolean) {
     this._isFunction = value;
+
+    document.querySelectorAll('math-field').forEach((el) => {
+      if (el instanceof MathfieldElement) reparse(el._mathfield);
+    });
   }
 
   static async loadSound(

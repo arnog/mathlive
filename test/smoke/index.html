@@ -51,7 +51,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">\lnot p</math-field>
+    <math-field id="mf">f\left(x\right)\mathop{f}\left(x\right)</math-field>
     <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -156,13 +156,13 @@
 
     // MathfieldElement.computeEngine = ce;
 
-    MathfieldElement.computeEngine.latexOptions = {
-      ...MathfieldElement.computeEngine.latexOptions,
-      parseUnknownIdentifier: (s) =>
-        /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
-    };
+    // MathfieldElement.computeEngine.latexOptions = {
+    //   ...MathfieldElement.computeEngine.latexOptions,
+    //   parseUnknownIdentifier: (s) =>
+    //     /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
+    // };
 
-    MathfieldElement.computeEngine.declare("f", "Functions");
+    // MathfieldElement.computeEngine.declare("f", "Functions");
 
     // mathVirtualKeyboard.setKeycap('[*]', {
     //   latex: '\\times',
@@ -802,19 +802,14 @@
     }
 
 
-    mf.addEventListener('contextmenu', (ev) => {
-      console.log('Context menu', ev);
-      ev.preventDefault();
-    }, { capture: true });
+    // mf.addEventListener('contextmenu', (ev) => {
+    //   console.log('Context menu', ev);
+    //   ev.preventDefault();
+    // }, { capture: true });
 
+    window.MathfieldElement.isFunction = (s) => /^[f-h]+$/.test(s);
 
     // setupMathfield(mf);
-    window.addEventListener('message', (ev) => {
-      console.log('Message', ev.data);
-    });
-    mathVirtualKeyboard.addEventListener('math-virtual-keyboard-command', (ev) => {
-      console.log('Command', ev.detail);
-    });
     mf.addEventListener('mount', () => {
       console.log('Mounted');
 
@@ -850,8 +845,9 @@
 
       // mf.scriptDepth = [0, 0];
 
+
       // mf.onInlineShortcut = (_mf, s) =>
-      //   /^[a-zA-Z]+$/.test(s) ? `\\mathrm{${s}}` : '';
+      //   /^[a-zA-Z]+$/.test(s) ? `\\mathop{${s}}` : '';
       // mf.onInlineShortcut = (_mf, s) => {
       //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
       //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);

@@ -46,6 +46,8 @@
 
 ### Issues Resolved
 
+- When the `MathfieldElement.isFunction` handler is updated, re-render all
+  the mathfields on the page to take it into account.
 - **#2415** A content change event is now dispatched when the value of the
   mathfield is changed as a result of switch from LaTeX mode to math mode
   by changing the selection.

@@ -116,8 +116,14 @@ export class MathMode extends Mode {
       });
     }
 
-    const isFunction =
-      globalThis.MathfieldElement?.isFunction(info.command ?? command) ?? false;
+    let isFunction: boolean;
+    try {
+      isFunction =
+        globalThis.MathfieldElement?.isFunction(info.command ?? command) ??
+        false;
+    } catch (e) {
+      isFunction = false;
+    }
 
     if (info.definitionType === 'symbol') {
       const result = new Atom({
@@ -125,9 +131,9 @@ export class MathMode extends Mode {
         mode: 'math',
         command: info.command ?? command,
         value: String.fromCodePoint(info.codepoint),
+        isFunction,
         style,
       });
-      if (isFunction) result.isFunction = true;
 
       if (command.startsWith('\\')) result.verbatimLatex = command;
       return result;
@@ -137,9 +143,9 @@ export class MathMode extends Mode {
       mode: 'math',
       command: info.command ?? command,
       value: command,
+      isFunction,
       style,
     });
-    if (isFunction) result.isFunction = true;
     if (command.startsWith('\\')) result.verbatimLatex = command;
 
     return result;

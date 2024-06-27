@@ -16,6 +16,7 @@ import { Atom } from '../core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { convertLatexToMarkup } from '../public/mathlive';
 import { hashCode } from '../common/hash-code';
+import { ModeEditor } from './mode-editor';
 
 export function requestUpdate(
   mathfield: _Mathfield | undefined | null,
@@ -392,4 +393,34 @@ function unionRects(rects: Rect[]): Rect[] {
     if (count === 1) result.push(rect);
   }
   return result;
+}
+
+/**
+ * Re parse the content and rerender.
+ *
+ * Used when context changes, for example the definition
+ * of macros or the `isFunction` global option.
+ *
+ * @param mathfield
+ */
+export function reparse(mathfield: _Mathfield | null): void {
+  if (!mathfield) return;
+  const model = mathfield.model;
+  const selection = model.selection;
+  const content = Atom.serialize([model.root], {
+    expandMacro: false,
+    defaultMode: mathfield.options.defaultMode,
+  });
+  ModeEditor.insert(model, content, {
+    insertionMode: 'replaceAll',
+    selectionMode: 'after',
+    format: 'latex',
+    silenceNotifications: true,
+    mode: 'math',
+  });
+  const wasSilent = model.silenceNotifications;
+  model.silenceNotifications = true;
+  model.selection = selection;
+  model.silenceNotifications = wasSilent;
+  requestUpdate(mathfield);
 }

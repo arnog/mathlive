@@ -77,6 +77,7 @@ import {
   render,
   renderSelection,
   contentMarkup,
+  reparse,
 } from './render';
 
 import './commands';
@@ -727,24 +728,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       expandMacro: false,
       defaultMode: this.options.defaultMode,
     });
-    if ('macros' in config || this.model.getValue() !== content) {
-      const selection = this.model.selection;
-      ModeEditor.insert(this.model, content, {
-        insertionMode: 'replaceAll',
-        selectionMode: 'after',
-        format: 'latex',
-        silenceNotifications: true,
-        mode: 'math',
-      });
-      const wasSilent = this.model.silenceNotifications;
-      this.model.silenceNotifications = true;
-      this.model.selection = selection;
-      this.model.silenceNotifications = wasSilent;
-    }
+    if ('macros' in config || this.model.getValue() !== content) reparse(this);
 
     if (
       'value' in config ||
-      'macros' in config ||
       'registers' in config ||
       'colorMap' in config ||
       'backgroundColorMap' in config ||
