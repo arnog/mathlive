@@ -157,7 +157,7 @@
     "typedoc": "^0.25.8",
     "typedoc-plugin-markdown": "^4.0.3",
     "typedoc-plugin-no-inherit": "^1.4.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.3"
   },
   "keywords": [
     "math",
