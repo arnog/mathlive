@@ -480,6 +480,7 @@ defineSymbols(
 // Ordinary symbols
 defineSymbols([
   ['\\surd', 0x221a],
+  ['\\S', 0x00a7], // Section symbol: §
 
   // From MnSymbol package
 
