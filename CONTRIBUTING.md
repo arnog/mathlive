@@ -69,9 +69,18 @@ branch.
 Congratulations, you've become a MathLive contributor! Thanks for your help!
 
 ## Build Instructions
-[Node.js](https://nodejs.org) is used for MathLive development. If you don't already have node installed, the easiest way to get it installed is to use the [Volta](https://volta.sh/) node installer.
 
-First, [fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository. Then, in the cloned project folder, use the following commands to start a local dev server:
+Before you can do a local build of MathLive, you need to have the following
+dependencies installed:
+- [npm](https://www.npmjs.com/), which will also install [Node.js](https://nodejs.org)
+- [Playwright](https://playwright.dev/), to run the test suite
+- If you're using Windows, you will need to install the `bash` shell. The `bash` shell is
+  required and pre-installed on macOS and Linux. For instructions
+  on how to install `bash` on Windows, see the [this article](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/)
+
+Now that you have the dependencies installed, you can [fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository. 
+
+Then, in the cloned project folder, use the following commands to start a local dev server:
 ``` bash
 # Install dependencies
 npm install
