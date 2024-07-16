@@ -49,10 +49,22 @@ export const l10n: L10n = {
   },
 
   get numberFormatter(): Intl.NumberFormat {
-    if (!l10n._numberFormatter)
-      l10n._numberFormatter = new Intl.NumberFormat(l10n.locale);
-
-    return l10n._numberFormatter;
+    if (!l10n._numberFormatter) {
+      try {
+        l10n._numberFormatter = new Intl.NumberFormat(l10n.locale);
+      } catch (e) {
+        try {
+          // On Chrome, the navigator.locale can be returned as `es-419`,
+          // but it's not a valid locale for the Intl.NumberFormat constructor
+          l10n._numberFormatter = new Intl.NumberFormat(
+            l10n.locale.slice(0, 2)
+          );
+        } catch (e) {
+          l10n._numberFormatter = new Intl.NumberFormat('en-US');
+        }
+      }
+    }
+    return l10n._numberFormatter!;
   },
 
   /*

@@ -46,6 +46,8 @@
 
 ### Issues Resolved
 
+- When using Chrome in some locale (such as `es-419`), the context menu would
+  not be displayed.
 - When the `MathfieldElement.isFunction` handler is updated, re-render all
   the mathfields on the page to take it into account.
 - **#2415** A content change event is now dispatched when the value of the
