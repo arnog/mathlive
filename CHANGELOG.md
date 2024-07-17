@@ -46,6 +46,7 @@
 
 ### Issues Resolved
 
+- **#2455** Serialization to ASCII Math of brackets and braces is now correct.
 - When using Chrome in some locale (such as `es-419`), the context menu would
   not be displayed.
 - When the `MathfieldElement.isFunction` handler is updated, re-render all
