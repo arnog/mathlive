@@ -2199,6 +2199,19 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           });
           return true;
         },
+        ownKeys: (): Array<string | symbol> =>
+          Reflect.ownKeys(that._getOption('registers')),
+        getOwnPropertyDescriptor: (_, prop) => {
+          const value = that._getOption('registers')[prop as string];
+          if (value !== undefined) {
+            return {
+              configurable: true,
+              enumerable: true,
+              value,
+              writable: true,
+            };
+          }
+        },
       }
     );
   }
