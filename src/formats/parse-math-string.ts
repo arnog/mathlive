@@ -149,7 +149,6 @@ function parseMathExpression(
     let result = '';
     if (s[1] === '(') result = `${s[0]}\\left(${match}\\right)`;
     else result = s[0] + match;
-    console.log(result);
     return result + parseMathExpression(rest, options);
   }
 
@@ -178,7 +177,7 @@ function parseMathExpression(
         options
       )}`;
     }
-  } else if (match) {
+  } else {
     return s.startsWith('(')
       ? '\\left(' + match + '\\right)' + parseMathExpression(rest, options)
       : match + parseMathExpression(rest, options);
@@ -190,11 +189,11 @@ function parseMathExpression(
 
   return s;
 }
-const SPECIAL_OPERATORS = {
+const FENCES = {
   '[': '\\lbrack',
   ']': '\\rbrack',
-  '\\{': '\\lbrace',
-  '\\}': '\\rbrace',
+  '{': '\\lbrace',
+  '}': '\\rbrace',
 };
 /**
  * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
@@ -231,21 +230,10 @@ function parseMathArgument(
 
     if (level === 0) {
       // We've found the matching closing fence
-      if (options.noWrap && lFence === '(') {
-        match = parseMathExpression(s.substring(1, i - 1), options);
-        console.log(match);
-      } else {
-        if (lFence === '{' && rFence === '}') {
-          lFence = '\\{';
-          rFence = '\\}';
-        }
-        match =
-          '\\left' +
-          SPECIAL_OPERATORS[lFence] +
-          parseMathExpression(s.substring(1, i - 1), options) +
-          '\\right' +
-          SPECIAL_OPERATORS[rFence];
-      }
+      const body = parseMathExpression(s.substring(1, i - 1), options);
+      if (options.noWrap && lFence === '(') match = body;
+      else
+        match = `\\left${FENCES[lFence] ?? lFence}${body}\\right${FENCES[rFence] ?? rFence}`;
 
       rest = s.slice(Math.max(0, i));
     } else {

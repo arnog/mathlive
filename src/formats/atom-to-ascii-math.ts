@@ -6,7 +6,7 @@ import { LeftRightAtom } from '../atoms/leftright';
 import { ArrayAtom } from '../atoms/array';
 import { Style } from '../public/core-types';
 
-const SPECIAL_IDENTIFIERS = {
+const IDENTIFIERS = {
   '\\ne': '≠',
   '\\neq': '≠',
   '\u2212': '-', // MINUS SIGN
@@ -79,20 +79,9 @@ const SPECIAL_IDENTIFIERS = {
   '\\varOmega': 'Omega',
 };
 
-const SPECIAL_OPERATORS = {
+const OPERATORS = {
   '\\pm': '+-',
   '\\colon': ':',
-  '\\vert': '|',
-  '\\Vert': '||',
-  '\\mid': '|',
-  '\\lbrack': '[',
-  '\\rbrack': ']',
-  '\\lbrace': '{',
-  '\\rbrace': '}',
-  '\\lparen': '(',
-  '\\rparen': ')',
-  '\\langle': '(:',
-  '\\rangle': ':)',
   '\\sum': ' sum ',
   '\\prod': ' prod ',
   '\\bigcap': ' nnn ',
@@ -143,6 +132,20 @@ const SPECIAL_OPERATORS = {
   // '\\breve': '&#x02d8;',
   // '\\check': '&#x02c7;',
   // '\\hat': '&#x005e;'
+};
+
+const FENCES = {
+  '\\vert': '|',
+  '\\Vert': '||',
+  '\\mid': '|',
+  '\\lbrack': '[',
+  '\\rbrack': ']',
+  '\\lbrace': '{',
+  '\\rbrace': '}',
+  '\\lparen': '(',
+  '\\rparen': ')',
+  '\\langle': '(:',
+  '\\rangle': ':)',
 };
 
 function joinAsciiMath(xs: string[]): string {
@@ -233,50 +236,46 @@ export function atomToAsciiMath(
 
     case 'group':
     case 'root':
-      result =
-        SPECIAL_IDENTIFIERS[command] ?? atomToAsciiMath(atom.body, options);
+      result = IDENTIFIERS[command] ?? atomToAsciiMath(atom.body, options);
       break;
 
     case 'genfrac':
-    {
-      const genfracAtom = atom as GenfracAtom;
-      if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
-        result =
-          genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
-            ? '{:'
-            : genfracAtom.leftDelim;
-      }
+      {
+        const genfracAtom = atom as GenfracAtom;
+        if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+          result =
+            genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
+              ? '{:'
+              : genfracAtom.leftDelim;
+        }
 
-      if (genfracAtom.hasBarLine) {
-        result += '(';
-        result += atomToAsciiMath(genfracAtom.above, options);
-        result += ')/(';
-        result += atomToAsciiMath(genfracAtom.below, options);
-        result += ')';
-      } else {
-        // No bar line, i.e. \choose, etc...
-        result += '(' + atomToAsciiMath(genfracAtom.above, options) + '),';
-        result += '(' + atomToAsciiMath(genfracAtom.below, options) + ')';
-      }
+        if (genfracAtom.hasBarLine) {
+          result += '(';
+          result += atomToAsciiMath(genfracAtom.above, options);
+          result += ')/(';
+          result += atomToAsciiMath(genfracAtom.below, options);
+          result += ')';
+        } else {
+          // No bar line, i.e. \choose, etc...
+          result += '(' + atomToAsciiMath(genfracAtom.above, options) + '),';
+          result += '(' + atomToAsciiMath(genfracAtom.below, options) + ')';
+        }
 
-      if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
-        result +=
-          genfracAtom.rightDelim === '.' || !genfracAtom.rightDelim
-            ? '{:'
-            : genfracAtom.rightDelim;
+        if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+          result +=
+            genfracAtom.rightDelim === '.' || !genfracAtom.rightDelim
+              ? '{:'
+              : genfracAtom.rightDelim;
+        }
       }
-    }
 
       break;
 
     case 'surd':
-      result += !atom.hasEmptyBranch('above')
-        ? 'root(' +
-        atomToAsciiMath(atom.above, options) +
-        ')(' +
-        atomToAsciiMath(atom.body, options) +
-        ')'
-        : 'sqrt(' + atomToAsciiMath(atom.body, options) + ')';
+      if (atom.hasEmptyBranch('above'))
+        result += `sqrt(${atomToAsciiMath(atom.body, options)})`;
+      else
+        result += `root(${atomToAsciiMath(atom.above, options)})(${atomToAsciiMath(atom.body, options)})`;
       break;
 
     case 'latex':
@@ -284,24 +283,24 @@ export function atomToAsciiMath(
       break;
 
     case 'leftright':
-    {
-      const leftrightAtom = atom as LeftRightAtom;
-      let lDelim = leftrightAtom.leftDelim;
-      if (lDelim && SPECIAL_OPERATORS[lDelim])
-        lDelim = SPECIAL_OPERATORS[lDelim];
-      result += lDelim === '.' || !lDelim ? '{:' : lDelim;
-      result += atomToAsciiMath(leftrightAtom.body, options);
-      let rDelim = leftrightAtom.matchingRightDelim();
-      if (rDelim && SPECIAL_OPERATORS[rDelim])
-        rDelim = SPECIAL_OPERATORS[rDelim];
-      result += rDelim === '.' || !rDelim ? ':}' : rDelim;
-    }
+      {
+        const leftrightAtom = atom as LeftRightAtom;
+
+        let lDelim = leftrightAtom.leftDelim;
+        if (lDelim && FENCES[lDelim]) lDelim = FENCES[lDelim];
+        result += lDelim === '.' || !lDelim ? '{:' : lDelim;
+        result += atomToAsciiMath(leftrightAtom.body, options);
+
+        let rDelim = leftrightAtom.matchingRightDelim();
+        if (rDelim && FENCES[rDelim]) rDelim = FENCES[rDelim];
+        result += rDelim === '.' || !rDelim ? ':}' : rDelim;
+      }
 
       break;
 
     case 'sizeddelim':
     case 'delim':
-      // Result += '<mo separator="true"' + makeID(atom.id, options) + '>' + (SPECIAL_OPERATORS[atom.delim] || atom.delim) + '</mo>';
+      // Result += '<mo separator="true"' + makeID(atom.id, options) + '>' + (FENCES[atom.delim] || atom.delim) + '</mo>';
       result = atom.value;
       break;
 
@@ -313,7 +312,7 @@ export function atomToAsciiMath(
 
     case 'mord':
       result =
-        SPECIAL_IDENTIFIERS[command!] ??
+        IDENTIFIERS[command!] ??
         command ??
         (typeof atom.value === 'string' ? atom.value : '');
       if (result.startsWith('\\')) result += ' ';
@@ -335,10 +334,7 @@ export function atomToAsciiMath(
     case 'mbin':
     case 'mrel':
     case 'minner':
-      result =
-        SPECIAL_IDENTIFIERS[command!] ??
-        SPECIAL_OPERATORS[command!] ??
-        atom.value;
+      result = IDENTIFIERS[command!] ?? OPERATORS[command!] ?? atom.value;
       break;
 
     case 'mopen':
@@ -347,7 +343,7 @@ export function atomToAsciiMath(
       break;
 
     case 'mpunct':
-      result = SPECIAL_OPERATORS[command!] ?? command;
+      result = OPERATORS[command!] ?? command;
       break;
 
     case 'mop':
@@ -355,7 +351,7 @@ export function atomToAsciiMath(
     case 'extensible-symbol':
       // Not ZERO-WIDTH
       if (atom.value !== '\u200B') {
-        if (SPECIAL_OPERATORS[command!]) result = SPECIAL_OPERATORS[command!];
+        if (OPERATORS[command!]) result = OPERATORS[command!];
         else {
           result =
             command === '\\operatorname'
@@ -396,7 +392,7 @@ export function atomToAsciiMath(
       break;
 
     case 'spacing':
-      result = SPECIAL_IDENTIFIERS[command] ?? ' ';
+      result = IDENTIFIERS[command] ?? ' ';
       break;
 
     case 'enclose':
@@ -413,8 +409,8 @@ export function atomToAsciiMath(
 
     case 'macro':
       result =
-        SPECIAL_IDENTIFIERS[command] ??
-        SPECIAL_OPERATORS[command] ??
+        IDENTIFIERS[command] ??
+        OPERATORS[command] ??
         atomToAsciiMath(atom.body, options);
       break;
   }
