@@ -4,7 +4,7 @@ import {
 } from '../src/public/mathlive-ssr';
 
 function markupAndError(formula: string): [string, string] {
-  const markup = convertLatexToMarkup(formula, { mathstyle: 'displaystyle' });
+  const markup = convertLatexToMarkup(formula, { defaultMode: 'math' });
   const errors = validateLatex(formula);
   if (errors.length === 0) return [markup, 'no-error'];
   return [markup, errors[0].code];

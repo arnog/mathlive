@@ -1423,20 +1423,7 @@ to the `<head>` of the document:
 A string of valid LaTeX. It does not have to start
 with a mode token such as `$$` or `\(`.
 
-• **options?**
-
-• **options.context?**: `unknown`
-
-• **options.letterShapeStyle?**: `"french"` \| `"tex"` \| `"iso"` \| `"upright"`
-
-• **options.mathstyle?**: `"displaystyle"` \| `"textstyle"`
-
-If `"displaystyle"` the "display" mode of TeX
-is used to typeset the formula, which is most appropriate for formulas that are
-displayed in a standalone block.
-
-If `"textstyle"` is used, the "text" mode of TeX is used, which is most
-appropriate when displaying math "inline" with other text (on the same line).
+• **options?**: `Partial`\<[`LayoutOptions`](#layoutoptions)\>
 
 `string`
 
@@ -3864,12 +3851,10 @@ How much of the formula should be spoken:
 ### StaticRenderOptions
 
 ```ts
-type StaticRenderOptions: object;
+type StaticRenderOptions: Partial<LayoutOptions> & object;
 ```
 
 #### Type declaration
-
-<a id="tex" name="tex"></a>
 
 <MemberCard>
 
@@ -3881,8 +3866,6 @@ optional TeX: object;
 
 </MemberCard>
 
-<a id="classname" name="classname"></a>
-
 <MemberCard>
 
 ##### TeX.className?
@@ -3892,8 +3875,6 @@ optional className: object;
 ```
 
 </MemberCard>
-
-<a id="display" name="display"></a>
 
 <MemberCard>
 
@@ -3905,8 +3886,6 @@ optional display: string;
 
 </MemberCard>
 
-<a id="inline" name="inline"></a>
-
 <MemberCard>
 
 ##### TeX.className.inline?
@@ -3916,8 +3895,6 @@ optional inline: string;
 ```
 
 </MemberCard>
-
-<a id="delimiters" name="delimiters"></a>
 
 <MemberCard>
 
@@ -3934,8 +3911,6 @@ display style or inline, respectively.
 
 </MemberCard>
 
-<a id="display-1" name="display-1"></a>
-
 <MemberCard>
 
 ##### TeX.delimiters.display
@@ -3946,8 +3921,6 @@ display: [string, string][];
 
 </MemberCard>
 
-<a id="inline-1" name="inline-1"></a>
-
 <MemberCard>
 
 ##### TeX.delimiters.inline
@@ -3957,8 +3930,6 @@ inline: [string, string][];
 ```
 
 </MemberCard>
-
-<a id="processenvironments" name="processenvironments"></a>
 
 <MemberCard>
 
@@ -3975,8 +3946,6 @@ will automatically be rendered.
 
 </MemberCard>
 
-<a id="asciimath" name="asciimath"></a>
-
 <MemberCard>
 
 ##### StaticRenderOptions.asciiMath?
@@ -3986,8 +3955,6 @@ optional asciiMath: object;
 ```
 
 </MemberCard>
-
-<a id="delimiters-1" name="delimiters-1"></a>
 
 <MemberCard>
 
@@ -3999,8 +3966,6 @@ optional delimiters: object;
 
 </MemberCard>
 
-<a id="display-2" name="display-2"></a>
-
 <MemberCard>
 
 ##### asciiMath.delimiters.display?
@@ -4011,8 +3976,6 @@ optional display: [string, string][];
 
 </MemberCard>
 
-<a id="inline-2" name="inline-2"></a>
-
 <MemberCard>
 
 ##### asciiMath.delimiters.inline?
@@ -4022,8 +3985,6 @@ optional inline: [string, string][];
 ```
 
 </MemberCard>
-
-<a id="ignoreclass" name="ignoreclass"></a>
 
 <MemberCard>
 
@@ -4039,8 +4000,6 @@ content will not be scanned for delimiter
 **Default**: `"tex2jax_ignore"`
 
 </MemberCard>
-
-<a id="processclass" name="processclass"></a>
 
 <MemberCard>
 
@@ -4058,8 +4017,6 @@ parent class name would have prevented them from doing so.
 
 </MemberCard>
 
-<a id="processmathjsonscripttype" name="processmathjsonscripttype"></a>
-
 <MemberCard>
 
 ##### StaticRenderOptions.processMathJSONScriptType?
@@ -4073,8 +4030,6 @@ optional processMathJSONScriptType: string;
 **Default**: `"math/json"`
 
 </MemberCard>
-
-<a id="processscripttype" name="processscripttype"></a>
 
 <MemberCard>
 
@@ -4090,8 +4045,6 @@ optional processScriptType: string;
 
 </MemberCard>
 
-<a id="readaloud" name="readaloud"></a>
-
 <MemberCard>
 
 ##### StaticRenderOptions.readAloud?
@@ -4106,8 +4059,6 @@ be read aloud later using speak
 **Default**: `false`
 
 </MemberCard>
-
-<a id="renderaccessiblecontent" name="renderaccessiblecontent"></a>
 
 <MemberCard>
 
@@ -4127,8 +4078,6 @@ You can pass multiple values separated by spaces, e.g `"mathml speakable-text"`
 **Default**: `"mathml"`
 
 </MemberCard>
-
-<a id="skiptags" name="skiptags"></a>
 
 <MemberCard>
 
@@ -4342,6 +4291,10 @@ readonly isShifted: boolean;
 readonly normalizedLayouts: VirtualKeyboardLayoutCore & object[];
 ```
 
+This property is the "expanded" version of the `layouts` property.
+It is normalized to include all the default values for the properties
+of the layout and layers.
+
 </MemberCard>
 
 <a id="originvalidator" name="originvalidator"></a>
@@ -4391,20 +4344,6 @@ visible: boolean;
 
 </MemberCard>
 
-<a id="actionkeycap" name="actionkeycap"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardInterface.actionKeycap
-
-```ts
-set actionKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
-
-</MemberCard>
-
 <a id="alphabeticlayout" name="alphabeticlayout"></a>
 
 <MemberCard>
@@ -4418,20 +4357,6 @@ set alphabeticLayout(value): void
 Layout of the alphabetic layers: AZERTY, QWERTY, etc...
 
 • **value**: [`AlphabeticKeyboardLayout`](#alphabetickeyboardlayout)
-
-</MemberCard>
-
-<a id="backspacekeycap" name="backspacekeycap"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardInterface.backspaceKeycap
-
-```ts
-set backspaceKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
 
 </MemberCard>
 
@@ -4507,34 +4432,6 @@ readonly ([`VirtualKeyboardLayout`](#virtualkeyboardlayout) \| [`VirtualKeyboard
 
 </MemberCard>
 
-<a id="shiftkeycap" name="shiftkeycap"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardInterface.shiftKeycap
-
-```ts
-set shiftKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
-
-</MemberCard>
-
-<a id="tabkeycap" name="tabkeycap"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardInterface.tabKeycap
-
-```ts
-set tabKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
-
-</MemberCard>
-
 <a id="connect" name="connect"></a>
 
 <MemberCard>
@@ -4579,6 +4476,33 @@ executeCommand(command): boolean
 
 </MemberCard>
 
+<a id="getkeycap" name="getkeycap"></a>
+
+<MemberCard>
+
+##### VirtualKeyboardInterface.getKeycap()
+
+```ts
+getKeycap(keycap): Partial<VirtualKeyboardKeycap>
+```
+
+Some keycaps can be customized:
+`[left]`, `[right]`, `[up]`, `[down]`, `[return]`, `[action]`,
+`[space]`, `[tab]`, `[backspace]`, `[shift]`,
+`[undo]`, `[redo]`, `[foreground-color]`, `[background-color]`,
+`[hide-keyboard]`,
+`[.]`, `[,]`,
+`[0]`, `[1]`, `[2]`, `[3]`, `[4]`,
+`[5]`, `[6]`, `[7]`, `[8]`, `[9]`,
+`[+]`, `[-]`, `[*]`, `[/]`, `[^]`, `[_]`, `[=]`, `[.]`,
+`[(]`, `[)]`,
+
+• **keycap**: `string`
+
+`Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
+
+</MemberCard>
+
 <a id="hide" name="hide"></a>
 
 <MemberCard>
@@ -4592,6 +4516,24 @@ hide(options?): void
 • **options?**
 
 • **options.animate?**: `boolean`
+
+`void`
+
+</MemberCard>
+
+<a id="setkeycap" name="setkeycap"></a>
+
+<MemberCard>
+
+##### VirtualKeyboardInterface.setKeycap()
+
+```ts
+setKeycap(keycap, value): void
+```
+
+• **keycap**: `string`
+
+• **value**: `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
 
 `void`
 
@@ -4957,6 +4899,10 @@ The CSS stylesheet associated with this layer
 readonly normalizedLayouts: VirtualKeyboardLayoutCore & object[];
 ```
 
+This property is the "expanded" version of the `layouts` property.
+It is normalized to include all the default values for the properties
+of the layout and layers.
+
 </MemberCard>
 
 <a id="originvalidator-1" name="originvalidator-1"></a>
@@ -4994,20 +4940,6 @@ mathfield component.
 
 </MemberCard>
 
-<a id="actionkeycap-1" name="actionkeycap-1"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardOptions.actionKeycap
-
-```ts
-set actionKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
-
-</MemberCard>
-
 <a id="alphabeticlayout-1" name="alphabeticlayout-1"></a>
 
 <MemberCard>
@@ -5021,20 +4953,6 @@ set alphabeticLayout(value): void
 Layout of the alphabetic layers: AZERTY, QWERTY, etc...
 
 • **value**: [`AlphabeticKeyboardLayout`](#alphabetickeyboardlayout)
-
-</MemberCard>
-
-<a id="backspacekeycap-1" name="backspacekeycap-1"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardOptions.backspaceKeycap
-
-```ts
-set backspaceKeycap(value): void
-```
-
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
 
 </MemberCard>
 
@@ -5110,31 +5028,48 @@ readonly ([`VirtualKeyboardLayout`](#virtualkeyboardlayout) \| [`VirtualKeyboard
 
 </MemberCard>
 
-<a id="shiftkeycap-1" name="shiftkeycap-1"></a>
+<a id="getkeycap-1" name="getkeycap-1"></a>
 
 <MemberCard>
 
-##### VirtualKeyboardOptions.shiftKeycap
+##### VirtualKeyboardOptions.getKeycap()
 
 ```ts
-set shiftKeycap(value): void
+getKeycap(keycap): Partial<VirtualKeyboardKeycap>
 ```
 
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
+Some keycaps can be customized:
+`[left]`, `[right]`, `[up]`, `[down]`, `[return]`, `[action]`,
+`[space]`, `[tab]`, `[backspace]`, `[shift]`,
+`[undo]`, `[redo]`, `[foreground-color]`, `[background-color]`,
+`[hide-keyboard]`,
+`[.]`, `[,]`,
+`[0]`, `[1]`, `[2]`, `[3]`, `[4]`,
+`[5]`, `[6]`, `[7]`, `[8]`, `[9]`,
+`[+]`, `[-]`, `[*]`, `[/]`, `[^]`, `[_]`, `[=]`, `[.]`,
+`[(]`, `[)]`,
+
+• **keycap**: `string`
+
+`Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
 
 </MemberCard>
 
-<a id="tabkeycap-1" name="tabkeycap-1"></a>
+<a id="setkeycap-1" name="setkeycap-1"></a>
 
 <MemberCard>
 
-##### VirtualKeyboardOptions.tabKeycap
+##### VirtualKeyboardOptions.setKeycap()
 
 ```ts
-set tabKeycap(value): void
+setKeycap(keycap, value): void
 ```
 
-• **value**: `string` \| `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
+• **keycap**: `string`
+
+• **value**: `Partial`\<[`VirtualKeyboardKeycap`](#virtualkeyboardkeycap)\>
+
+`void`
 
 </MemberCard>
 

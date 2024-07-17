@@ -75,7 +75,10 @@ export function convertLatexToMarkup(
   text: string,
   options?: Partial<LayoutOptions>
 ): string {
-  const from: ContextInterface = { ...getDefaultContext() };
+  const from: ContextInterface = {
+    ...getDefaultContext(),
+    renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
+  };
   if (options?.letterShapeStyle && options?.letterShapeStyle !== 'auto')
     from.letterShapeStyle = options.letterShapeStyle;
 
@@ -83,15 +86,15 @@ export function convertLatexToMarkup(
     const macros = normalizeMacroDictionary(options?.macros);
     from.getMacro = (token) => getMacroDefinition(token, macros);
   }
-  if (options?.registers) from.registers = options.registers;
+  if (options?.registers)
+    from.registers = { ...from.registers, ...options.registers };
 
+  const defaultMode = options?.defaultMode ?? 'math';
   let parseMode: ParseMode = 'math';
-  let mathstyle: 'displaystyle' | 'textstyle';
-  if (options?.defaultMode === 'inline-math') {
-    mathstyle = 'textstyle';
-  } else if (options?.defaultMode === 'math') {
-    mathstyle = 'displaystyle';
-  } else {
+  let mathstyle: 'displaystyle' | 'textstyle' = 'displaystyle';
+  if (defaultMode === 'inline-math') mathstyle = 'textstyle';
+  else if (defaultMode === 'math') mathstyle = 'displaystyle';
+  else if (defaultMode === 'text') {
     mathstyle = 'textstyle';
     parseMode = 'text';
   }
