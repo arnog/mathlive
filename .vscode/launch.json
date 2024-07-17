@@ -6,11 +6,15 @@
   "configurations": [
     {
       "name": "Launch Chrome",
+      "type": "chrome",
       "request": "launch",
-      "type": "pwa-chrome",
       "url": "http://localhost:8080/examples/test-cases",
-      "webRoot": "${workspaceFolder}",
-      "preLaunchTask": "start"
+      "webRoot": "${workspaceFolder}/dist",
+      "preLaunchTask": "npm: start",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${workspaceFolder}/src/*"
+      }
     },
     {
       "name": "Debug Jest Tests",
@@ -23,8 +27,16 @@
         "--runInBand"
       ],
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "port": 9229
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Current File",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${relativeFile}", "--no-cache"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }
