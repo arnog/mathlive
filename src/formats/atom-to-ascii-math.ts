@@ -286,10 +286,14 @@ export function atomToAsciiMath(
     case 'leftright':
       {
         const leftrightAtom = atom as LeftRightAtom;
-        const lDelim = leftrightAtom.leftDelim;
+        let lDelim = leftrightAtom.leftDelim;
+        if (lDelim && SPECIAL_OPERATORS[lDelim])
+          lDelim = SPECIAL_OPERATORS[lDelim];
         result += lDelim === '.' || !lDelim ? '{:' : lDelim;
         result += atomToAsciiMath(leftrightAtom.body, options);
-        const rDelim = leftrightAtom.matchingRightDelim();
+        let rDelim = leftrightAtom.matchingRightDelim();
+        if (rDelim && SPECIAL_OPERATORS[rDelim])
+          rDelim = SPECIAL_OPERATORS[rDelim];
         result += rDelim === '.' || !rDelim ? ':}' : rDelim;
       }
 
