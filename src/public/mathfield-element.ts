@@ -2182,7 +2182,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   /** @category Customization
    * @inheritDoc Registers
    */
-  get registers(): Readonly<Registers> {
+  get registers(): Registers {
     if (!this._mathfield) throw new Error('Mathfield not mounted');
     const that = this;
     return new Proxy(
