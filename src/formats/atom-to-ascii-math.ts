@@ -238,44 +238,44 @@ export function atomToAsciiMath(
       break;
 
     case 'genfrac':
-      {
-        const genfracAtom = atom as GenfracAtom;
-        if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
-          result =
-            genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
-              ? '{:'
-              : genfracAtom.leftDelim;
-        }
-
-        if (genfracAtom.hasBarLine) {
-          result += '(';
-          result += atomToAsciiMath(genfracAtom.above, options);
-          result += ')/(';
-          result += atomToAsciiMath(genfracAtom.below, options);
-          result += ')';
-        } else {
-          // No bar line, i.e. \choose, etc...
-          result += '(' + atomToAsciiMath(genfracAtom.above, options) + '),';
-          result += '(' + atomToAsciiMath(genfracAtom.below, options) + ')';
-        }
-
-        if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
-          result +=
-            genfracAtom.rightDelim === '.' || !genfracAtom.rightDelim
-              ? '{:'
-              : genfracAtom.rightDelim;
-        }
+    {
+      const genfracAtom = atom as GenfracAtom;
+      if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+        result =
+          genfracAtom.leftDelim === '.' || !genfracAtom.leftDelim
+            ? '{:'
+            : genfracAtom.leftDelim;
       }
+
+      if (genfracAtom.hasBarLine) {
+        result += '(';
+        result += atomToAsciiMath(genfracAtom.above, options);
+        result += ')/(';
+        result += atomToAsciiMath(genfracAtom.below, options);
+        result += ')';
+      } else {
+        // No bar line, i.e. \choose, etc...
+        result += '(' + atomToAsciiMath(genfracAtom.above, options) + '),';
+        result += '(' + atomToAsciiMath(genfracAtom.below, options) + ')';
+      }
+
+      if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
+        result +=
+          genfracAtom.rightDelim === '.' || !genfracAtom.rightDelim
+            ? '{:'
+            : genfracAtom.rightDelim;
+      }
+    }
 
       break;
 
     case 'surd':
       result += !atom.hasEmptyBranch('above')
         ? 'root(' +
-          atomToAsciiMath(atom.above, options) +
-          ')(' +
-          atomToAsciiMath(atom.body, options) +
-          ')'
+        atomToAsciiMath(atom.above, options) +
+        ')(' +
+        atomToAsciiMath(atom.body, options) +
+        ')'
         : 'sqrt(' + atomToAsciiMath(atom.body, options) + ')';
       break;
 
@@ -284,14 +284,18 @@ export function atomToAsciiMath(
       break;
 
     case 'leftright':
-      {
-        const leftrightAtom = atom as LeftRightAtom;
-        const lDelim = leftrightAtom.leftDelim;
-        result += lDelim === '.' || !lDelim ? '{:' : lDelim;
-        result += atomToAsciiMath(leftrightAtom.body, options);
-        const rDelim = leftrightAtom.matchingRightDelim();
-        result += rDelim === '.' || !rDelim ? ':}' : rDelim;
-      }
+    {
+      const leftrightAtom = atom as LeftRightAtom;
+      let lDelim = leftrightAtom.leftDelim;
+      if (lDelim && SPECIAL_OPERATORS[lDelim])
+        lDelim = SPECIAL_OPERATORS[lDelim];
+      result += lDelim === '.' || !lDelim ? '{:' : lDelim;
+      result += atomToAsciiMath(leftrightAtom.body, options);
+      let rDelim = leftrightAtom.matchingRightDelim();
+      if (rDelim && SPECIAL_OPERATORS[rDelim])
+        rDelim = SPECIAL_OPERATORS[rDelim];
+      result += rDelim === '.' || !rDelim ? ':}' : rDelim;
+    }
 
       break;
 
