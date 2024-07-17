@@ -149,7 +149,6 @@ function parseMathExpression(
     let result = '';
     if (s[1] === '(') result = `${s[0]}\\left(${match}\\right)`;
     else result = s[0] + match;
-    console.log(result);
     return result + parseMathExpression(rest, options);
   }
 
@@ -190,12 +189,7 @@ function parseMathExpression(
 
   return s;
 }
-const SPECIAL_OPERATORS = {
-  '[': '\\lbrack',
-  ']': '\\rbrack',
-  '\\{': '\\lbrace',
-  '\\}': '\\rbrace',
-};
+
 /**
  * Parse a math argument, as defined by ASCIIMath and UnicodeMath:
  * - Either an expression fenced in (), {} or []
@@ -231,20 +225,20 @@ function parseMathArgument(
 
     if (level === 0) {
       // We've found the matching closing fence
-      if (options.noWrap && lFence === '(') {
+      if (options.noWrap && lFence === '(')
         match = parseMathExpression(s.substring(1, i - 1), options);
-        console.log(match);
-      } else {
+      else {
         if (lFence === '{' && rFence === '}') {
           lFence = '\\{';
           rFence = '\\}';
         }
+
         match =
           '\\left' +
-          SPECIAL_OPERATORS[lFence] +
+          lFence +
           parseMathExpression(s.substring(1, i - 1), options) +
           '\\right' +
-          SPECIAL_OPERATORS[rFence];
+          rFence;
       }
 
       rest = s.slice(Math.max(0, i));

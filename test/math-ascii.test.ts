@@ -77,8 +77,4 @@ describe('ASCII MATH', function () {
   //   '\\begin{bmatrix}a & b & c \\\\ d & e & f\\end{bmatrix}',
   //   '[[a],[b],[c],[d],[e],[f]]'
   // );
-
-  equalASCIIMath('\\left\\lbrack1,1\\right\\rbrack', "[1,1]")
-  equalASCIIMath('\\left\\lbrace1,1\\right\\rbrace', "{1,1}")
-  equalASCIIMath("\\left(1,1\\right)","(1,1)")
 });
