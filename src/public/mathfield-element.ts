@@ -2078,6 +2078,11 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
       case 'contenteditable':
         requestUpdate(this._mathfield);
         break;
+      case 'placeholder':
+        if (newValue === false) newValue = '';
+        this.placeholder = newValue as string;
+        break;
+
       case 'disabled':
         this.disabled = hasValue;
         break;
@@ -2327,6 +2332,15 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
   }
   set placeholderSymbol(value: string) {
     this._setOptions({ placeholderSymbol: value });
+  }
+
+  get placeholder(): string {
+    return this.getAttribute('placeholder') ?? '';
+  }
+
+  set placeholder(value: string) {
+    if (typeof value !== 'string') return;
+    this._mathfield?.setOptions({ contentPlaceholder: value });
   }
 
   /** @category Customization */

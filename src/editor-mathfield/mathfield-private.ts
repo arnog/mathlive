@@ -492,6 +492,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Snapshot as 'set-value' operation, so that any other subsequent
     // `setValue()` gets coalesced
     this.undoManager.snapshot('set-value');
+
+    // Request an update (this is necessary in the case where the mathfield
+    // is empty but does have a contentPlaceholder)
+    requestUpdate(this);
   }
 
   connectToVirtualKeyboard(): void {
@@ -739,6 +743,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       'minFontScale' in config ||
       'maxMatrixCols' in config ||
       'readOnly' in config ||
+      'placeholderContent' in config ||
       'placeholderSymbol' in config
     )
       requestUpdate(this);

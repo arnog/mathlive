@@ -1,3 +1,11 @@
+## [Unreleased]
+
+
+### Issues Resolved
+
+- In some cases, the `placeholder` attribute would not be displayed when the
+  mathfield was empty.
+
 ## 0.101.0 _2024-07-17_
 
 ### Breaking Changes
