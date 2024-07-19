@@ -5,6 +5,8 @@
 
 - In some cases, the `placeholder` attribute would not be displayed when the
   mathfield was empty.
+- When using static math, the font-familly for text content was not correctly
+  inherited from the parent element.
 
 ## 0.101.0 _2024-07-17_
 
