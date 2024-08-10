@@ -133,7 +133,7 @@
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
     "@cortex-js/prettier-config": "^1.2.0",
-    "@playwright/test": "^1.43.0",
+    "@playwright/test": "^1.46.0",
     "@types/css-font-loading-module": "0.0.13",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
