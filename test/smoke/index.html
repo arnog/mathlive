@@ -51,7 +51,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">f\left(x\right)\mathop{f}\left(x\right)</math-field>
+    <math-field id="mf" placeholder="\text{Type here}"></math-field>
     <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -807,14 +807,14 @@
     //   ev.preventDefault();
     // }, { capture: true });
 
-    window.MathfieldElement.isFunction = (s) => /^[f-h]+$/.test(s);
+    // window.MathfieldElement.isFunction = (s) => /^[f-h]+$/.test(s);
+    // window.MathfieldElement.isFunction = window.MathfieldElement.isFunction;
 
     // setupMathfield(mf);
+
+    mf.setAttribute('placeholder', '\\textcolor{red}{\\text{Type your math here}}');
+
     mf.addEventListener('mount', () => {
-      console.log('Mounted');
-
-
-
       // mf.menu = [
       //   {
       //     label: "My Menu Item",
@@ -878,7 +878,7 @@
       //   },
       // };
 
-      mf.mathVirtualKeyboardPolicy = "sandboxed";
+      // mf.mathVirtualKeyboardPolicy = "sandboxed";
 
       // mf.addEventListener("focusin", (e) => {
       //   window.mathVirtualKeyboard.show();
@@ -888,8 +888,11 @@
       // });
 
       mf.addEventListener("beforeinput", (ev) => {
-        if (ev.inputType === "insertLineBreak") console.log("enter");
-        // ev.preventDefault();
+        if (ev.inputType === "insertLineBreak") {
+          console.log("enter");
+          // mf.executeCommand("moveToNextPlaceholder");
+          ev.preventDefault();
+        }
       });
 
       mf.addEventListener("input", (ev) => updateContent(mf));
@@ -938,7 +941,8 @@
 
 
 
-    document.getElementById("grow").addEventListener("click", () => {
+    document.getElementById("grow").addEventListener("click", (evt) => {
+      console.log(evt);
       console.time("grow");
       for (let i = 0; i < 200; i++) {
         const mf = new MathfieldElement();
@@ -1196,8 +1200,6 @@
       return exprToStringRecursive(expr.json, 0);
     }
   </script>
-
-  hello $ f(x) = \frac{1}{2} $ or $ \foo{hello} $
 </body>
 
 
