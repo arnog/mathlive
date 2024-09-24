@@ -256,9 +256,12 @@ export function atomToAsciiMath(
           result += atomToAsciiMath(genfracAtom.below, options);
           result += ')';
         } else {
-          // No bar line, i.e. \choose, etc...
-          result += '(' + atomToAsciiMath(genfracAtom.above, options) + '),';
-          result += '(' + atomToAsciiMath(genfracAtom.below, options) + ')';
+          // No bar line, for \choose
+          result += '((';
+          result += atomToAsciiMath(genfracAtom.above, options);
+          result += ') choose (';
+          result += atomToAsciiMath(genfracAtom.below, options);
+          result += '))';
         }
 
         if (genfracAtom.leftDelim || genfracAtom.rightDelim) {
@@ -372,12 +375,8 @@ export function atomToAsciiMath(
       const rows: string[] = [];
       for (const row of array) {
         const cells: string[] = [];
-        for (const cell of row)
-          cells.push(
-            rowDelim[0] + atomToAsciiMath(cell, options) + rowDelim[1]
-          );
-
-        rows.push(cells.join(','));
+        for (const cell of row) cells.push(atomToAsciiMath(cell, options));
+        rows.push(rowDelim[0] + cells.join(',') + rowDelim[1]);
       }
 
       const delim = {
