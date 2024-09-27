@@ -1716,26 +1716,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
       // don't do that for custom elements, so we do it ourselves. @futureweb
       //
 
-      // Wait for the window/document visibility to change
+      // Wait for the window focus to change
       // (the mathfield gets blurred before the window)
       const controller = new AbortController();
       const signal = controller.signal;
-      document.addEventListener(
-        'visibilitychange',
+      window.addEventListener(
+        'blur',
         () => {
-          if (document.visibilityState === 'hidden') {
-            document.addEventListener(
-              'visibilitychange',
-              () => {
-                if (
-                  isValidMathfield(this) &&
-                  document.visibilityState === 'visible'
-                )
-                  this.focus({ preventScroll: true });
-              },
-              { once: true, signal }
-            );
-          }
+          window.addEventListener(
+            'focus',
+            () => {
+              if (isValidMathfield(this)) this.focus({ preventScroll: true });
+            },
+            { once: true, signal }
+          );
         },
         { once: true, signal }
       );
@@ -1743,6 +1737,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       // If something else gets the focus (could be the mathfield too),
       // cancel the above
       document.addEventListener('focusin', () => controller.abort(), {
+        once: true,
+      });
+
+      // If user clicks anywhere, cancel the refocus (covers case where
+      // click doesn't cause an element to come into focus)
+      document.addEventListener('click', () => controller.abort(), {
         once: true,
       });
     }
