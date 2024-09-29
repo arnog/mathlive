@@ -37,7 +37,10 @@
         "require": "./dist/mathlive.min.js"
       }
     },
-    "./ssr": "./dist/mathlive-ssr.min.mjs",
+    "./ssr": {
+      "types": "./dist/types/mathlive-ssr.d.ts",
+      "import": "./dist/mathlive-ssr.min.mjs"
+    },
     "./vue": "./dist/vue-mathlive.mjs",
     "./fonts.css": "./dist/mathlive-fonts.css",
     "./static.css": "./dist/mathlive-static.css",
