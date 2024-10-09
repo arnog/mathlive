@@ -91,11 +91,7 @@ import {
   validateOrigin,
 } from './utils';
 
-import {
-  onPointerDown,
-  offsetFromPoint,
-  PointerTracker,
-} from './pointer-input';
+import { onPointerDown, PointerTracker } from './pointer-input';
 
 import { ModeEditor } from './mode-editor';
 import './mode-editor-math';
@@ -1129,10 +1125,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
     } else if (s === '&') addColumnAfter(this.model);
     else {
       if (this.model.selectionIsCollapsed) {
-        ModeEditor.insert(this.model, s, {
-          style: this.model.at(this.model.position).style,
-          ...options,
-        });
+        let style = { ...computeInsertStyle(this) };
+        // If we're inserting a non-alphanumeric character, reset the variant
+        if (!/[a-zA-Z0-9]/.test(s) && this.styleBias !== 'none') {
+          style.variant = 'normal';
+          style.variantStyle = undefined;
+        }
+
+        ModeEditor.insert(this.model, s, { style, ...options });
       } else ModeEditor.insert(this.model, s, options);
     }
 

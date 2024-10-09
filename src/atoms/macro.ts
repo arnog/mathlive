@@ -54,6 +54,17 @@ export class MacroAtom extends Atom {
       : this.command + (this.macroArgs ?? '');
   }
 
+  applyStyle(style: Style, options?: { unstyledOnly: boolean }): void {
+    // For macros, we only allow color styling. The macro itself has control
+    // over the other style attributes
+    const allowedStyle: Style = {};
+    if (style.color) allowedStyle.color = style.color;
+    if (style.backgroundColor)
+      allowedStyle.backgroundColor = style.backgroundColor;
+
+    super.applyStyle(allowedStyle, options);
+  }
+
   render(context: Context): Box | null {
     const result = Atom.createBox(context, this.body, { type: 'lift' });
     if (!result) return null;

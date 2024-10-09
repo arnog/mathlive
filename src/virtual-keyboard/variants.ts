@@ -265,7 +265,10 @@ export function showVariantsPanel(
         'pointerenter',
         (ev) => {
           const target = parentKeycap(ev.target);
+          console.log('enter', ev.target);
           if (!target?.id || !variants[target.id]) return;
+
+          console.log('adding is-active', target);
 
           target.classList.add('is-active');
         },
@@ -276,6 +279,13 @@ export function showVariantsPanel(
         'pointerleave',
         (ev) => {
           const target = parentKeycap(ev.target);
+          if (
+            ev.target &&
+            'tagName' in ev.target &&
+            typeof ev.target.tagName === 'string' &&
+            ev.target.tagName.toUpperCase() === 'ASIDE'
+          )
+            return;
           if (!target?.id || !variants[target.id]) return;
 
           target.classList.remove('is-active');

@@ -51,7 +51,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf" placeholder="\text{Type here}"></math-field>
+    <math-field id="mf"></math-field>
     <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -811,8 +811,6 @@
     // window.MathfieldElement.isFunction = window.MathfieldElement.isFunction;
 
     // setupMathfield(mf);
-
-    mf.setAttribute('placeholder', '\\textcolor{red}{\\text{Type your math here}}');
 
     mf.addEventListener('mount', () => {
       // mf.menu = [

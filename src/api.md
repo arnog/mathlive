@@ -5769,7 +5769,7 @@ readonly `MenuItem`[]
 ##### MathfieldElement.registers
 
 ```ts
-get registers(): Readonly<Registers>
+get registers(): Registers
 ```
 
 TeX registers represent "variables" and "constants".
@@ -5802,7 +5802,7 @@ set registers(value): void
 
 • **value**: [`Registers`](#registers-2)
 
-`Readonly`\<[`Registers`](#registers-2)\>
+[`Registers`](#registers-2)
 
 </MemberCard>
 
@@ -6551,6 +6551,26 @@ set mode(value): void
 ```ts
 get name(): string
 ```
+
+`string`
+
+</MemberCard>
+
+<a id="placeholder" name="placeholder"></a>
+
+<MemberCard>
+
+##### MathfieldElement.placeholder
+
+```ts
+get placeholder(): string
+```
+
+```ts
+set placeholder(value): void
+```
+
+• **value**: `string`
 
 `string`
 
@@ -7793,7 +7813,7 @@ min-font-scale: number;
 
 </MemberCard>
 
-<a id="placeholder" name="placeholder"></a>
+<a id="placeholder-1" name="placeholder-1"></a>
 
 <MemberCard>
 

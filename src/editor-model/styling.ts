@@ -7,7 +7,7 @@ import type { Style, VariantStyle } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
-  atom: Atom | Readonly<Atom[]> | undefined,
+  atom: Atom | ReadonlyArray<Atom> | undefined,
   style?: Style
 ): void {
   if (!atom || !style) return;
@@ -25,12 +25,7 @@ export function applyStyleToUnstyledAtoms(
       !atom.style.variant &&
       !atom.style.variantStyle
     ) {
-      atom.applyStyle(style);
-      applyStyleToUnstyledAtoms(atom.body, style);
-      applyStyleToUnstyledAtoms(atom.above, style);
-      applyStyleToUnstyledAtoms(atom.below, style);
-      applyStyleToUnstyledAtoms(atom.subscript, style);
-      applyStyleToUnstyledAtoms(atom.superscript, style);
+      atom.applyStyle(style, { unstyledOnly: true });
     }
   }
 }

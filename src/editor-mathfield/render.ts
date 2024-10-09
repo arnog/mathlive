@@ -151,6 +151,7 @@ export function render(
   mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
+  console.log('rendering');
   if (!isValidMathfield(mathfield)) return;
   renderOptions ??= {};
 

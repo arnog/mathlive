@@ -444,6 +444,8 @@ export function onKeystroke(
         // the substitution inserted a place holder. Reset the buffer.
         if (!model.selectionIsCollapsed) mathfield.flushInlineShortcutBuffer();
 
+        // requestUpdate(mathfield);
+
         return true; // Content changed
       }
     );
@@ -618,6 +620,7 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
 
   // If we're inserting a non-alphanumeric character, reset the variant
   if (!/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {
+    console.log('resetting to normal');
     style.variant = 'normal';
     style.variantStyle = undefined;
   }

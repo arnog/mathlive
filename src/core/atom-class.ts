@@ -531,8 +531,11 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     this.setChildren(atoms, 'below');
   }
 
-  applyStyle(style: Style): void {
+  applyStyle(style: Style, options?: { unstyledOnly: boolean }): void {
     this.isDirty = true;
+
+    if (options?.unstyledOnly && Object.keys(this.style).length === 0) return;
+
     this.style = { ...this.style, ...style };
 
     if (this.style.fontFamily === 'none') delete this.style.fontFamily;
@@ -553,7 +556,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
     if (this.style.fontSize === 'auto') delete this.style.fontSize;
 
-    for (const child of this.children) child.applyStyle(style);
+    for (const child of this.children) child.applyStyle(style, options);
   }
 
   getInitialBaseElement(): Atom {
