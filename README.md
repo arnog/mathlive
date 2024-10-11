@@ -11,15 +11,15 @@
 MathLive is a powerful web component that provides an easy-to-use interface for
 editing math formulas.
 
-With over 800 **built-in LaTeX commands**, MathLive renders beautiful, 
-**TeX-quality typesetting**. 
+With over 800 **built-in LaTeX commands**, MathLive renders beautiful,
+**TeX-quality typesetting**.
 
-It's designed for **mobile devices** with an extensive set of virtual keyboards 
-for math input, and is compatible with screen readers, including custom 
-math-to-speech support for improved accessibility. 
+It's designed for **mobile devices** with an extensive set of virtual keyboards
+for math input, and is compatible with screen readers, including custom
+math-to-speech support for improved accessibility.
 
-MathLive outputs to LaTeX, MathML, ASCIIMath, and MathJSON formats, making it 
-incredibly versatile. 
+MathLive outputs to LaTeX, MathML, ASCIIMath, and MathJSON formats, making it
+incredibly versatile.
 
 And the best part? It's easy to customize to your needs!
 
@@ -70,6 +70,7 @@ import 'mathlive';
 ```
 
 You can also add it using CDN
+
 ```html
 <head>
     <script src="https://unpkg.com/mathlive"></script>
@@ -77,7 +78,7 @@ You can also add it using CDN
 ```
 
 Check documentation for [React](https://cortexjs.io/mathlive/guides/react/) and
-[interaction with Mathfield](https://cortexjs.io/mathlive/guides/interacting/). 
+[interaction with Mathfield](https://cortexjs.io/mathlive/guides/interacting/).
 
 ## 📖 Documentation
 
@@ -89,6 +90,17 @@ of these guides on the [CortexJS.io website](https://cortexjs.io/mathlive/).
 
 In addition to the guides, you can also find reference documentation of the
 MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
+
+## FAQ
+
+**Q:** When is the next release?
+
+MathLive follows a semi-annual release cycle, with major releases typically
+scheduled for June and January. These may be followed by patch releases to
+address any issues that arise shortly after deployment. Additionally, an
+out-of-band release can be made if requested by a sponsor or if a community
+member submits a pull request and requests a release to include their
+contribution.
 
 ## ⋯ Related Projects
 
@@ -103,7 +115,8 @@ MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
 
 ## 💬 Contact Us
 
-- Chat with the [CortexJS Assistant](https://chat.openai.com/g/g-8YgEfR7ig-cortexjs-assistant)
+- Chat with the
+  [CortexJS Assistant](https://chat.openai.com/g/g-8YgEfR7ig-cortexjs-assistant)
 - Join our [Discord server](https://discord.gg/yhmvVeJ4Hd)
 - Drop a line to [arno@arno.org](arno@arno.org)
 
