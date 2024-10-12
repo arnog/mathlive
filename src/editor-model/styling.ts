@@ -15,18 +15,7 @@ export function applyStyleToUnstyledAtoms(
     // Apply styling options to each atom
     atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
   } else if (typeof atom === 'object') {
-    if (
-      !atom.style.color &&
-      !atom.style.backgroundColor &&
-      !atom.style.fontFamily &&
-      !atom.style.fontShape &&
-      !atom.style.fontSeries &&
-      !atom.style.fontSize &&
-      !atom.style.variant &&
-      !atom.style.variantStyle
-    ) {
-      atom.applyStyle(style, { unstyledOnly: true });
-    }
+    atom.applyStyle(style, { unstyledOnly: true });
   }
 }
 

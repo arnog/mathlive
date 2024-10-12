@@ -534,9 +534,25 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   applyStyle(style: Style, options?: { unstyledOnly: boolean }): void {
     this.isDirty = true;
 
-    if (options?.unstyledOnly && Object.keys(this.style).length === 0) return;
-
-    this.style = { ...this.style, ...style };
+    if (options?.unstyledOnly) {
+      if (style.color && !this.style.color) this.style.color = style.color;
+      if (style.backgroundColor && !this.style.backgroundColor)
+        this.style.backgroundColor = style.backgroundColor;
+      if (style.fontFamily && !this.style.fontFamily)
+        this.style.fontFamily = style.fontFamily;
+      if (style.fontShape && !this.style.fontShape)
+        this.style.fontShape = style.fontShape;
+      if (style.fontSeries && !this.style.fontSeries)
+        this.style.fontSeries = style.fontSeries;
+      if (style.fontSize && !this.style.fontSize)
+        this.style.fontSize = style.fontSize;
+      if (style.variant && !this.style.variant)
+        this.style.variant = style.variant;
+      if (style.variantStyle && !this.style.variantStyle)
+        this.style.variantStyle = style.variantStyle;
+    } else {
+      this.style = { ...this.style, ...style };
+    }
 
     if (this.style.fontFamily === 'none') delete this.style.fontFamily;
 

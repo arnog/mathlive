@@ -17,6 +17,7 @@ import {
 } from './mode-editor-latex';
 import { ModeEditor } from './mode-editor';
 import { ParseMode } from '../public/core-types';
+import { getSelectionStyle } from './keyboard-input';
 
 export function removeSuggestion(mathfield: _Mathfield): void {
   const group = getLatexGroupBody(mathfield.model).filter(
@@ -158,11 +159,16 @@ export function complete(
   mathfield.switchMode(options?.mode ?? 'math');
 
   if (completion === 'reject') return true;
+  const style = {
+    ...getSelectionStyle(mathfield.model),
+    ...mathfield.defaultStyle,
+  };
 
   ModeEditor.insert(mathfield.model, latex, {
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
     format: 'latex',
     mode: 'math',
+    style,
   });
 
   mathfield.snapshot();

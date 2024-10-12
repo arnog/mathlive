@@ -673,7 +673,7 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
 }
 
-function getSelectionStyle(model: _Model): Readonly<Style> {
+export function getSelectionStyle(model: _Model): Readonly<Style> {
   // When the selection is collapsed, we inherit the style from the
   // preceding atom
   if (model.selectionIsCollapsed) return model.at(model.position)?.style ?? {};
