@@ -2,14 +2,14 @@
 
 ### Issues Resolved
 
-- In some cases, the `placeholder` attribute would not be displayed when the
-  mathfield was empty.
-- When using static math, the font-familly for text content was not correctly
-  inherited from the parent element.
 - **#2533** When using the virtual keyboard to insert a character with a
   blackboard style followed by a non-alphabetic symbol without a blackboard
   style, the second symbol would incorrectly be serialized with a blackboard
   style.
+- In some cases, the `placeholder` attribute would not be displayed when the
+  mathfield was empty.
+- When using static math, the font-familly for text content was not correctly
+  inherited from the parent element.
 - In some cases, the inherent style of a macro could get overriden. For example
   typing the "RR" inline shortcut resulted in an unstyled R instead of the
   expected blackboard R.
