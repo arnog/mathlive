@@ -793,7 +793,7 @@ export class Parser {
 
     this.beginContext({
       mode: 'math',
-      mathstyle: '<$>' ? 'textstyle' : 'displaystyle',
+      mathstyle: final === '<$>' ? 'textstyle' : 'displaystyle',
     });
 
     const result = this.scan((token) => token === final);
