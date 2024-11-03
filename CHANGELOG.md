@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- Correctly display the caret following a `\mathop{}` command.
+
 ## 0.101.1 _2024-10-15_
 
 ### Issues Resolved
