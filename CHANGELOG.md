@@ -3,6 +3,8 @@
 ### Issues Resolved
 
 - Correctly display the caret following a `\mathop{}` command.
+- **#2540** When using `renderMathInElement()` some white space was occasionally
+  incorrectly removed.
 
 ## 0.101.1 _2024-10-15_
 
@@ -815,7 +817,7 @@ mf.selection = mf.getPromptRange(id);
 
 - Added `if-math-mode` and `if-text-mode` classes to conditionally show virtual
   keyboard keys.
-- **#2086** When navigation a root with an index, the index is now navigater
+- **#2086** When navigation a root with an index, the index is now navigated
   first.
 
 ## 0.95.1 _2023-07-25_
