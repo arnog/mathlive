@@ -7210,8 +7210,8 @@ static loadSound(sound): Promise<void>
   \| `"keypress"`
   \| `"plonk"`
   \| `"delete"`
-  \| `"return"`
   \| `"spacebar"`
+  \| `"return"`
 
 `Promise`\<`void`\>
 
@@ -7247,8 +7247,8 @@ static playSound(name): Promise<void>
   \| `"keypress"`
   \| `"plonk"`
   \| `"delete"`
-  \| `"return"`
   \| `"spacebar"`
+  \| `"return"`
 
 `Promise`\<`void`\>
 
