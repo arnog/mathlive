@@ -98,6 +98,32 @@ export type ApplyStyleOptions = {
  */
 
 export type ElementInfo = {
+  // start?: Offset;
+  // end?: Offset;
+  // parent?: ElementInfo;
+  // kind?:
+  //   | 'accent'
+  //   | 'cell' // Inside a matrix or environment
+  //   | 'box' // Inside a rectangular box
+  //   | 'composition' // Inside an input-method composition
+  //   | 'enclosure' // A more complex kind of box/annotation displayed around a subexpression
+  //   | 'error'
+  //   | 'numerator'
+  //   | 'denominator'
+  //   | 'group' // Delimited with braces
+  //   | 'latex' // Raw LaTeX composition
+  //   | 'overlap'
+  //   | 'above'
+  //   | 'below'
+  //   | 'phantom'
+  //   | 'placeholder'
+  //   | 'superscript'
+  //   | 'subscript'
+  //   | 'radicand'
+  //   | 'index'
+  //   | 'body'
+  //   | 'text';
+
   /** The depth in the expression tree. 0 for top-level elements */
   depth?: number;
 

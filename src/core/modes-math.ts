@@ -331,7 +331,8 @@ function emitVariantRun(
     }
 
     const arg = joinLatex(x.map((x) => x._serialize(options)));
-    return !command ? arg : latexCommand(command, arg);
+    if (!command) return arg;
+    return latexCommand(command, arg);
   });
 }
 

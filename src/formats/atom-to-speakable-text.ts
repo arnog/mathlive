@@ -193,6 +193,15 @@ function atomsAsText(atoms: Readonly<Atom[]> | undefined): string {
   return atoms.map((atom) => atom.value).join('');
 }
 
+function atomsAsPotentialText(
+  atoms: Readonly<Atom[]> | undefined
+): string | undefined {
+  if (!atoms) return undefined;
+  if (atoms.some((x) => x.type !== 'first' && x.value === undefined))
+    return undefined;
+  return atoms.map((atom) => atom.value).join('');
+}
+
 function emph(s: string) {
   return `<emphasis>${s}</emphasis>`;
 }
@@ -310,6 +319,27 @@ function atomToSpeakableFragment(
     case '\\underarc':
     case '\\underparen':
       return 'arc under ' + atomToSpeakableFragment(mode, atom.body);
+    case '\\mathop':
+      return (
+        atomsAsPotentialText(atom.body) ??
+        atomToSpeakableFragment(mode, atom.body)
+      );
+    case '\\mathit':
+      return (
+        atomsAsPotentialText(atom.body) ??
+        atomToSpeakableFragment(mode, atom.body)
+      );
+    case '\\mathrm':
+      return (
+        atomsAsPotentialText(atom.body) ??
+        atomToSpeakableFragment(mode, atom.body)
+      );
+    case '\\mathbb':
+      return (
+        'blackboard' +
+        (atomsAsPotentialText(atom.body) ??
+          atomToSpeakableFragment(mode, atom.body))
+      );
   }
 
   switch (atom.type) {

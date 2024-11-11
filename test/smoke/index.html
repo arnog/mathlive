@@ -51,8 +51,8 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">\textcolor{red}{x=z\mathbb{R}}</math-field>
-    <!-- <math-field id="mf">\mathrm{Hypot}\left(\textcolor{red}{#?},{#?}\right)</math-field> -->
+    <math-field id="mf">\mathbb{R}</math-field>
+    <button id="ans">Ans</button>
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
@@ -118,19 +118,60 @@
     const MAX_LINE_LENGTH = 74;
 
     // renderMathInDocument({ renderAccessibleContent: false });
+    // renderMathInDocument({
+    //   macros: {
+    //     foo: { def: '\\,\\bbox[5px, border: 1.5px dashed Cyan]{\\b{#1}}', args: 1, captureSelection: false },
+    //   },
+    //   renderAccessibleContent: false,
+    //   TeX: {
+    //     delimiters: {
+    //       display: [["$$", "$$"]],
+    //       inline: [["$", "$"]],
+    //     },
+    //     className: { display: "display_math" },
+    //   },
+    // });
+
     renderMathInDocument({
-      macros: {
-        foo: { def: '\\,\\bbox[5px, border: 1.5px dashed Cyan]{\\b{#1}}', args: 1, captureSelection: false },
-      },
       renderAccessibleContent: false,
+      skipTags: [
+        "code-playground",
+        "math-field",
+        "noscript",
+        "style",
+        "textarea",
+        "pre",
+        "code",
+        "kbd",
+        "annotation",
+        "annotation-xml",
+      ],
+      ignoreClass: "ML__latex",
+
       TeX: {
         delimiters: {
-          display: [["$$", "$$"]],
-          inline: [["$", "$"]],
+          inline: [['$', '$'], ["\\(", "\\)"]],
+          display: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
         },
-        className: { display: "display_math" },
+        className: { display: "math-display", inline: "math-inline" },
+        processEnvironments: false,
       },
+      asciiMath: null,
     });
+
+
+
+    document.getElementById("ans").addEventListener("click", () => {
+      mf.insert('\\mathrm{ans}', { format: 'latex', insertMode: 'replaceSelection', selectionMode: 'after' });
+      // calculatorInputElement.applyStyle({});
+      mf.focus();
+    });
+
+
+
 
     // const ce = new ComputeEngine({
     //   latexDictionary: [
@@ -247,7 +288,7 @@
       for (const color of colors) {
         result.push({
           class: ' menu-swatch',
-          label: `<span style="background:${color} "></span>`,
+          label: `<span style="background:${color} "h></span>`,
 
           checked: () =>
             ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
@@ -937,6 +978,9 @@
       );
     });
 
+    console.log('value', mf.value);
+    console.log('expression.latex', mf.expression.latex);
+
 
 
     document.getElementById("grow").addEventListener("click", (evt) => {
@@ -964,7 +1008,7 @@
     // Handler called when the mathfield content has changed
     //
     function updateContent(mf) {
-      console.log('input', mf.getValue());
+
       const latex = mf.getValue("latex-expanded");
       try {
         setHtml("latex", mf.getValue("latex-expanded"));

@@ -458,6 +458,25 @@ defineFunction('mathrm', '{:math*}', {
   applyStyle: (style) => ({ ...style, variant: 'normal', variantStyle: 'up' }),
 });
 
+//
+// Alternate implementation: instead of a style, we create a new atom
+//
+// defineFunction('mathrm', '{:math}', {
+//   applyMode: 'math',
+//   createAtom: (options) =>
+//     new Atom({
+//       ...options,
+//       type: 'mord',
+//       skipBoundary: true,
+//       body: argAtoms(options.args![0]).map((x) => {
+//         x.applyStyle({ variant: 'normal', variantStyle: 'up' });
+//         return x;
+//       }),
+//       mode: 'math',
+//     }),
+//   serialize: (atom: GroupAtom, options) => atom.bodyToLatex(options),
+// });
+
 defineFunction('mathsf', '{:math*}', {
   applyMode: 'math',
   applyStyle: (style) => ({

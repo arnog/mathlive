@@ -1127,7 +1127,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if (this.model.selectionIsCollapsed) {
         let style = { ...computeInsertStyle(this) };
         // If we're inserting a non-alphanumeric character, reset the variant
-        if (!/[a-zA-Z0-9]/.test(s) && this.styleBias !== 'none') {
+        if (!/^[a-zA-Z0-9]$/.test(s) && this.styleBias !== 'none') {
           style.variant = 'normal';
           style.variantStyle = undefined;
         }
