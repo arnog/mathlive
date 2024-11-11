@@ -6,6 +6,8 @@
 - **#2540** When using `renderMathInElement()` some white space was occasionally
   incorrectly removed.
 - **#2545** (?) Use `\rightarrow` instead of `\rarr` in the virtual keyboard.
+- **#2543** The `MathfieldElement.fractionNavigationOrder` was not respected
+  when navigating in a fraction with the arrow keys.
 
 ## 0.101.1 _2024-10-15_
 

@@ -7,6 +7,7 @@ import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 import type { AtomJson } from 'core/types';
+import { MathfieldElement } from 'public/mathlive';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -17,7 +18,6 @@ export type GenfracOptions = {
   rightDelim?: string;
   hasBarLine?: boolean;
   mathstyleName?: MathstyleName;
-  fractionNavigationOrder?: 'numerator-denominator' | 'denominator-numerator';
   style?: Style;
 };
 
@@ -41,9 +41,6 @@ export class GenfracAtom extends Atom {
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
   private readonly mathstyleName?: MathstyleName;
-  private readonly fractionNavigationOrder?:
-    | 'numerator-denominator'
-    | 'denominator-numerator';
 
   constructor(
     above: Readonly<Atom[]>,
@@ -65,7 +62,6 @@ export class GenfracAtom extends Atom {
     this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
-    this.fractionNavigationOrder = options?.fractionNavigationOrder;
   }
 
   static fromJson(json: AtomJson): GenfracAtom {
@@ -86,8 +82,6 @@ export class GenfracAtom extends Atom {
     if (this.rightDelim) options.rightDelim = this.rightDelim;
     if (!this.hasBarLine) options.hasBarLine = false;
     if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
-    if (this.fractionNavigationOrder)
-      options.fractionNavigationOrder = this.fractionNavigationOrder;
     return { ...super.toJson(), ...options };
   }
 
@@ -97,7 +91,7 @@ export class GenfracAtom extends Atom {
     if (this._children) return this._children;
 
     const result: Atom[] = [];
-    if (this.fractionNavigationOrder === 'denominator-numerator') {
+    if (MathfieldElement.fractionNavigationOrder === 'denominator-numerator') {
       for (const x of this.below!) {
         result.push(...x.children);
         result.push(x);

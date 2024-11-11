@@ -51,8 +51,7 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">\mathbb{R}</math-field>
-    <button id="ans">Ans</button>
+    <math-field id="mf">x=\frac{1}{2}</math-field>
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
@@ -117,21 +116,6 @@
 
     const MAX_LINE_LENGTH = 74;
 
-    // renderMathInDocument({ renderAccessibleContent: false });
-    // renderMathInDocument({
-    //   macros: {
-    //     foo: { def: '\\,\\bbox[5px, border: 1.5px dashed Cyan]{\\b{#1}}', args: 1, captureSelection: false },
-    //   },
-    //   renderAccessibleContent: false,
-    //   TeX: {
-    //     delimiters: {
-    //       display: [["$$", "$$"]],
-    //       inline: [["$", "$"]],
-    //     },
-    //     className: { display: "display_math" },
-    //   },
-    // });
-
     renderMathInDocument({
       renderAccessibleContent: false,
       skipTags: [
@@ -164,69 +148,8 @@
 
 
 
-    document.getElementById("ans").addEventListener("click", () => {
-      mf.insert('\\mathrm{ans}', { format: 'latex', insertMode: 'replaceSelection', selectionMode: 'after' });
-      // calculatorInputElement.applyStyle({});
-      mf.focus();
-    });
 
 
-
-
-    // const ce = new ComputeEngine({
-    //   latexDictionary: [
-    //     ...ComputeEngine.getLatexDictionary(),
-    //     {
-    //       trigger: ['\\smallfrac'],
-    //       parse: (parser) => {
-    //         return [
-    //           'Smallfrac',
-    //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
-    //           parser.matchRequiredLatexArgument() ?? ['Error', "'missing'"],
-    //         ];
-    //       },
-    //     },
-    //   ],
-    // });
-    // ce.defineFunction('Smallfrac', {
-    //   signature: {
-    //     domain: 'NumericFunction',
-    //     evaluate: (ce, args) => ce.box(args[0].N() / args[1].N()),
-    //   },
-    // });
-
-    // MathfieldElement.computeEngine = ce;
-
-    // MathfieldElement.computeEngine.latexOptions = {
-    //   ...MathfieldElement.computeEngine.latexOptions,
-    //   parseUnknownIdentifier: (s) =>
-    //     /^[a-zA-Z]+$/.test(s) ? "function" : "unknown",
-    // };
-
-    // MathfieldElement.computeEngine.declare("f", "Functions");
-
-    // mathVirtualKeyboard.setKeycap('[*]', {
-    //   latex: '\\times',
-    // });
-    // mathVirtualKeyboard.layouts = mathVirtualKeyboard.normalizedLayouts.map((layout) => {
-    //   console.log("Layout", layout);
-    //   if (layout.label !== "123") return layout;
-    //   return {
-    //     label: layout.label,
-    //     tooltip: layout.tooltip,
-    //     rows: layout.layers[0].rows.map((row) =>
-    //       row.map((key) => {
-    //         if (key.label !== '&times;') return key;
-    //         return {
-    //           class: 'big-op',
-    //           label: "&times;",
-    //           latex: '\\times',
-    //           variants: ['A', '\\alpha']
-    //         };
-    //       })
-    //     ),
-    //   };
-    // });
 
     // mathVirtualKeyboard.layouts = [
     //   {
@@ -282,71 +205,13 @@
     //   },
     //   'alphabetic',
     // ];
-    function getColorSubmenu(mf) {
-      const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#000000", "#ffffff"];
-      const result = [];
-      for (const color of colors) {
-        result.push({
-          class: ' menu-swatch',
-          label: `<span style="background:${color} "h></span>`,
 
-          checked: () =>
-            ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
 
-          onMenuSelect: () => {
-            mf.applyStyle({ color }, { operation: 'toggle' });
-            mf.adoptStyle = 'none';
-          },
-        });
-      }
-      return result;
-    }
-    function getBackGroundColorSubmenu(mf) {
-      const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#000000", "#ffffff"];
-      const result = [];
-      for (const color of colors) {
-        result.push({
-          class: ' menu-swatch',
-          label: `<span style="background:${color} "></span>`,
-
-          checked: () =>
-            ({ some: 'mixed', all: true })[mf.queryStyle({ color })] ?? false,
-
-          onMenuSelect: () => {
-            mf.applyStyle({ backgroundColor: color }, { operation: 'toggle' });
-            mf.adoptStyle = 'none';
-          },
-        });
-      }
-      return result;
-    }
-
-    // function getVariantSubmenu(mf) {
-    //   let commands=[['bold','bm']];
-    //   let submenus=[];
-    //   for(let i=0;i<commands.length;i++){
-    //     let submenu=mf.menuItems.find((x) => x.id === "variant").submenu;
-    //     let submenu1=submenu[4];
-    //     let baseOnSelect=submenu1.onMenuSelect;
-    //     submenu1.visible=()=>mf.isSelectionEditable
-    //     // submenu1.label=()=>'<span class="ML__latex"><span class="ML__strut" style="height:0.65em"></span><span class="ML__base"><span class="ML__'+commands[i][0]+'">A</span></span></span>'
-    //     submenu1.onMenuSelect=() => {
-    //       if(submenu1.checked()){
-    //         let str=mf.getValue(mf.selection);
-    //         mf.insert(str.substring('\\class{red}'.length,str.length-1))
-    //       }
-    //       else{
-    //         mf.insert("\\class{red}{#0}");
-    //         mf.appl
-    //       }
-    //     };
-    //       ({ some: 'mixed', all: true })[mf.queryStyle({bold:'bold'})] ?? false;
-    //     submenus.push(submenu1);
-    //   }
-    //   return submenus;
-    // }
 
     function setupMathfield(mf) {
+
+      MathfieldElement.fractionNavigationOrder = 'denominator-numerator'
+
       // Add a mutation observer to ensure we can target the tooltip after it is created
       const observer = new MutationObserver((mutations, obs) => {
         const tooltipContents = mf.shadowRoot.querySelectorAll('.ML__tooltip-content');
@@ -400,111 +265,6 @@
 
 
 
-      // let menu=mf.menuItems
-      // let ids=['add-row-above','add-row-below','add-column-before','add-column-after','delete-row','delete-column','insert-matrix','accent'];
-      // let subMenuClasses=['border-submenu']
-      // menu=menu.filter(t=>!ids.includes(t.id)&&!(t.submenuClass!==undefined&&subMenuClasses.includes(t.submenuClass)));
-      // //edit copy
-      // let i=range(menu.length).filter(i=>menu[i].id==='copy')[0];
-      // menu[i]=menu[i].submenu[0];
-      // menu[i].label='Copy';
-      // //edit colors
-      // i=range(menu.length).filter(i=>menu[i].id==='color')[0];
-      // menu[i].submenu[0].label='<span style="background: rgb(193,83,79)"></span>';
-      // menu[i].submenu[0].onMenuSelect=() => mf.applyStyle({color:'rgb(64,181,226)'},{operation:'toggle'})
-      let menu = [
-        // {
-        //   label: 'Submenu',
-        //   submenu: [
-        //     {
-        //       label: 'Submenu 1',
-        //       onMenuSelect: () => console.log('Submenu 1')
-        //     },
-        //   ]
-        // },
-        {
-          label: 'Copy',
-          onMenuSelect: () => mf.executeCommand("copyToClipboard"),
-          keyboardShortcut: "meta+C"
-        },
-        {
-          label: 'Cut',
-          visible: () => mf.isSelectionEditable,
-          onMenuSelect: () => mf.executeCommand("cutToClipboard"),
-          keyboardShortcut: "meta+X"
-        },
-        {
-          label: 'Paste',
-          visible: () => mf.isSelectionEditable,
-          onMenuSelect: () => mf.executeCommand("pasteFromClipboard"),
-          keyboardShortcut: "meta+V"
-        },
-        {
-          label: 'Undo',
-          visible: () => mf.isSelectionEditable,
-          onMenuSelect: () => mf.executeCommand("undo"),
-          keyboardShortcut: "meta+Z"
-        },
-        {
-          label: 'Redo',
-          visible: () => mf.isSelectionEditable,
-          onMenuSelect: () => mf.executeCommand("redo"),
-          keyboardShortcut: "meta+Y"
-        },
-        {
-          label: 'Delete All',
-          visible: () => mf.isSelectionEditable,
-          onMenuSelect: () => mf.executeCommand('deleteAll')
-        },
-        {
-          label: () => 'Color',
-          id: 'color',
-          visible: () => mf.isSelectionEditable,
-          submenu: getColorSubmenu(mf),
-          columnCount: 4,
-          submenuClass: 'swatches-submenu',
-        },
-        {
-          label: () => 'Background Color',
-          id: 'color',
-          visible: () => mf.isSelectionEditable,
-          submenu: getBackGroundColorSubmenu(mf),
-          columnCount: 4,
-          submenuClass: 'swatches-submenu',
-        },
-        // {
-        //   label: ()=>'Font Style',
-        //   id:'font-style',
-        //   visible: () => mf.isSelectionEditable,
-        //   submenu: getVariantSubmenu(mf),
-        //   submenuClass: 'variant-submenu',
-        // }
-        // {
-        //   label:'Color',
-        //   columnCount:4,
-        //   submenu: [
-        //     // {
-        //     //   submenuClass:'light-contrast menu-swatch',
-        //     //   ariaLabel:'text',
-        //     //   label:'<span style="background:rgb(193,83,79) "></span>',
-        //     //   onMenuSelect:()=>mf.applyStyle({color:'rgb(193,83,79)'},{operation:'toggle'})
-        //     // },
-        //     {
-        //       //submenuClass:'dark-contrast menu-swatch',
-        //       class:'dark-contrast menu-swatch',
-        //       ariaLabel:'text',
-        //       checked:false,
-        //       type:'radio',
-        //       label:'<span style="background:rgb(193,83,79) "></span>',
-        //       onMenuSelect:()=>{mf.applyStyle({color:'rgb(193,83,79)'},{operation:'toggle'});mf.menuItems[mf.menuItems.length-1].submenu[0].checked=!mf.menuItems[mf.menuItems.length-1].submenu[0].checked}
-        //     }
-        //   ]
-        // },
-      ];
-      mf.menuItems = menu;
-      mf.mathVirtualKeyboardPolicy = "manual";
-      // When the space key is pressed, insert a spacing command
-      mf.mathModeSpace = "\\;";
 
       // Disable smart mode (we are handling the mode change via
       // a special key in the virtual keyboard)
@@ -843,99 +603,9 @@
     }
 
 
-    // mf.addEventListener('contextmenu', (ev) => {
-    //   console.log('Context menu', ev);
-    //   ev.preventDefault();
-    // }, { capture: true });
-
-    // window.MathfieldElement.isFunction = (s) => /^[f-h]+$/.test(s);
-    // window.MathfieldElement.isFunction = window.MathfieldElement.isFunction;
-
-    // setupMathfield(mf);
-
     mf.addEventListener('mount', () => {
-      // mf.menu = [
-      //   {
-      //     label: "My Menu Item",
-      //     id: "my-menu-item",
-      //   },
-      // ];
-
-      // mf.keybindings = [
-      //   { key: 'shift+[Quote]', command: ['switchMode', 'text', "aa", "xx\""], ifMode: "math" },
-      //   { key: 'shift+[Quote]', command: ['switchMode', 'math', "\"xx", "yy"], ifMode: "text" },
-      // ];
-
-      // mf.inlineShortcuts = {
-      //   // ...mf.inlineShortcuts,
-      //   "[": { mode: "math", value: "$foo$" },
-      //   "[BracketLeft]": { mode: "math", value: "$toto$" },
-      //   "--": "\\_",
-      // };
-      // eslint-disable-next-line no-undef
-      // mathVirtualKeyboard.layouts = [
-      //   'alphabetic',
-      //   {
-      //     label: 'Test Keyboard',
-      //     rows: [[{ key: '-' }]],
-      //   },
-      // ];
-      // mf.mathModeSpace = '\\;';
-
-      // mf.scriptDepth = [0, 0];
-
-
-      // mf.onInlineShortcut = (_mf, s) =>
-      //   /^[a-zA-Z]+$/.test(s) ? `\\mathop{${s}}` : '';
-      // mf.onInlineShortcut = (_mf, s) => {
-      //   if (/^[a-zA-Z][a-zA-Z0-9]*'?(_[a-zA-Z0-9]+'?)?$/.test(s)) {
-      //     const m = s.match(/^([a-zA-Z]+)([0-9]+)$/);
-      //     if (m) {
-      //       if (['alpha', 'beta', 'gamma'].includes(m[1]))
-      //         return `\\${m[1]}_{${m[2]}}`;
-      //       return `\\mathrm{${m[1]}}_{${m[2]}}`;
-      //     }
-      //     return '\\mathrm{' + s + '}';
-      //   }
-      //   return '';
-      // };
-
-
-      // mf.macros = {
-      //   ...mf.macros,
-      //   // Alpha: undefined,
-      //   minutes: "\\prime",
-      //   smolfrac: {
-      //     args: 2,
-      //     def: "{}^{#1}\\!\\!/\\!{}_{#2}",
-      //     captureSelection: false,
-      //   },
-      //   funfunction: {
-      //     captureSelection: false,
-      //     args: 2,
-      //     def: "FunFunction\\left({#1},{#2}\\right)",
-      //   },
-      // };
-
-      // mf.mathVirtualKeyboardPolicy = "sandboxed";
-
-      // mf.addEventListener("focusin", (e) => {
-      //   window.mathVirtualKeyboard.show();
-      // });
-      // mf.addEventListener("focusout", (e) => {
-      //   window.mathVirtualKeyboard.hide();
-      // });
-
-      mf.addEventListener("beforeinput", (ev) => {
-        if (ev.inputType === "insertLineBreak") {
-          console.log("enter");
-          // mf.executeCommand("moveToNextPlaceholder");
-          ev.preventDefault();
-        }
-      });
-
+      setupMathfield(mf);
       mf.addEventListener("input", (ev) => updateContent(mf));
-
 
 
       mf.addEventListener("selection-change", (ev) => {
@@ -968,19 +638,6 @@
         // mf.queryStyle({ variant: "double-struck" });
       });
     });
-
-    mathVirtualKeyboard.addEventListener("geometrychange", (ev) => {
-      console.log(
-        "geometrychange",
-        ev,
-        "bounds",
-        mathVirtualKeyboard.boundingRect
-      );
-    });
-
-    console.log('value', mf.value);
-    console.log('expression.latex', mf.expression.latex);
-
 
 
     document.getElementById("grow").addEventListener("click", (evt) => {
