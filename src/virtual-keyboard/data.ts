@@ -400,8 +400,8 @@ export const LAYOUTS: Partial<
           insert: '\\mathrm{abs}\\left(#0\\right)',
         },
         {
-          latex: '\\rarr',
-          shift: '\\rArr',
+          latex: '\\rightarrow',
+          shift: '\\Rightarrow',
           variants: [
             { latex: '\\implies', aside: 'implies' },
 

@@ -5,6 +5,7 @@
 - Correctly display the caret following a `\mathop{}` command.
 - **#2540** When using `renderMathInElement()` some white space was occasionally
   incorrectly removed.
+- **#2545** (?) Use `\rightarrow` instead of `\rarr` in the virtual keyboard.
 
 ## 0.101.1 _2024-10-15_
 
