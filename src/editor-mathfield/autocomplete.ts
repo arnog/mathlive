@@ -17,7 +17,7 @@ import {
 } from './mode-editor-latex';
 import { ModeEditor } from './mode-editor';
 import { ParseMode } from '../public/core-types';
-import { getSelectionStyle } from './keyboard-input';
+import { computeInsertStyle } from './styling';
 
 export function removeSuggestion(mathfield: _Mathfield): void {
   const group = getLatexGroupBody(mathfield.model).filter(
@@ -159,10 +159,13 @@ export function complete(
   mathfield.switchMode(options?.mode ?? 'math');
 
   if (completion === 'reject') return true;
-  const style = {
-    ...getSelectionStyle(mathfield.model),
-    ...mathfield.defaultStyle,
-  };
+
+  let style = { ...computeInsertStyle(mathfield) };
+  // If we're inserting a non-alphanumeric character, reset the variant
+  if (!/^[a-zA-Z0-9]$/.test(latex) && this.styleBias !== 'none') {
+    style.variant = 'normal';
+    style.variantStyle = undefined;
+  }
 
   ModeEditor.insert(mathfield.model, latex, {
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
