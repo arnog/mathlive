@@ -6,6 +6,8 @@
  *
  */
 
+import '../core/math-environment';
+
 import { Atom } from '../core/atom-class';
 
 import '../latex-commands/definitions';

@@ -424,3 +424,9 @@ export function reparse(mathfield: _Mathfield | null): void {
   model.silenceNotifications = wasSilent;
   requestUpdate(mathfield);
 }
+
+export function reparseAllMathfields(): void {
+  for (const mathfield of document.querySelectorAll('.ML__mathfield')) {
+    if ('_mathfield' in mathfield) reparse(mathfield._mathfield as _Mathfield);
+  }
+}

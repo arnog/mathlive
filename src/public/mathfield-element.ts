@@ -37,7 +37,10 @@ import {
   isTouchCapable,
 } from '../ui/utils/capabilities';
 import { resolveUrl } from '../common/script-url';
-import { reparse, requestUpdate } from '../editor-mathfield/render';
+import {
+  reparseAllMathfields,
+  requestUpdate,
+} from '../editor-mathfield/render';
 import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
@@ -49,6 +52,7 @@ import { Scrim } from '../ui/utils/scrim';
 import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
 import { KeyboardModifiers } from './ui-events-types';
 import { defaultInsertStyleHook } from 'editor-mathfield/styling';
+import { _MathEnvironment } from 'core/math-environment';
 
 /** @category MathJSON */
 export declare type Expression =
@@ -1046,9 +1050,23 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * **Default**: `"numerator-denominator"`
    * @category Localization
    */
-  static fractionNavigationOrder:
+  static get fractionNavigationOrder():
     | 'numerator-denominator'
-    | 'denominator-numerator' = 'numerator-denominator';
+    | 'denominator-numerator' {
+    return _MathEnvironment.fractionNavigationOrder;
+  }
+  static set fractionNavigationOrder(
+    s: 'numerator-denominator' | 'denominator-numerator'
+  ) {
+    if (s !== 'numerator-denominator' && s !== 'denominator-numerator')
+      throw new Error('Invalid value');
+    if (_MathEnvironment.fractionNavigationOrder === s) return;
+
+    _MathEnvironment.fractionNavigationOrder = s;
+
+    // Invalidate all mathfields on the page
+    reparseAllMathfields();
+  }
 
   /**
    * A custom compute engine instance. If none is provided, a default one is
@@ -1098,9 +1116,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set isFunction(value: (command: string) => boolean) {
     this._isFunction = value;
 
-    document.querySelectorAll('math-field').forEach((el) => {
-      if (el instanceof MathfieldElement) reparse(el._mathfield);
-    });
+    reparseAllMathfields();
   }
 
   static async loadSound(

@@ -4,7 +4,7 @@ import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
-import { Mode, weightString } from './modes-utils';
+import { Mode } from './modes-utils';
 import { getDefinition } from '../latex-commands/definitions-utils';
 
 import { Context } from './context';
@@ -20,7 +20,6 @@ import type {
   Branch,
 } from './types';
 import type { Argument } from 'latex-commands/types';
-import { addBold } from 'editor-model/styling';
 
 /**
  * The order of these branches specify the default keyboard navigation order.

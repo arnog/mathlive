@@ -7,7 +7,7 @@ import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
 import type { AtomJson } from 'core/types';
-import { MathfieldElement } from 'public/mathlive';
+import { _MathEnvironment } from 'core/math-environment';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;
@@ -91,7 +91,7 @@ export class GenfracAtom extends Atom {
     if (this._children) return this._children;
 
     const result: Atom[] = [];
-    if (MathfieldElement.fractionNavigationOrder === 'denominator-numerator') {
+    if (_MathEnvironment.fractionNavigationOrder === 'denominator-numerator') {
       for (const x of this.below!) {
         result.push(...x.children);
         result.push(x);
