@@ -241,12 +241,12 @@ export function parseCommand(
 ): [SelectorPrivate, ...any[]] | SelectorPrivate | undefined {
   if (!command) return undefined;
   if (isArray(command) && command.length > 0) {
-    let selector = command[0];
+    const selector = command[0];
     // Convert kebab case (like-this) to camel case (likeThis).
     selector.replace(/-\w/g, (m) => m[1].toUpperCase());
-    if (selector === 'performWithFeedback' && command.length === 2) {
+    if (selector === 'performWithFeedback' && command.length === 2)
       return [selector, parseCommand(command[1])];
-    }
+
     return [selector as SelectorPrivate, ...command.slice(1)];
   }
 
@@ -257,7 +257,7 @@ export function parseCommand(
   if (match) {
     const selector = match[1];
     selector.replace(/-\w/g, (m) => m[1].toUpperCase());
-    let args = match[2].split(',').map((x) => x.trim());
+    const args = match[2].split(',').map((x) => x.trim());
     return [
       selector as SelectorPrivate,
       ...args.map((arg) => {
@@ -280,7 +280,7 @@ export function parseCommand(
     ];
   }
 
-  let selector = command;
+  const selector = command;
   selector.replace(/-\w/g, (m) => m[1].toUpperCase());
 
   return selector as SelectorPrivate;

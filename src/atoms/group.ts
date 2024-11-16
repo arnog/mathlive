@@ -1,4 +1,4 @@
-import type { ParseMode, Style } from '../public/core-types';
+import type { ParseMode } from '../public/core-types';
 
 import { Atom } from '../core/atom-class';
 import type { Context } from '../core/context';

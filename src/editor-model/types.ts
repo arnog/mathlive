@@ -1,6 +1,5 @@
 import type { AtomJson } from 'core/types';
-import type { ParseMode } from 'public/core-types';
-import type { Selection } from 'public/mathfield';
+import type { ParseMode, Selection } from 'public/core-types';
 
 export type AnnounceVerb =
   | 'plonk'

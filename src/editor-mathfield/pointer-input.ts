@@ -4,7 +4,7 @@ import { requestUpdate } from './render';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
-import type { Offset } from 'public/mathfield';
+import type { Offset } from 'public/core-types';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;

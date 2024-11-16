@@ -5,15 +5,15 @@ import type {
   Keybinding,
   KeyboardLayoutName,
 } from '../public/options';
+import type { Mathfield } from '../public/mathfield';
 import type {
-  Mathfield,
   InsertOptions,
   OutputFormat,
   Offset,
   Range,
   Selection,
   ApplyStyleOptions,
-} from '../public/mathfield';
+} from '../public/core-types';
 
 import { canVibrate } from '../ui/utils/capabilities';
 
@@ -452,7 +452,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // to adjust the UI (popover, etc...)
     window.addEventListener('resize', this, { signal });
     document.addEventListener('scroll', this, { signal });
-    this.resizeObserver = new ResizeObserver((entries) => {
+    this.resizeObserver = new ResizeObserver((_entries) => {
       if (this.resizeObserverStarted) {
         this.resizeObserverStarted = false;
         return;
@@ -1125,7 +1125,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     } else if (s === '&') addColumnAfter(this.model);
     else {
       if (this.model.selectionIsCollapsed) {
-        let style = { ...computeInsertStyle(this) };
+        const style = { ...computeInsertStyle(this) };
         // If we're inserting a non-alphanumeric character, reset the variant
         if (!/^[a-zA-Z0-9]$/.test(s) && this.styleBias !== 'none') {
           style.variant = 'normal';
@@ -1425,8 +1425,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     locked?: boolean;
     correctness?: 'correct' | 'incorrect' | 'undefined';
   }): string[] {
-    return this.model
-      .getAllAtoms()
+    return this.model.atoms
       .filter((a: PromptAtom) => {
         if (a.type !== 'prompt') return false;
         if (!filter) return true;
@@ -1600,11 +1599,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
         // If we're at the start or the end of a LaTeX group,
         // move inside the group and don't switch mode.
         const sibling = model.at(pos + 1);
-        if (sibling?.type === 'first' && sibling.mode === 'latex') {
+        if (sibling?.type === 'first' && sibling.mode === 'latex')
           model.position = pos + 1;
-        } else if (latexGroup && sibling?.mode !== 'latex') {
+        else if (latexGroup && sibling?.mode !== 'latex')
           model.position = pos - 1;
-        } else {
+        else {
           // We may have moved from math to text, or text to math.
           this.switchMode(mode);
         }

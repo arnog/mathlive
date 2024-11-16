@@ -1,5 +1,4 @@
-import { ParseMode } from 'public/core-types';
-import { Offset, Range, Selection } from '../public/mathfield';
+import type { ParseMode, Offset, Range, Selection } from '../public/core-types';
 import { _Model } from './model-private';
 
 export function compareSelection(

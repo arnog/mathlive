@@ -1,7 +1,7 @@
 import type { ModelState } from 'editor-model/types';
 import type { _Model } from '../editor-model/model-private';
 
-import type { Selection } from '../public/mathfield';
+import type { Selection } from '../public/core-types';
 
 export class UndoManager {
   // Maximum number of undo/redo states

@@ -6,8 +6,8 @@ import { VBox } from '../core/v-box';
 import { makeCustomSizedDelim, makeNullDelimiter } from '../core/delimiters';
 import { Context } from '../core/context';
 import { AXIS_HEIGHT } from '../core/font-metrics';
-import type { AtomJson } from 'core/types';
-import { _MathEnvironment } from 'core/math-environment';
+import type { AtomJson } from '../core/types';
+import { _MathEnvironment } from '../core/math-environment';
 
 export type GenfracOptions = {
   continuousFraction?: boolean;

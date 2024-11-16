@@ -192,11 +192,12 @@ export function defaultInsertStyleHook(
   if (bias === 'none') return mathfield.defaultStyle;
 
   // In text mode, we inherit the style of the sibling atom
-  if (model.mode === 'text')
+  if (model.mode === 'text') {
     return (
       model.at(bias === 'right' ? info.after : info.before)?.style ??
       mathfield.defaultStyle
     );
+  }
 
   if (model.mode === 'math') {
     const atom = model.at(bias === 'right' ? info.after : info.before);

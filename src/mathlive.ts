@@ -62,11 +62,11 @@ export function globalMathLive(): MathLiveGlobal {
  */
 
 export function renderMathInDocument(options?: StaticRenderOptions): void {
-  if (document.readyState === 'loading')
+  if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () =>
       renderMathInElement(document.body, options)
     );
-  else renderMathInElement(document.body, options);
+  } else renderMathInElement(document.body, options);
 }
 
 function getElement(element: string | HTMLElement): HTMLElement | null {

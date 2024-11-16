@@ -22,7 +22,7 @@ import {
   VirtualKeyboardOptions,
 } from '../public/virtual-keyboard';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
-import { InsertOptions } from 'public/mathfield';
+import { InsertOptions } from 'public/core-types';
 
 function jsonToCssProps(json) {
   if (typeof json === 'string') return json;
@@ -1036,18 +1036,16 @@ export function normalizeKeycap(
     shortcut.tooltip === undefined ||
     shortcut.tooltip === null ||
     (shortcut.tooltip as any as boolean) === false
-  ) {
+  )
     delete shortcut.tooltip;
-  }
 
   // If any of the properties of the shortcut are undefined, remove them
   if (
     shortcut.tooltip === undefined ||
     shortcut.tooltip === null ||
     (shortcut.tooltip as any as boolean) === false
-  ) {
+  )
     delete shortcut.tooltip;
-  }
 
   if (
     shortcut.aside === undefined ||

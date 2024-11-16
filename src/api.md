@@ -3007,7 +3007,7 @@ The depth in the expression tree. 0 for top-level elements
 optional id: string;
 ```
 
-id associated with this element or its ancestor, set with `\htmlId` or 
+id associated with this element or its ancestor, set with `\htmlId` or
 `\cssId`
 
 </MemberCard>
@@ -5990,29 +5990,6 @@ set onScrollIntoView(value): void
 
 #### Localization
 
-<a id="fractionnavigationorder" name="fractionnavigationorder"></a>
-
-<MemberCard>
-
-##### MathfieldElement.fractionNavigationOrder
-
-```ts
-static fractionNavigationOrder: "numerator-denominator" | "denominator-numerator" = 'numerator-denominator';
-```
-
-When using the keyboard to navigate a fraction, the order in which the
-numerator and navigator are traversed:
-- "numerator-denominator": first the elements in the numerator, then
-  the elements in the denominator.
-- "denominator-numerator": first the elements in the denominator, then
-  the elements in the numerator. In some East-Asian cultures, fractions
-  are read and written denominator first ("fēnzhī"). With this option
-  the keyboard navigation follows this convention.
-
-**Default**: `"numerator-denominator"`
-
-</MemberCard>
-
 <a id="decimalseparator" name="decimalseparator"></a>
 
 <MemberCard>
@@ -6044,6 +6021,37 @@ set static decimalSeparator(value): void
 • **value**: `","` \| `"."`
 
 `","` \| `"."`
+
+</MemberCard>
+
+<a id="fractionnavigationorder" name="fractionnavigationorder"></a>
+
+<MemberCard>
+
+##### MathfieldElement.fractionNavigationOrder
+
+```ts
+get static fractionNavigationOrder(): "denominator-numerator" | "numerator-denominator"
+```
+
+When using the keyboard to navigate a fraction, the order in which the
+numerator and navigator are traversed:
+- "numerator-denominator": first the elements in the numerator, then
+  the elements in the denominator.
+- "denominator-numerator": first the elements in the denominator, then
+  the elements in the numerator. In some East-Asian cultures, fractions
+  are read and written denominator first ("fēnzhī"). With this option
+  the keyboard navigation follows this convention.
+
+**Default**: `"numerator-denominator"`
+
+```ts
+set static fractionNavigationOrder(s): void
+```
+
+• **s**: `"denominator-numerator"` \| `"numerator-denominator"`
+
+`"denominator-numerator"` \| `"numerator-denominator"`
 
 </MemberCard>
 
@@ -6407,9 +6415,9 @@ readonly [`Keybinding`](#keybinding)[]
 ```ts
 get letterShapeStyle(): 
   | "auto"
-  | "french"
   | "tex"
   | "iso"
+  | "french"
   | "upright"
 ```
 
@@ -6421,15 +6429,15 @@ set letterShapeStyle(value): void
 
 • **value**: 
   \| `"auto"`
-  \| `"french"`
   \| `"tex"`
   \| `"iso"`
+  \| `"french"`
   \| `"upright"`
 
   \| `"auto"`
-  \| `"french"`
   \| `"tex"`
   \| `"iso"`
+  \| `"french"`
   \| `"upright"`
 
 </MemberCard>

@@ -21,7 +21,7 @@ import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
 import { parseLatex } from '../core/parser';
 import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
-import { Expression } from './mathfield-element';
+import { Expression } from './core-types';
 import { validateLatex as validateLatexInternal } from '../core/parser';
 
 import { atomToAsciiMath } from '../formats/atom-to-ascii-math';

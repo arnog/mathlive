@@ -360,7 +360,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    let defaultMode =
+    const defaultMode =
       options.defaultMode ?? (this.mode === 'math' ? 'math' : 'text');
 
     return Mode.serialize(this.body, { ...options, defaultMode });
@@ -549,9 +549,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
         this.style.variant = style.variant;
       if (style.variantStyle && !this.style.variantStyle)
         this.style.variantStyle = style.variantStyle;
-    } else {
-      this.style = { ...this.style, ...style };
-    }
+    } else this.style = { ...this.style, ...style };
 
     if (this.style.fontFamily === 'none') delete this.style.fontFamily;
 

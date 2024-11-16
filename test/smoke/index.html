@@ -21,16 +21,6 @@
       z-index: 1;
       font-size: clamp(1rem, 1.5vw, 4rem);
     }
-
-    /* @media (prefers-color-scheme: dark) {
-      math-field {
-        --contains-highlight-background-color: hsl(212, 40%, 25%);
-      } */
-
-    /* math-field::part(menu-toggle) {
-        display: none;
-      }
- */
   </style>
 </head>
 
@@ -51,7 +41,8 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf">x=\frac{1}{2}</math-field>
+    <math-field id="mf">x_{a+1}^{b+2}</math-field>
+    <!-- <math-field id="mf">x_{a+1}^{b+2}</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
       > -->
@@ -89,9 +80,6 @@
     <div class="output" id="mathml"></div>
     <div id="mathml-render"></div>
 
-    <h2>Latex to Speakable Text</h2>
-    <div class="output" id="latex2speech"></div>
-
     <div class="button-bar">
       <button id="grow">Grow</button>
       <button id="shrink">Shrink</button>
@@ -104,8 +92,7 @@
       renderMathInDocument,
       renderMathInElement,
       MathfieldElement,
-      convertLatexToMarkup,
-      convertLatexToSpeakableText,
+      convertLatexToMarkup
     } from "/dist/mathlive.mjs";
     // } from "https://unpkg.com/mathlive?module";
 
@@ -605,6 +592,7 @@
 
     mf.addEventListener('mount', () => {
       setupMathfield(mf);
+      console.log(mf.getValue({ ranges: [[0, 5]] }));
       mf.addEventListener("input", (ev) => updateContent(mf));
 
 
@@ -674,7 +662,6 @@
         document.getElementById("mathml-render").innerHTML =
           `<math>${mf.getValue("math-ml")}</math>`;
         // setHtml('math-json', ce.parse(mf.value));
-        setHtml("latex2speech", convertLatexToSpeakableText(mf.getValue()));
 
         const expr = mf.expression;
         if (expr) {

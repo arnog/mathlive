@@ -273,9 +273,8 @@ function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
 
     // Get the content of the run
     const value = joinLatex(x.map((x) => x.value ?? ''));
-    if (/^[a-zA-Z0-9]+$/.test(value)) {
+    if (/^[a-zA-Z0-9]+$/.test(value))
       return latexCommand('\\mathbf', joinLatex(emitVariantRun(x, options)));
-    }
 
     // If the run contains a mix of characters, use `\bm`
     return latexCommand('\\bm', joinLatex(emitVariantRun(x, options)));

@@ -160,9 +160,9 @@ export function complete(
 
   if (completion === 'reject') return true;
 
-  let style = { ...computeInsertStyle(mathfield) };
+  const style = { ...computeInsertStyle(mathfield) };
   // If we're inserting a non-alphanumeric character, reset the variant
-  if (!/^[a-zA-Z0-9]$/.test(latex) && this.styleBias !== 'none') {
+  if (!/^[a-zA-Z0-9]$/.test(latex) && mathfield.styleBias !== 'none') {
     style.variant = 'normal';
     style.variantStyle = undefined;
   }

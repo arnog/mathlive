@@ -1,5 +1,4 @@
 import type { ContentChangeType } from '../public/options';
-import type { Range } from '../public/mathfield';
 
 import { LeftRightAtom } from '../atoms/leftright';
 import { Atom } from '../core/atom';
@@ -7,6 +6,8 @@ import { _Model } from './model-private';
 import { range } from './selection-utils';
 import { MathfieldElement } from 'public/mathfield-element';
 import type { Branch } from 'core/types';
+import type { Range } from 'public/core-types';
+
 // import {
 //     arrayFirstCellByRow,
 //     arrayColRow,

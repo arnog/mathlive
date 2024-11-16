@@ -1,5 +1,3 @@
-import type { Style } from '../public/core-types';
-
 import { Atom } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';

@@ -1,4 +1,4 @@
-import { OutputFormat } from '../public/mathfield';
+import { OutputFormat } from '../public/core-types';
 import {
   InlineShortcutDefinitions,
   getInlineShortcut,
@@ -216,8 +216,8 @@ function parseMathArgument(
   let match = '';
   s = s.trim();
   let rest = s;
-  let lFence = s.charAt(0);
-  let rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
+  const lFence = s.charAt(0);
+  const rFence = { '(': ')', '{': '}', '[': ']' }[lFence];
   if (rFence) {
     // It's a fence
     let level = 1;

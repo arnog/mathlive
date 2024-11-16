@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom-class';
-import type { ElementInfo, Offset, Range } from '../public/mathfield';
+import type { ElementInfo, Offset, Range } from '../public/core-types';
 import { OriginValidator } from '../public/options';
 import { _Mathfield } from './mathfield-private';
 
@@ -223,16 +223,17 @@ export function getElementInfo(
   const atom = mf.model.at(offset);
   if (!atom) return undefined;
 
-  let result: ElementInfo = {};
+  const result: ElementInfo = {};
 
   const bounds = getAtomBounds(mf, atom);
-  if (bounds)
+  if (bounds) {
     result.bounds = new DOMRect(
       bounds.left,
       bounds.top,
       bounds.right - bounds.left,
       bounds.bottom - bounds.top
     );
+  }
 
   result.depth = atom.treeDepth - 2;
 
@@ -262,9 +263,8 @@ export function getElementInfo(
     }
 
     if (a.command === '\\htmlId' || a.command === '\\cssId') {
-      if (!result.id && a.args && typeof a.args[0] === 'string') {
+      if (!result.id && a.args && typeof a.args[0] === 'string')
         result.id = a.args[0];
-      }
     }
     a = a.parent;
   }

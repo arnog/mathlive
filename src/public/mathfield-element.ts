@@ -1,21 +1,20 @@
 import type { Selector } from './commands';
 import type {
+  Expression,
   LatexSyntaxError,
   LatexValue,
   MacroDictionary,
+  Offset,
   ParseMode,
   Registers,
   Style,
-} from './core-types';
-import type {
-  InsertOptions,
-  OutputFormat,
-  Offset,
-  Range,
   Selection,
-  Mathfield,
+  Range,
+  OutputFormat,
   ElementInfo,
-} from './mathfield';
+  InsertOptions,
+} from './core-types';
+import type { InsertStyleHook, Mathfield } from './mathfield';
 import type {
   InlineShortcutDefinitions,
   Keybinding,
@@ -51,15 +50,8 @@ import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
 import { isOffset, isRange, isSelection } from 'editor-model/selection-utils';
 import { KeyboardModifiers } from './ui-events-types';
-import { defaultInsertStyleHook } from 'editor-mathfield/styling';
-import { _MathEnvironment } from 'core/math-environment';
-
-/** @category MathJSON */
-export declare type Expression =
-  | number
-  | string
-  | { [key: string]: any }
-  | [Expression, ...Expression[]];
+import { defaultInsertStyleHook } from '../editor-mathfield/styling';
+import { _MathEnvironment } from '../core/math-environment';
 
 if (!isBrowser()) {
   console.error(
@@ -342,12 +334,6 @@ const DEPRECATED_OPTIONS = {
   decimalSeparator: 'MathfieldElement.decimalSeparator = ...',
   fractionNavigationOrder: 'MathfieldElement.fractionNavigationOrder = ...',
 };
-
-export type InsertStyleHook = (
-  sender: Mathfield,
-  at: Offset,
-  info: { before: Offset; after: Offset }
-) => Readonly<Style>;
 
 /**
  * The `MathfieldElement` class represent a DOM element that displays
@@ -2220,7 +2206,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
           });
           return true;
         },
-        ownKeys: (): Array<string | symbol> =>
+        ownKeys: (): (string | symbol)[] =>
           Reflect.ownKeys(that._getOption('registers')),
         getOwnPropertyDescriptor: (_, prop) => {
           const value = that._getOption('registers')[prop as string];
@@ -2232,6 +2218,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
               writable: true,
             };
           }
+          return undefined;
         },
       }
     );
@@ -2447,7 +2434,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * @inheritDoc _MathfieldHooks.onInsertStyle
    */
   get onInsertStyle(): InsertStyleHook | undefined | null {
-    let hook = this._getOption('onInsertStyle');
+    const hook = this._getOption('onInsertStyle');
     if (hook === undefined) return defaultInsertStyleHook;
     return hook;
   }

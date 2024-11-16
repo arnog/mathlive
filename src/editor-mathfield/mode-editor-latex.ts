@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import { Offset, Range, InsertOptions } from '../public/mathfield';
+import { Offset, Range, InsertOptions } from '../public/core-types';
 import { LatexAtom, LatexGroupAtom } from '../atoms/latex';
 import { range } from '../editor-model/selection-utils';
 import { Atom } from '../core/atom-class';

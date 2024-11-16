@@ -197,9 +197,7 @@ export function render(
     )
       hideMenu = true;
     // If the width of the element is less than 50px, hide the menu
-    if (!hideMenu && field.offsetWidth < 50) {
-      hideMenu = true;
-    }
+    if (!hideMenu && field.offsetWidth < 50) hideMenu = true;
 
     menuToggle.style.display = hideMenu ? 'none' : '';
   }
@@ -426,7 +424,6 @@ export function reparse(mathfield: _Mathfield | null): void {
 }
 
 export function reparseAllMathfields(): void {
-  for (const mathfield of document.querySelectorAll('.ML__mathfield')) {
+  for (const mathfield of document.querySelectorAll('.ML__mathfield'))
     if ('_mathfield' in mathfield) reparse(mathfield._mathfield as _Mathfield);
-  }
 }

@@ -1,22 +1,20 @@
 import { Atom } from '../core/atom';
 import type { _Model } from './model-private';
-import { Range } from '../public/mathfield';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import type { Style, VariantStyle } from '../public/core-types';
+import type { Style, VariantStyle, Range } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
-  atom: Atom | ReadonlyArray<Atom> | undefined,
+  atom: Atom | readonly Atom[] | undefined,
   style?: Style
 ): void {
   if (!atom || !style) return;
   if (isArray<Atom>(atom)) {
     // Apply styling options to each atom
     atom.forEach((x) => applyStyleToUnstyledAtoms(x, style));
-  } else if (typeof atom === 'object') {
+  } else if (typeof atom === 'object')
     atom.applyStyle(style, { unstyledOnly: true });
-  }
 }
 
 /**

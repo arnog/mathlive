@@ -727,10 +727,11 @@ function variantMenuItem(
     id: `variant-${variant}`,
     label: () => {
       const textSelection = getSelectionPlainString(mf);
-      if (textSelection.length < 12)
+      if (textSelection.length < 12) {
         return convertLatexToMarkup(
           `\\${command}{${getSelectionPlainString(mf)}}`
         );
+      }
       return localize(tooltip) ?? tooltip;
     },
     class: 'ML__xl',
@@ -753,10 +754,11 @@ function variantStyleMenuItem(
 
     label: () => {
       const textSelection = getSelectionPlainString(mf);
-      if (textSelection.length > 0 && textSelection.length < 12)
+      if (textSelection.length > 0 && textSelection.length < 12) {
         return convertLatexToMarkup(
           `\\${command}{${getSelectionPlainString(mf)}}`
         );
+      }
       return localize(tooltip) ?? tooltip;
     },
 

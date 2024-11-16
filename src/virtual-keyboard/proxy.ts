@@ -59,10 +59,13 @@ export class VirtualKeyboardProxy
     this.listeners = {};
   }
 
-  getKeycap(keycap: string): Partial<VirtualKeyboardKeycap> | undefined {
+  getKeycap(_keycap: string): Partial<VirtualKeyboardKeycap> | undefined {
     return undefined;
   }
-  setKeycap(keycap: string, value: string | Partial<VirtualKeyboardKeycap>) {
+  setKeycap(
+    keycap: string,
+    value: string | Partial<VirtualKeyboardKeycap>
+  ): void {
     this.sendMessage('update-setting', { setKeycap: { keycap, value } });
   }
 

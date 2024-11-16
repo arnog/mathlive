@@ -1,11 +1,9 @@
 import type {
-  Model,
-  Mathfield,
   Offset,
   Range,
   Selection,
   OutputFormat,
-} from '../public/mathfield';
+} from '../public/core-types';
 import type {
   ContentChangeOptions,
   ContentChangeType,
@@ -39,6 +37,7 @@ import type { ModelState, GetAtomOptions, AnnounceVerb } from './types';
 import type { BranchName, ToLatexOptions } from 'core/types';
 
 import { isValidMathfield } from '../editor-mathfield/utils';
+import { Mathfield, Model } from 'public/mathfield';
 
 /** @internal */
 export class _Model implements Model {
@@ -378,21 +377,6 @@ export class _Model implements Model {
     return result;
   }
 
-  /**
-   * Unlike `getAtoms()`, the argument here is an index
-   * Return all the atoms, in order, starting at startingIndex
-   * then looping back at the beginning
-   */
-  getAllAtoms(startingIndex = 0): Readonly<Atom[]> {
-    const result: Atom[] = [];
-    const last = this.lastOffset;
-    for (let i = startingIndex; i <= last; i++) result.push(this.atoms[i]);
-
-    for (let i = 0; i < startingIndex; i++) result.push(this.atoms[i]);
-
-    return result;
-  }
-
   findAtom(
     filter: (x: Atom) => boolean,
     startingIndex = 0,
@@ -569,6 +553,7 @@ export class _Model implements Model {
         skipPlaceholders: format === 'latex-without-placeholders',
         defaultMode: this.mathfield.options.defaultMode,
       };
+
       return joinLatex(
         ranges.map((range) => Atom.serialize(this.getAtoms(range), options))
       );
@@ -585,13 +570,13 @@ export class _Model implements Model {
 
   /**
    * Unlike `setSelection`, this method is intended to be used in response
-   * to a user action, and it performs various adjustments to result
-   * in a more intuitive selection.
+   * to a user action, and it performs various adjustments to result in a more
+   * intuitive selection.
+   *
    * For example:
-   * - when all the children of an atom are selected, the atom
-   * become selected.
-   * - this method will *not* change the anchor, but may result
-   * in a selection whose boundary is outside the anchor
+   * - when all the children of an atom are selected, the atom become selected.
+   * - this method will *not* change the anchor, but may result in a selection
+   *   whose boundary is outside the anchor
    */
   extendSelectionTo(anchor: Offset, position: Offset): boolean {
     if (!this.mathfield.contentEditable && this.mathfield.userSelect === 'none')
@@ -675,8 +660,8 @@ export class _Model implements Model {
       defaultAnnounceHook(this.mathfield, command, previousPosition, atoms);
   }
 
-  // Suppress notification while scope is executed,
-  // then notify of content change, and selection change (if actual change)
+  // Suppress notification while scope is executed, then notify of content
+  // change, and selection change (if actual change)
   deferNotifications(
     options: {
       content?: boolean;

@@ -3,7 +3,7 @@ import { TextAtom } from '../atoms/text';
 import { _Model } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
 import { MODE_SHIFT_COMMANDS } from '../formats/parse-math-string';
-import { InsertOptions, OutputFormat, Range } from '../public/mathfield';
+import type { InsertOptions, OutputFormat, Range } from '../public/core-types';
 import { _Mathfield } from './mathfield-private';
 
 const CLIPBOARD_LATEX_BEGIN = '$$';

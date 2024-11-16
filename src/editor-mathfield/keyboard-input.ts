@@ -616,7 +616,7 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     return;
   }
 
-  let style = { ...computeInsertStyle(mathfield) };
+  const style = { ...computeInsertStyle(mathfield) };
 
   // If we're inserting a non-alphanumeric character, reset the variant
   if (!/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {

@@ -155,9 +155,8 @@ export function showVariantsPanel(
     if (
       typeof shiftedDefinition === 'object' &&
       'variants' in shiftedDefinition
-    ) {
+    )
       variantDef = shiftedDefinition.variants ?? '';
-    }
   } else variantDef = keyboard.getKeycap(keycap?.id)?.variants ?? '';
 
   if (

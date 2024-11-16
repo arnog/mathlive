@@ -2,7 +2,7 @@
 
 import type { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
-import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
+import type { InsertOptions, Offset, OutputFormat } from '../public/core-types';
 
 import { requestUpdate } from './render';
 
@@ -169,7 +169,7 @@ export class MathModeEditor extends ModeEditor {
   }
 
   insert(model: _Model, input: string, options: InsertOptions): boolean {
-    let data =
+    const data =
       typeof input === 'string'
         ? input
         : globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '';
