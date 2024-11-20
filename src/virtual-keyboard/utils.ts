@@ -1135,19 +1135,21 @@ function handlePointerDown(ev: PointerEvent) {
   }
 
   if (keycap.variants) {
-    if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
-    pressAndHoldTimer = setTimeout(() => {
-      if (target!.classList.contains('is-pressed')) {
-        target!.classList.remove('is-pressed');
-        target!.classList.add('is-active');
-        if (ev.target && 'releasePointerCapture' in ev.target)
-          (ev.target as HTMLElement).releasePointerCapture(ev.pointerId);
-        showVariantsPanel(target!, () => {
-          controller.abort();
-          target?.classList.remove('is-active');
-        });
-      }
-    }, 300);
+    pressAndHoldTimer = setTimeout(
+      () => {
+        if (target!.classList.contains('is-pressed')) {
+          target!.classList.remove('is-pressed');
+          target!.classList.add('is-active');
+          if (ev.target && 'releasePointerCapture' in ev.target)
+            (ev.target as HTMLElement).releasePointerCapture(ev.pointerId);
+          showVariantsPanel(target!, () => {
+            controller.abort();
+            target?.classList.remove('is-active');
+          });
+        }
+      },
+      keycap.popover ? 0 : 300
+    );
   }
 
   ev.preventDefault();

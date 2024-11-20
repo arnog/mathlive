@@ -98,6 +98,9 @@ export interface VirtualKeyboardKeycap {
 
   /** Name of the layer to shift to when the key is pressed */
   layer: string;
+
+  /** Open variants panel without long press and does not close automatically */
+  popover: boolean;
 }
 /**
  * @category Virtual Keyboard
