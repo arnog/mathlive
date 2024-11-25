@@ -596,7 +596,7 @@ export class ArrayAtom extends Atom {
   _serialize(options: ToLatexOptions): string {
     const result: string[] = [];
 
-    if (this.environmentName === 'lines') result.push(`{\\displaylines`);
+    if (this.environmentName === 'lines') result.push(`\\displaylines{`);
     else result.push(`\\begin{${this.environmentName}}`);
 
     if (this.environmentName === 'array') {

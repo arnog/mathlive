@@ -8,6 +8,7 @@
 - **#2545** (?) Use `\rightarrow` instead of `\rarr` in the virtual keyboard.
 - **#2543** The `MathfieldElement.fractionNavigationOrder` was not respected
   when navigating in a fraction with the arrow keys.
+- **#2251** Fixed the serialization of `\displaylines{}`
 
 ## 0.101.1 _2024-10-15_
 
