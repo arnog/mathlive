@@ -4728,6 +4728,20 @@ Name of the layer to shift to when the key is pressed
 
 </MemberCard>
 
+<a id="popover" name="popover"></a>
+
+<MemberCard>
+
+##### VirtualKeyboardKeycap.popover
+
+```ts
+popover: boolean;
+```
+
+Open variants panel without long press and does not close automatically
+
+</MemberCard>
+
 <a id="shift" name="shift"></a>
 
 <MemberCard>
