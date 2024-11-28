@@ -1135,6 +1135,7 @@ function handlePointerDown(ev: PointerEvent) {
   }
 
   if (keycap.variants) {
+    if (pressAndHoldTimer) clearTimeout(pressAndHoldTimer);
     pressAndHoldTimer = setTimeout(
       () => {
         if (target!.classList.contains('is-pressed')) {
