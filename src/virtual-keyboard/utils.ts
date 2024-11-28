@@ -1149,7 +1149,7 @@ function handlePointerDown(ev: PointerEvent) {
           });
         }
       },
-      keycap.popover ? 0 : 300
+      keycap.stickyVariantPanel ? 0 : 300
     );
   }
 

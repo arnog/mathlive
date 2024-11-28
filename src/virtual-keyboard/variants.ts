@@ -292,7 +292,7 @@ export function showVariantsPanel(
         { capture: true, signal }
       );
 
-      if (keyboard.getKeycap(keycap?.id)?.popover) {
+      if (keyboard.getKeycap(keycap?.id)?.stickyVariantPanel) {
         window.addEventListener(
           'pointerdown',
           (ev) => {

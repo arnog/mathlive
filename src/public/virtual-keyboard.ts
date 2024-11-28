@@ -100,7 +100,7 @@ export interface VirtualKeyboardKeycap {
   layer: string;
 
   /** Open variants panel without long press and does not close automatically */
-  popover: boolean;
+  stickyVariantPanel: boolean;
 }
 /**
  * @category Virtual Keyboard

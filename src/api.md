@@ -4728,20 +4728,6 @@ Name of the layer to shift to when the key is pressed
 
 </MemberCard>
 
-<a id="popover" name="popover"></a>
-
-<MemberCard>
-
-##### VirtualKeyboardKeycap.popover
-
-```ts
-popover: boolean;
-```
-
-Open variants panel without long press and does not close automatically
-
-</MemberCard>
-
 <a id="shift" name="shift"></a>
 
 <MemberCard>
@@ -4753,6 +4739,20 @@ shift: string | Partial<VirtualKeyboardKeycap>;
 ```
 
 Variant of the keycap when the shift key is pressed
+
+</MemberCard>
+
+<a id="stickyvariantpanel" name="stickyvariantpanel"></a>
+
+<MemberCard>
+
+##### VirtualKeyboardKeycap.stickyVariantPanel
+
+```ts
+stickyVariantPanel: boolean;
+```
+
+Open variants panel without long press and does not close automatically
 
 </MemberCard>
 
