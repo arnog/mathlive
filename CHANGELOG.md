@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2550** The subpath exports in the main package.json have been updated to
+  comply with Node.js's subpath patterns, which utilize "direct static matching
+  and replacement.
+
 ## 0.101.2 _2024-11-15_
 
 ### Issues Resolved
