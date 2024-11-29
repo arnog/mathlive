@@ -6,6 +6,14 @@
   comply with Node.js's subpath patterns, which utilize "direct static matching
   and replacement.
 
+### Improvements
+
+- **#2554** Added option for sticky display of variants panel with a single
+  click. Add the `stickyVariantPanel` property to a virtual keyboard keycap
+  definition to make the variant panel sticky. This means that the panel will
+  remain open after a single click, and will only close when the user clicks on
+  the keycap again. See `./examples/sticky-variant-panel/` for an example.
+
 ## 0.101.2 _2024-11-15_
 
 ### Issues Resolved
