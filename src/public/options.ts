@@ -219,44 +219,12 @@ export type InlineShortcutDefinitions = Record<
  * @category Options
  */
 export interface MathfieldHooks {
-  /**
-   * A hook invoked when a string of characters that could be
-   * interpreted as shortcut has been typed.
-   *
-   * If not a special shortcut, return the empty string `""`.
-   *
-   * Use this handler to detect multi character symbols, and return them wrapped appropriately,
-   * for example `\mathrm{${symbol}}`.
-   */
   onInlineShortcut: (sender: Mathfield, symbol: string) => string;
 
   onInsertStyle: InsertStyleHook | undefined | null;
 
-  /**
-   * A hook invoked when a scrolling the mathfield into view is necessary.
-   *
-   * Use when scrolling the page would not solve the problem, e.g.
-   * when the mathfield is in another div that has scrollable content.
-   */
   onScrollIntoView: ((sender: Mathfield) => void) | null;
 
-  /**
-   * This hook is invoked when the user has requested to export the content
-   * of the mathfield, for example when pressing ctrl/command+C.
-   *
-   * This hook should return as a string what should be exported.
-   *
-   * The `range` argument indicates which portion of the mathfield should be
-   * exported. It is not always equal to the current selection, but it can
-   * be used to export a format other than LaTeX.
-   *
-   * By default this is:
-   *
-   * ```js
-   *  return `\\begin{equation*}${latex}\\end{equation*}`;
-   * ```
-   *
-   */
   onExport: (from: Mathfield, latex: string, range: Range) => string;
 }
 
@@ -296,35 +264,7 @@ export type KeyboardOptions = {
 
 /** @category Options */
 export type InlineShortcutsOptions = {
-  /**
-   * The keys of this object literal indicate the sequence of characters
-   * that will trigger an inline shortcut.
-   *
-   */
-
   inlineShortcuts: InlineShortcutDefinitions;
-  /**
-   * Maximum time, in milliseconds, between consecutive characters for them to be
-   * considered part of the same shortcut sequence.
-   *
-   * A value of 0 is the same as infinity: any consecutive character will be
-   * candidate for an inline shortcut, regardless of the interval between this
-   * character and the previous one.
-   *
-   * A value of 750 will indicate that the maximum interval between two
-   * characters to be considered part of the same inline shortcut sequence is
-   * 3/4 of a second.
-   *
-   * This is useful to enter "+-" as a sequence of two characters, while also
-   * supporting the "±" shortcut with the same sequence.
-   *
-   * The first result can be entered by pausing slightly between the first and
-   * second character if this option is set to a value of 250 or so.
-   *
-   * Note that some operations, such as clicking to change the selection, or
-   * losing the focus on the mathfield, will automatically timeout the
-   * shortcuts.
-   */
   inlineShortcutTimeout: number;
 };
 
@@ -337,90 +277,14 @@ export type EditingOptions = {
    */
   readOnly: boolean;
 
-  /**
-   * When `true`, during text input the field will switch automatically between
-   * 'math' and 'text' mode depending on what is typed and the context of the
-   * formula. If necessary, what was previously typed will be 'fixed' to
-   * account for the new info.
-   *
-   * For example, when typing "if x >0":
-   *
-   * | Type  | Interpretation |
-   * |---:|:---|
-   * | `i` | math mode, imaginary unit |
-   * | `if` | text mode, english word "if" |
-   * | `if x` | all in text mode, maybe the next word is xylophone? |
-   * | `if x >` | "if" stays in text mode, but now "x >" is in math mode |
-   * | `if x > 0` | "if" in text mode, "x > 0" in math mode |
-   *
-   * **Default**: `false`
-   *
-   * Manually switching mode (by typing `alt/option+=`) will temporarily turn
-   * off smart mode.
-   *
-   *
-   * **Examples**
-   *
-   * - `slope = rise/run`
-   * - `If x > 0, then f(x) = sin(x)`
-   * - `x^2 + sin (x) when x > 0`
-   * - `When x&lt;0, x^{2n+1}&lt;0`
-   * - `Graph x^2 -x+3 =0 for 0&lt;=x&lt;=5`
-   * - `Divide by x-3 and then add x^2-1 to both sides`
-   * - `Given g(x) = 4x – 3, when does g(x)=0?`
-   * - `Let D be the set {(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x}`
-   * - `\int\_{the unit square} f(x,y) dx dy`
-   * - `For all n in NN`
-   *
-   */
   smartMode: boolean;
 
-  /**
-   * When `true` and an open fence is entered via `typedText()` it will
-   * generate a contextually appropriate markup, for example using
-   * `\left...\right` if applicable.
-   *
-   * When `false`, the literal value of the character will be inserted instead.
-   */
   smartFence: boolean;
 
-  /**
-   * When `true` and a digit is entered in an empty superscript, the cursor
-   * leaps automatically out of the superscript. This makes entry of common
-   * polynomials easier and faster. If entering other characters (for example
-   * "n+1") the navigation out of the superscript must be done manually (by
-   * using the cursor keys or the spacebar to leap to the next insertion
-   * point).
-   *
-   * When `false`, the navigation out of the superscript must always be done
-   * manually.
-   *
-   */
   smartSuperscript: boolean;
 
-  /**
-   * This option controls how many levels of subscript/superscript can be entered. For
-   * example, if `scriptDepth` is "1", there can be one level of superscript or
-   * subscript. Attempting to enter a superscript while inside a superscript will
-   * be rejected. Setting a value of 0 will prevent entry of any superscript or
-   * subscript (but not limits for sum, integrals, etc...)
-   *
-   * This can make it easier to enter equations that fit what's expected for the
-   * domain where the mathfield is used.
-   *
-   * To control the depth of superscript and subscript independently, provide an
-   * array: the first element indicate the maximum depth for subscript and the
-   * second element the depth of superscript. Thus, a value of `[0, 1]` would
-   * suppress the entry of subscripts, and allow one level of superscripts.
-   */
   scriptDepth: number | [number, number]; // For [superscript, subscript] or for both
 
-  /**
-   * If `true`, extra parentheses around a numerator or denominator are
-   * removed automatically.
-   *
-   * **Default**: `true`
-   */
   removeExtraneousParentheses: boolean;
 
   /**
@@ -434,46 +298,14 @@ export type EditingOptions = {
    */
   isImplicitFunction: (name: string) => boolean;
 
-  /**
-   * The LaTeX string to insert when the spacebar is pressed (on the physical or
-   * virtual keyboard).
-   *
-   * Use `"\;"` for a thick space, `"\:"` for a medium space, `"\,"` for a
-   * thin space.
-   *
-   * Do not use `" "` (a regular space), as whitespace is skipped by LaTeX
-   * so this will do nothing.
-   *
-   * **Default**: `""` (empty string)
-   */
   mathModeSpace: string;
 
-  /**
-   * The symbol used to represent a placeholder in an expression.
-   *
-   * **Default**: `▢` `U+25A2 WHITE SQUARE WITH ROUNDED CORNERS`
-   */
   placeholderSymbol: string;
 
-  /**
-   * A LaTeX string displayed inside the mathfield when there is no content.
-   */
   contentPlaceholder: string;
 
-  /**
-   * If `"auto"` a popover with suggestions may be displayed when a LaTeX
-   * command is input.
-   *
-   * **Default**: `"auto"`
-   */
   popoverPolicy: 'auto' | 'off';
 
-  /**
-   * If `"auto"` a popover with commands to edit an environment (matrix)
-   * is displayed when the virtual keyboard is displayed.
-   *
-   * **Default**: `"auto"`
-   */
   environmentPopoverPolicy: 'auto' | 'on' | 'off';
 
   mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
@@ -481,35 +313,8 @@ export type EditingOptions = {
 
 /** @category Options */
 export type LayoutOptions = {
-  /**
-   * The mode of the element when it is empty:
-   * - `"math"`: equivalent to `\displaystyle` (display math mode)
-   * - `"inline-math"`: equivalent to `\inlinestyle` (inline math mode)
-   * - `"text"`: text mode
-   */
   defaultMode: 'inline-math' | 'math' | 'text';
-  /**
-   * A dictionary of LaTeX macros to be used to interpret and render the content.
-   *
-   * For example, to add a new macro to the default macro dictionary:
-   *
-```javascript
-mf.macros = {
-  ...mf.macros,
-  smallfrac: '^{#1}\\!\\!/\\!_{#2}',
-};
-```
-   *
-   * Note that `...mf.macros` is used to keep the existing macros and add to
-   * them.
-   * Otherwise, all the macros are replaced with the new definition.
-   *
-   * The code above will support the following notation:
-   *
-    ```tex
-    \smallfrac{5}{16}
-    ```
-   */
+
   macros: MacroDictionary;
 
   /**
@@ -517,74 +322,13 @@ mf.macros = {
    */
   registers: Registers;
 
-  /**
-   * Map a color name as used in commands such as `\textcolor{}{}` or
-   * `\colorbox{}{}` to a CSS color value.
-   *
-   * Use this option to override the standard mapping of colors such as "yellow"
-   * or "red".
-   *
-   * If the name is not one you expected, return `undefined` and the default
-   * color mapping will be applied.
-   *
-   * If a `backgroundColorMap()` function is not provided, the `colorMap()`
-   * function will be used instead.
-   *
-   * If `colorMap()` is not provided, default color mappings are applied.
-   *
-   * The following color names have been optimized for a legible foreground
-   * and background values, and are recommended:
-   * - `red`, `orange`, `yellow`, `lime`, `green`, `teal`, `blue`, `indigo`,
-   * `purple`, `magenta`, `black`, `dark-grey`, `grey`, `light-grey`, `white`
-   */
   colorMap: (name: string) => string | undefined;
   backgroundColorMap: (name: string) => string | undefined;
 
-  /**
-   * Control the letter shape style:
-
-    | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
-    | ------------------ | --- | --- | --- | --- |
-    | `iso`              | it  | it  | it  | it  |
-    | `tex`              | it  | it  | it  | up  |
-    | `french`           | it  | up  | up  | up  |
-    | `upright`          | up  | up  | up  | up  |
-
-    (it) = italic (up) = upright
-
-    * The default letter shape style is `auto`, which indicates that `french`
-    * should be used if the locale is "french", and `tex` otherwise.
-    *
-    * **Historical Note**
-    *
-    * Where do the "french" rules come from? The
-    * TeX standard font, Computer Modern, is based on Monotype 155M, itself
-    * based on the Porson greek font which was one of the most widely used
-    * Greek fonts in english-speaking countries. This font had upright
-    * capitals, but slanted lowercase. In France, the traditional font for
-    * greek was Didot, which has both upright capitals and lowercase.
-    *
-    * As for roman uppercase, they are recommended by "Lexique des règles
-    * typographiques en usage à l’Imprimerie Nationale". It should be noted
-    * that this convention is not universally followed.
-    */
   letterShapeStyle: 'auto' | 'tex' | 'iso' | 'french' | 'upright';
 
-  /**
-   * Set the minimum relative font size for nested superscripts and fractions. The value
-   * should be a number between `0` and `1`. The size is in releative `em` units relative to the
-   * font size of the `math-field` element. Specifying a value of `0` allows the `math-field`
-   * to use its default sizing logic.
-   *
-   * **Default**: `0`
-   */
   minFontScale: number;
 
-  /**
-   * Sets the maximum number of columns for the matrix environment. The default is
-   * 10 columns to match the behavior of the amsmath matrix environment.
-   * **Default**: `10`
-   */
   maxMatrixCols: number;
 };
 

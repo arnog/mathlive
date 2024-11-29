@@ -63,7 +63,7 @@ import {
  * @param text A string of valid LaTeX. It does not have to start
  * with a mode token such as `$$` or `\(`.
  *
- * @param options.mathstyle If `"displaystyle"` the "display" mode of TeX
+ * @param options.defaultMode If `"displaystyle"` the "display" mode of TeX
  * is used to typeset the formula, which is most appropriate for formulas that are
  * displayed in a standalone block.
  *

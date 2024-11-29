@@ -312,7 +312,7 @@ export interface VirtualKeyboardInterface extends VirtualKeyboardOptions {
 // Commands return true if they resulted in a dirty state
 // @revisit: maybe a command attribute instead?
 /**
- * @category Commands
+ * @category Editing Commands
  */
 export interface VirtualKeyboardCommands {
   switchKeyboardLayer: (mathfield: undefined, layer: string) => boolean;

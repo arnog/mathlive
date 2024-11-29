@@ -189,7 +189,7 @@ export interface Style {
 /**
  * **See Also**
  * * {@linkcode MacroDictionary}
- * * {@link mathfield/guides/macros/|Macros Guide}
+ * * {@link //mathfield/guides/macros/}
  *
  * @category Macros
  */

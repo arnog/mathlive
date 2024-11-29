@@ -39,8 +39,23 @@ export type SpeechScope =
  * mf.executeCommand('copyToClipboard');
  * ```
  *
- * Commands return true if they resulted in a dirty state.
- * @category Commands
+ * Some commands require an argument, for example to insert a character:
+ *
+ * ```ts
+ * mf.executeCommand('insert("x")' });
+ * ```
+ *
+ * The argument can be specified in parentheses after the command name, or
+ *  using an array:
+ *
+ * ```ts
+ * mf.executeCommand(['switchMode', 'latex']);
+ * // Same as mf.executeCommand('switchMode("latex")');
+ * ```
+ *
+ * Commands (and `executeCommand()`) return true if they resulted in a dirty
+ * state.
+ * @category Editing Commands
  * @command executeCommand
  */
 export interface Commands {
@@ -55,8 +70,10 @@ export interface Commands {
 
   /**
    * Perform a command and include interactive feedback such as sound and
-   * haptic feedback. This is useful to simulate user interaction,
-   * for example for commands from the virtual keyboard
+   * haptic feedback.
+   *
+   * This is useful to simulate user interaction, for example for commands
+   * from the virtual keyboard
    */
   performWithFeedback: (mathfield: Mathfield, command: string) => boolean;
 
@@ -359,5 +376,5 @@ export interface Commands {
   applyStyle: (mathfield: Mathfield, style: Style) => boolean;
 }
 
-/** @category Commands */
+/**  @category Editing Commands */
 export type Selector = Keys<Commands>;
