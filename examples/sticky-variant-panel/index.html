@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>MathLive Sticky Variants Panel Example</title>
+    <style>
+      body {
+        color: #444;
+        background-color: #f9f9f9;
+      }
+
+      main {
+        max-width: 820px;
+        margin: auto;
+      }
+
+      math-field {
+        width: 100%;
+        border: 1px solid #ddd;
+        padding: 5px;
+        margin: 10px 0 10px 0;
+        border-radius: 5px;
+        background-color: #fff;
+      }
+
+      #value,
+      #result {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #000;
+
+        color: rgb(241, 188, 91);
+        background: #35434e;
+
+        font-family: monospace;
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h2>MathLive Sticky Variants Panel Example</h2>
+      <math-field id="mf" virtual-keyboard-mode="manual"></math-field>
+      <div id="value"></div>
+    </main>
+
+    <script type="module">
+      import "/dist/mathlive.mjs";
+
+      mathVirtualKeyboard.layouts = [
+        {
+          label: "Basic",
+          rows: [
+            [
+              "[7]",
+              "[8]",
+              "[9]",
+              "[+]",
+              "[separator-5]",
+              {
+                latex: "abc",
+                variants: ["a", "b", "c"],
+                stickyVariantPanel: true,
+              },
+              {
+                latex: "xyz",
+                variants: ["x", "y", "z"],
+                stickyVariantPanel: true,
+              },
+            ],
+            [
+              "[4]",
+              "[5]",
+              "[6]",
+              "[-]",
+              "[separator-5]",
+              {
+                latex: "cm",
+                variants: ["cm", "m", "km"],
+                stickyVariantPanel: true,
+              },
+              {
+                latex: "cm^2",
+                variants: ["cm^2", "m^2", "km^2"],
+                stickyVariantPanel: true,
+              },
+            ],
+            [
+              "[1]",
+              "[2]",
+              "[3]",
+              "\\times",
+              "[separator-5]",
+              { label: "[backspace]", width: 2 },
+            ],
+            [
+              "[.]",
+              "[0]",
+              "[=]",
+              "\\div",
+              "[separator-5]",
+              { label: "[return]", width: 2 },
+            ],
+          ],
+        },
+      ];
+
+      document.getElementById("mf").addEventListener("input", (ev) => {
+        const mf = ev.target;
+        document.getElementById("value").innerHTML = mf.getValue();
+      });
+    </script>
+  </body>
+</html>

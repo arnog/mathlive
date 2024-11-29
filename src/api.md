@@ -4529,6 +4529,20 @@ Variant of the keycap when the shift key is pressed
 
 </MemberCard>
 
+<a id="stickyvariantpanel" name="stickyvariantpanel"></a>
+
+<MemberCard>
+
+##### VirtualKeyboardKeycap.stickyVariantPanel
+
+```ts
+stickyVariantPanel: boolean;
+```
+
+Open variants panel without long press and does not close automatically
+
+</MemberCard>
+
 <a id="tooltip" name="tooltip"></a>
 
 <MemberCard>

@@ -292,23 +292,37 @@ export function showVariantsPanel(
         { capture: true, signal }
       );
 
-      window.addEventListener(
-        'pointercancel',
-        () => {
-          hideVariantsPanel();
-          onClose?.();
-        },
-        { signal }
-      );
+      if (keyboard.getKeycap(keycap?.id)?.stickyVariantPanel) {
+        window.addEventListener(
+          'pointerdown',
+          (ev) => {
+            if (!(ev.target instanceof Node)) return;
+            const isInside = variantPanel.contains(ev.target);
+            if (ev.target === variantPanel || isInside) return;
+            hideVariantsPanel();
+            onClose?.();
+          },
+          { signal }
+        );
+      } else {
+        window.addEventListener(
+          'pointercancel',
+          () => {
+            hideVariantsPanel();
+            onClose?.();
+          },
+          { signal }
+        );
 
-      window.addEventListener(
-        'pointerup',
-        () => {
-          hideVariantsPanel();
-          onClose?.();
-        },
-        { signal }
-      );
+        window.addEventListener(
+          'pointerup',
+          () => {
+            hideVariantsPanel();
+            onClose?.();
+          },
+          { signal }
+        );
+      }
     });
   }
 
