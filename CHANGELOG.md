@@ -8,11 +8,18 @@
 
 ### Improvements
 
-- **#2554** Added option for sticky display of variants panel with a single
-  click. Add the `stickyVariantPanel` property to a virtual keyboard keycap
-  definition to make the variant panel sticky. This means that the panel will
-  remain open after a single click, and will only close when the user clicks on
-  the keycap again. See `./examples/sticky-variant-panel/` for an example.
+- **#2554** **Option for sticky virtual keyboard variant panel**
+
+  When long pressing a key on the virtual keyboard, a variant panel is displayed
+  that offers alternatives (variants) for that key. The panel is only displayed
+  while your finger is pressing the key (like a smartphone keyboard). This new
+  options allows the variant panel to remain displayed even if you lift your
+  finger from the screen.
+
+  Add the `stickyVariantPanel` property to a virtual keyboard keycap definition
+  to make the variant panel sticky.
+
+  See `./examples/sticky-variant-panel/` for an example.
 
 ## 0.101.2 _2024-11-15_
 
