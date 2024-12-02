@@ -130,7 +130,7 @@ function parseMathExpression(
     return `\\text{${m[1]}}${parseMathExpression(m[2], options)}`;
   }
 
-  m = s.match(/^([^a-zA-Z\(\{\[\_\^\\\s"]+)(.*)/);
+  m = s.match(/^([^a-zA-Z0-9\(\{\[\_\^\\\s"]+)(.*)/);;
   // A string of symbols...
   // Could be a binary or relational operator, etc...
   if (m) {
