@@ -81,4 +81,8 @@ describe('ASCII MATH', function () {
   equalASCIIMath('\\left\\lbrack1,1\\right\\rbrack', '[1,1]');
   equalASCIIMath('\\left\\lbrace1,1\\right\\rbrace', '{1,1}');
   equalASCIIMath('\\left(1,1\\right)', '(1,1)');
+  
+  expect(convertAsciiMathToLatex('1/2')).toBe('\\frac{1}{2}');
+  expect(convertAsciiMathToLatex('(1/2)')).toBe('\\left(\\frac{1}{2}\\right)');
+  expect(convertAsciiMathToLatex('1/2sin x')).toBe('\\frac{1}{2}\\sin x');
 });
