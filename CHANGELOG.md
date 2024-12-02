@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2530** The AsciiMath `1/2` is now parsed as `\frac{1}{2}`
+
 ## 0.102.0 _2024-11-29_
 
 ### Issues Resolved

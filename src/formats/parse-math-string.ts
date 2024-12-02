@@ -130,8 +130,9 @@ function parseMathExpression(
     return `\\text{${m[1]}}${parseMathExpression(m[2], options)}`;
   }
 
-  m = s.match(/^([^a-zA-Z0-9\(\{\[\_\^\\\s"]+)(.*)/);;
-  // A string of symbols...
+  m = s.match(/^([^a-zA-Z0-9\(\{\[\_\^\\\s"]+)(.*)/);
+  // Starts with a string of symbols, e.g. "=123", ">=b"
+  // Exclude "123x" or "abc="
   // Could be a binary or relational operator, etc...
   if (m) {
     return `${paddedShortcut(m[1], inlineShortcuts)}${parseMathExpression(
