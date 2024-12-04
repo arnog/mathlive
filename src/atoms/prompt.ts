@@ -146,7 +146,8 @@ export class PromptAtom extends Atom {
     const result = new Box([box, base], { classes: 'ML__prompt-atom' });
 
     // Needed for Safari (https://github.com/arnog/mathlive/issues/2152)
-    base.setStyle('line-height', 1);
+    if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent))
+      base.setStyle('line-height', 1);
 
     // Set its position as relative so that the box can be absolute positioned
     // over the base
