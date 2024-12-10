@@ -3,6 +3,8 @@
 ### Issues Resolved
 
 - **#2530** The AsciiMath `1/2` is now parsed as `\frac{1}{2}`
+- The `\displaylines` command is now correctly parsed as a command with an
+  argument, not as a group command.
 
 ## 0.102.0 _2024-11-29_
 

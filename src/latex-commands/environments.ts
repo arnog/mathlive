@@ -39,10 +39,11 @@ defineFunction('displaylines', '', {
   parse: (parser: Parser) => {
     const lines: Atom[][][] = [];
     let line: Atom[] = [];
+    parser.skipWhitespace();
+    if (!parser.match('<{>')) return [];
     parser.beginContext({ tabular: true });
     do {
-      if (parser.end()) break;
-      if (parser.match('<}>')) break;
+      if (parser.end() || parser.match('<}>')) break;
       if (parser.matchColumnSeparator() || parser.matchRowSeparator()) {
         lines.push([line]);
         line = [];
