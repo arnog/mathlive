@@ -2,76 +2,76 @@
 <html lang="en-US">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
+  <title>MathLive with Vue.js</title>
 </head>
 
 <body>
-    <script type="module">
-        import Vue from 'https://cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
-        import * as MathLive from '/dist/mathlive.mjs';
-        import VueMathfield from '../../dist/vue-mathlive.mjs';
-        Vue.config.devtools = true;
+  <script type="module">
+    import Vue from 'https://cdn.jsdelivr.net/npm/vue/dist/vue.esm.browser.js';
+    import * as MathLive from '/dist/mathlive.mjs';
+    import VueMathfield from '../../dist/vue-mathlive.mjs';
+    Vue.config.devtools = true;
 
-        Vue.use(VueMathfield, MathLive);
-        // The default tag for mathfields is <mathlive-mathfield>
-        // A custom tag can be defined using:
-        // ```Vue.component("custom-tag", Mathfield);```
+    Vue.use(VueMathfield, MathLive);
+    // The default tag for mathfields is <mathlive-mathfield>
+    // A custom tag can be defined using:
+    // ```Vue.component("custom-tag", Mathfield);```
 
-        new Vue({
-            el: 'main',
-            data: function () {
-                return {
-                    formula: 'g(x)',
-                    keystroke: '',
-                };
-            },
-            methods: {
-                sayIt: function (event) {
-                    this.$refs['mathfield'].$el.executeCommand([
-                        'speak',
-                        'all',
-                    ]);
-                },
-                setIt: function (event) {
-                    this.formula = 'x=-b\\pm \\frac {\\sqrt{b^2-4ac}}{2a}';
-                },
-                ping: function () {
-                    console.log('ping');
-                },
-                displayKeystroke: function (keystroke, _ev) {
-                    this.keystroke = keystroke;
-                    return true;
-                },
-                asSpokenText: function () {
-                    return (
-                        (this.$refs['mathfield'] &&
-                            this.$refs['mathfield'].$el.getValue(
-                                'spoken'
-                            )) ||
-                        ''
-                    );
-                },
-            },
-        });
-    </script>
+    new Vue({
+      el: 'main',
+      data: function () {
+        return {
+          formula: 'g(x)',
+          keystroke: '',
+        };
+      },
+      methods: {
+        sayIt: function (event) {
+          this.$refs['mathfield'].$el.executeCommand([
+            'speak',
+            'all',
+          ]);
+        },
+        setIt: function (event) {
+          this.formula = 'x=-b\\pm \\frac {\\sqrt{b^2-4ac}}{2a}';
+        },
+        ping: function () {
+          console.log('ping');
+        },
+        displayKeystroke: function (keystroke, _ev) {
+          this.keystroke = keystroke;
+          return true;
+        },
+        asSpokenText: function () {
+          return (
+            (this.$refs['mathfield'] &&
+              this.$refs['mathfield'].$el.getValue(
+                'spoken'
+              )) ||
+            ''
+          );
+        },
+      },
+    });
+  </script>
 
-    <header>
-        <h1>MathLive with Vue.js</h1>
-    </header>
-    <main>
-        <mathlive-mathfield id="mf" ref="mathfield" @focus="ping"
-            :options="{virtualKeyboardMode:'onfocus', smartFence:false, fontsDirectory:'./fonts'}"
-            :on-keystroke="displayKeystroke" v-model="formula">f(x)=</mathlive-mathfield>
-        <div><label>Keystroke:&nbsp;</label><kbd>{{keystroke}}</kbd></div>
-        <div class="output">LaTeX: {{formula}}</div>
-        <div class="output">Spoken text: {{asSpokenText()}}</div>
-        <div>
-            <button v-on:click="sayIt">Say It</button>
-            <button v-on:click="setIt">Set It</button>
-        </div>
-    </main>
+  <header>
+    <h1>MathLive with Vue.js</h1>
+  </header>
+  <main>
+    <mathlive-mathfield id="mf" placeholder="\text{Enter math here}" ref="mathfield" @focus="ping"
+      :on-keystroke="displayKeystroke" v-model="formula"></mathlive-mathfield>
+    <div><label>Keystroke:&nbsp;</label><kbd>{{keystroke}}</kbd></div>
+    <div class="output">LaTeX: {{formula}}</div>
+    <div class="output">Spoken text: {{asSpokenText()}}</div>
+    <div>
+      <button v-on:click="sayIt">Say It</button>
+      <button v-on:click="setIt">Set It</button>
+    </div>
+  </main>
 </body>
 
 </html>

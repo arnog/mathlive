@@ -10,10 +10,6 @@ export default {
       type: String,
       default: '',
     },
-    options: {
-      type: Object,
-      default: () => ({}),
-    },
   },
   /*
    * To register this component, call:
@@ -60,19 +56,12 @@ export default {
         });
       }
     },
-    options: {
-      deep: true,
-      handler(newValue, oldValue) {
-        if (JSON.stringify(newValue) !== JSON.stringify(oldValue))
-          this.$el.setOptions(newValue);
-      },
-    },
   },
   mounted() {
     // A new instance is being created
     // Wait until the DOM has been constructed...
     // ... then configure the mathfield
-    this.$nextTick(() => this.$el.setOptions(this.options));
+    this.$nextTick(() => {});
   },
   methods: {
     /*
