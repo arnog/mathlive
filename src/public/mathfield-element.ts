@@ -1922,13 +1922,15 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
     // Ignore blur events if the scrim is open (case where the variant panel
     // is open), or if we're in an iFrame on a touch device (see #2350).
 
+    if (evt.type !== 'blur') return;
+
+    const touch = isTouchCapable();
+
+    if (touch && window?.mathVirtualKeyboard?.visible) return;
     // Otherwise we disconnect from the VK and end up in a weird state.
-    if (
-      evt.type === 'blur' &&
-      Scrim.scrim?.state === 'closed' &&
-      !(isTouchCapable() && isInIframe())
-    )
-      this._mathfield?.blur();
+    if (Scrim.scrim?.state !== 'closed' || (touch && isInIframe())) return;
+
+    this._mathfield?.blur();
   }
 
   /**
