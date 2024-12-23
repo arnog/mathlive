@@ -434,7 +434,13 @@ export class _MenuListState implements MenuListState {
     // Notify our parent
     if (this.parentMenu) this.parentMenu.openSubmenu = null;
 
-    if (supportPopover() && this._element?.popover) this.element.hidePopover();
+    if (supportPopover() && this._element?.popover) {
+      try {
+        this.element.hidePopover()
+      } catch (error) {
+        
+      };
+    }
 
     // We're going to do some focus manipulation, but we don't want parents
     // to react to these events (they may think the host has lost focus and
