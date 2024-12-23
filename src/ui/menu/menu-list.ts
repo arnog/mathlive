@@ -434,11 +434,14 @@ export class _MenuListState implements MenuListState {
     // Notify our parent
     if (this.parentMenu) this.parentMenu.openSubmenu = null;
 
-    if (supportPopover() && this._element?.popover) this.element.hidePopover();
+    // If we're no longer in the DOM tree, we can bail
+    if (!this._element?.isConnected || !this._element.parentElement) return;
+
+    if (supportPopover() && this._element?.popover) this._element.hidePopover();
 
     // We're going to do some focus manipulation, but we don't want parents
     // to react to these events (they may think the host has lost focus and
-    // react innapropriately).
+    // react inappropriately).
     suppressFocusEvents();
 
     // Change the focus to avoid a spurious blur event
