@@ -577,7 +577,7 @@ defineSymbols(
     ['\\succ', 0x227b],
     ['\\succeq', 0x2ab0],
 
-    ['\\perp', 0x22a5],
+    ['\\perp', 0x27c2], // Unicode U+27C2 is the perpendicular symbol
 
     ['\\propto', 0x221d],
     ['\\Colon', 0x2237],

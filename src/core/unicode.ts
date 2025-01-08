@@ -84,7 +84,8 @@ export const UNICODE_TO_LATEX: Record<number, string> = {
   0x2260: '\\ne', // Also \neq
   0x2264: '\\le', // Also \leq
   0x2265: '\\ge', // Also \geq
-  0x22a5: '\\bot', // Also \perp
+  0x22a5: '\\bot',
+  0x27c2: '\\perp',
 
   0x27f7: '\\biconditional', // Also \longleftrightarrow
   0x27f8: '\\impliedby', // Also \Longleftarrow
