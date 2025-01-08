@@ -297,8 +297,8 @@ const DEFAULT_MACROS: MacroDictionary = {
       coloneqq: '{\\mathop{\\char"2254}}', // ≔
       // \providecommand*\Coloneqq{\dblcolon\mathrel{\mkern-1.2mu}=}
       Coloneqq: '{\\mathop{\\char"2237\\char"3D}}',
-      // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
-      coloneq: '{\\mathop{\\char"3A\\char"2212}}',
+      // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}=}
+      coloneq: '{\\mathop{\\char"2254}}', // ≔
       // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
       Coloneq: '{\\mathop{\\char"2237\\char"2212}}',
       // \providecommand*\eqqcolon{=\mathrel{\mkern-1.2mu}\vcentcolon}
