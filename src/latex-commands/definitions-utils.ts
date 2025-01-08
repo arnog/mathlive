@@ -282,6 +282,7 @@ const DEFAULT_MACROS: MacroDictionary = {
   // mathtools.sty
   // In the summer of 2022, mathtools did some renaming of macros.
   // This is the latest version, with some legacy commands.
+  // See https://mirrors.ircam.fr/pub/CTAN/macros/latex/contrib/mathtools/mathtools.pdf
 
   'mathtools': {
     primitive: true,
@@ -292,44 +293,37 @@ const DEFAULT_MACROS: MacroDictionary = {
       //TODO(edemaine): Not yet centered. Fix via \raisebox or #726
       vcentcolon: '\\mathrel{\\mathop\\ordinarycolon}',
       // \providecommand*\dblcolon{\vcentcolon\mathrel{\mkern-.9mu}\vcentcolon}
-      dblcolon: '{\\mathop{\\char"2237}}',
+      dblcolon: '{\\mathop{\\char"2237}}', // ∷
       // \providecommand*\coloneqq{\vcentcolon\mathrel{\mkern-1.2mu}=}
       coloneqq: '{\\mathop{\\char"2254}}', // ≔
       // \providecommand*\Coloneqq{\dblcolon\mathrel{\mkern-1.2mu}=}
-      Coloneqq: '{\\mathop{\\char"2237\\char"3D}}',
+      Coloneqq: '{\\mathop{\\char"2a74}}', // ⩴
       // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
-      coloneq: '{\\mathop{\\char"3A\\char"2212}}',
-      // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
-      Coloneq: '{\\mathop{\\char"2237\\char"2212}}',
+      coloneq: '{\\mathop{\\char"2254}}', // ≔
+      // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{=}}
+      Coloneq: '{\\mathop{\\char"2A74}}', // ⩴
       // \providecommand*\eqqcolon{=\mathrel{\mkern-1.2mu}\vcentcolon}
       eqqcolon: '{\\mathop{\\char"2255}}', // ≕
       // \providecommand*\Eqqcolon{=\mathrel{\mkern-1.2mu}\dblcolon}
-      Eqqcolon: '{\\mathop{\\char"3D\\char"2237}}',
+      Eqqcolon: '{\\mathop{\\char"3D\\char"2237}}', // =∷
       // \providecommand*\eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\vcentcolon}
-      eqcolon: '{\\mathop{\\char"2239}}',
+      eqcolon: '{\\mathop{\\char"2255}}', // ≕
       // \providecommand*\Eqcolon{\mathrel{-}\mathrel{\mkern-1.2mu}\dblcolon}
-      Eqcolon: '{\\mathop{\\char"2212\\char"2237}}',
+      Eqcolon: '{\\mathop{\\char"3D\\char"2237}}', // =∷
       // \providecommand*\colonapprox{\vcentcolon\mathrel{\mkern-1.2mu}\approx}
-      colonapprox: '{\\mathop{\\char"003A\\char"2248}}',
+      colonapprox: '{\\mathop{\\char"003A\\char"2248}}', // :≈
       // \providecommand*\Colonapprox{\dblcolon\mathrel{\mkern-1.2mu}\approx}
-      Colonapprox: '{\\mathop{\\char"2237\\char"2248}}',
+      Colonapprox: '{\\mathop{\\char"2237\\char"2248}}', // ∷≈
       // \providecommand*\colonsim{\vcentcolon\mathrel{\mkern-1.2mu}\sim}
-      colonsim: '{\\mathop{\\char"3A\\char"223C}}',
+      colonsim: '{\\mathop{\\char"3A\\char"223C}}', // :∼
       // \providecommand*\Colonsim{\dblcolon\mathrel{\mkern-1.2mu}\sim}
-      Colonsim: '{\\mathop{\\char"2237\\char"223C}}',
+      Colonsim: '{\\mathop{\\char"2237\\char"223C}}', // ∷∼
 
-      colondash: '\\mathrel{\\vcentcolon\\mathrel{\\mkern-1.2mu}\\mathrel{-}}',
+      colondash: '\\mathrel{\\vcentcolon\\mathrel{\\mkern-1.2mu}\\mathrel{-}}', // :-
       Colondash: '\\mathrel{\\dblcolon\\mathrel{\\mkern-1.2mu}\\mathrel{-}}',
 
       dashcolon: '\\mathrel{\\mathrel{-}\\mathrel{\\mkern-1.2mu}\\vcentcolon}',
       Dashcolon: '\\mathrel{\\mathrel{-}\\mathrel{\\mkern-1.2mu}\\dblcolon}',
-
-      // Some Unicode characters are implemented with macros to mathtools functions.
-      // defineMacro("\u2237", "\\dblcolon");  // ::
-      // defineMacro("\u2239", "\\eqcolon");  // -:
-      // defineMacro("\u2254", "\\coloneqq");  // :=
-      // defineMacro("\u2255", "\\eqqcolon");  // =:
-      // defineMacro("\u2A74", "\\Coloneqq");  // ::=
     },
   },
   //////////////////////////////////////////////////////////////////////
@@ -656,6 +650,7 @@ export function defineEnvironment(
 
   const def: EnvironmentDefinition = {
     tabular: false,
+    rootOnly: false,
     params: [],
     createAtom,
   };
@@ -680,10 +675,27 @@ export function defineTabularEnvironment(
 
   const data: EnvironmentDefinition = {
     tabular: true,
+    rootOnly: false,
     params: parsedParameters,
     createAtom,
   };
   for (const name of names) ENVIRONMENTS[name] = data;
+}
+
+export function defineRootEnvironment(
+  names: string | string[],
+  createAtom: EnvironmentConstructor,
+  options?: { tabular?: boolean; params?: string }
+): void {
+  if (typeof names === 'string') names = [names];
+
+  const def: EnvironmentDefinition = {
+    tabular: options?.tabular ?? false,
+    rootOnly: true,
+    params: [],
+    createAtom,
+  };
+  for (const name of names) ENVIRONMENTS[name] = def;
 }
 
 /**
