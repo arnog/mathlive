@@ -709,16 +709,16 @@ export const LAYOUTS: Partial<
     layers: [
       {
         style: `
-          .minimalist-backdrop {
+          div.minimalist-backdrop {
             display: flex;
             justify-content: center;
           }          
-          .minimalist-container {
+          div.minimalist-container {
             --keycap-height: 40px;
             --keycap-max-width: 53px;
             --keycap-small-font-size: 12px;
             background: var(--keyboard-background);
-            padding: 20px;
+            padding: 20px 20px 0px 20px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             border: 1px solid var(--keyboard-border);
