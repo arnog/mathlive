@@ -41,7 +41,21 @@
     </ul>
   </header>
   <main>
-    <math-field id="mf" placeholder="\text{Enter math here}"></math-field>
+    <math-field id="mf">\begin{align}a + 1 & b + 234 \\ c + 1234 & d + 12345\end{align}</math-field>
+
+    <!-- <math-field id="mf">a+\begin{matrix}[lc]x+1&2\\4&a+b+c+1234\end{matrix}+\alpha</math-field> -->
+
+
+    <!-- <math-field id="mf">\int^{\frac{x+1}{y+2}}_{\frac{x+1}{y+2}} {\frac{x+1}{y+2}}{</math-field> -->
+
+
+    <!-- <math-field id="mf">\alpha\begin{align}\text{hello world}f(x) &= a+b \\ \gamma
+      & \delta \\ f(x+1)
+      &=\omega+\frac{1}{y}\end{align}</math-field> -->
+
+
+    <!-- <math-field id="mf">\displaylines{x+1\\ \alpha + 123 \\ \beta + 456 \\ \gamma}</math-field> -->
+
     <!-- <math-field id="mf">x_{a+1}^{b+2}</math-field> -->
     <!-- <math-field id="mf"
         >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
@@ -136,6 +150,7 @@
 
 
 
+    // window.mathVirtualKeyboard.layouts = 'minimalist';
 
 
     // mathVirtualKeyboard.layouts = [
@@ -590,9 +605,13 @@
     }
 
 
+    mf.macros = {
+      ...mf.macros,
+      atomic: { args: 1, def: '\\class{my-class}{#1}', captureSelection: true },
+    };
+
     mf.addEventListener('mount', () => {
       setupMathfield(mf);
-      console.log(mf.getValue({ ranges: [[0, 5]] }));
       mf.addEventListener("input", (ev) => updateContent(mf));
 
 

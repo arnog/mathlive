@@ -56,12 +56,12 @@ defineFunction(
     'tanh',
     'tg', // Not LaTeX standard. Used in France
     'th', // Not LaTeX standard. \tanh
-    'arcsec',
-    'arccsc',
+    'arcsec', // Not LaTeX standard.
+    'arccsc', // Not LaTeX standard.
     'arsinh',
     'arcosh',
     'artanh',
-    'arcsech',
+    'arcsech', // Not LaTeX standard.
     'arccsch',
   ],
   '',
@@ -111,7 +111,8 @@ defineFunction(['det', 'max', 'min'], '', {
     }),
 });
 
-defineFunction(['ang'], '{:math}', {
+// From the 'siunitx' package
+defineFunction('ang', '{:math}', {
   ifMode: 'math',
   createAtom: (options) =>
     new Atom({ ...options, body: argAtoms(options.args![0]) }),

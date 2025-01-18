@@ -40,7 +40,15 @@ export const LAYOUTS: Partial<
         {
           latex: '\\exponentialE',
           shift: '\\ln',
-          variants: ['\\exp', '\\times 10^{#?}', '\\ln', '\\log_{10}', '\\log'],
+          variants: [
+            '\\exp',
+            '\\times 10^{#?}',
+            '\\ln',
+            '\\log_{10}',
+            '\\log',
+            '\\lg',
+            '\\operatorname{lb}',
+          ],
         },
         {
           latex: '\\imaginaryI',
@@ -391,7 +399,7 @@ export const LAYOUTS: Partial<
           variants: [
             { class: 'small', latex: '\\sinh' },
             { class: 'small', latex: '\\sin^{-1}' },
-            { class: 'small', latex: '\\arsinh' },
+            { class: 'small', latex: '\\operatorname{arsinh}' },
           ],
         },
         '\\ln',
@@ -453,7 +461,7 @@ export const LAYOUTS: Partial<
           variants: [
             { class: 'small', latex: '\\cosh' },
             { class: 'small', latex: '\\cos^{-1}' },
-            { class: 'small', latex: '\\arcosh' },
+            { class: 'small', latex: '\\operatorname{arcosh}' },
           ],
         },
         {
@@ -544,10 +552,10 @@ export const LAYOUTS: Partial<
           variants: [
             { class: 'small', latex: '\\tanh' },
             { class: 'small', latex: '\\tan^{-1}' },
-            { class: 'small', latex: '\\artanh' },
+            { class: 'small', latex: '\\operatorname{artanh}' },
             { class: 'small', latex: '\\arctan' },
-            { class: 'small', latex: '\\arctg' },
-            { class: 'small', latex: '\\tg' },
+            { class: 'small', latex: '\\operatorname{arctg}' },
+            { class: 'small', latex: '\\operatorname{tg}' },
           ],
         },
         {

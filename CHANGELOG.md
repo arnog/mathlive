@@ -1,3 +1,54 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- Generate only "standard" (i.e. available in amsmath package) trigonometric
+  functions. Use `\operatorname{}` for the others. Use `arc-` prefix for
+  hyperbolic functions.
+- **#2132**, **#2548** Improved handling of multi-line mathfields. To use a
+  multi-line mathfield, include a multi-line environment:
+  - `\displaylines{}`: single column of left-aligned equations
+  - `gather`: single column of centered equations
+  - `multline`: centered equations with the first line aligned left and the last
+    line aligned to the right
+  - `align`: two columns, the first column right-aligned, the second column
+    left-aligned; used for one equation per line
+  - `split`: two columns of equations, the first column right-aligned, the
+    second column left-aligned; used for a single equation split over multiple
+    lines
+
+For example:
+
+```html
+<math-field>\displaylines{x=1 \\y = 2}</math-field>
+```
+
+```html
+<math-field>\begin{align}
+  f(0) &= 1 \\
+  f(x + 1) &= f(x-1) + f(x)
+\end{align}
+</math-field>
+```
+
+- When in a multi-line environment, the **Return** key will move to the next
+  line. The **Backspace** key will delete the current line if the cursor is at
+  the beginning of the line. Note that no placeholder is inserted on a new line:
+  the line is simply blank.
+
+- The **Add Row Before**, **Add Row After**, **Add Column Before**, **Add Column
+  After**, **Delete Row** and **Delete Columns** commands are available in the
+  context menu when the cursor is inside a matrix. They are not available in
+  multi-line environments.
+
+- **#2574** The commands `\coloneq`, `\Coloneq`, `\Coloneqq`, `\eqcolon` and
+  `\Eqcolon` were mapped to incorrect symbols (some of them used obsolete
+  definitions of those commands from the mathtools package that changed in the
+  Summer of 2022). They are now correctly mapped to the corresponding symbols.
+
+- **#2576** The command `\perp` was mapped to the wrong symbol (U+22A5). It is
+  now mapped to the correct symbol (U+27C2)
+
 ## 0.103.0 _2024-12-10_
 
 ### Issues Resolved

@@ -66,41 +66,53 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '∆': '\\differentialD', // @TODO: is \\diffD most common?
   '∂': '\\differentialD',
 
+  //
   // Functions
-  'arcsin': '\\arcsin',
-  'arccos': '\\arccos',
-  'arctan': '\\arctan',
-  'arcsec': '\\arcsec',
-  'arccsc': '\\arccsc',
+  //
+  // The standard LaTeX commands (i.e. in the amsmath package) are:
+  // https://mirror.math.princeton.edu/pub/CTAN/macros/latex/required/amsmath/amsldoc.pdf
 
-  'arsinh': '\\arsinh',
-  'arcosh': '\\arcosh',
-  'artanh': '\\artanh',
-  'arcsech': '\\arcsech',
-  'arccsch': '\\arccsch',
+  // \arccos, \arcsin, \arctan, \arg, \cos, \cosh, \cot, \coth, \csc, \deg, \det, \dim, \exp, \gcd, \hom, \inf, \injlim, \ker, \lg, \lim, \liminf, \limsup, \ln, \log, \max, \min, \Pr, \projlim, \sec, \sin, \sinh, \sup, \tan, \tanh
+  // \varinjlim, \varprojlim, \varlimsup, \varliminf
+
+  // Although we support rendering of non-standard commands (i.e. \arsinh)
+  // we avoid generating them when using the shortcuts.
+
+  'arccos': '\\arccos',
+  'arcsin': '\\arcsin',
+  'arctan': '\\arctan',
+  'arctg': '\\operatorname{arctg}',
+  'arcsec': '\\operatornbame{arcsec}',
+  'arccsc': '\\operatornbame{arccsc}',
+
+  'arsinh': '\\operatorname{arsinh}',
+  'arcosh': '\\operatorname{arcosh}',
+  'artanh': '\\operatorname{artanh}',
+  'arcsech': '\\operatorname{arcsech}',
+  'arccsch': '\\operatorname{arccsch}',
   'arg': '\\arg',
-  'ch': '\\ch',
-  'cosec': '\\cosec',
+  'ch': '\\operatorname{ch}',
+  'cosec': '\\operatorname{cosec}',
   'cosh': '\\cosh',
   'cot': '\\cot',
-  'cotg': '\\cotg',
+  'cotg': '\\operatorname{cotg}',
   'coth': '\\coth',
   'csc': '\\csc',
-  'ctg': '\\ctg',
-  'cth': '\\cth',
+  'ctg': '\\operatorname{ctg}',
+  'cth': '\\operatorname{cth}',
   'sec': '\\sec',
   'sinh': '\\sinh',
-  'sh': '\\sh',
+  'sh': '\\operatorname{sh}',
   'tanh': '\\tanh',
-  'tg': '\\tg',
-  'th': '\\th',
+  'tg': '\\operatorname{tg}',
+  'th': '\\operatorname{th}',
 
   'sin': '\\sin',
   'cos': '\\cos',
   'tan': '\\tan',
 
   'lg': '\\lg',
-  'lb': '\\lb',
+  'lb': '\\operatorname{lb}', // not in amsmath
   'log': '\\log',
   'ln': '\\ln',
   'exp': '\\exp',
@@ -284,7 +296,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
 
   'lcm': '\\operatorname{lcm}',
 
-  'gcd': '\\operatorname{gcd}',
+  'gcd': '\\gcd',
 
   'randomReal': '\\operatorname{randomReal}',
   'randomInteger': '\\operatorname{randomInteger}',
