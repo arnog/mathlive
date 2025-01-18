@@ -31,7 +31,7 @@ export type Argument =
   | string
   | LatexValue
   | BBoxParameter
-  | ColumnFormat[]
+  | ReadonlyArray<ColumnFormat>
   | { group: Readonly<Atom[]> }
   | Readonly<Atom[]>;
 
@@ -103,6 +103,10 @@ export type EnvironmentDefinition = {
    *  i.e. with '&' creating a new column and '\\' creating a new row.
    */
   tabular: boolean;
+
+  /** If true, the environment can only be used as the 'root' of the mathfield */
+  rootOnly: boolean;
+
   params: FunctionArgumentDefinition[];
   createAtom: EnvironmentConstructor;
 };

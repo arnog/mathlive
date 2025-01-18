@@ -1,4 +1,4 @@
-import { Atom } from '../core/atom';
+import { Atom, isCellBranch } from '../core/atom';
 
 import { register as registerCommand } from '../editor/commands';
 
@@ -8,103 +8,20 @@ import { Environment, TabularEnvironment } from '../public/core-types';
 import { makeEnvironment } from '../latex-commands/environments';
 import { PlaceholderAtom } from '../atoms/placeholder';
 import { LeftRightAtom } from '../atoms/leftright';
+import { range } from './selection-utils';
 export * from './array-utils';
 
 /**
- * Join all the cells at the indicated row into a single list of atoms
+ * Return the first and last siblings of the current cell
  */
-// function arrayJoinColumns(
-//   row: Atom[][],
-//   separator = ',',
-//   style?: Style
-// ): Atom[] {
-//   if (!row) return [];
-//   const result: Atom[] = [new Atom({ type: 'first' })];
-//   let sep: Atom | null = null;
-//   for (let cell of row) {
-//     // Remove the 'first' atom, if present
-//     if (cell?.length > 0 && cell[0].type === 'first') cell = cell.slice(1);
 
-//     if (cell?.length > 0) {
-//       if (sep) result.push(sep);
-//       else sep = new Atom({ type: 'mpunct', value: separator, style });
+function cellSiblings(model: _Model): [Atom, Atom] {
+  let atom: Atom | undefined = model.at(model.position);
 
-//       result.push(...cell);
-//     }
-//   }
+  while (atom && !isCellBranch(atom.parentBranch)) atom = atom.parent!;
 
-//   return result;
-// }
-
-/**
- * Join all the rows into a single atom list
- */
-// export function arrayJoinRows(
-//   array: Atom[][][],
-//   separators = [';', ','],
-//   style?: Style
-// ): Atom[] {
-//   const result: Atom[] = [new Atom({ type: 'first' })];
-//   let sep: Atom | null = null;
-//   for (const row of array) {
-//     if (sep) result.push(sep);
-//     else sep = new Atom({ type: 'mpunct', value: separators[0], style });
-
-//     result.push(...arrayJoinColumns(row, separators[1]));
-//   }
-
-//   return result;
-// }
-
-/**
- * Return the number of non-empty cells in that column
- */
-// export function arrayColumnCellCount(array: Atom[][][], col: number): number {
-//   let result = 0;
-//   const colRow = { col, row: 0 };
-//   while (colRow.row < array.length) {
-//     const cell = arrayCell(array, colRow);
-//     if (cell && cell.length > 0) {
-//       let cellLength = cell.length;
-//       if (cell[0].type === 'first') cellLength -= 1;
-//       if (cellLength > 0) result += 1;
-//     }
-
-//     colRow.row += 1;
-//   }
-
-//   return result;
-// }
-
-/**
- * Remove the indicated column from the array
- */
-// export function arrayRemoveRow(array: Atom[][][], col: number): void {
-//   let row = 0;
-//   while (row < array.length) {
-//     if (array[row][col]) array[row].splice(col, 1);
-
-//     row += 1;
-//   }
-// }
-
-/**
- * Remove the indicated row from the array
- */
-//  function arrayRemoveRow(array: Atom[][][], row: number): void {
-//   array.splice(row, 1);
-// }
-
-/**
- * Return the first non-empty cell, row by row
- */
-// function arrayFirstCellByRow(array: Atom[][][]): string {
-//   const colRow = { col: 0, row: 0 };
-//   while (colRow.row < array.length && !arrayCell(array, colRow))
-//     colRow.row += 1;
-
-//   return arrayCell(array, colRow) ? `cell${arrayIndex(array, colRow)}` : '';
-// }
+  return [atom.firstSibling, atom.lastSibling];
+}
 
 /**
  * If we're inside an array, return that parent array.
@@ -156,21 +73,26 @@ function parentArray(
     if (!atom.parent!.parent) {
       let secondCell = model.extractAtoms([model.position, model.lastOffset]);
       let firstCell = model.extractAtoms([0, model.position]);
-      if (firstCell.length === 0) firstCell = placeholderCell();
-      if (secondCell.length === 0) secondCell = placeholderCell();
+
       let array: ArrayAtom;
       if (where.endsWith('column')) {
+        if (firstCell.length === 0) firstCell = placeholderCell();
+        if (secondCell.length === 0) secondCell = placeholderCell();
         array = makeEnvironment('split', [[firstCell, secondCell]]);
         model.root = array;
         if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
         else if (isPlaceholderCell(array, 0, 1)) selectCell(model, array, 0, 1);
         else model.position = model.offsetOf(cursor);
       } else {
+        // if (firstCell.length === 0) firstCell = emptyCell();
+        // if (secondCell.length === 0) secondCell = emptyCell();
         array = makeEnvironment('lines', [[firstCell], [secondCell]]);
         model.root = array;
-        if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
-        else if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
-        else model.position = model.offsetOf(cursor);
+        // if (isPlaceholderCell(array, 0, 0)) selectCell(model, array, 0, 0);
+        // else if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
+        // else
+        // Select the second line
+        selectCell(model, array, 1, 0);
       }
 
       // We've created the environment and the cells, no need to add a row/column, so return undefined
@@ -328,7 +250,47 @@ function addCell(
 }
 
 export function addRowAfter(model: _Model): boolean {
+  // Only add a row if the current position is in the top level of a cell
+  // or at the top level of the root (in which case we'll convert to a `lines` environment)
+  const cursor = model.at(model.position);
+  if (
+    !isCellBranch(cursor.parentBranch) &&
+    cursor.parent !== model.root &&
+    model.root.type !== 'root'
+  ) {
+    model.announce('plonk');
+    return false;
+  }
+
   if (!model.contentWillChange({ inputType: 'insertText' })) return false;
+
+  // If in multiline mode, split the current line
+  if (model.parentEnvironment?.isMultiline) {
+    // If there's a selection, delete it
+    if (!model.selectionIsCollapsed) model.deleteAtoms(range(model.selection));
+
+    // Get content before/after the cursor
+    const [first, last] = cellSiblings(model)!;
+    let after = model.extractAtoms([model.position, model.offsetOf(last)]);
+    let before = model.extractAtoms([model.offsetOf(first), model.position]);
+
+    const array = first.parent as ArrayAtom;
+    const [row, col] = first.parentBranch as [number, number];
+
+    array.setCell(row, col, before);
+
+    // Add row after the current row
+    addCell(model, 'after row');
+
+    // Set row following cell
+    array.setCell(row + 1, col, after);
+
+    model.position = model.offsetOf(array.getCell(row + 1, col)![0]);
+
+    model.contentDidChange({ inputType: 'insertText' });
+    return true;
+  }
+
   addCell(model, 'after row');
   model.contentDidChange({ inputType: 'insertText' });
   return true;
@@ -498,4 +460,8 @@ registerCommand(
 
 function placeholderCell() {
   return [new PlaceholderAtom()];
+}
+
+function emptyCell() {
+  return [new Atom({ type: 'first', mode: 'math' })];
 }

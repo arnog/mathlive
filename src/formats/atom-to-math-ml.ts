@@ -2,6 +2,12 @@ import { Atom } from '../core/atom-class';
 import { mathVariantToUnicode } from '../core/unicode';
 import { MacroAtom } from '../atoms/macro';
 import { LeftRightAtom } from '../atoms/leftright';
+import { ArrayAtom } from 'atoms/array';
+import { EncloseAtom } from 'atoms/enclose';
+import { BoxAtom } from 'atoms/box';
+import { OverunderAtom } from 'atoms/overunder';
+import { GenfracAtom } from 'atoms/genfrac';
+import { AccentAtom } from 'atoms/accent';
 
 type MathMLStream = {
   atoms: Atom[];
@@ -599,7 +605,7 @@ function toString(atoms) {
  * Return a MathML fragment representation of a single atom
  *
  */
-function atomToMathML(atom, options): string {
+function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
   if (atom.mode === 'text')
     return `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
 
@@ -723,27 +729,28 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'array':
+      const arrayAtom = atom as ArrayAtom;
       if (
-        (atom.leftDelim && atom.leftDelim !== '.') ||
-        (atom.rightDelim && atom.rightDelim !== '.')
+        (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') ||
+        (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
         result += '<mrow>';
-        if (atom.leftDelim && atom.leftDelim !== '.') {
+        if (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') {
           result +=
             '<mo>' +
-            (SPECIAL_DELIMS[atom.leftDelim] || atom.leftDelim) +
+            (SPECIAL_DELIMS[arrayAtom.leftDelim] || arrayAtom.leftDelim) +
             '</mo>';
         }
       }
 
       result += '<mtable';
-      if (atom.colFormat) {
+      if (arrayAtom.colFormat) {
         result += ' columnalign="';
-        for (i = 0; i < atom.colFormat.length; i++) {
-          if (atom.colFormat[i].align) {
+        for (i = 0; i < arrayAtom.colFormat.length; i++) {
+          const format = arrayAtom.colFormat[i];
+          if ('align' in format) {
             result +=
-              { l: 'left', c: 'center', r: 'right' }[atom.colFormat[i].align] +
-              ' ';
+              { l: 'left', c: 'center', r: 'right' }[format.align] + ' ';
           }
         }
 
@@ -751,11 +758,11 @@ function atomToMathML(atom, options): string {
       }
 
       result += '>';
-      for (row = 0; row < atom.array.length; row++) {
+      for (row = 0; row < arrayAtom.rows.length; row++) {
         result += '<mtr>';
-        for (col = 0; col < atom.array[row].length; col++) {
+        for (col = 0; col < arrayAtom.rows[row].length; col++) {
           result +=
-            '<mtd>' + toMathML(atom.array[row][col], options) + '</mtd>';
+            '<mtd>' + toMathML(arrayAtom.rows[row][col], options) + '</mtd>';
         }
 
         result += '</mtr>';
@@ -764,13 +771,13 @@ function atomToMathML(atom, options): string {
       result += '</mtable>';
 
       if (
-        (atom.leftDelim && atom.leftDelim !== '.') ||
-        (atom.rightDelim && atom.rightDelim !== '.')
+        (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') ||
+        (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
-        if (atom.rightDelim && atom.rightDelim !== '.') {
+        if (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.') {
           result +=
             '<mo>' +
-            (SPECIAL_DELIMS[atom.leftDelim] || atom.rightDelim) +
+            (SPECIAL_DELIMS[arrayAtom.leftDelim!] || arrayAtom.rightDelim) +
             '</mo>';
         }
 
@@ -780,18 +787,19 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'genfrac':
-      if (atom.leftDelim || atom.rightDelim) result += '<mrow>';
+      const genfracAtom = atom as GenfracAtom;
+      if (genfracAtom.leftDelim || genfracAtom.rightDelim) result += '<mrow>';
 
-      if (atom.leftDelim && atom.leftDelim !== '.') {
+      if (genfracAtom.leftDelim && genfracAtom.leftDelim !== '.') {
         result +=
           '<mo' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_DELIMS[atom.leftDelim] || atom.leftDelim) +
+          (SPECIAL_DELIMS[genfracAtom.leftDelim] || genfracAtom.leftDelim) +
           '</mo>';
       }
 
-      if (atom.hasBarLine) {
+      if (genfracAtom.hasBarLine) {
         result += '<mfrac>';
         result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
         result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
@@ -804,16 +812,16 @@ function atomToMathML(atom, options): string {
         result += '</mtable>';
       }
 
-      if (atom.rightDelim && atom.rightDelim !== '.') {
+      if (genfracAtom.rightDelim && genfracAtom.rightDelim !== '.') {
         result +=
           '<mo' +
           makeID(atom.id, options) +
           '>' +
-          (SPECIAL_DELIMS[atom.rightDelim] || atom.rightDelim) +
+          (SPECIAL_DELIMS[genfracAtom.rightDelim] || genfracAtom.rightDelim) +
           '</mo>';
       }
 
-      if (atom.leftDelim || atom.rightDelim) result += '</mrow>';
+      if (genfracAtom.leftDelim || genfracAtom.rightDelim) result += '</mrow>';
 
       break;
 
@@ -861,9 +869,11 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'accent':
+      const accentAtom = atom as AccentAtom;
       result += '<mover accent="true"' + makeID(atom.id, options) + '>';
       result += toMathML(atom.body, options);
-      result += '<mo>' + (SPECIAL_ACCENTS[command] || atom.accent) + '</mo>';
+      result +=
+        '<mo>' + (SPECIAL_ACCENTS[command] || accentAtom.accent) + '</mo>';
       result += '</mover>';
       break;
 
@@ -872,9 +882,13 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'overunder':
+      const overunderAtom = atom as OverunderAtom;
       overscript = atom.above;
       underscript = atom.below;
-      if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript))
+      if (
+        (overunderAtom.svgAbove || overscript) &&
+        (overunderAtom.svgBelow || underscript)
+      )
         body = atom.body;
       else if (overscript && overscript.length > 0) {
         body = atom.body;
@@ -891,47 +905,53 @@ function atomToMathML(atom, options): string {
           overscript = atom.body[0].above;
           body = atom.body[0].body;
         } else if (atom.body?.[0]?.type === 'first' && atom.body?.[1]?.above) {
-          overscript = atom.body[1].overscript;
+          overscript = atom.body[1].above;
           body = atom.body[1].body;
         }
       }
 
-      if ((atom.svgAbove || overscript) && (atom.svgBelow || underscript)) {
+      if (
+        (overunderAtom.svgAbove || overscript) &&
+        (overunderAtom.svgBelow || underscript)
+      ) {
         result += `<munderover ${makeID(atom.id, options)}>`;
-        result += SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options);
         result +=
-          SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
+          SVG_CODE_POINTS[overunderAtom.svgBody!] ?? toMathML(body, options);
         result +=
-          SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
+          SVG_CODE_POINTS[overunderAtom.svgBelow!] ??
+          toMathML(underscript, options);
+        result +=
+          SVG_CODE_POINTS[overunderAtom.svgAbove!] ??
+          toMathML(overscript, options);
         result += '</munderover>';
-      } else if (atom.svgAbove || overscript) {
+      } else if (overunderAtom.svgAbove || overscript) {
         result +=
           `<mover ${makeID(atom.id, options)}>` +
-          (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
+          (SVG_CODE_POINTS[overunderAtom.svgBody!] ?? toMathML(body, options));
         result +=
-          SVG_CODE_POINTS[atom.svgAbove] ?? toMathML(overscript, options);
+          SVG_CODE_POINTS[overunderAtom.svgAbove!] ??
+          toMathML(overscript, options);
         result += '</mover>';
-      } else if (atom.svgBelow || underscript) {
+      } else if (overunderAtom.svgBelow || underscript) {
         result +=
           `<munder ${makeID(atom.id, options)}>` +
-          (SVG_CODE_POINTS[atom.svgBody] ?? toMathML(body, options));
+          (SVG_CODE_POINTS[overunderAtom.svgBody!] ?? toMathML(body, options));
         result +=
-          SVG_CODE_POINTS[atom.svgBelow] ?? toMathML(underscript, options);
+          SVG_CODE_POINTS[overunderAtom.svgBelow!] ??
+          toMathML(underscript, options);
         result += '</munder>';
       }
 
       break;
 
-    case 'placeholder': // No real equivalent in MathML -- will generate a '?'qq
+    case 'placeholder':
+      // No real equivalent in MathML -- will generate a '?'
       result += '?';
       break;
+
     case 'mord': {
       result = typeof atom.value === 'string' ? atom.value : command;
-      if (command === '\\char') {
-        // It's a \char command
-        result =
-          '&#x' + ('000000' + atom.args[0].number.toString(16)).slice(-4) + ';';
-      } else if (result.length > 0 && result.startsWith('\\')) {
+      if (result.length > 0 && result.startsWith('\\')) {
         // This is an identifier with no special handling. Use the
         // Unicode value
         if (typeof atom.value === 'string' && atom.value.charCodeAt(0) > 255) {
@@ -973,7 +993,7 @@ function atomToMathML(atom, options): string {
     case 'mop':
     case 'operator':
     case 'extensible-symbol':
-      if (atom.body !== '\u200B') {
+      if (atom.value !== '\u200B') {
         // Not ZERO-WIDTH
         result = '<mo' + makeID(atom.id, options) + '>';
         result +=
@@ -995,9 +1015,10 @@ function atomToMathML(atom, options): string {
     // break;
 
     case 'box':
+      const boxAtom = atom as BoxAtom;
       result = '<menclose notation="box"';
-      if (atom.backgroundcolor)
-        result += ' mathbackground="' + atom.backgroundcolor + '"';
+      if (boxAtom.backgroundcolor)
+        result += ' mathbackground="' + boxAtom.backgroundcolor + '"';
 
       result +=
         makeID(atom.id, options) +
@@ -1011,11 +1032,15 @@ function atomToMathML(atom, options): string {
       break;
 
     case 'enclose':
+      const encloseAtom = atom as EncloseAtom;
       result = '<menclose notation="';
-      for (const notation in atom.notation) {
+      for (const notation in encloseAtom.notation) {
         if (
-          Object.prototype.hasOwnProperty.call(atom.notation, notation) &&
-          atom.notation[notation]
+          Object.prototype.hasOwnProperty.call(
+            encloseAtom.notation,
+            notation
+          ) &&
+          encloseAtom.notation[notation]
         ) {
           result += sep + notation;
           sep = ' ';

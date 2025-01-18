@@ -118,6 +118,10 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   // parentheses) e.g. "f" or "\sin"
   isFunction: boolean;
 
+  // If `true`, the atom is the root of the tree. That's the case for
+  // some environment, such as `lines`, etc...
+  isRoot = false;
+
   // If true, when the caret reaches the first position in this element's body,
   // (moving right to left) it automatically moves to the outside of the
   // element.
@@ -156,6 +160,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     this.command = options.command ?? this.value ?? '';
     this.mode = options.mode ?? 'math';
     if (options.isFunction) this.isFunction = true;
+    if (options.isRoot) this.isRoot = true;
     if (options.limits) this.subsupPlacement = options.limits;
     this.style = { ...(options.style ?? {}) };
     this.displayContainsHighlight = options.displayContainsHighlight ?? false;

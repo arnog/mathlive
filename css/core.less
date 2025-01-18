@@ -1,18 +1,27 @@
 // The mu (mathematical unit) is defined by TeX as 1/18 em
 @mu: 1/18em;
 
-@system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+@system:
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  'Roboto',
+  'Oxygen',
+  'Ubuntu',
+  'Cantarell',
+  'Fira Sans',
+  'Droid Sans',
+  'Helvetica Neue',
   sans-serif;
 
-  .ML__container {
-    min-height: auto !important;
-    --_hue: var(--hue, 212);
-    --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
-    --_placeholder-opacity: var(--placeholder-opacity, 0.4);
-    --_text-font-family: var(--text-font-family, @system);
-  }
-  
+.ML__container {
+  min-height: auto !important;
+  --_hue: var(--hue, 212);
+  --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
+  --_placeholder-opacity: var(--placeholder-opacity, 0.4);
+  --_text-font-family: var(--text-font-family, @system);
+}
 
 .ML__sr-only {
   position: absolute;
@@ -84,7 +93,6 @@
   font-family: KaTeX_Main; // Use upright font
   font-weight: bold;
 }
-
 
 /* Lowercase greek symbols should stick to math font when \mathbf is applied 
    to match TeX idiosyncratic behavior */
@@ -222,7 +230,6 @@
   text-align: right;
 }
 
-
 .ML__label_padding {
   padding: 0 0.5em;
 }
@@ -234,8 +241,8 @@
   &:after {
     content: '';
     display: block;
-    margin-top: ~"max(-1px, -0.04em)";
-    min-height: ~"max(1px, 0.04em)";
+    margin-top: ~'max(-1px, -0.04em)';
+    min-height: ~'max(1px, 0.04em)';
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -267,15 +274,15 @@
 
 .ML__sqrt-line {
   display: inline-block;
-  height: ~"max(1px, 0.04em)";
+  height: ~'max(1px, 0.04em)';
   width: 100%;
 
   &:before {
     content: '';
     display: block;
-    margin-top: ~"min(-1px, -0.04em)";
+    margin-top: ~'min(-1px, -0.04em)';
     // margin-top: -1px;
-    min-height: ~"max(1px, 0.04em)";
+    min-height: ~'max(1px, 0.04em)';
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -379,7 +386,7 @@
   .ML__mfrac {
     display: inline-block;
   }
-  
+
   .ML__left-right {
     display: inline-block;
   }
@@ -395,7 +402,7 @@
   }
 
   .ML__vlist {
-    display: table-cell;    // Inside a table-cell, vertical-align aligns the content of the cell, not the cell itself
+    display: table-cell; // Inside a table-cell, vertical-align aligns the content of the cell, not the cell itself
     vertical-align: bottom;
     position: relative;
 
@@ -515,7 +522,7 @@
     &:before {
       content: '';
       border-bottom-style: solid;
-      border-bottom-width: ~"max(1px, 0.04em)";
+      border-bottom-width: ~'max(1px, 0.04em)';
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
       display: block;
@@ -523,13 +530,13 @@
 
     &:after {
       border-bottom-style: solid;
-      // Since Chrome 62 there are issues rendering sub-pixel borders at 
-      // certain zoom levels (90%, 110%). Forcing it to at least one pixels 
+      // Since Chrome 62 there are issues rendering sub-pixel borders at
+      // certain zoom levels (90%, 110%). Forcing it to at least one pixels
       // seems to work around the issue.
-      border-bottom-width: ~"max(1px, 0.04em)";
+      border-bottom-width: ~'max(1px, 0.04em)';
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-        content: '';
+      content: '';
       display: block;
       margin-top: -1px;
     }
@@ -626,6 +633,35 @@
     }
   }
 
+  &:has(.ML__center_environment),
+  &:has(.ML__multiline_environment),
+  &:has(.ML__align_environment),
+  &:has(.ML__eqnarray_environment),
+  &:has(.ML__gather_environment) {
+    // Make the container (.ML__latex) take the whole width of the field
+    width: 100%;
+  }
+
+  .ML__multiline_environment {
+    // Make the table take the whole width of the container
+    display: inline-flex;
+    width: 100%;
+  }
+
+  .ML__center_environment {
+    // Make the table take the whole width of the container, and be centered
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ML__align_environment,
+  .ML__eqnarray_environment,
+  .ML__gather_environment {
+    display: inline-block;
+    // width: 100%;
+  }
+
   .ML__mtable {
     .ML__vertical-separator {
       display: inline-block;
@@ -682,9 +718,8 @@
   padding: 0;
 }
 
-
 .ML__placeholder {
-  color:  var(--_placeholder-color);
+  color: var(--_placeholder-color);
   opacity: var(--_placeholder-opacity);
   padding-left: 0.4ex;
   padding-right: 0.4ex;
@@ -696,7 +731,6 @@
   box-sizing: border-box;
   line-height: 0;
 }
-
 
 /* This class is used to implement the `\mathtip` and `\texttip` commands
    For UI elements, see `[data-ML__tooltip]`
@@ -739,4 +773,3 @@
     transform: scale(1) translate(0, 3em);
   }
 }
-

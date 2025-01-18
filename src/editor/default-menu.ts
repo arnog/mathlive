@@ -3,7 +3,11 @@ import { convertLatexToMarkup } from 'public/mathlive-ssr';
 import { localize } from 'core/l10n';
 import { ModeEditor } from 'editor-mathfield/mode-editor';
 import { setEnvironment } from 'editor-model/array';
-import { TabularEnvironment, Variant, VariantStyle } from 'public/core-types';
+import type {
+  TabularEnvironment,
+  Variant,
+  VariantStyle,
+} from 'public/core-types';
 import { requestUpdate } from 'editor-mathfield/render';
 import { complete, removeSuggestion } from 'editor-mathfield/autocomplete';
 import { BACKGROUND_COLORS, FOREGROUND_COLORS } from 'core/color';
@@ -13,6 +17,7 @@ import { _Mathfield } from 'editor-mathfield/mathfield-private';
 import { _MenuItemState } from 'ui/menu/menu-item';
 import { contrast } from 'ui/colors/contrast';
 import { asHexColor } from 'ui/colors/css';
+import { ArrayAtom } from 'atoms/array';
 
 // Return a string from the selection, if all the atoms are character boxes
 // (i.e. not fractions, square roots, etc...)
@@ -32,7 +37,7 @@ function getSelectionAtoms(mf: _Mathfield): Readonly<Atom[]> {
   if (ranges.length !== 1) return [];
 
   let atoms = mf.model.getAtoms(ranges[0]);
-  if (atoms.length === 1 && atoms[0].type === 'root') atoms = atoms[0].children;
+  if (atoms.length === 1 && atoms[0].isRoot) atoms = atoms[0].children;
   return atoms.filter((x) => x.type !== 'first');
 }
 
@@ -340,20 +345,35 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'add-row-above',
       onMenuSelect: () => mf.executeCommand('addRowBefore'),
       keyboardShortcut: 'shift+alt+[Return]',
-      visible: () => inMatrix(mf),
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [minRows, _minCols] = minShape(mf);
+        const [maxRows, _maxCols] = maxShape(mf);
+        return minRows !== maxRows;
+      },
     },
     {
       label: () => localize('menu.array.add row below')!,
       id: 'add-row-below',
       onMenuSelect: () => mf.executeCommand('addRowAfter'),
       keyboardShortcut: 'alt+[Return]',
-      visible: () => inMatrix(mf),
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [minRows, _minCols] = minShape(mf);
+        const [maxRows, _maxCols] = maxShape(mf);
+        return minRows !== maxRows;
+      },
     },
     {
       label: () => localize('menu.array.add column before')!,
       id: 'add-column-before',
       onMenuSelect: () => mf.executeCommand('addColumnBefore'),
-      visible: () => inMatrix(mf),
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [_minRows, minCols] = minShape(mf);
+        const [_maxRows, maxCols] = maxShape(mf);
+        return minCols !== maxCols;
+      },
       keyboardShortcut: 'shift+alt+[Tab]',
       enabled: () => {
         const array = mf.model.parentEnvironment;
@@ -367,7 +387,12 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       id: 'add-column-after',
       onMenuSelect: () => mf.executeCommand('addColumnAfter'),
       keyboardShortcut: 'alt+[Tab]',
-      visible: () => inMatrix(mf),
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [_minRows, minCols] = minShape(mf);
+        const [_maxRows, maxCols] = maxShape(mf);
+        return minCols !== maxCols;
+      },
     },
     {
       type: 'divider',
@@ -376,13 +401,33 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       label: () => localize('menu.array.delete row')!,
       id: 'delete-row',
       onMenuSelect: () => mf.executeCommand('removeRow'),
-      visible: () => inMatrix(mf),
+      enabled: () => {
+        const [minRows, _minCols] = minShape(mf);
+        const [rows, _cols] = shape(mf);
+        return rows > minRows;
+      },
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [minRows, _minCols] = minShape(mf);
+        const [maxRows, _maxCols] = maxShape(mf);
+        return minRows !== maxRows;
+      },
     },
     {
       label: () => localize('menu.array.delete column')!,
       id: 'delete-column',
       onMenuSelect: () => mf.executeCommand('removeColumn'),
-      visible: () => inMatrix(mf),
+      enabled: () => {
+        const [_minRows, minCols] = minShape(mf);
+        const [_rows, cols] = shape(mf);
+        return cols > minCols;
+      },
+      visible: () => {
+        if (!mf.isSelectionEditable || !inMatrix(mf)) return false;
+        const [_minRows, minCols] = minShape(mf);
+        const [_maxRows, maxCols] = maxShape(mf);
+        return minCols !== maxCols;
+      },
     },
     {
       type: 'divider',
@@ -673,21 +718,41 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
 }
 
 function inMatrix(mf: _Mathfield): boolean {
-  return !!mf.model.parentEnvironment?.array;
+  const env = mf.model.parentEnvironment?.environmentName ?? '';
+  return [
+    'array',
+    'matrix',
+    'pmatrix',
+    'bmatrix',
+    'vmatrix',
+    'Bmatrix',
+  ].includes(env);
 }
 
 function isMatrixSelected(mf: _Mathfield): boolean {
-  return mf.model.at(mf.model.position).type === 'array';
+  const cursor = mf.model.at(mf.model.position);
+  if (cursor.type !== 'array') return false;
+  const env = (cursor as ArrayAtom).environmentName;
+  return ['matrix', 'pmatrix', 'bmatrix', 'vmatrix', 'Bmatrix'].includes(env);
 }
 
 function shape(mf: _Mathfield): [number, number] {
-  const array = mf.model.parentEnvironment?.array;
-  if (!array) return [0, 0];
+  const rows = mf.model.parentEnvironment?.rows;
+  if (!rows) return [0, 0];
 
-  return [
-    array.length,
-    array.reduce((acc, col) => Math.max(acc, col.length), 0),
-  ];
+  return [rows.length, rows.reduce((acc, col) => Math.max(acc, col.length), 0)];
+}
+
+function minShape(mf: _Mathfield): [number, number] {
+  const array = mf.model.parentEnvironment;
+  if (!array) return [0, 0];
+  return [array.minRows, array.minColumns];
+}
+
+function maxShape(mf: _Mathfield): [number, number] {
+  const array = mf.model.parentEnvironment;
+  if (!array) return [0, 0];
+  return [array.maxRows, array.maxColumns];
 }
 
 function performSetEnvironment(mf: _Mathfield, env: TabularEnvironment): void {

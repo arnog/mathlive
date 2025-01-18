@@ -188,11 +188,11 @@ const matrixButtons = { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix };
 const casesButtons = { cases, rcases, Bmatrix };
 
 export function showEnvironmentPopover(mf: _Mathfield): void {
-  const array = mf.model.parentEnvironment?.array;
-  if (!array) return;
+  const rows = mf.model.parentEnvironment?.rows;
+  if (!rows) return;
 
   let columnCount = 0;
-  array.forEach((column) => {
+  rows.forEach((column) => {
     if (!columnCount || column.length > columnCount)
       columnCount = column.length;
   });
@@ -318,7 +318,7 @@ export function updateEnvironmentPopover(mf: _Mathfield): void {
   let visible = false;
   if (mf.model.mode === 'math') {
     const env = mf.model.parentEnvironment;
-    if (!!env?.array && isTabularEnvironment(env.environmentName)) {
+    if (!!env?.rows && isTabularEnvironment(env.environmentName)) {
       // The focus is inside a tabular environment
       const policy = mf.options.environmentPopoverPolicy;
       visible = policy === 'auto' || policy === 'on';

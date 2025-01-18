@@ -117,6 +117,29 @@ export function getAtomBounds(mathfield: _Mathfield, atom: Atom): Rect | null {
   return result ?? null;
 }
 
+export function getRangeBoundingRect(mf: _Mathfield, range: Range): Rect {
+  const [start, end] = range;
+
+  // Inspect each bounding rect, and calculate the maximum
+  // top, bottom, left, and right
+  let result: Rect | null = null;
+  for (let i = start; i <= end; i++) {
+    const bounds = getAtomBounds(mf, mf.model.at(i));
+    if (bounds) {
+      if (!result) {
+        result = bounds;
+      } else {
+        result.top = Math.min(result.top, bounds.top);
+        result.bottom = Math.max(result.bottom, bounds.bottom);
+        result.left = Math.min(result.left, bounds.left);
+        result.right = Math.max(result.right, bounds.right);
+      }
+    }
+  }
+
+  return result ?? { top: 0, bottom: 0, left: 0, right: 0 };
+}
+
 /*
  * Return an array of bounds for the specified range, at most
  * one rect per branch.
@@ -129,26 +152,26 @@ function getRangeBounds(
   // The key of the map is a 'branchId', i.e. "atom id + branch"
   const rects = new Map<string, Rect>();
 
+  // Logic to accommodate mathfield hosted in an isotropically
+  // scale-transformed element.
+  // Without this, the selection indicator will not be in the right place.
+
+  // 1. Inquire how big the mathfield thinks it is
+  const field = mathfield.field;
+  const offsetWidth = field.offsetWidth;
+
+  // 2. Get the actual screen width of the box
+  const actualWidth = Math.floor(field.getBoundingClientRect().width);
+
+  // 3. Divide the two to get the scale factor
+  let scaleFactor = actualWidth / offsetWidth;
+  scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
+
   for (const atom of mathfield.model.getAtoms(range, {
     includeChildren: true,
   })) {
     if (options?.excludeAtomsWithBackground && atom.style.backgroundColor)
       continue;
-
-    // Logic to accommodate mathfield hosted in an isotropically
-    // scale-transformed element.
-    // Without this, the selection indicator will not be in the right place.
-
-    // 1. Inquire how big the mathfield thinks it is
-    const field = mathfield.field;
-    const offsetWidth = field.offsetWidth;
-
-    // 2. Get the actual screen width of the box
-    const actualWidth = Math.floor(field.getBoundingClientRect().width);
-
-    // 3. Divide the two to get the scale factor
-    let scaleFactor = actualWidth / offsetWidth;
-    scaleFactor = isNaN(scaleFactor) ? 1 : scaleFactor;
 
     const bounds = adjustForScrolling(
       mathfield,

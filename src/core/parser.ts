@@ -166,7 +166,23 @@ export class Parser {
     mode?: ParseMode;
     mathstyle?: MathstyleName;
     tabular?: boolean;
+    root?: boolean;
   }): void {
+    if (options?.root) {
+      // If we're starting a new root context, replace
+      // the current context with a new one.
+
+      this.parsingContext = {
+        parent: this.parsingContext.parent,
+        mathlist: [],
+        style: {},
+        parseMode: options?.mode ?? 'math',
+        mathstyle: options?.mathstyle ?? 'displaystyle',
+        tabular: options?.tabular ?? false,
+      };
+      return;
+    }
+
     const current = this.parsingContext;
     const newContext: ParsingContext = {
       parent: current,
@@ -844,7 +860,7 @@ export class Parser {
       }
     }
 
-    this.beginContext({ tabular: def.tabular });
+    this.beginContext({ tabular: def.tabular, root: def.rootOnly });
 
     const array: Atom[][][] = [];
     const rowGaps: Dimension[] = [];
@@ -907,6 +923,10 @@ export class Parser {
 
     this.endContext();
 
+    // If we're a root environment, skip any tokens after the end of the
+    // environment
+    if (def.rootOnly) this.index = this.tokens.length;
+
     return def.createAtom(
       envName,
       array,
@@ -932,11 +952,10 @@ export class Parser {
   }
 
   /**
-   * Parse a sequence until a group end marker, such as
-   * `}`, `\end`, `&`, etc...
+   * Parse a sequence until a group end marker, such as `}`, `\end`, `&`, etc...
    *
-   * Returns an array of atoms or an empty array if the sequence
-   * terminates right away.
+   * Returns an array of atoms or an empty array if the sequence terminates
+   * right away.
    *
    * @param done - A predicate indicating if a token signals the end of a
    * group

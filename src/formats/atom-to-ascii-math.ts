@@ -366,25 +366,34 @@ export function atomToAsciiMath(
       break;
 
     case 'array':
-      const array = (atom as ArrayAtom).array;
       const environment = (atom as ArrayAtom).environmentName;
-      const rowDelim = {
-        'bmatrix': ['[', ']'],
-        'bmatrix*': ['[', ']'],
-      }[environment] ?? ['(', ')'];
-      const rows: string[] = [];
-      for (const row of array) {
-        const cells: string[] = [];
-        for (const cell of row) cells.push(atomToAsciiMath(cell, options));
-        rows.push(rowDelim[0] + cells.join(',') + rowDelim[1]);
-      }
+      if ((atom as ArrayAtom).isMultiline) {
+        const lines = (atom as ArrayAtom).rows!;
+        result = lines
+          .map((line) =>
+            line.map((cell) => atomToAsciiMath(cell, options)).join('')
+          )
+          .join('\n');
+      } else {
+        const rowDelim = {
+          'bmatrix': ['[', ']'],
+          'bmatrix*': ['[', ']'],
+        }[environment] ?? ['(', ')'];
+        const rows: string[] = [];
+        const array = (atom as ArrayAtom).rows;
+        for (const row of array) {
+          const cells: string[] = [];
+          for (const cell of row) cells.push(atomToAsciiMath(cell, options));
+          rows.push(rowDelim[0] + cells.join(',') + rowDelim[1]);
+        }
 
-      const delim = {
-        'bmatrix': ['[', ']'],
-        'bmatrix*': ['[', ']'],
-        'cases': ['{', ':}'],
-      }[environment] ?? ['(', ')'];
-      result = delim[0] + rows.join(',') + delim[1];
+        const delim = {
+          'bmatrix': ['[', ']'],
+          'bmatrix*': ['[', ']'],
+          'cases': ['{', ':}'],
+        }[environment] ?? ['(', ')'];
+        result = delim[0] + rows.join(',') + delim[1];
+      }
       break;
 
     case 'box':

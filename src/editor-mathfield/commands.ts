@@ -72,11 +72,16 @@ registerCommand({
   // A 'commit' command is used to simulate pressing the return/enter key,
   // e.g. when using a virtual keyboard
   commit: (mathfield: _Mathfield) => {
-    if (mathfield.model.contentWillChange({ inputType: 'insertLineBreak' })) {
+    const model = mathfield.model;
+    if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
       mathfield.host?.dispatchEvent(
         new Event('change', { bubbles: true, composed: true })
       );
-      mathfield.model.contentDidChange({ inputType: 'insertLineBreak' });
+      // If we're in a multiline environment, insert a newline
+      if (model.parentEnvironment?.isMultiline)
+        mathfield.executeCommand('addRowAfter');
+
+      model.contentDidChange({ inputType: 'insertLineBreak' });
     }
     return true;
   },

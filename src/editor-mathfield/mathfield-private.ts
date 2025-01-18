@@ -285,11 +285,10 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     const mode = effectiveMode(this.options);
 
     // Setup the model
-    const root = new Atom({
-      type: 'root',
-      mode,
-      body: parseLatex(elementText, { context: this.context }),
-    });
+    const body = parseLatex(elementText, { context: this.context });
+    let root: Atom;
+    if (body.length === 1 && body[0].isRoot) root = body[0];
+    else root = new Atom({ type: 'root', mode, body, isRoot: true });
 
     this.model = new _Model(this, mode, root);
 

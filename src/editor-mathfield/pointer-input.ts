@@ -1,10 +1,11 @@
-import { getAtomBounds, Rect } from './utils';
+import { getAtomBounds, getRangeBoundingRect, Rect } from './utils';
 import type { _Mathfield } from './mathfield-private';
 import { requestUpdate } from './render';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
-import type { Offset } from 'public/core-types';
+import type { Offset, Range } from 'public/core-types';
+import { ArrayAtom } from 'atoms/array';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
@@ -260,6 +261,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
 
 function distance(x: number, y: number, r: Rect): number {
   if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return 0;
+
   const dx = x - (r.left + r.right) / 2;
   const dy = y - (r.top + r.bottom) / 2;
   return dx * dx + dy * dy;
@@ -283,19 +285,67 @@ function nearestAtomFromPointRecursive(
     null,
   ];
 
+  // @fixme: we should use a hitbox() method on the atom that would account for the actual layout or have a case statement for all the atom types. In the meantime, we assume each branch to be a stack of horizontally laid out boxes and consider branches whose top and bottom contain the 'y' coordinate
+  const model = mathfield.model;
+
   //
-  // 1. Consider any children within the horizontal bounds
+  // Do we have an array of cells?
   //
-  if (
+  if (atom instanceof ArrayAtom) {
+    // Find a matching cell, row by row
+    for (const row of atom.rows) {
+      for (const cell of row) {
+        const cellRange: Range = [
+          model.offsetOf(cell![0]!),
+          model.offsetOf(cell![cell!.length - 1]!),
+        ];
+        const r = getRangeBoundingRect(mathfield, cellRange);
+        // Is the y within the vertical bounds of the row?
+        if (y >= r.top && y <= r.bottom) {
+          for (const atom of cell!) {
+            const r = nearestAtomFromPointRecursive(
+              mathfield,
+              cache,
+              atom,
+              x,
+              y
+            );
+            if (r[0] <= result[0]) result = r;
+          }
+        }
+      }
+    }
+  } else if (
     atom.hasChildren &&
     !atom.captureSelection &&
     x >= bounds.left &&
     x <= bounds.right
   ) {
-    for (const child of atom.children) {
+    const children = atom.children;
+    for (const child of children) {
+      // Is the y within the vertical bounds of the branch?
       const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
       if (r[0] <= result[0]) result = r;
     }
+
+    // Find a matching branch
+    // for (const branch of atom.branches) {
+    //   const siblings = atom.branch(branch);
+    //   if (!siblings || siblings.length === 0) continue;
+    //   const siblingsRange: Range = [
+    //     model.offsetOf(siblings[0]),
+    //     model.offsetOf(siblings[siblings.length - 1]),
+    //   ];
+    //   const r = getRangeBoundingRect(mathfield, siblingsRange);
+    //   // Is the y within the vertical bounds of the branch?
+    //   if (y >= r.top && y <= r.bottom) {
+    //     console.log(branch, r);
+    //     for (const atom of siblings) {
+    //       const r = nearestAtomFromPointRecursive(mathfield, cache, atom, x, y);
+    //       if (r[0] <= result[0]) result = r;
+    //     }
+    //   }
+    // }
   }
 
   //

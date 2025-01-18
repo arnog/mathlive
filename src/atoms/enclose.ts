@@ -43,7 +43,7 @@ export class EncloseAtom extends Atom {
   backgroundcolor?: string;
   border: string;
 
-  private readonly notation: Notations;
+  readonly notation: Notations;
   private readonly shadow?: string;
   private readonly strokeWidth?: string;
   private readonly strokeStyle?: string;

@@ -358,7 +358,7 @@ function atomToSpeakableFragment(
         ' . <break time="700ms"/> ';
       break;
     case 'array':
-      const array = (atom as ArrayAtom).array;
+      const array = (atom as ArrayAtom).rows;
       const environment = (atom as ArrayAtom).environmentName;
 
       if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {

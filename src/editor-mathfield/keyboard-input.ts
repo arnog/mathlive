@@ -213,6 +213,10 @@ export function onKeystroke(
           evt.preventDefault();
           evt.stopPropagation();
         } else {
+          // If we're in a multiline environment, insert a newline
+          if (model.parentEnvironment?.isMultiline)
+            mathfield.executeCommand('addRowAfter');
+
           // Dispatch an 'input' event matching the behavior of `<textarea>`
           model.contentDidChange({ inputType: 'insertLineBreak' });
         }
@@ -620,7 +624,6 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
 
   // If we're inserting a non-alphanumeric character, reset the variant
   if (!/[a-zA-Z0-9]/.test(c) && mathfield.styleBias !== 'none') {
-    console.log('resetting to normal');
     style.variant = 'normal';
     style.variantStyle = undefined;
   }

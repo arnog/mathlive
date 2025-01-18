@@ -29,7 +29,7 @@ import {
   isSelection,
   range,
 } from './selection-utils';
-import type { ArrayAtom } from '../atoms/array';
+import { ArrayAtom } from '../atoms/array';
 import { LatexAtom } from '../atoms/latex';
 import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
 import '../virtual-keyboard/global';
@@ -43,13 +43,13 @@ import { Mathfield, Model } from 'public/mathfield';
 export class _Model implements Model {
   readonly mathfield: _Mathfield;
 
+  root: Atom;
+
   // Note: in most cases, use mf.switchMode() instead.
   // Changing this directly will not dispatch the 'change-mode' event
   mode: ParseMode;
 
   silenceNotifications: boolean;
-
-  root: Atom;
 
   private _selection: Selection;
   private _anchor: Offset;
@@ -114,9 +114,6 @@ export class _Model implements Model {
     return this.root.children;
   }
 
-  /**
-   * The selection, accounting for the common ancestors
-   */
   get selection(): Selection {
     return this._selection;
   }
@@ -295,6 +292,20 @@ export class _Model implements Model {
     return [this.offsetOf(branch[0]), this.offsetOf(branch[branch.length - 1])];
   }
 
+  /** If offset is inside a cell, return the range (first and last offset) of the cell */
+  getCellRange(offset: Offset): Range | undefined {
+    const cellIndex = this.getParentCell(offset);
+
+    let atom: Atom | undefined = this.at(offset);
+    if (!atom) return undefined;
+
+    while (atom && atom.parent?.type !== 'array') atom = atom.parent;
+
+    if (!atom?.parent || atom.parent.type !== 'array') return undefined;
+
+    return [this.offsetOf(atom.firstSibling), this.offsetOf(atom.lastSibling)];
+  }
+
   /**
    * Return the atoms in a range.
    * getAtoms([3, 5]) -> atoms 4 and 5
@@ -416,16 +427,11 @@ export class _Model implements Model {
   extractAtoms(range: Range): Atom[] {
     let result = this.getAtoms(range) as Atom[];
     if (result.length === 1 && !result[0].parent) {
-      // We're trying to extract the root.
-      // Don't actually delete the root, delete all the children of the root.
-      if (result[0].type === 'root') {
-        result = [...result[0].body!];
+      // If we're trying to extract the root, don't actually delete the root,
+      // delete all the children of the root.
+      if (result[0].isRoot) {
+        result = [...(result[0].body ?? result[0].children)];
         result.shift();
-      } else {
-        // If the root is an array, replace with a plain root
-        result = (this.root as ArrayAtom).cells.flat();
-        this.root = new Atom({ type: 'root', body: [] });
-        return result;
       }
     }
     for (const child of result) child.parent!.removeChild(child);
@@ -769,8 +775,12 @@ export class _Model implements Model {
   }
 
   /** Return the cell (row, col) that the current selection is in */
-  get cell(): [number, number] | undefined {
-    let atom: Atom | undefined = this.at(this.position);
+  get parentCell(): [number, number] | undefined {
+    return this.getParentCell(this.position);
+  }
+
+  getParentCell(pos: Offset): [number, number] | undefined {
+    let atom: Atom | undefined = this.at(pos);
     if (!atom) return undefined;
 
     while (atom && atom.parent?.type !== 'array') atom = atom.parent;

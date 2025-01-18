@@ -300,38 +300,43 @@ export class MathModeEditor extends ModeEditor {
     //
     // 3/ Insert the new atoms
     //
-    const { parent } = model.at(model.position);
-    const hadEmptyBody = parent!.hasEmptyBranch('body');
 
-    // Are we inserting a fraction inside a leftright?
-    if (
-      insertingFraction &&
-      format !== 'latex' &&
-      model.mathfield.options.removeExtraneousParentheses &&
-      parent instanceof LeftRightAtom &&
-      parent.leftDelim === '(' &&
-      hadEmptyBody
-    ) {
-      // Remove the leftright
-      // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
-      const newParent = parent.parent!;
-      const branch = parent.parentBranch!;
-      newParent.removeChild(parent);
-      newParent.setChildren(newAtoms, branch);
-    }
+    if (newAtoms.length === 1 && newAtoms[0].isRoot) {
+      model.root = newAtoms[0];
+    } else {
+      const { parent } = model.at(model.position);
+      const hadEmptyBody = parent!.hasEmptyBranch('body');
 
-    const cursor = model.at(model.position);
-    cursor.parent!.addChildrenAfter(newAtoms, cursor);
+      // Are we inserting a fraction inside a leftright?
+      if (
+        insertingFraction &&
+        format !== 'latex' &&
+        model.mathfield.options.removeExtraneousParentheses &&
+        parent instanceof LeftRightAtom &&
+        parent.leftDelim === '(' &&
+        hadEmptyBody
+      ) {
+        // Remove the leftright
+        // i.e. `\left(\frac{}{}\right))` -> `\frac{}{}`
+        const newParent = parent.parent!;
+        const branch = parent.parentBranch!;
+        newParent.removeChild(parent);
+        newParent.setChildren(newAtoms, branch);
+      }
 
-    if (format === 'latex' && typeof input === 'string') {
-      // If we are given a latex string with no arguments, store it as
-      // "verbatim latex".
-      // Caution: we can only do this if the `serialize()` for this parent
-      // would return an empty string. If the latex is generated using other
-      // properties than parent.body, for example by adding '\left.' and
-      // '\right.' with a 'leftright' type, we can't use this shortcut.
-      if (parent?.type === 'root' && hadEmptyBody && !usedArg)
-        parent!.verbatimLatex = input;
+      const cursor = model.at(model.position);
+      cursor.parent!.addChildrenAfter(newAtoms, cursor);
+
+      if (format === 'latex' && typeof input === 'string') {
+        // If we are given a latex string with no arguments, store it as
+        // "verbatim latex".
+        // Caution: we can only do this if the `serialize()` for this parent
+        // would return an empty string. If the latex is generated using other
+        // properties than parent.body, for example by adding '\left.' and
+        // '\right.' with a 'leftright' type, we can't use this shortcut.
+        if (parent?.type === 'root' && hadEmptyBody && !usedArg)
+          parent!.verbatimLatex = input;
+      }
     }
 
     //

@@ -6,7 +6,7 @@ import { X_HEIGHT } from '../core/font-metrics';
 import { VBox } from '../core/v-box';
 
 export class AccentAtom extends Atom {
-  private readonly accent?: number;
+  readonly accent?: number;
   private readonly svgAccent?: string;
   constructor(
     options: CreateAtomOptions & {

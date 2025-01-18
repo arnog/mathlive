@@ -1,6 +1,8 @@
 /*
 
-See http://texdoc.net/texmf-dist/doc/latex/amsmath/amsldoc.pdf
+See:
+- https://www.latex-project.org/help/documentation/amsldoc.pdf
+- https://en.wikibooks.org/wiki/LaTeX/Advanced_Mathematics#Other_environments
 
 <columns> ::= <column>*<line>
 <column> ::= <line>('l'|'c'|'r')
@@ -37,8 +39,7 @@ See http://texdoc.net/texmf-dist/doc/latex/amsmath/amsldoc.pdf
                 no output if inside an equation
                 
 
-'gather'        at most two columns
-                first column centered, second column right aligned
+'gather'        one column centered
                 frequency 1
 
 'gathered'      must be in equation environment
@@ -154,15 +155,19 @@ const align = [
   'gathered',
   'split',
 ];
+
 const otherTabular = ['array', 'subequations', 'eqnarray'];
+
 export function isTabularEnvironment(
   environment: Environment
 ): environment is TabularEnvironment {
-  return otherTabular
-    .concat(align)
-    .concat(cases)
-    .concat(matrices)
-    .includes(environment);
+  return (
+    align.includes(environment) ||
+    cases.includes(environment) ||
+    cases.includes(environment) ||
+    matrices.includes(environment) ||
+    otherTabular.includes(environment)
+  );
 }
 
 export function isMatrixEnvironment(
