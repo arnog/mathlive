@@ -789,7 +789,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Support for [Trusted Type](https://w3c.github.io/webappsec-trusted-types/dist/spec/).
+   * Support for [Trusted Type](https://www.w3.org/TR/trusted-types/).
    *
    * This optional function will be called before a string of HTML is
    * injected in the DOM, allowing that string to be sanitized

@@ -423,15 +423,17 @@ export class Box implements BoxInterface {
             .filter((x, e, a) => x.length > 0 && a.indexOf(x) === e)
             .join(' ');
 
-    if (classList.length > 0) props += ` class="${classList}"`;
+    if (classList.length > 0)
+      props += ` class=${sanitizeAttributeValue(`"${classList}"`)}`;
 
     //
     // 3.2 Id
     //
-    if (this.id) props += ` data-atom-id=${this.id}`;
+    if (this.id) props += ` data-atom-id=${sanitizeAttributeValue(this.id)}`;
 
     // A (HTML5) CSS id may not contain a space
-    if (this.cssId) props += ` id="${this.cssId.replace(/ /g, '-')}" `;
+    if (this.cssId)
+      props += ` id=${sanitizeAttributeValue(`"${this.cssId.replace(/ /g, '-')}"`)}`;
 
     //
     // 3.3 Attributes
@@ -440,7 +442,10 @@ export class Box implements BoxInterface {
       props +=
         ' ' +
         Object.keys(this.attributes)
-          .map((x) => `${x}="${this.attributes![x]}"`)
+          .map(
+            (x) =>
+              `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(`"${this.attributes![x]}"`)}`
+          )
           .join(' ');
     }
 
@@ -449,11 +454,12 @@ export class Box implements BoxInterface {
       for (const entry of entries) {
         const matched = entry.match(/([^=]+)=(.+$)/);
         if (matched) {
-          const key = matched[1].trim().replace(/ /g, '-');
-          if (key) props += ` data-${key}="${matched[2]}" `;
+          const key = sanitizeAttributeName(matched[1]);
+          const value = sanitizeAttributeValue(matched[2]);
+          if (key) props += ` ${key}=${value}`;
         } else {
-          const key = entry.trim().replace(/ /g, '-');
-          if (key) props += ` data-${key} `;
+          const key = sanitizeAttributeName(entry);
+          if (key) props += ` ${key} `;
         }
       }
     }
@@ -488,10 +494,12 @@ export class Box implements BoxInterface {
           if (key) styleString += `${key}:${matched[2]};`;
         }
       }
-      if (styleString) props += ` style="${styleString}"`;
+      if (styleString)
+        props += ` style=${sanitizeAttributeValue(`"${styleString}"`)};`;
     }
 
-    if (styles.length > 0) props += ` style="${styles.join(';')}"`;
+    if (styles.length > 0)
+      props += ` style=${sanitizeAttributeValue(`"${styles.join(';')}"`)}`;
 
     //
     // 4. Tag markup
@@ -735,4 +743,42 @@ function horizontalLayout(box: Box, fontName: FontName): void {
 
     box.maxFontSize = maxFontSize;
   }
+}
+
+function sanitizeAttributeName(attribute: string): string {
+  attribute = attribute.trim().replace(/ /g, '-');
+
+  /**
+   * https://w3c.github.io/html-reference/syntax.html#syntax-attributes
+   *
+   * > Attribute Names must consist of one or more characters
+   * other than the space characters, U+0000 NULL,
+   * '"', "'", ">", "/", "=", the control characters,
+   * and any characters that are not defined by Unicode.
+   */
+  const invalidAttributeNameRegex = /[\s"'>/=\x00-\x1f]/;
+  if (invalidAttributeNameRegex.test(attribute))
+    throw new Error(`Invalid attribute name: ${attribute}`);
+
+  return attribute;
+}
+
+function sanitizeAttributeValue(value: string): string {
+  value = value.trim();
+
+  if (value.startsWith('"') && value.endsWith('"')) {
+    // Must not contain any `"`
+    if (value.slice(1, -1).match(/"/))
+      throw new Error(`Invalid attribute value: ${value}`);
+  } else if (value.startsWith("'") && value.endsWith("'")) {
+    // Must not contain any `'`
+    if (value.slice(1, -1).match(/'/))
+      throw new Error(`Invalid attribute value: ${value}`);
+  } else {
+    // Must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
+    if (value.match(/[\s"'`=><`]/))
+      throw new Error(`Invalid attribute value: ${value}`);
+  }
+
+  return value;
 }

@@ -102,41 +102,46 @@ export function contentMarkup(
   mathfield: _Mathfield,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): string {
-  //
-  // 1. Update selection state and blinking cursor (caret)
-  //
-  const { model } = mathfield;
-  model.root.caret = undefined;
-  model.root.isSelected = false;
-  model.root.containsCaret = true;
-  for (const atom of model.atoms) {
-    atom.caret = undefined;
-    atom.isSelected = false;
-    atom.containsCaret = false;
-  }
-  if (model.selectionIsCollapsed) {
-    const atom = model.at(model.position);
-    atom.caret = mathfield.model.mode;
-    let ancestor = atom.parent;
-    while (ancestor) {
-      ancestor.containsCaret = true;
-      ancestor = ancestor.parent;
+  try {
+    //
+    // 1. Update selection state and blinking cursor (caret)
+    //
+    const { model } = mathfield;
+    model.root.caret = undefined;
+    model.root.isSelected = false;
+    model.root.containsCaret = true;
+    for (const atom of model.atoms) {
+      atom.caret = undefined;
+      atom.isSelected = false;
+      atom.containsCaret = false;
     }
-  } else {
-    const atoms = model.getAtoms(model.selection, { includeChildren: true });
-    for (const atom of atoms) atom.isSelected = true;
+    if (model.selectionIsCollapsed) {
+      const atom = model.at(model.position);
+      atom.caret = mathfield.model.mode;
+      let ancestor = atom.parent;
+      while (ancestor) {
+        ancestor.containsCaret = true;
+        ancestor = ancestor.parent;
+      }
+    } else {
+      const atoms = model.getAtoms(model.selection, { includeChildren: true });
+      for (const atom of atoms) atom.isSelected = true;
+    }
+
+    //
+    // 2. Render a box representation of the mathfield content
+    //
+    const box = makeBox(mathfield, renderOptions);
+
+    //
+    // 3. Generate markup
+    //
+
+    return box.toMarkup();
+  } catch (e) {
+    console.error(e);
+    return '<span class="ML__latex" translate="no" aria-hidden="true">💣</span>';
   }
-
-  //
-  // 2. Render a box representation of the mathfield content
-  //
-  const box = makeBox(mathfield, renderOptions);
-
-  //
-  // 3. Generate markup
-  //
-
-  return box.toMarkup();
 }
 
 /**
