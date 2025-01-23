@@ -126,12 +126,12 @@
     "not dead"
   ],
   "engines": {
-    "npm": ">=8.5.0",
-    "node": ">=16.14.2"
+    "npm": ">=11.0.0",
+    "node": ">=21.0.0"
   },
   "prettier": "@cortex-js/prettier-config",
   "dependencies": {
-    "@cortex-js/compute-engine": "0.24.1"
+    "@cortex-js/compute-engine": "0.27.0"
   },
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
