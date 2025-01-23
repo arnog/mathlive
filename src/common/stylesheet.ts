@@ -1,19 +1,13 @@
-// @ts-ignore-error
-import MATHFIELD_STYLESHEET from '../../css/mathfield.less';
+import MATHFIELD_STYLESHEET from '../../css/mathfield.less' assert { type: 'css' };
 
-// @ts-ignore-error
-import CORE_STYLESHEET from '../../css/core.less';
+import CORE_STYLESHEET from '../../css/core.less' assert { type: 'css' };
 
-// @ts-ignore-error
-import ENVIRONMENT_POPOVER_STYLESHEET from '../../css/environment-popover.less';
+import ENVIRONMENT_POPOVER_STYLESHEET from '../../css/environment-popover.less' assert { type: 'css' };
 
-// @ts-ignore-error
-import SUGGESTION_POPOVER_STYLESHEET from '../../css/suggestion-popover.less';
+import SUGGESTION_POPOVER_STYLESHEET from '../../css/suggestion-popover.less' assert { type: 'css' };
 
-// @ts-ignore-error
-import KEYSTROKE_CAPTION_STYLESHEET from '../../css/keystroke-caption.less';
+import KEYSTROKE_CAPTION_STYLESHEET from '../../css/keystroke-caption.less' assert { type: 'css' };
 
-// @ts-ignore-error
 import VIRTUAL_KEYBOARD_STYLESHEET from '../../css/virtual-keyboard.less' assert { type: 'css' };
 
 import UI_STYLESHEET from '../ui/style.less' assert { type: 'css' };
@@ -91,7 +85,6 @@ export function getStylesheet(id: StylesheetId): CSSStyleSheet {
 
   gStylesheets[id] = new CSSStyleSheet();
 
-  // @ts-ignore
   gStylesheets[id]!.replaceSync(getStylesheetContent(id));
 
   return gStylesheets[id]!;
@@ -100,22 +93,30 @@ export function getStylesheet(id: StylesheetId): CSSStyleSheet {
 let gInjectedStylesheets: Partial<Record<StylesheetId, number>>;
 
 export function injectStylesheet(id: StylesheetId): void {
-  if (!('adoptedStyleSheets' in document)) {
-    if (window.document.getElementById(`mathlive-style-${id}`)) return;
-    const styleNode = window.document.createElement('style');
-    styleNode.id = `mathlive-style-${id}`;
-    styleNode.append(window.document.createTextNode(getStylesheetContent(id)));
-    window.document.head.appendChild(styleNode);
-    return;
-  }
+  try {
+    if (!('adoptedStyleSheets' in document)) {
+      if (window.document.getElementById(`mathlive-style-${id}`)) return;
+      const styleNode = window.document.createElement('style');
+      styleNode.id = `mathlive-style-${id}`;
+      styleNode.append(
+        window.document.createTextNode(getStylesheetContent(id))
+      );
+      window.document.head.appendChild(styleNode);
+      return;
+    }
 
-  if (!gInjectedStylesheets) gInjectedStylesheets = {};
-  if ((gInjectedStylesheets[id] ?? 0) !== 0) gInjectedStylesheets[id]! += 1;
-  else {
-    const stylesheet = getStylesheet(id);
-    // @ts-ignore
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, stylesheet];
-    gInjectedStylesheets[id] = 1;
+    if (!gInjectedStylesheets) gInjectedStylesheets = {};
+    if ((gInjectedStylesheets[id] ?? 0) !== 0) gInjectedStylesheets[id]! += 1;
+    else {
+      const stylesheet = getStylesheet(id);
+      document.adoptedStyleSheets = [
+        ...document.adoptedStyleSheets,
+        stylesheet,
+      ];
+      gInjectedStylesheets[id] = 1;
+    }
+  } catch (error) {
+    console.error('Error injecting stylesheet', id, error);
   }
 }
 
@@ -127,7 +128,6 @@ export function releaseStylesheet(id: StylesheetId): void {
   gInjectedStylesheets[id]! -= 1;
   if (gInjectedStylesheets[id]! <= 0) {
     const stylesheet = gStylesheets[id]!;
-    // @ts-ignore
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
       (x) => x !== stylesheet
     );

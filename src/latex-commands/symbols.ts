@@ -118,6 +118,8 @@ defineSymbols(
 );
 
 // St Mary's Road symbols
+// https://mirrors.mit.edu/CTAN/macros/latex/contrib/stmaryrd/stmaryrd.pdf
+// https://mirrors.rit.edu/CTAN/fonts/stmaryrd/stmaryrd.pdf
 defineSymbols([
   ['\\mapsfrom', 0x21a4, 'mrel'],
   ['\\Mapsfrom', 0x2906, 'mrel'],

@@ -1006,7 +1006,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set decimalSeparator(value: ',' | '.') {
     this._decimalSeparator = value;
     if (this._computeEngine) {
-      this._computeEngine.latexOptions.decimalMarker =
+      this._computeEngine.decimalSeparator =
         this.decimalSeparator === ',' ? '{,}' : '.';
     }
   }
@@ -1068,7 +1068,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._computeEngine = new ComputeEngineCtor();
 
       if (this._computeEngine && this.decimalSeparator === ',')
-        this._computeEngine.latexOptions.decimalMarker = '{,}';
+        this._computeEngine.decimalSeparator = '{,}';
     }
     return this._computeEngine ?? null;
   }

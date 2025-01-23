@@ -78,19 +78,24 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   // Although we support rendering of non-standard commands (i.e. \arsinh)
   // we avoid generating them when using the shortcuts.
 
+  'sin': '\\sin',
+  'cos': '\\cos',
+  'tan': '\\tan',
+
   'arccos': '\\arccos',
   'arcsin': '\\arcsin',
   'arctan': '\\arctan',
   'arctg': '\\operatorname{arctg}',
-  'arcsec': '\\operatornbame{arcsec}',
-  'arccsc': '\\operatornbame{arccsc}',
+  'arcsec': '\\operatorname{arcsec}',
+  'arccsc': '\\operatorname{arccsc}',
 
   'arsinh': '\\operatorname{arsinh}',
+  'arccosh': '\\operatorname{arccosh}',
   'arcosh': '\\operatorname{arcosh}',
   'artanh': '\\operatorname{artanh}',
+  'arctanh': '\\operatorname{arctanh}',
   'arcsech': '\\operatorname{arcsech}',
   'arccsch': '\\operatorname{arccsch}',
-  'arg': '\\arg',
   'ch': '\\operatorname{ch}',
   'cosec': '\\operatorname{cosec}',
   'cosh': '\\cosh',
@@ -101,16 +106,14 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   'ctg': '\\operatorname{ctg}',
   'cth': '\\operatorname{cth}',
   'sec': '\\sec',
+  'sech': '\\operatorname{sech}',
   'sinh': '\\sinh',
   'sh': '\\operatorname{sh}',
   'tanh': '\\tanh',
   'tg': '\\operatorname{tg}',
   'th': '\\operatorname{th}',
 
-  'sin': '\\sin',
-  'cos': '\\cos',
-  'tan': '\\tan',
-
+  'arg': '\\arg',
   'lg': '\\lg',
   'lb': '\\operatorname{lb}', // not in amsmath
   'log': '\\log',
@@ -160,10 +163,10 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
 
   // Sets
   'NN': '\\mathbb{N}', // Natural numbers
-  'ZZ': '\\Z', // Integers
-  'QQ': '\\Q', // Rational numbers
-  'RR': '\\R', // Real numbers
-  'CC': '\\C', // Complex numbers
+  'ZZ': '\\mathbb{Z}', // Integers
+  'QQ': '\\mathbb{Q}', // Rational numbers
+  'RR': '\\mathbb{R}', // Real numbers
+  'CC': '\\mathbb{C}', // Complex numbers
 
   // Operators
   'xx': '\\times',

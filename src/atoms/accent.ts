@@ -90,12 +90,18 @@ export class AccentAtom extends Atom {
       // Remove the italic correction of the accent, because it only serves to
       // shift the accent over to a place we don't want.
       accent.italic = 0;
-      // The \vec character that the fonts use is a combining character, and
+
+      // Some of the accents are combining characters, and
       // thus shows up much too far to the left. To account for this, we add a
       // specific class which shifts the accent over to where we want it.
-      const vecClass = this.accent === 0x20d7 ? ' ML__accent-vec' : '';
+      const correctionClass =
+        this.accent === 0x20d7 ||
+        this.accent === 0x20db ||
+        this.accent === 0x20dc
+          ? ' ML__accent-combining-char'
+          : '';
       accentBox = new Box(new Box(accent), {
-        classes: 'ML__accent-body' + vecClass,
+        classes: 'ML__accent-body' + correctionClass,
       });
     }
 

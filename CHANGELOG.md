@@ -2,9 +2,27 @@
 
 ### Issues Resolved
 
-- Generate only "standard" (i.e. available in amsmath package) trigonometric
-  functions. Use `\operatorname{}` for the others. Use `arc-` prefix for
-  hyperbolic functions.
+- Generate only standard trigonometric functions, i.e. those available in the
+  `amsmath` package. Use `\operatorname{}` for the others. The standard commands
+  are:
+
+  - `\arccos`
+  - `\arcsin`
+  - `\arctan`
+  - `\arg`
+  - `\cos`
+  - `\cosh`
+  - `\cot`
+  - `\coth`
+  - `\csc`
+  - `\sec`
+  - `\sin`
+  - `\sinh`
+  - `\tan`
+  - `\tanh`
+
+- Added support for `\dddot` and `\ddddot` commands.
+
 - **#2132**, **#2548** Improved handling of multi-line mathfields. To use a
   multi-line mathfield, include a multi-line environment:
   - `\displaylines{}`: single column of left-aligned equations

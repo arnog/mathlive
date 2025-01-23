@@ -4,7 +4,7 @@
 import { build } from 'esbuild';
 import less from '@arnog/esbuild-plugin-less';
 
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 
 process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD.toLowerCase() === 'production';

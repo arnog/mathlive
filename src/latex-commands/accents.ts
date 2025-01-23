@@ -14,6 +14,8 @@ const ACCENTS = {
   grave: 0x02cb,
   dot: 0x02d9,
   ddot: 0x00a8,
+  dddot: 0x20db,
+  ddddot: 0x20dc,
   mathring: 0x02da,
   tilde: 0x007e,
   bar: 0x02c9,
