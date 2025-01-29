@@ -367,14 +367,6 @@ const DEPRECATED_OPTIONS = {
  * document.body.appendChild(mf);
  * ```
  *
- * The `MathfieldElement` constructor has an optional argument of
- * `MathfieldOptions` to configure the element. The options can also
- * be modified later:
- *
- * ```javascript
- * // Setting options during construction
- * const mf = new MathfieldElement({ smartFence: false });
- *
  * // Modifying options after construction
  * mf.smartFence = true;
  * ```
