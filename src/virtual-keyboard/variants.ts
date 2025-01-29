@@ -237,8 +237,6 @@ export function showVariantsPanel(
     );
     const top = position.top - variantPanel.clientHeight + 5;
 
-    console.log('left: ', left);
-
     variantPanel.style.left = `${left}px`;
     variantPanel.style.top = `${top}px`;
     variantPanel.classList.add('is-visible');
@@ -264,10 +262,7 @@ export function showVariantsPanel(
         'pointerenter',
         (ev) => {
           const target = parentKeycap(ev.target);
-          console.log('enter', ev.target);
           if (!target?.id || !variants[target.id]) return;
-
-          console.log('adding is-active', target);
 
           target.classList.add('is-active');
         },
