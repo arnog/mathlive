@@ -47,7 +47,6 @@ function latexToMarkup(latex: string): string {
   const root = new Atom({
     mode: 'math',
     type: 'root',
-    isRoot: true,
     body: parseLatex(latex, {
       context,
       args: (arg) =>

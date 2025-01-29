@@ -56,7 +56,7 @@ describe('ASCII MATH', function () {
   equalASCIIMath('\\Gamma +1', 'Gamma+1');
   equalASCIIMath('\\frac{\\pi }{2\\pi }', '(pi)/(2pi)');
 
-  equalASCIIMath('x\\in \\R ', 'x in RR');
+  equalASCIIMath('x\\in \\mathbb{R} ', 'x in RR');
 
   // Avoid collisions with digits
   expect(convertLatexToAsciiMath('1^2 3^4')).toBe('1^2 3^4');
@@ -81,7 +81,7 @@ describe('ASCII MATH', function () {
   equalASCIIMath('\\left\\lbrack1,1\\right\\rbrack', '[1,1]');
   equalASCIIMath('\\left\\lbrace1,1\\right\\rbrace', '{1,1}');
   equalASCIIMath('\\left(1,1\\right)', '(1,1)');
-  
+
   expect(convertAsciiMathToLatex('1/2')).toBe('\\frac{1}{2}');
   expect(convertAsciiMathToLatex('(1/2)')).toBe('\\left(\\frac{1}{2}\\right)');
   expect(convertAsciiMathToLatex('1/2sin x')).toBe('\\frac{1}{2}\\sin x');

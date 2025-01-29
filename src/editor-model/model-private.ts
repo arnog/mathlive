@@ -316,18 +316,18 @@ export class _Model implements Model {
    * Note that an atom with children is included in the result only if
    * all its children are in range.
    */
-  getAtoms(arg: Selection, options?: GetAtomOptions): Readonly<Atom[]>;
-  getAtoms(arg: Range, options?: GetAtomOptions): Readonly<Atom[]>;
+  getAtoms(arg: Selection, options?: GetAtomOptions): ReadonlyArray<Atom>;
+  getAtoms(arg: Range, options?: GetAtomOptions): ReadonlyArray<Atom>;
   getAtoms(
     from: Offset,
     to?: Offset,
     options?: GetAtomOptions
-  ): Readonly<Atom[]>;
+  ): ReadonlyArray<Atom>;
   getAtoms(
     arg1: Selection | Range | Offset,
     arg2?: Offset | GetAtomOptions,
     arg3?: GetAtomOptions
-  ): Readonly<Atom[]> {
+  ): ReadonlyArray<Atom> {
     let options = arg3 ?? {};
     if (isSelection(arg1)) {
       options = (arg2 as GetAtomOptions) ?? {};

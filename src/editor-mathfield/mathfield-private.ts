@@ -288,7 +288,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     const body = parseLatex(elementText, { context: this.context });
     let root: Atom;
     if (body.length === 1 && body[0].isRoot) root = body[0];
-    else root = new Atom({ type: 'root', mode, body, isRoot: true });
+    else root = new Atom({ type: 'root', mode, body });
 
     this.model = new _Model(this, mode, root);
 
@@ -1756,7 +1756,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   onCompositionStart(_composition: string): void {
     // Clear the selection if there is one
-    this.model.deleteAtoms(range(this.model.selection));
+    deleteRange(this.model, range(this.model.selection), 'insertText');
     const caretPoint = getCaretPoint(this.field!);
     if (!caretPoint) return;
     requestAnimationFrame(() => {

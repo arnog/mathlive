@@ -160,7 +160,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     this.command = options.command ?? this.value ?? '';
     this.mode = options.mode ?? 'math';
     if (options.isFunction) this.isFunction = true;
-    if (options.isRoot) this.isRoot = true;
+    if (options.isRoot || this.type === 'root') this.isRoot = true;
     if (options.limits) this.subsupPlacement = options.limits;
     this.style = { ...(options.style ?? {}) };
     this.displayContainsHighlight = options.displayContainsHighlight ?? false;

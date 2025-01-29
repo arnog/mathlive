@@ -107,7 +107,6 @@ export function convertLatexToMarkup(
   //
   const root = new Atom({
     type: 'root',
-    isRoot: true,
     mode: parseMode,
     body: parseLatex(text, { context: effectiveContext, parseMode, mathstyle }),
   });
@@ -237,7 +236,6 @@ export function convertLatexToAsciiMath(
   return atomToAsciiMath(
     new Atom({
       type: 'root',
-      isRoot: true,
       body: parseLatex(latex, { parseMode }),
     })
   );

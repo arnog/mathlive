@@ -253,7 +253,7 @@ const DEFAULT_MACROS: MacroDictionary = {
   'iff': {
     primitive: true,
     captureSelection: true,
-    def: '\\;\\char"27FA\\;', // >2,000 Note: additional spaces around the arrows
+    def: '\\;\\Longleftrightarrow\\;}', // >2,000 Note: additional spaces around the arrows, as per AMSMATH package definition
   },
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
