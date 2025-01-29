@@ -304,8 +304,6 @@ function scanText(
 ): Node | null {
   if (/^\s*$/.test(text)) return null;
 
-  console.log('scanText', text);
-
   let fragment: Node | null = null;
 
   // If the text starts with '\begin'... (this is a MathJAX behavior)
