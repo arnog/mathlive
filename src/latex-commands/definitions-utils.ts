@@ -61,7 +61,9 @@ export const TEXVC_MACROS: MacroDictionary = {
   //////////////////////////////////////////////////////////////////////
   // texvc.sty
 
-  // The texvc package contains macros available in mediawiki pages.
+  // The texvc package
+  // (https://ctan.math.illinois.edu/macros/latex/contrib/texvc/texvc.pdf)
+  // contains macros available in mediawiki pages.
   // We omit the functions deprecated at
   // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
 
@@ -75,12 +77,17 @@ export const TEXVC_MACROS: MacroDictionary = {
   uarr: '\\uparrow',
   uArr: '\\Uparrow',
   Uarr: '\\Uparrow',
+  C: '\\mathbb{C}',
+  H: '\\mathbb{H}',
   N: '\\mathbb{N}',
+  Q: '\\mathbb{Q}',
   R: '\\mathbb{R}',
   Z: '\\mathbb{Z}',
   alef: '\\aleph',
   alefsym: '\\aleph',
   Alpha: '\\mathrm{A}',
+  // and: '\\land',
+  //  ang: '\\angle',   // We use the def from the siunitx package
   Beta: '\\mathrm{B}',
   bull: '\\bullet',
   Chi: '\\mathrm{X}',
@@ -89,12 +96,17 @@ export const TEXVC_MACROS: MacroDictionary = {
   Complex: '\\mathbb{C}',
   Dagger: '\\ddagger',
   diamonds: '\\diamondsuit',
+  //  Doteq: '\\doteq',   // We map it to U+2251, while \doteq is U+2250
+  doublecap: '\\Cap',
+  doublecup: '\\Cup',
   empty: '\\emptyset',
   Epsilon: '\\mathrm{E}',
   Eta: '\\mathrm{H}',
   exist: '\\exists',
+  //  ge: '\\geq', // We have it as a builtin
+  //  gggtr: '\\ggg', // We have it as a builtin
+  hAar: '\\Leftrightarrow',
   harr: '\\leftrightarrow',
-  hArr: '\\Leftrightarrow',
   Harr: '\\Leftrightarrow',
   hearts: '\\heartsuit',
   image: '\\Im',
@@ -103,22 +115,29 @@ export const TEXVC_MACROS: MacroDictionary = {
   isin: '\\in',
   Kappa: '\\mathrm{K}',
   larr: '\\leftarrow',
-  lArr: '\\Leftarrow',
   Larr: '\\Leftarrow',
+  lArr: '\\Leftarrow',
+  //  le: '\\leq', // We have it as a builtin
   lrarr: '\\leftrightarrow',
-  lrArr: '\\Leftrightarrow',
   Lrarr: '\\Leftrightarrow',
+  lrArr: '\\Leftrightarrow',
   Mu: '\\mathrm{M}',
   natnums: '\\mathbb{N}',
+  // ne: '\\neq',   // We have it as a builtin
   Nu: '\\mathrm{N}',
+  //  O: '\\emptyset', // Conflicts with \O text command
+  //  omicron: '\\mathrm{o}', // We have it as a builtin
   Omicron: '\\mathrm{O}',
+  // or: '\\lor',
+  part: '\\partial',
   plusmn: '\\pm',
   rarr: '\\rightarrow',
-  rArr: '\\Rightarrow',
   Rarr: '\\Rightarrow',
+  rArr: '\\Rightarrow',
   real: '\\Re',
   reals: '\\mathbb{R}',
   Reals: '\\mathbb{R}',
+  restriction: '\\upharpoonright',
   Rho: '\\mathrm{P}',
   sdot: '\\cdot',
   sect: '\\S',
@@ -128,7 +147,7 @@ export const TEXVC_MACROS: MacroDictionary = {
   supe: '\\supseteq',
   Tau: '\\mathrm{T}',
   thetasym: '\\vartheta',
-  // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
+  varcoppa: '\\coppa',
   weierp: '\\wp',
   Zeta: '\\mathrm{Z}',
 };
