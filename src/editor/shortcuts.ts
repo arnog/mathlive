@@ -102,7 +102,7 @@ function validateShortcut(
 export function getInlineShortcut(
   context: null | Atom[],
   s: string,
-  shortcuts?: InlineShortcutDefinitions
+  shortcuts: InlineShortcutDefinitions | undefined
 ): string {
   if (!shortcuts) return '';
   return validateShortcut(context, shortcuts[s]);

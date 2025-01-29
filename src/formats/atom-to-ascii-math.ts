@@ -1,6 +1,6 @@
 import { isArray } from '../common/types';
 
-import type { Atom } from '../core/atom';
+import { Atom } from '../core/atom';
 import { GenfracAtom } from '../atoms/genfrac';
 import { LeftRightAtom } from '../atoms/leftright';
 import { ArrayAtom } from '../atoms/array';
@@ -61,10 +61,15 @@ const IDENTIFIERS = {
   '\\quad': ' ',
   '\\infty': 'oo',
   '\\R': 'RR',
+  '\\mathbb{R}': 'RR',
   '\\N': 'NN',
+  '\\mathbb{N}': 'NN',
   '\\Z': 'ZZ',
+  '\\mathbb{Z}': 'ZZ',
   '\\Q': 'QQ',
+  '\\mathbb{Q}': 'QQ',
   '\\C': 'CC',
+  '\\mathbb{C}': 'CC',
   '\\emptyset': 'O/',
   '\\varnothing': 'O/',
   '\\varDelta': 'Delta',
@@ -210,6 +215,11 @@ export function atomToAsciiMath(
   if (command === '\\placeholder')
     return `(${atomToAsciiMath(atom.body, options)})`;
 
+  const latex = Atom.serialize([atom], {
+    expandMacro: false,
+    defaultMode: 'math',
+  });
+
   switch (atom.type) {
     case 'accent':
       const accent = {
@@ -314,8 +324,10 @@ export function atomToAsciiMath(
       break;
 
     case 'mord':
+      if (IDENTIFIERS[latex]) return IDENTIFIERS[latex!];
       result =
         IDENTIFIERS[command!] ??
+        command ??
         command ??
         (typeof atom.value === 'string' ? atom.value : '');
       if (result.startsWith('\\')) result += ' ';
@@ -337,7 +349,11 @@ export function atomToAsciiMath(
     case 'mbin':
     case 'mrel':
     case 'minner':
-      result = IDENTIFIERS[command!] ?? OPERATORS[command!] ?? atom.value;
+      result =
+        IDENTIFIERS[latex] ??
+        IDENTIFIERS[command!] ??
+        OPERATORS[command!] ??
+        atom.value;
       break;
 
     case 'mopen':
@@ -400,7 +416,7 @@ export function atomToAsciiMath(
       break;
 
     case 'spacing':
-      result = IDENTIFIERS[command] ?? ' ';
+      result = IDENTIFIERS[latex] ?? IDENTIFIERS[command] ?? ' ';
       break;
 
     case 'enclose':
@@ -417,6 +433,7 @@ export function atomToAsciiMath(
 
     case 'macro':
       result =
+        IDENTIFIERS[latex] ??
         IDENTIFIERS[command] ??
         OPERATORS[command] ??
         atomToAsciiMath(atom.body, options);
