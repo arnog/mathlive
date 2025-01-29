@@ -10,6 +10,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '$': '\\$',
 
   // Primes
+  // "'": '^{\\prime}', // Conflicts with text zone shortcut
   "''": '^{\\doubleprime}',
   "'''": '^{\\prime\\prime\\prime}',
   "''''": '^{\\prime\\prime\\prime\\prime}',
@@ -116,10 +117,10 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   'arg': '\\arg',
   'lg': '\\lg',
   'lb': '\\operatorname{lb}', // not in amsmath
-  'log': '\\log',
+  'log': '\\log_{#?}',
   'ln': '\\ln',
   'exp': '\\exp',
-  'lim': '\\lim_{#?}',
+  'lim': '\\lim_{#?\\to#?}',
 
   // Differentials
   // According to ISO31/XI (ISO 80000-2), differentials should be upright
@@ -324,6 +325,18 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
     after: 'nothing+digit+operator',
     value: '\\operatorname{kg}', // Kilogram
   },
+  'ft': {
+    after: 'nothing+digit+operator',
+    value: '\\operatorname{ft}', // feet
+  },
+  'inch': {
+    after: 'nothing+digit+operator',
+    value: '\\operatorname{inch}', // inch
+  },
+  'mi': {
+    after: 'nothing+digit+operator',
+    value: '\\operatorname{mi}', // mile
+  },
 
   // '||':                   '\\lor',
   '...': '\\ldots', // In general, use \ldots
@@ -340,7 +353,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '=>': '\\Rightarrow',
   '==>': '\\Longrightarrow',
   // '<=': '\\Leftarrow',     // CONFLICTS WITH LESS THAN OR EQUAL
-  '<=>': '\\Leftrightarrow',
+  '<=>': '\\iff',
   '<->': '\\leftrightarrow',
 
   '(.)': '\\odot',
@@ -433,6 +446,18 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
   '>->': '\\rightarrowtail',
   '->>': '\\twoheadrightarrow', // \char"21A0
   '>->>': '\\twoheadrightarrowtail', // \char"2916
+
+  'times': '\\times',
+  // "?=":"\\questeq"
+  'of': '\\circ',
+  'infinity': '\\infty',
+  'defint': '\\int_{#?}^{#?}',
+
+  'approaches': '\\to',
+  'ceil': '\\left\\lceil#?\\right\\rceil',
+  'floor': '\\left\\lfloor#?\\right\\rfloor',
+  'union': '\\cup',
+  'asterisk': '\\ast',
 
   //
   // Desmos Graphing Calculator
