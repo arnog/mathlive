@@ -50,7 +50,7 @@ defineFunction('mathtip', '{:auto}{:math}', {
   serialize: (atom: TooltipAtom, options) =>
     options.skipStyles
       ? atom.bodyToLatex(options)
-      : `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize(
+      : `\\mathtip{${atom.bodyToLatex(options)}}{${Atom.serialize(
           [atom.tooltip],
           {
             ...options,
