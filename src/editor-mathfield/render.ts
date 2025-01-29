@@ -140,7 +140,7 @@ export function contentMarkup(
     return box.toMarkup();
   } catch (e) {
     console.error(e);
-    return '<span class="ML__latex" translate="no" aria-hidden="true">💣</span>';
+    return '<span class="ML__latex" translate="no" aria-hidden="true">🚫</span>';
   }
 }
 

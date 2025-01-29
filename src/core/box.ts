@@ -445,7 +445,7 @@ export class Box implements BoxInterface {
       props.concat(
         Object.keys(this.attributes).map(
           (x) =>
-            `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(`"${this.attributes![x]}"`)}`
+            `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(this.attributes![x])}`
         )
       );
     }
@@ -497,7 +497,7 @@ export class Box implements BoxInterface {
     }
 
     if (styles.length > 0)
-      props.push(`style=${sanitizeAttributeValue(`"${styles.join(';')}"`)}`);
+      props.push(`style=${sanitizeAttributeValue(styles.join(';'))}`);
 
     //
     // 4. Tag markup
@@ -790,11 +790,10 @@ function sanitizeAttributeValue(value: string): string {
   // Unquoted value
   //
 
-  // Must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
   if (value.length === 0) throw new Error(`Invalid empty attribute value`);
-  if (/[\x20\x09\x0a\x0c\x0d"'`=><`]/.test(value))
-    throw new Error(`Invalid attribute value: ${value}`);
 
-  // For extra safety, we put quotes around it
-  return `"${value}"`;
+  // An unquoted value must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
+
+  // However, for extra safety, transform it into a quoted value and replace any quotes with &quot;
+  return `"${value.replace(/"/g, '&quot;')}"`;
 }

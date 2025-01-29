@@ -67,6 +67,12 @@ For example:
 - **#2576** The command `\perp` was mapped to the wrong symbol (U+22A5). It is
   now mapped to the correct symbol (U+27C2)
 
+- [**security advisory**](https://github.com/advisories/GHSA-qwj6-q94f-8425)
+  Untrusted input could be used to inject arbitrary HTML or JavaScript code in a
+  page using a mathfield or math content rendered by Mathlive that contained an
+  `\htmlData{}` command with malicious input. The content of the `\htmlData{}`
+  command is now sanitized and the 🚫 emoji is displayed instead.
+
 ## 0.103.0 _2024-12-10_
 
 ### Issues Resolved
