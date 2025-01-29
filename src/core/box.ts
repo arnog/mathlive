@@ -397,7 +397,7 @@ export class Box implements BoxInterface {
     //
     // 3. Markup for props
     //
-    let props = '';
+    let props: string[] = [];
 
     //
     // 3.1 Classes
@@ -415,6 +415,7 @@ export class Box implements BoxInterface {
     if (this.caret === 'latex') classes.push('ML__latex-caret');
 
     if (this.isSelected) classes.push('ML__selected');
+
     // Remove duplicate and empty classes
     const classList =
       classes.length === 1
@@ -424,29 +425,29 @@ export class Box implements BoxInterface {
             .join(' ');
 
     if (classList.length > 0)
-      props += ` class=${sanitizeAttributeValue(`"${classList}"`)}`;
+      props.push(`class=${sanitizeAttributeValue(`"${classList}"`)}`);
 
     //
     // 3.2 Id
     //
-    if (this.id) props += ` data-atom-id=${sanitizeAttributeValue(this.id)}`;
+    if (this.id) props.push(` data-atom-id=${sanitizeAttributeValue(this.id)}`);
 
     // A (HTML5) CSS id may not contain a space
     if (this.cssId)
-      props += ` id=${sanitizeAttributeValue(`"${this.cssId.replace(/ /g, '-')}"`)}`;
+      props.push(
+        ` id=${sanitizeAttributeValue(`"${this.cssId.replace(/ /g, '-')}"`)}`
+      );
 
     //
     // 3.3 Attributes
     //
     if (this.attributes) {
-      props +=
-        ' ' +
-        Object.keys(this.attributes)
-          .map(
-            (x) =>
-              `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(`"${this.attributes![x]}"`)}`
-          )
-          .join(' ');
+      props.concat(
+        Object.keys(this.attributes).map(
+          (x) =>
+            `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(`"${this.attributes![x]}"`)}`
+        )
+      );
     }
 
     if (this.htmlData) {
@@ -455,11 +456,11 @@ export class Box implements BoxInterface {
         const matched = entry.match(/([^=]+)=(.+$)/);
         if (matched) {
           const key = sanitizeAttributeName(matched[1]);
-          const value = sanitizeAttributeValue(matched[2]);
-          if (key) props += ` ${key}=${value}`;
+          if (key)
+            props.push(`data-${key}=${sanitizeAttributeValue(matched[2])}`);
         } else {
           const key = sanitizeAttributeName(entry);
-          if (key) props += ` ${key} `;
+          if (key) props.push(`data-${key} `);
         }
       }
     }
@@ -475,6 +476,7 @@ export class Box implements BoxInterface {
         cssProps.width = `${Math.ceil(this._width * 100) / 100}em`;
       // cssProps['height'] = `${Math.round(this.height * 100) / 100}em`;
     }
+
     const styles = Object.keys(cssProps).map((x) => `${x}:${cssProps[x]}`);
 
     if (
@@ -485,21 +487,17 @@ export class Box implements BoxInterface {
       styles.push(`font-size: ${Math.ceil(this.scale * 10000) / 100}%`);
 
     if (this.htmlStyle) {
-      const entries = this.htmlStyle.split(';');
-      let styleString = '';
-      for (const entry of entries) {
-        const matched = entry.match(/([^=]+):(.+$)/);
+      for (const entry of this.htmlStyle.split(';')) {
+        const matched = entry.match(/([^:]+):(.+$)/);
         if (matched) {
           const key = matched[1].trim().replace(/ /g, '-');
-          if (key) styleString += `${key}:${matched[2]};`;
+          if (key) styles.push(`${key}:${matched[2]}`);
         }
       }
-      if (styleString)
-        props += ` style=${sanitizeAttributeValue(`"${styleString}"`)};`;
     }
 
     if (styles.length > 0)
-      props += ` style=${sanitizeAttributeValue(`"${styles.join(';')}"`)}`;
+      props.push(`style=${sanitizeAttributeValue(`"${styles.join(';')}"`)}`);
 
     //
     // 4. Tag markup
@@ -507,7 +505,7 @@ export class Box implements BoxInterface {
 
     let result = '';
     if (props.length > 0 || svgMarkup.length > 0)
-      result = `<span${props}>${body}${svgMarkup}</span>`;
+      result = `<span ${props.join(' ')}>${body}${svgMarkup}</span>`;
     else result = body;
 
     //
@@ -756,9 +754,11 @@ function sanitizeAttributeName(attribute: string): string {
    * '"', "'", ">", "/", "=", the control characters,
    * and any characters that are not defined by Unicode.
    */
-  const invalidAttributeNameRegex = /[\s"'>/=\x00-\x1f]/;
-  if (invalidAttributeNameRegex.test(attribute))
-    throw new Error(`Invalid attribute name: ${attribute}`);
+  if (attribute.length === 0) throw new Error(`Invalid empty attribute name`);
+
+  const invalidAttributeName = /[\x20\x09\x0a\x0c\x0d"'>/=\x00-\x1f]/;
+  if (invalidAttributeName.test(attribute))
+    throw new Error(`Invalid attribute name "${attribute}"`);
 
   return attribute;
 }
@@ -766,19 +766,35 @@ function sanitizeAttributeName(attribute: string): string {
 function sanitizeAttributeValue(value: string): string {
   value = value.trim();
 
+  //
+  // Double-quoted value
+  //
   if (value.startsWith('"') && value.endsWith('"')) {
     // Must not contain any `"`
-    if (value.slice(1, -1).match(/"/))
+    if (/"/.test(value.slice(1, -1)))
       throw new Error(`Invalid attribute value: ${value}`);
-  } else if (value.startsWith("'") && value.endsWith("'")) {
-    // Must not contain any `'`
-    if (value.slice(1, -1).match(/'/))
-      throw new Error(`Invalid attribute value: ${value}`);
-  } else {
-    // Must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
-    if (value.match(/[\s"'`=><`]/))
-      throw new Error(`Invalid attribute value: ${value}`);
+    return value;
   }
 
-  return value;
+  //
+  // Single-quoted value
+  //
+  if (value.startsWith("'") && value.endsWith("'")) {
+    // Must not contain any `'`
+    if (/'/.test(value.slice(1, -1)))
+      throw new Error(`Invalid attribute value: ${value}`);
+    return value;
+  }
+
+  //
+  // Unquoted value
+  //
+
+  // Must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
+  if (value.length === 0) throw new Error(`Invalid empty attribute value`);
+  if (/[\x20\x09\x0a\x0c\x0d"'`=><`]/.test(value))
+    throw new Error(`Invalid attribute value: ${value}`);
+
+  // For extra safety, we put quotes around it
+  return `"${value}"`;
 }
