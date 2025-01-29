@@ -110,42 +110,43 @@ function onDelete(
   //
   //  multiline environment (`\displaylines`, `multline`, `split`, `gather`, etc...)
   //
-  let parentArray: Atom | undefined = atom;
-  while (parentArray && !(parentArray instanceof ArrayAtom))
-    parentArray = parentArray.parent;
+  if (branch) {
+    let parent: Atom | undefined = atom;
+    while (parent && !(parent instanceof ArrayAtom)) parent = parent.parent;
+    const parentArray = parent ? (parent as ArrayAtom) : undefined;
 
-  if (branch && parentArray && parentArray.isMultiline) {
-    // Delete the line if it's empty. The branch indicates the cell we're in
-    console.assert(isCellBranch(branch));
+    if (parentArray && parentArray.isMultiline) {
+      // Delete the line if it's empty. The branch indicates the cell we're in
+      console.assert(isCellBranch(branch));
 
-    if (branch && isCellBranch(branch) && parentArray.rows.length > 1) {
-      const [row, col] = branch;
-      if (parentArray.rows[row].length === 1) {
-        // Capture the content of the current cell
-        // @fixme: there could be more than one column...
-        const content = parentArray.getCell(row, col)!;
+      if (branch && isCellBranch(branch) && parentArray.rows.length > 1) {
+        const [row, col] = branch;
+        if (parentArray.rows[row].length === 1) {
+          // Capture the content of the current cell
+          // @fixme: there could be more than one column...
+          const content = parentArray.getCell(row, col)!;
 
-        parentArray.removeRow(row);
+          parentArray.removeRow(row);
 
-        // If going backward, move to the end of the previous line
-        if (direction === 'backward') {
-          const prevLine = parentArray.getCell(row - 1, 0)!;
-          model.position = model.offsetOf(prevLine[prevLine.length - 1]);
-          // Add content from the deleted cell to the end of the previous line
-          parentArray.setCell(row - 1, 0, [...prevLine, ...content]);
-        } else {
-          // If going forward, move to the beginning of the next line
-          const nextLine = parentArray.getCell(row, 0)!;
-          model.position = model.offsetOf(nextLine[0]);
-          // Add content from the deleted cell to the beginning of the next line
-          parentArray.setCell(row, 0, [...content, ...nextLine]);
+          // If going backward, move to the end of the previous line
+          if (direction === 'backward') {
+            const prevLine = parentArray.getCell(row - 1, 0)!;
+            model.position = model.offsetOf(prevLine[prevLine.length - 1]);
+            // Add content from the deleted cell to the end of the previous line
+            parentArray.setCell(row - 1, 0, [...prevLine, ...content]);
+          } else {
+            // If going forward, move to the beginning of the next line
+            const nextLine = parentArray.getCell(row, 0)!;
+            model.position = model.offsetOf(nextLine[0]);
+            // Add content from the deleted cell to the beginning of the next line
+            parentArray.setCell(row, 0, [...content, ...nextLine]);
+          }
+
+          return true;
         }
-
-        return true;
       }
     }
   }
-
   //
   // 'leftright': \left\right
   //
@@ -502,47 +503,47 @@ export function deleteRange(
     //
     //  multiline environment (`\displaylines`, `multline`, `split`, `gather`, etc...)
     //
-    let parentArray: Atom | undefined = result[0];
-    while (parentArray && !(parentArray instanceof ArrayAtom))
-      parentArray = parentArray.parent;
+    let parent: Atom | undefined = result[0];
+    while (parent && !(parent instanceof ArrayAtom)) parent = parent.parent;
 
     let endArray: Atom | undefined = result[result.length - 1];
     while (endArray && !(endArray instanceof ArrayAtom))
       endArray = endArray.parent;
+    if (parent && parent instanceof ArrayAtom) {
+      const parentArray = parent;
+      if (parentArray && endArray === parentArray && parentArray.isMultiline) {
+        // Calculate how many rows the selection spans
+        const [startOffset, endOffset] = [
+          Math.min(model.position, model.anchor),
+          Math.max(model.position, model.anchor),
+        ];
+        const [startRow, startColumn] = model.at(startOffset).parentBranch! as [
+          number,
+          number,
+        ];
+        const [endRow, endColumn] = model.at(endOffset).parentBranch! as [
+          number,
+          number,
+        ];
+        const rowSpan = endRow - startRow + 1;
 
-    if (parentArray && endArray === parentArray && parentArray.isMultiline) {
-      // Calculate how many rows the selection spans
-      const [startOffset, endOffset] = [
-        Math.min(model.position, model.anchor),
-        Math.max(model.position, model.anchor),
-      ];
-      const [startRow, startColumn] = model.at(startOffset).parentBranch! as [
-        number,
-        number,
-      ];
-      const [endRow, endColumn] = model.at(endOffset).parentBranch! as [
-        number,
-        number,
-      ];
-      const rowSpan = endRow - startRow + 1;
+        if (rowSpan === 2) {
+          // // If the selection spans two rows, delete the entire row
+          // parentArray.removeRow(startRow);
+          // model.position = model.offsetOf(parentArray.getCell(startRow, 0)!);
+          // return true;
+        }
 
-      if (rowSpan === 2) {
-        // // If the selection spans two rows, delete the entire row
-        // parentArray.removeRow(startRow);
-        // model.position = model.offsetOf(parentArray.getCell(startRow, 0)!);
-        // return true;
-      }
+        if (rowSpan > 2) {
+          // More than two span: delete the selection, then rows in the middle
+          model.extractAtoms([startOffset, endOffset]);
+          for (let i = startRow + 1; i < endRow; i++) parentArray.removeRow(i);
+          model.position = startOffset;
 
-      if (rowSpan > 2) {
-        // More than two span: delete the selection, then rows in the middle
-        model.extractAtoms([startOffset, endOffset]);
-        for (let i = startRow + 1; i < endRow; i++) parentArray.removeRow(i);
-        model.position = startOffset;
-
-        return true;
+          return true;
+        }
       }
     }
-
     //
     // Regular case (not multiline)
     //
