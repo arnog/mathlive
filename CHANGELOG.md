@@ -1,5 +1,22 @@
 ## [Unreleased]
 
+### Security Advisories
+
+- [**security advisory**](https://github.com/advisories/GHSA-qwj6-q94f-8425)
+  Untrusted input could be used to inject arbitrary HTML or JavaScript code in a
+  page using a mathfield or math content rendered by Mathlive that contained an
+  `\htmlData{}` command with malicious input.
+
+  The content of the `\htmlData{}` command is now sanitized and the 🚫 emoji is
+  displayed instead.
+
+  In general, if you are handling untrusted input, you should consider using the
+  `MathfieldElement.createHTML()` method to sanitize content. The `createHTML()`
+  method follows the recommendations from the
+  [Trusted Type](https://www.w3.org/TR/trusted-types/) specification.
+
+- The `\href` command now only allows URLs with the `http` or `https` protocol.
+
 ### Issues Resolved
 
 - Generate only standard trigonometric functions, i.e. those available in the
@@ -66,12 +83,6 @@ For example:
 
 - **#2576** The command `\perp` was mapped to the wrong symbol (U+22A5). It is
   now mapped to the correct symbol (U+27C2)
-
-- [**security advisory**](https://github.com/advisories/GHSA-qwj6-q94f-8425)
-  Untrusted input could be used to inject arbitrary HTML or JavaScript code in a
-  page using a mathfield or math content rendered by Mathlive that contained an
-  `\htmlData{}` command with malicious input. The content of the `\htmlData{}`
-  command is now sanitized and the 🚫 emoji is displayed instead.
 
 ## 0.103.0 _2024-12-10_
 

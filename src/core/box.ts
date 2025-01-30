@@ -456,8 +456,16 @@ export class Box implements BoxInterface {
         const matched = entry.match(/([^=]+)=(.+$)/);
         if (matched) {
           const key = sanitizeAttributeName(matched[1]);
-          if (key)
-            props.push(`data-${key}=${sanitizeAttributeValue(matched[2])}`);
+          if (key) {
+            if (key === 'href') {
+              // Validate the URL
+              const url = new URL(matched[2]);
+              if (url.protocol !== 'http:' && url.protocol !== 'https:')
+                throw new Error(`Invalid URL: ${matched[2]}`);
+              props.push(`href="${matched[2].replace(/"/g, '&quot;')}"`);
+            } else
+              props.push(`data-${key}=${sanitizeAttributeValue(matched[2])}`);
+          }
         } else {
           const key = sanitizeAttributeName(entry);
           if (key) props.push(`data-${key} `);

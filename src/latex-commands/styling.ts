@@ -655,7 +655,9 @@ defineFunction('href', '{url:string}{content:auto}', {
   render: (atom, context) => {
     const box = atom.createBox(context);
     const href = (atom.args![0] as string) ?? '';
+
     if (href) box.htmlData = `href=${href}`;
+
     return box;
   },
 });
