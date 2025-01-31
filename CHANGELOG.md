@@ -2,20 +2,34 @@
 
 ### Security Advisories
 
+As a reminder, if you are handling untrusted input, you should consider using
+the `MathfieldElement.createHTML()` method to sanitize content. The
+`createHTML()` method follows the recommendations from the
+[Trusted Type](https://www.w3.org/TR/trusted-types/) specification.
+
+For example, using the DOMPurify library (there are other HTML sanitizers
+available):
+
+```html
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.3/purify.min.js"></script>
+```
+
+```js
+MathfieldElement.createHTML = (html) => DOMPurify.sanitize(html);
+```
+
 - [**security advisory**](https://github.com/advisories/GHSA-qwj6-q94f-8425)
   Untrusted input could be used to inject arbitrary HTML or JavaScript code in a
-  page using a mathfield or math content rendered by Mathlive that contained an
-  `\htmlData{}` command with malicious input.
+  page using a mathfield or math content rendered by the library, if the content
+  included an `\htmlData{}` command with maliciously crafted input and no DOM
+  sanitizer was used.
 
   The content of the `\htmlData{}` command is now sanitized and the 🚫 emoji is
-  displayed instead.
+  displayed instead in the mathfield if the content is unsafe. When using
+  `convertLatexToMarkup()`, an exception is thrown.
 
-  In general, if you are handling untrusted input, you should consider using the
-  `MathfieldElement.createHTML()` method to sanitize content. The `createHTML()`
-  method follows the recommendations from the
-  [Trusted Type](https://www.w3.org/TR/trusted-types/) specification.
-
-- The `\href` command now only allows URLs with the `http` or `https` protocol.
+- The `\href{}{}` command now only allows URLs with the `http` or `https`
+  protocol.
 
 ### Issues Resolved
 
@@ -39,6 +53,9 @@
   - `\tanh`
 
 - Added support for `\dddot` and `\ddddot` commands.
+
+- **#2573** The `\operatorname{}` command when round-tripped would incldue an
+  extraneous `\mathrm{}` command.
 
 - **#2132**, **#2548** Improved handling of multi-line mathfields. To use a
   multi-line mathfield, include a multi-line environment:
