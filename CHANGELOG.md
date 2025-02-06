@@ -101,6 +101,8 @@ For example:
 - **#2576** The command `\perp` was mapped to the wrong symbol (U+22A5). It is
   now mapped to the correct symbol (U+27C2)
 
+- Improved ASCIIMath serialization.
+
 ## 0.103.0 _2024-12-10_
 
 ### Issues Resolved

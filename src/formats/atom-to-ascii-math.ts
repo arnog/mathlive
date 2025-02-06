@@ -86,7 +86,7 @@ const IDENTIFIERS = {
 
 const OPERATORS = {
   '\\pm': '+-',
-  '\\colon': ':',
+  '\\colon': ' : ',
   '\\sum': ' sum ',
   '\\prod': ' prod ',
   '\\bigcap': ' nnn ',
@@ -112,14 +112,14 @@ const OPERATORS = {
   '\\implies': '=>',
   '\\iff': '<=>',
 
-  '\\cdot': '*',
-  '\\ast': '**',
-  '\\star': '***',
-  '\\times': 'xx',
-  '\\div': '-:',
-  '\\ltimes': '|><',
-  '\\rtimes': '><|',
-  '\\bowtie': '|><|',
+  '\\cdot': ' * ',
+  '\\ast': ' ** ',
+  '\\star': ' *** ',
+  '\\times': ' * ',
+  '\\div': ' -: ',
+  '\\ltimes': ' |>< ',
+  '\\rtimes': ' ><| ',
+  '\\bowtie': ' |><| ',
   '\\circ': '@',
 
   // '\\lfloor': '\u230a',
@@ -157,7 +157,12 @@ function joinAsciiMath(xs: string[]): string {
   let result = '';
   for (const x of xs) {
     const last = result[result.length - 1];
-    if (last !== undefined && /\d/.test(last) && /^\d/.test(x)) result += ' ';
+    if (
+      last !== undefined &&
+      ((/\d$/.test(last) && /^\d/.test(x)) ||
+        (/[a-zA-Z]$/.test(last) && /^[a-zA-Z]/.test(x)))
+    )
+      result += ' ';
 
     result += x;
   }
