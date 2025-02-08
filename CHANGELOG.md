@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.104.0 _2025-02-08_
 
 ### Security Advisories
 
