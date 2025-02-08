@@ -628,8 +628,8 @@ export type Offset = number;
  * offset from the last valid offset, i.e. -1 is the last valid offset, -2
  * is one offset before that, etc...
  *
- * A normalized range will always be such that start <= end, start >= 0,
- * end >= 0,  start < lastOffset, end < lastOffset. All the methods return
+ * A normalized range will always be such that start \<= end, start \>= 0,
+ * end \>= 0,  start \< lastOffset, end \< lastOffset. All the methods return
  * a normalized range.
  *
  * **See Also**

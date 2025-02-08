@@ -1,7 +1,7 @@
 import { convertLatexToMarkup } from '../src/public/mathlive-ssr';
 
 //
-// Validate that unsecure input is blocked
+// Validate that unsecure content is blocked
 //
 test('Unsecure Content', () => {
   expect(() =>

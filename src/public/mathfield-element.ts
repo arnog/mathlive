@@ -202,14 +202,14 @@ export interface MathfieldElementAttributes {
    * **Examples**
    *
    * -   slope = rise/run
-   * -   If x > 0, then f(x) = sin(x)
+   * -   If x &gt; 0, then f(x) = sin(x)
    * -   x^2 + sin (x) when x > 0
-   * -   When x&lt;0, x^{2n+1}&lt;0
+   * -   When x&lt;0, x^&#007b;2n+1&#007d;&lt;0
    * -   Graph x^2 -x+3 =0 for 0&lt;=x&lt;=5
    * -   Divide by x-3 and then add x^2-1 to both sides
    * -   Given g(x) = 4x – 3, when does g(x)=0?
-   * -   Let D be the set {(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x}
-   * -   \int\_{the unit square} f(x,y) dx dy
+   * -   Let D be the set &#007b;(x,y)|0&lt;=x&lt;=1 and 0&lt;=y&lt;=x&#007d;
+   * -   \int\_&#007b;the unit square&#007d; f(x,y) dx dy
    * -   For all n in NN
    *
    */
@@ -511,7 +511,7 @@ const DEPRECATED_OPTIONS = {
  * | `geometrychange` | The geometry of the virtual keyboard has changed. The `evt.detail.boundingRect` property is the new bounding rectangle of the virtual keyboard. Listen for this event on `window.mathVirtualKeyboard` |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
- * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br\> `detail: \{direction: 'forward' | 'backward' | 'upward' | 'downward'\}` **cancellable**|
+ * | `move-out` | The user has pressed an **arrow** key or the **tab** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br/> `detail: \{direction: 'forward' | 'backward' | 'upward' | 'downward'\}` **cancellable**|
  * | `keypress` | The user pressed a physical keyboard key |
  * | `mount` | The element has been attached to the DOM |
  * | `unmount` | The element is about to be removed from the DOM |
@@ -1624,7 +1624,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
 
   /**
    * @category Commands
-   * Execute a {@linkcode Commands|command} defined by a selector.
+   * Execute a [`command`](#commands) defined by a selector.
    * ```javascript
    * mfe.executeCommand('add-column-after');
    * mfe.executeCommand(['switch-mode', 'math']);

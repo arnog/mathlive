@@ -78,7 +78,8 @@ import { ArrayAtom } from 'atoms/array';
 // }
 
 /**
- * Handle special cases when deleting an atom with a collapsed selection as per the table below:
+ * Handle special cases when deleting an atom with a collapsed selection as
+ * per the list below:
  * - deleting an empty numerator: demote fraction
  * - forward-deleting a square root: demote it
  * - delete last atom inside a square root: delete the square root
@@ -94,7 +95,7 @@ import { ArrayAtom } from 'atoms/array';
  *
  *
  * @param branch: if deleting inside an atom, the branch being deleted
- * (always the first or last atom of the branch). If `undefined`, the atom
+ * (always the last atom of the branch). If `undefined`, the atom
  * itself is about to be deleted.
  *
  * @return `true` if handled
@@ -105,48 +106,53 @@ function onDelete(
   atom: Atom,
   branch?: Branch
 ): boolean {
+  console.log('onDelete', atom, branch);
   const parent = atom.parent;
 
   //
-  //  multiline environment (`\displaylines`, `multline`, `split`, `gather`, etc...)
+  //  multiline environment
+  // (`\displaylines`, `multline`, `split`, `gather`, etc...)
   //
-  if (branch) {
-    let parent: Atom | undefined = atom;
-    while (parent && !(parent instanceof ArrayAtom)) parent = parent.parent;
-    const parentArray = parent ? (parent as ArrayAtom) : undefined;
+  // The branch could be not a cell, for example when deleting an empty surd
+  // inside a cell, the br
+  if (
+    isCellBranch(branch) &&
+    parent &&
+    parent instanceof ArrayAtom &&
+    parent.isMultiline
+  ) {
+    // Delete the line if it's empty (and not the last line).
+    // The branch indicates the cell we're in
+    if (parent.rows.length > 1) {
+      const [row, col] = branch;
+      if (parent.rows[row].length === 1) {
+        // We're the last column in a row
 
-    if (parentArray && parentArray.isMultiline) {
-      // Delete the line if it's empty. The branch indicates the cell we're in
-      console.assert(isCellBranch(branch));
+        // Capture the content of the current cell
+        // @fixme: there could be more than one column...
+        const content = parent.getCell(row, col)!;
 
-      if (branch && isCellBranch(branch) && parentArray.rows.length > 1) {
-        const [row, col] = branch;
-        if (parentArray.rows[row].length === 1) {
-          // Capture the content of the current cell
-          // @fixme: there could be more than one column...
-          const content = parentArray.getCell(row, col)!;
+        parent.removeRow(row);
 
-          parentArray.removeRow(row);
-
-          // If going backward, move to the end of the previous line
-          if (direction === 'backward') {
-            const prevLine = parentArray.getCell(row - 1, 0)!;
-            model.position = model.offsetOf(prevLine[prevLine.length - 1]);
-            // Add content from the deleted cell to the end of the previous line
-            parentArray.setCell(row - 1, 0, [...prevLine, ...content]);
-          } else {
-            // If going forward, move to the beginning of the next line
-            const nextLine = parentArray.getCell(row, 0)!;
-            model.position = model.offsetOf(nextLine[0]);
-            // Add content from the deleted cell to the beginning of the next line
-            parentArray.setCell(row, 0, [...content, ...nextLine]);
-          }
-
-          return true;
+        // If going backward, move to the end of the previous line
+        if (direction === 'backward') {
+          const prevLine = parent.getCell(row - 1, 0)!;
+          model.position = model.offsetOf(prevLine[prevLine.length - 1]);
+          // Add content from the deleted cell to the end of the previous line
+          parent.setCell(row - 1, 0, [...prevLine, ...content]);
+        } else {
+          // If going forward, move to the beginning of the next line
+          const nextLine = parent.getCell(row, 0)!;
+          model.position = model.offsetOf(nextLine[0]);
+          // Add content from the deleted cell to the beginning of the next line
+          parent.setCell(row, 0, [...content, ...nextLine]);
         }
+
+        return true;
       }
     }
   }
+
   //
   // 'leftright': \left\right
   //
@@ -595,3 +601,18 @@ export function deleteRange(
     () => model.deleteAtoms(range)
   );
 }
+
+// function isCellEmpty(cell: [number, number]): boolean {}
+
+// function atCellEdge(
+//   cell: [number, number],
+//   direction: 'forward' | 'backward'
+// ): boolean {}
+
+// function isRowEmpty(row: number): boolean {}
+
+// /** Return position of cell edge */
+// function cellEdge(
+//   cell: [number, number],
+//   direction: 'forward' | 'backward'
+// ): number {}

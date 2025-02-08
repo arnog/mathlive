@@ -831,8 +831,8 @@ mf.selection = mf.getPromptRange(id);
 ### Improvements
 
 - Simplified the syntax to modify registers. Use
-  `mf.registers.arraystretch = 1.5` instead of mf.registers = {...mf.registers,
-  arraystretch: 1.5}`
+  `mf.registers.arraystretch = 1.5` instead of
+  `mf.registers = {...mf.registers, arraystretch: 1.5}`
 - Allow changing registers using `\renewcommand`, for example
   `\renewcommand{\arraystretch}{1.5}`
 - Added keycap shortcuts `[up]` and `[down]` to move the selection up or down in
@@ -3264,8 +3264,10 @@ for more details.
 
 - When using `renderMathInDocument()` or `renderMathInElement()`, ASCII Math
   format can be used. The default delimiters for ASCII Math are
-  "`" (backtick) and can be changed with the `asciiMath.delimiters`option. To turn off this conversion and revert to the previous behavior, call `renderMathInDocument({
-  asciiMath: null })`
+  "`" (backtick) and can be changed with the `asciiMath.delimiters` option. To
+  turn off this conversion and revert to the previous behavior, call:
+
+  `renderMathInDocument({asciiMath: null })`
 
 ### Layout Improvements
 
@@ -5072,12 +5074,12 @@ smart mode.
 - slope = rise/run
 - If x > 0, then f(x) = sin(x)
 - x^2 + sin (x) when x \> 0
-- When x\<0, x^{2n+1}\<0
+- When x\<0, x^\{2n+1\}\<0
 - Graph x^2 -x+3 =0 for 0\<=x\<=5
 - Divide by x-3 and then add x^2-1 to both sides
 - Given g(x) = 4x – 3, when does g(x)=0?
-- Let D be the set {(x,y)|0\<=x\<=1 and 0\<=y\<=x}
-- \int\_{the unit square} f(x,y) dx dy
+- Let D be the set \{(x,y)|0\<=x\<=1 and 0\<=y\<=x\}
+- \int\_\{the unit square\} f(x,y) dx dy
 - For all n in NN
 
 #### Styling
@@ -5436,7 +5438,7 @@ MathLive.makeMathField(/*...*/);
 
 - Support for styling in the virtual keyboard UI: the text and highlight color
   can be adjusted to emphasize a portion of a formula
-- Smart Fences. When a fence ("(", "{", etc...) is inserted, a matching closing
+- Smart Fences. When a fence ("(", "\{", etc...) is inserted, a matching closing
   fence is automatically inserted, displayed as a greyed out placeholder.<br/>
   The LaTeX code inserted will vary depending on the context where the insertion
   is made, either standalone characters (`(`) or `\left...\right`. This feature

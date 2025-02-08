@@ -4,9 +4,19 @@ body {
 
 html {
   fill: currentColor;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Helvetica Neue', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
   height: 100%;
   width: 100%;
 }
@@ -66,7 +76,7 @@ h4 {
   -webkit-text-fill-color: transparent;
 } */
 main {
-  padding-top: 3rem;
+  padding-top: 1rem;
   width: 640px;
   max-width: 100vw;
   display: flex;
@@ -366,7 +376,8 @@ button {
   display: inline-block;
   overflow: hidden;
   will-change: box-shadow;
-  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+  transition:
+    box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
     background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;

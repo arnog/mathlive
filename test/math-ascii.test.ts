@@ -17,8 +17,8 @@ describe('ASCII MATH', function () {
   equalASCIIMath('x', 'x');
   equalASCIIMath('-x', '-x');
 
-  equalASCIIMath('npq', 'npq');
-  equalASCIIMath('2npq', '2npq');
+  equalASCIIMath('npq', 'n p q');
+  equalASCIIMath('2npq', '2n p q');
 
   expect(convertLatexToAsciiMath('(x)')).toBe('(x)');
   expect(convertAsciiMathToLatex('(x)')).toBe('\\left(x\\right)');
@@ -33,7 +33,7 @@ describe('ASCII MATH', function () {
   equalASCIIMath('x^{-234.56}', 'x^(-234.56)');
   equalASCIIMath('x^{-234.56}+1', 'x^(-234.56)+1');
   equalASCIIMath('x^{n}+1', 'x^n+1');
-  equalASCIIMath('x^{npq}+1', 'x^(npq)+1');
+  equalASCIIMath('x^{npq}+1', 'x^(n p q)+1');
   equalASCIIMath('x^{n+2}', 'x^(n+2)');
 
   equalASCIIMath('x_{2}', 'x_2');
@@ -41,7 +41,7 @@ describe('ASCII MATH', function () {
   equalASCIIMath('x_{-234.56}', 'x_(-234.56)');
   equalASCIIMath('x_{-234.56}+1', 'x_(-234.56)+1');
   equalASCIIMath('x_{n}+1', 'x_n+1');
-  equalASCIIMath('x_{npq}+1', 'x_(npq)+1');
+  equalASCIIMath('x_{npq}+1', 'x_(n p q)+1');
   equalASCIIMath('x_{n+2}', 'x_(n+2)');
 
   equalASCIIMath('x_{n+2}^{m+3}', 'x_(n+2)^(m+3)');

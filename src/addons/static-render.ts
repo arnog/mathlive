@@ -301,40 +301,35 @@ function createAccessibleMarkupPair(
 function scanText(
   text: string,
   options: StaticRenderOptionsPrivate
-): Node | null {
+): (string | Node)[] | null {
+  // If just space (surprisingly common), return null
   if (/^\s*$/.test(text)) return null;
 
-  let fragment: Node | null = null;
-
   // If the text starts with '\begin'... (this is a MathJAX behavior)
-  if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
-    fragment = document.createDocumentFragment();
-    fragment.appendChild(createAccessibleMarkupPair(text, '', options));
-    return fragment;
-  }
+  if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text))
+    return [createAccessibleMarkupPair(text, '', options)];
 
-  const data = splitWithDelimiters(text, options);
+  const runs = splitWithDelimiters(text, options);
 
   // If the text contains no math, no need to continue processing
-  if (data.length === 1 && data[0].type === 'text') return null;
+  if (runs.length === 1 && runs[0].type === 'text') return null;
 
-  fragment = document.createDocumentFragment();
+  const result: (Node | string)[] = [];
 
-  for (const datum of data) {
-    if (datum.type === 'text')
-      fragment.appendChild(document.createTextNode(datum.data));
+  for (const run of runs) {
+    if (run.type === 'text') result.push(run.data);
     else {
-      fragment.appendChild(
+      result.push(
         createAccessibleMarkupPair(
-          datum.data,
-          datum.mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
+          run.data,
+          run.mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
           options
         )
       );
     }
   }
 
-  return fragment;
+  return result;
 }
 
 function scanElement(
@@ -346,71 +341,64 @@ function scanElement(
 
     // This is a node with textual content only. Perhaps an opportunity
     // to simplify and avoid creating extra nested elements...
+
+    // If the text starts with '\begin'... (this is a MathJAX behavior)
     if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
       element.textContent = '';
       element.append(createAccessibleMarkupPair(text, '', options));
       return;
     }
 
-    const data = splitWithDelimiters(text, options);
-    if (data.length === 1 && data[0].type === 'math') {
+    const runs = splitWithDelimiters(text, options);
+    if (runs.length === 1) {
+      const run = runs[0];
+      // If the element only contains text with no math, no need to do anything.
+      if (run.type === 'text') return;
+
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
       element.textContent = '';
       element.append(
         createAccessibleMarkupPair(
-          data[0].data,
-          data[0].mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
+          run.data,
+          run.mathstyle === 'textstyle' ? 'textstyle' : 'displaystyle',
           options
         )
       );
       return;
     }
 
-    // If this element only contained text with no math, no need to
-    // do anything.
-    if (data.length === 1 && data[0].type === 'text') return;
+    // @todo: handle the case where there are multiple runs, e.g.
+    // "The equation $x^2 + 1 = 0$ is a quadratic equation"
   }
 
   // Iterate backward, as we will be replacing childNode with a documentfragment
   // which may insert multiple nodes (one for the accessible markup, one for
   // the formula)
-  for (let i = element.childNodes.length - 1; i >= 0; i--) {
-    const childNode = element.childNodes[i];
+  const nodes = [...element.childNodes];
+  for (let childNode of nodes) {
     if (childNode.nodeType === 3) {
       //
       // A text node
       //
       // Look for math mode delimiters inside the text
 
-      let content = childNode.textContent ?? '';
-
-      // Coalesce adjacent text nodes
-      while (i > 0 && element.childNodes[i - 1].nodeType === 3) {
-        i--;
-        content = ((element.childNodes[i] as Text).textContent ?? '') + content;
-      }
-      const frag = scanText(content, options);
-      if (frag) {
-        i += frag.childNodes.length - 1;
-        childNode.replaceWith(frag);
-      }
+      const nodes = scanText(childNode.textContent ?? '', options);
+      if (nodes) childNode.replaceWith(...nodes);
     } else if (childNode.nodeType === 1) {
       //
       // An element node
       //
-      const el = childNode as HTMLElement;
       const tag = childNode.nodeName.toLowerCase();
       if (tag === 'script') {
         const scriptNode = childNode as HTMLScriptElement;
-        if (scriptNode.type === 'module' || scriptNode.type === 'javascript')
-          continue;
+        const type = scriptNode.type.toLowerCase();
+        if (type === 'module' || type === 'javascript') continue;
+
         let textContent: string | undefined = undefined;
-        if (options.processScriptTypePattern?.test(scriptNode.type))
+        if (options.processScriptTypePattern?.test(type))
           textContent = scriptNode.textContent ?? '';
-        else if (
-          options.processMathJSONScriptTypePattern?.test(scriptNode.type)
-        ) {
+        else if (options.processMathJSONScriptTypePattern?.test(type)) {
           try {
             textContent = options.serializeToLatex?.(
               JSON.parse(scriptNode.textContent ?? '')
@@ -423,8 +411,8 @@ function scanElement(
         if (textContent) {
           let style: 'displaystyle' | 'textstyle' = 'textstyle';
 
-          for (const l of scriptNode.type.split(';')) {
-            const [key, value] = l.toLowerCase().split('=');
+          for (const l of type.split(';')) {
+            const [key, value] = l.split('=');
             if (key.trim() === 'mode')
               style = value.trim() === 'display' ? 'displaystyle' : 'textstyle';
           }
@@ -432,6 +420,7 @@ function scanElement(
           replaceWithMath(scriptNode, textContent, style, options);
         }
       } else {
+        const el = childNode as HTMLElement;
         if (options.texClassDisplayPattern?.test(el.className)) {
           replaceWithMath(el, el.textContent ?? '', 'displaystyle', options);
           continue;
@@ -477,7 +466,7 @@ const DEFAULT_AUTO_RENDER_OPTIONS: StaticRenderOptions = {
 
   // Regex pattern of the class name of elements whose contents should not
   // be processed
-  ignoreClass: 'tex2jax_ignore',
+  ignoreClass: '^(tex2jax_ignore|ML__latex)$',
 
   // Regex pattern of the class name of elements whose contents should
   // be processed when they appear inside ones that are ignored.
