@@ -125,8 +125,12 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function argumentsFromJson(json: any[]): undefined | Argument[] {
+function argumentsFromJson(
+  json: any[] | string
+): undefined | Argument[] | string {
   if (!json) return undefined;
+  // For a macro, the argument may be a string
+  if (typeof json === 'string') return json;
   if (!Array.isArray(json)) return undefined;
   return json.map((arg) => {
     if (arg === '<null>') return null;
