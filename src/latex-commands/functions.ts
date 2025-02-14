@@ -315,6 +315,12 @@ defineFunction('pdiff', '{numerator}{denominator}', {
       numerPrefix: '\u2202',
       denomPrefix: '\u2202',
     }),
+  serialize: (atom, options) =>
+    joinLatex([
+      atom.aboveToLatex(options),
+      atom.command,
+      atom.belowToLatex(options),
+    ]),
 });
 
 // Limits, symbols

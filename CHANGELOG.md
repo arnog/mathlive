@@ -5,6 +5,7 @@
 - **#2585** In some cases, the arguments of a macro were not serialized
   correctly. This could happen when using a macro in conjunction with a inline
   shortcut.
+- **#2586** The `\pdiff{}{}` command was not properly serialized to LaTeX.
 
 ## 0.104.0 _2025-02-08_
 
