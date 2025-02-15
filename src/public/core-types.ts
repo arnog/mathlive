@@ -1,3 +1,5 @@
+/** @category Styles */
+
 export type MathstyleName =
   | 'displaystyle'
   | 'textstyle'
@@ -61,7 +63,8 @@ export type ParseMode = 'math' | 'text' | 'latex';
     | `unexpected-token`            |  An unexpected character was encountered.  |
     | `unexpected-end-of-string`    |  The end of the string was reached, but some required arguments were missing. |
     | `improper-alphabetic-constant`    | The alphabetic constant prefix `` ` `` was not followed by a letter or single character command. |
- */
+* @category Conversion 
+*/
 export type ParserErrorCode =
   | 'unknown-command'
   | 'invalid-command'
@@ -81,6 +84,7 @@ export type ParserErrorCode =
 // See https://ww2.eng.famu.fsu.edu/~dommelen/l2h/errors.html
 // for a reference of TeX errors.
 
+/** @category Conversion */
 export type LatexSyntaxError<T = ParserErrorCode> = {
   code: T;
   arg?: string;
@@ -119,6 +123,8 @@ export type LatexSyntaxError<T = ParserErrorCode> = {
  *
  * **See Also**
  * * {@linkcode Style}
+ *
+ * @category Styles
  */
 export type Variant =
   | 'ams'
@@ -147,15 +153,28 @@ export type Variant =
 | `sans-serif`| 𝖠𝖡𝖢𝖺𝖻𝖼𝟢𝟣𝟤 | 𝗔𝗕𝗖𝗮𝗯𝗰𝟬𝟭𝟮 | 𝘈𝘉𝘊𝘢𝘣𝘤 | 𝘼𝘽𝘾𝙖𝙗𝙘  |
 | `monospace`        | 𝙰𝙱𝙲𝚊𝚋𝚌     | n/a          | n/a      | n/a  |
 
+ * @category Styles
  */
 export type VariantStyle = 'up' | 'bold' | 'italic' | 'bolditalic' | '';
 
+/**
+ * @category Styles
+ */
 export type FontShape = 'auto' | 'n' | 'it' | 'sl' | 'sc' | '';
 
+/**
+ * @category Styles
+ */
 export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
+/**
+ * @category Styles
+ */
 export type FontFamily = 'none' | 'roman' | 'monospace' | 'sans-serif';
 
+/**
+ * @category Styles
+ */
 export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 /**
@@ -168,8 +187,13 @@ export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
  * **See Also**
  * * `applyStyle()`
  * * [Interacting with a Mathfield](mathfield/guides/interacting/)
+ *
+ * @category Styles
  */
 
+/**
+ * @category Styles
+ */
 export interface Style {
   // For text and math mode:
   color?: string;
@@ -189,16 +213,18 @@ export interface Style {
 /**
  * **See Also**
  * * {@linkcode MacroDictionary}
- * * {@link //mathfield/guides/macros/}
+ * * [Macros guide](//mathfield/guides/macros/)
  *
  * @category Macros
  */
 export type MacroDefinition = {
   /** Definition of the macro as a LaTeX expression */
   def: string;
+  /** Number of arguments (`#1`, etc...) in the macro definition */
   args?: number;
+  /** If `false` elements inside the macro can be selected */
   captureSelection?: boolean;
-  // If false, even if `expandMacro` is true, do not expand.
+  /** If `false`, even if `expandMacro` is true, do not expand. */
   expand?: boolean;
 };
 
@@ -475,18 +501,18 @@ export declare type Expression =
 | `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
 | `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
-' `"plain-text"`        | A plain text rendering of the content. |
+| `"plain-text"`        | A plain text rendering of the content. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
 | `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized highlighting (read aloud). |
 
-   * To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
-   *
+   To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
+
 ```js
 import "https://unpkg.com/@cortex-js/compute-engine?module";
 ```
-   *
+   * @category Mathfield
    */
 export type OutputFormat =
   | 'ascii-math'
@@ -501,6 +527,10 @@ export type OutputFormat =
   | 'spoken-text'
   | 'spoken-ssml'
   | 'spoken-ssml-with-highlighting';
+
+/**
+ * @category Mathfield
+ */
 
 export type InsertOptions = {
   /** If `"auto"` or omitted, the current mode is used */
@@ -550,6 +580,10 @@ export type InsertOptions = {
   style?: Style;
 };
 
+/**
+ * @category Styles
+ */
+
 export type ApplyStyleOptions = {
   range?: Range;
   operation?: 'set' | 'toggle';
@@ -557,7 +591,10 @@ export type ApplyStyleOptions = {
 };
 
 /**
- * Some additional information about an element in the formula
+ * Some additional information about an element of the formula
+ * returned by `mf.getElementInfo()`.
+ *
+ * @category Mathfield
  */
 
 export type ElementInfo = {
@@ -614,7 +651,9 @@ export type ElementInfo = {
 };
 
 /**
- * A position of the caret/insertion point from the beginning of the formula.
+ * Position of the caret/insertion point from the beginning of the formula. The first position is 0. The last valid offset is `mf.lastOffset`.
+ *
+ * @category Selection
  */
 export type Offset = number;
 
@@ -622,10 +661,10 @@ export type Offset = number;
  * A pair of offsets (boundary points) that can be used to denote a fragment
  * of an expression.
  *
- * A range is said to be collapsed when start and end are equal.
+ * A range is said to be **collapsed** when start and end are equal.
  *
  * When specifying a range, a negative offset can be used to indicate an
- * offset from the last valid offset, i.e. -1 is the last valid offset, -2
+ * offset relative to the last valid offset, i.e. -1 is the last valid offset, -2
  * is one offset before that, etc...
  *
  * A normalized range will always be such that start \<= end, start \>= 0,
@@ -634,6 +673,8 @@ export type Offset = number;
  *
  * **See Also**
  * * {@linkcode Selection}
+ *
+ * @category Selection
  */
 
 export type Range = [start: Offset, end: Offset];
@@ -655,6 +696,7 @@ export type Range = [start: Offset, end: Offset];
  *
  * **See Also**
  * * {@linkcode Range}
+ * @category Selection
  */
 export type Selection = {
   ranges: Range[];

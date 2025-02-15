@@ -1,5 +1,36 @@
 {
   // https://typedoc.org/options/
+  "categoryOrder": [
+    "Mathfield",
+    "Accessing and changing the content", // Secondary category
+    "Selection",
+    "Customization", // Secondary category
+    "Styles",
+    "Options",
+    "Macros",
+    "Registers",
+    "Editing Commands",
+    "Speech",
+
+    "Focus", // Secondary category
+
+    "Prompts", // Secondary category
+    "Undo", // Secondary category
+
+    "Keyboard Shortcuts", // Secondary category
+    "Menu", // Secondary category
+    "Virtual Keyboard",
+
+    "Localization", // Secondary category
+
+    "Static Rendering",
+    "Conversion",
+
+    "MathJSON",
+    "Other",
+    "*"
+  ],
+
   "out": "./temp-docs",
   "compilerOptions": {
     // "esModuleInterop": true,
@@ -17,7 +48,6 @@
   "name": "Mathfield",
   "disableSources": true,
   "disableGit": true,
-  "stripYamlFrontmatter": true,
   "outputFileStrategy": "modules",
   "entryPoints": ["./src/mathlive.ts"],
   "readme": "none",
@@ -35,8 +65,11 @@
   "hidePageTitle": true,
   "hideBreadcrumbs": true,
   "excludeGroups": true,
-  "useCodeBlocks": true,
+  "useCodeBlocks": true, // Use code blocks for function signatures
+  "expandParameters": false, // Don't include type in function signatures
   "parametersFormat": "list", // table | list
   "propertiesFormat": "list", // table | list
-  "typeDeclarationFormat": "list" // table | list
+  "typeDeclarationFormat": "list", // table | list
+  "expandObjects": true,
+  "notRenderedTags": ["@noInheritDoc", "@keywords", "@command", "@category"]
 }

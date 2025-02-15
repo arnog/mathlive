@@ -8,7 +8,7 @@ import type {
 } from './core-types';
 
 /**
- * Specify behavior for origin validation.
+ * Specify behavior for origin validation when using the virtual keyboard.
  *
  * <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
  *
@@ -20,7 +20,7 @@ import type {
  *
  * </div>
  *
- * @category Options
+ * @category Virtual Keyboard
  */
 export type OriginValidator =
   | ((origin: string) => boolean)
@@ -44,7 +44,7 @@ export type OriginValidator =
  *      "command": ['insert', '\\sqrt{#0}'],
  * }
  * ```
- * @category Options
+ * @category Keyboard Shortcuts
  */
 export type Keybinding = {
   /**
@@ -197,7 +197,7 @@ export type Keybinding = {
  *  | `"closefence"` | A closing fence such as `}`|
  *  | `"text"`| Some plain text|
  *
- * @category Options
+ * @category Keyboard Shortcuts
  */
 export type InlineShortcutDefinition =
   | string
@@ -206,7 +206,7 @@ export type InlineShortcutDefinition =
       after?: string;
     };
 
-/** @category Options */
+/** @category Keyboard Shortcuts */
 export type InlineShortcutDefinitions = Record<
   string,
   InlineShortcutDefinition
@@ -216,7 +216,7 @@ export type InlineShortcutDefinitions = Record<
  * These hooks provide an opportunity to intercept or modify an action.
  * When their return value is a boolean, it indicates if the default handling
  * should proceed.
- * @category Options
+ * @internal
  */
 export interface MathfieldHooks {
   onInlineShortcut: (sender: Mathfield, symbol: string) => string;
@@ -231,7 +231,7 @@ export interface MathfieldHooks {
 //  Note that this can't be an arbitrary string (e.g. `insertMath`), as it will
 // get normalized when the event is dispatched. It has to be one of the strings
 // from here: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-/** @category Options */
+/** @internal */
 export type ContentChangeType =
   | 'insertText'
   | 'insertLineBreak'
@@ -249,7 +249,7 @@ export type ContentChangeType =
   | 'deleteHardLineBackward'
   | 'deleteHardLineForward';
 
-/** @category Options */
+/** @internal */
 export type ContentChangeOptions = {
   data?: string | null;
   dataTransfer?: DataTransfer | null;
@@ -257,18 +257,18 @@ export type ContentChangeOptions = {
   // isComposing?: boolean;
 };
 
-/** @category Options */
+/** @internal */
 export type KeyboardOptions = {
   keybindings: Readonly<Keybinding[]>;
 };
 
-/** @category Options */
+/** @internal */
 export type InlineShortcutsOptions = {
   inlineShortcuts: InlineShortcutDefinitions;
   inlineShortcutTimeout: number;
 };
 
-/** @category Options */
+/** @internal */
 export type EditingOptions = {
   /** When `true`, the user cannot edit the mathfield. The mathfield can still
    * be modified programatically.
@@ -311,7 +311,7 @@ export type EditingOptions = {
   mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
 };
 
-/** @category Options */
+/** @internal */
 export type LayoutOptions = {
   defaultMode: 'inline-math' | 'math' | 'text';
 
@@ -333,8 +333,7 @@ export type LayoutOptions = {
 };
 
 /**
- * @category Options
- * @keywords security, trust, sanitize, errors
+ * @internal
  */
 export type MathfieldOptions = LayoutOptions &
   EditingOptions &
@@ -376,7 +375,7 @@ export type MathfieldOptions = LayoutOptions &
  *  | `"linux.french"`          |  Linux    | French (AZERTY) |
  *  | `"linux.german"`          |  Linux    | German (QWERTZ) |
  *
- * @category Options
+ * @category Localization
  */
 export type KeyboardLayoutName =
   | 'apple.en-intl'
@@ -400,7 +399,7 @@ export type KeyboardLayoutName =
  *
  * If set to `auto` the keyboard layout is guessed.
  *
- * @category Options
+ * @category Localization
  *
  */
 export declare function setKeyboardLayout(
@@ -413,7 +412,7 @@ export declare function setKeyboardLayout(
  *
  * Note that this affects some keybindings, but not general text input.
  *
- * @category Options
+ * @category Localization
  *
  */
 export declare function setKeyboardLayoutLocale(locale: string): void;
@@ -481,8 +480,8 @@ export type StaticRenderOptions = Partial<LayoutOptions> & {
 
   asciiMath?: {
     delimiters?: {
-      display?: [openDelim: string, closeDelim: string][];
-      inline?: [openDelim: string, closeDelim: string][];
+      display?: string[]; // [openDelim: string, closeDelim: string][];
+      inline?: string[]; // [openDelim: string, closeDelim: string][];
     };
   };
 

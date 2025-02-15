@@ -138,6 +138,11 @@ export function convertLatexToMarkup(
   return struts.toMarkup();
 }
 
+/**
+ * Check if a string of LaTeX is valid and return an array of syntax errors.
+ *
+ * @category Conversion
+ */
 export function validateLatex(s: string): LatexSyntaxError[] {
   return validateLatexInternal(s, { context: getDefaultContext() });
 }

@@ -9,6 +9,8 @@ import type {
   Selection,
 } from './core-types';
 
+/** @category Styles */
+
 export type InsertStyleHook = (
   sender: Mathfield,
   at: Offset,

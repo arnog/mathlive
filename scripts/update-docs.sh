@@ -15,6 +15,7 @@ printf "${BASENAME}${DOT}Updating the documentation\n"
 rm -rf ./temp-docs
 
 # Config is in ./typdeoc.json
+## npx typedoc --logLevel Verbose
 npx typedoc
 
 # https://github.com/ozum/concat-md

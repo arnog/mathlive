@@ -42,9 +42,11 @@
   </header>
   <main>
 
-    <math-field id="mf">\begin{align}\sqrt{a} +
+    <math-field id="mf">\pdiff{a}{b}</math-field>
+
+    <!-- <math-field id="mf">\begin{align}\sqrt{a} +
       1 & b + 234 \\ \sqrt{c} + 1234 & d + 12345\end{align}
-    </math-field>
+    </math-field> -->
 
     <!-- <math-field id="mf">a+\begin{matrix}[lc]x+1&2\\4&a+b+c+1234\end{matrix}+\alpha</math-field> -->
 
@@ -257,6 +259,17 @@
         ...mf.macros,
         atomic: { args: 1, def: '\\class{my-class}{#1}', captureSelection: true },
       };
+
+      mf.macros = {
+        axs: {
+          args: 1,
+          def: "\\operatorname{axs}(#1)"
+        }
+      };
+      mf.inlineShortcuts = {
+        aa: "\\axs{inner}"
+      };
+
 
       // setupMathfield(mf);
       // First time update
