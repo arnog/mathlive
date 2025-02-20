@@ -314,7 +314,7 @@ export const LAYOUTS: Partial<
           label: '<i>&psi;</i>',
           class: 'MLK__tex hide-shift',
           insert: '\\psi',
-          aside: 'zeta',
+          aside: 'psi',
           shift: '\\Psi',
         },
         {
