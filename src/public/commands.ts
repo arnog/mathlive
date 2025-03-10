@@ -128,6 +128,10 @@ export interface Commands {
   toggleContextMenu: (mathfield: Mathfield) => boolean;
   toggleKeystrokeCaption: (mathfield: Mathfield) => boolean;
 
+  toggleVirtualKeyboard: (mathfield: Mathfield) => boolean;
+  showVirtualKeyboard: (mathfield: Mathfield) => boolean;
+  hideVirtualKeyboard: (mathfield: Mathfield) => boolean;
+
   plonk: (mathfield: Mathfield) => boolean;
 
   switchMode: (mathfield: Mathfield, mode: ParseMode) => boolean;
