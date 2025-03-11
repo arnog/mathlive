@@ -259,7 +259,7 @@ mf.selection = mf.getPromptRange(id);
 
   The menu can be customized by setting the `mf.menuItems` property of the
   mathfield. The value of this property is an array of menu items. See
-  [the documentation](https://cortexjs.io/mathlive/guides/menus/) for details.
+  [the documentation](https://cortexjs.io/mathfield/guides/menu/) for details.
 
 ### Improvements
 
@@ -746,7 +746,7 @@ virtual keyboards and support for shift key modifier for many keycaps.
 
 - The JSON description of custom virtual keyboard now support keycap shortcuts.
   For example the `[left]` keycap shortcut represent the left arrow key. See the
-  [documentation](https://cortexjs.io/mathlive/guides/virtual-keyboards/#defining-custom-layouts)
+  [documentation](https://cortexjs.io/mathfield/guides/virtual-keyboard/#defining-custom-layouts)
   for more details.
 - Custom virtual keyboards can now include special keycaps for editing commands
   (cut/copy/paste/undo).
@@ -2082,7 +2082,7 @@ in order to preserve the same settings, you would now use:
   for example when inserting a fraction.
 - **#1389** Keyboard navigation inside tabular data (matrices, etc...)
 - Documentation: some of the data structures were not publicly exported and did
-  not appear in the documentation (https://cortexjs.io/docs/mathlive/)
+  not appear in the documentation (https://cortexjs.io/mathfield/api/)
 - When pasting content that included a double-backslash (e.g. as a row
   separator) immediately followed by a character, all double-backslash would be
   interpreted as a single backslash (this allowed pasting LaTeX that had been
@@ -2617,7 +2617,7 @@ Learn more at [cortexjs.io/math-json/](https://cortexjs.io/math-json/).
 - Added support for the `\displaylimits` command
 
 See
-[Supported TeX/LaTeX Commands](https://cortexjs.io/mathlive/reference/commands/)
+[Supported TeX/LaTeX Commands](https://cortexjs.io/mathfield/reference/commands/)
 for more details.
 
 ### Issues Resolved
@@ -2780,7 +2780,7 @@ for more details.
 - The default color mapping function now returns different values when used as a
   line color or as a background color. This improves the legibility of colors.
   See
-  [MathLive Guide: Customizing](https://cortexjs.io/mathlive/guides/customizing/).
+  [MathLive Guide: Customizing](https://cortexjs.io/mathfield/guides/customizing/).
 
 - Paste operations are now undoable.
 

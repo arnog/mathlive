@@ -77,8 +77,8 @@ You can also add it using CDN
 </head>
 ```
 
-Check documentation for [React](https://cortexjs.io/mathlive/guides/react/) and
-[interaction with Mathfield](https://cortexjs.io/mathlive/guides/interacting/).
+Check documentation for [React](https://cortexjs.io/mathfield/guides/react/) and
+[interaction with Mathfield](https://cortexjs.io/mathfield/guides/interacting/).
 
 ## 📖 Documentation
 
@@ -86,10 +86,10 @@ MathLive has an extensive set of documentation to help you get started,
 including guides on interacting with a mathfield, customizing it, executing
 commands, defining custom LaTeX macros, managing inline and keyboard shortcuts,
 controlling speech output, and displaying static math formulas. You can find all
-of these guides on the [CortexJS.io website](https://cortexjs.io/mathlive/).
+of these guides on the [CortexJS.io website](https://cortexjs.io/mathfield/).
 
 In addition to the guides, you can also find reference documentation of the
-MathLive API on the [MathLive SDK page](https://cortexjs.io/docs/mathlive).
+MathLive API on the [Mathfield API Reference page](https://cortexjs.io/mathfield/api/).
 
 ## FAQ
 
