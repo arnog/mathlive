@@ -33,7 +33,7 @@ VERSION=$(git describe --tags)
 
 # RELEASE_NOTE=$(sed -n '1,/^## /p' < CHANGELOG.md | sed '$d' | sed -e 's/$/\\n/' | sed -e 's/"/\\"/g' )
 
-RELEASE_NOTE="See [the Change Log](https://cortexjs.io/mathlive/changelog/)"
+RELEASE_NOTE="See [the Change Log](https://cortexjs.io/mathfield/changelog/)"
 
 API_JSON=$(printf '{"tag_name": "%s","target_commitish": "master","name": "%s","body": "%s","draft": false,"prerelease": false}' $VERSION $VERSION "$RELEASE_NOTE" )
 # echo $API_JSON
