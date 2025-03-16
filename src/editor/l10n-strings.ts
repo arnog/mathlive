@@ -808,7 +808,7 @@ export const STRINGS = {
     'tooltip.cut to clipboard': 'Wytnij ze Schowka',
     'tooltip.paste from clipboard': 'Wklej ze Schowka',
     'tooltip.redo': 'Przywróć',
-    'tooltip.toggle virtual keyboard': 'Przełącz wirtualną klawiaturę',
+    'tooltip.toggle virtual keyboard': 'Przełącz klawiaturę wirtualną',
     'tooltip.menu': 'Menu',
     'tooltip.undo': 'Cofnij',
     'menu.borders': 'Ograniczniki macierzy',
