@@ -106,7 +106,6 @@ function onDelete(
   atom: Atom,
   branch?: Branch
 ): boolean {
-  console.log('onDelete', atom, branch);
   const parent = atom.parent;
 
   //
