@@ -33,6 +33,7 @@ export class Scrim {
 
   private savedOverflow?: string;
   private savedMarginRight?: string;
+  private savedMlkPaddingRight?: string;
 
   private savedActiveElement?: HTMLOrSVGElement | null;
 
@@ -108,6 +109,15 @@ export class Scrim {
 
     document.body.style.marginRight = `${marginRight + scrollbarWidth}px`;
 
+    const mlkPlate = document.querySelector('.MLK__plate');
+    if (mlkPlate instanceof HTMLElement) {
+      this.savedMlkPaddingRight = mlkPlate.style.paddingRight;
+      const mlkPaddingRight = Number.parseFloat(
+        getComputedStyle(mlkPlate).paddingRight
+      );
+      mlkPlate.style.paddingRight = `${mlkPaddingRight + scrollbarWidth}px`;
+    }
+
     if (options?.child) element.append(options.child);
 
     this.state = 'open';
@@ -133,6 +143,9 @@ export class Scrim {
     // Restore body state
     document.body.style.overflow = this.savedOverflow ?? '';
     document.body.style.marginRight = this.savedMarginRight ?? '';
+    const mlkPlate = document.querySelector('.MLK__plate');
+    if (mlkPlate instanceof HTMLElement)
+      mlkPlate.style.paddingRight = this.savedMlkPaddingRight ?? '';
 
     // Restore the previously focused element
     if (deepActiveElement() !== this.savedActiveElement)
