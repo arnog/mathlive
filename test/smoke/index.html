@@ -42,7 +42,7 @@
   </header>
   <main>
 
-    <math-field id="mf">\pdiff{a}{b}</math-field>
+    <math-field id="mf">\sqrt{a+1}</math-field>
 
     <!-- <math-field id="mf">\begin{align}\sqrt{a} +
       1 & b + 234 \\ \sqrt{c} + 1234 & d + 12345\end{align}
@@ -119,11 +119,13 @@
       convertLatexToMarkup
     } from "/dist/mathlive.mjs";
     // } from "https://unpkg.com/mathlive?module";
-
+    // } from "https://esm.run/mathlive";
     import {
       ComputeEngine,
       version,
-    } from "https://unpkg.com/@cortex-js/compute-engine?module";
+    } from "https://esm.run/@cortex-js/compute-engine";
+
+
 
     const MAX_LINE_LENGTH = 74;
 
@@ -267,14 +269,19 @@
         }
       };
       mf.inlineShortcuts = {
-        aa: "\\axs{inner}"
+        ...mf.inlineShortcuts,
+        dx: "dx",
+        dt: "dt",
       };
 
 
       // setupMathfield(mf);
       // First time update
       updateContent(mf);
-      mf.addEventListener("input", (ev) => updateContent(mf));
+      mf.addEventListener("input", (ev) => {
+        console.log(ev);
+        updateContent(mf)
+      });
 
 
       mf.addEventListener("selection-change", (ev) => {

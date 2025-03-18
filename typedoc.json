@@ -55,7 +55,7 @@
 
   // https://typedoc-plugin-markdown.org/options
   "plugin": [
-    "typedoc-plugin-no-inherit",
+    // "typedoc-plugin-no-inherit",
     "typedoc-plugin-markdown",
     "./plugins/grok-theme/index.mjs"
   ],
