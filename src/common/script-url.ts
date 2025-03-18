@@ -85,7 +85,13 @@ export async function resolveUrl(url: string): Promise<string> {
   if (gResolvedScriptUrl === null) {
     try {
       const response = await fetch(gScriptUrl, { method: 'HEAD' });
-      if (response.status === 200) gResolvedScriptUrl = response.url;
+      if (response.status === 200) {
+        gResolvedScriptUrl = response.url;
+        // The CDN jsdelivr.net adds a pseudo `/+esm` path to the URL
+        // to indicate that the module version is being used.
+        // Remove it.
+        gResolvedScriptUrl = gResolvedScriptUrl.replace(/\/\+esm$/, '');
+      }
     } catch (e) {
       console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
     }

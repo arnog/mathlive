@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+### Improvements
+
+- Improved support for the `jsdelivr` CDN. To use it, use
+
+```js
+    import { MathfieldElement } from "https://esm.run/mathlive";
+```
+
 ### Issues Resolved
 
 - **#2585** In some cases, the arguments of a macro were not serialized
