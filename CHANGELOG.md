@@ -10,6 +10,8 @@
 
 ### Issues Resolved
 
+- **#2628** Attempting to delete an empty line in a multiline environment would
+  not delete the line.
 - **#2585** In some cases, the arguments of a macro were not serialized
   correctly. This could happen when using a macro in conjunction with a inline
   shortcut.

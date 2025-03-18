@@ -430,8 +430,13 @@ export class _Model implements Model {
       // If we're trying to extract the root, don't actually delete the root,
       // delete all the children of the root.
       if (result[0].isRoot) {
-        result = [...(result[0].body ?? result[0].children)];
-        result.shift();
+        // If the root is an array, get the cells
+        if (result[0] instanceof ArrayAtom) {
+          result = result[0]!.rows.flatMap((x) => x.flatMap((y) => y!));
+        } else {
+          result = [...(result[0].body ?? result[0].children)];
+        }
+        result = result.filter((x) => x.type !== 'first');
       }
     }
     for (const child of result) child.parent!.removeChild(child);
@@ -828,7 +833,7 @@ export class _Model implements Model {
         new InputEvent('input', {
           ...options,
           // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-          data: options.data ? options.data : options.inputType ?? '',
+          data: options.data ? options.data : (options.inputType ?? ''),
           bubbles: true,
           composed: true,
         } as InputEventInit)

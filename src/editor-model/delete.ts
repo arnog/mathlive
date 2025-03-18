@@ -112,39 +112,32 @@ function onDelete(
   //  multiline environment
   // (`\displaylines`, `multline`, `split`, `gather`, etc...)
   //
-  // The branch could be not a cell, for example when deleting an empty surd
-  // inside a cell, the br
-  if (
-    isCellBranch(branch) &&
-    parent &&
-    parent instanceof ArrayAtom &&
-    parent.isMultiline
-  ) {
+  if (isCellBranch(branch) && atom instanceof ArrayAtom && atom.isMultiline) {
     // Delete the line if it's empty (and not the last line).
     // The branch indicates the cell we're in
-    if (parent.rows.length > 1) {
+    if (atom.rows.length > 1) {
       const [row, col] = branch;
-      if (parent.rows[row].length === 1) {
+      if (atom.rows[row].length === 1) {
         // We're the last column in a row
 
         // Capture the content of the current cell
         // @fixme: there could be more than one column...
-        const content = parent.getCell(row, col)!;
+        const content = atom.getCell(row, col)!;
 
-        parent.removeRow(row);
+        atom.removeRow(row);
 
         // If going backward, move to the end of the previous line
         if (direction === 'backward') {
-          const prevLine = parent.getCell(row - 1, 0)!;
+          const prevLine = atom.getCell(row - 1, 0)!;
           model.position = model.offsetOf(prevLine[prevLine.length - 1]);
           // Add content from the deleted cell to the end of the previous line
-          parent.setCell(row - 1, 0, [...prevLine, ...content]);
+          atom.setCell(row - 1, 0, [...prevLine, ...content]);
         } else {
           // If going forward, move to the beginning of the next line
-          const nextLine = parent.getCell(row, 0)!;
+          const nextLine = atom.getCell(row, 0)!;
           model.position = model.offsetOf(nextLine[0]);
           // Add content from the deleted cell to the beginning of the next line
-          parent.setCell(row, 0, [...content, ...nextLine]);
+          atom.setCell(row, 0, [...content, ...nextLine]);
         }
 
         return true;
@@ -307,9 +300,9 @@ function onDelete(
       if (atom.subscript || atom.superscript) {
         const pos: Atom | undefined =
           direction === 'forward'
-            ? atom.superscript?.[0] ?? atom.subscript?.[0]
-            : atom.subscript?.[0].lastSibling ??
-              atom.superscript?.[0].lastSibling;
+            ? (atom.superscript?.[0] ?? atom.subscript?.[0])
+            : (atom.subscript?.[0].lastSibling ??
+              atom.superscript?.[0].lastSibling);
         if (pos) model.position = model.offsetOf(pos);
         return true;
       }
