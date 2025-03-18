@@ -242,8 +242,6 @@ export function normalizeKeybindings(
   const errors: string[] = [];
   const result: Keybinding[] = [];
 
-  console.log('checking', layout.displayName);
-
   for (const x of keybindings) {
     try {
       const binding = normalizeKeybinding(x, layout);
