@@ -112,37 +112,10 @@ function onDelete(
   //  multiline environment
   // (`\displaylines`, `multline`, `split`, `gather`, etc...)
   //
+
   if (isCellBranch(branch) && atom instanceof ArrayAtom && atom.isMultiline) {
-    // Delete the line if it's empty (and not the last line).
-    // The branch indicates the cell we're in
-    if (atom.rows.length > 1) {
-      const [row, col] = branch;
-      if (atom.rows[row].length === 1) {
-        // We're the last column in a row
-
-        // Capture the content of the current cell
-        // @fixme: there could be more than one column...
-        const content = atom.getCell(row, col)!;
-
-        atom.removeRow(row);
-
-        // If going backward, move to the end of the previous line
-        if (direction === 'backward') {
-          const prevLine = atom.getCell(row - 1, 0)!;
-          model.position = model.offsetOf(prevLine[prevLine.length - 1]);
-          // Add content from the deleted cell to the end of the previous line
-          atom.setCell(row - 1, 0, [...prevLine, ...content]);
-        } else {
-          // If going forward, move to the beginning of the next line
-          const nextLine = atom.getCell(row, 0)!;
-          model.position = model.offsetOf(nextLine[0]);
-          // Add content from the deleted cell to the beginning of the next line
-          atom.setCell(row, 0, [...content, ...nextLine]);
-        }
-
-        return true;
-      }
-    }
+    // The branch indicates the cell we're in. This is a simple delete/backspace.
+    if (deleteRow(model, atom, branch[0], direction)) return true;
   }
 
   //
@@ -592,6 +565,42 @@ export function deleteRange(
     { content: true, selection: true, type },
     () => model.deleteAtoms(range)
   );
+}
+
+function deleteRow(
+  model: _Model,
+  atom: Atom,
+  row: number,
+  direction: 'forward' | 'backward'
+): boolean {
+  if (!(atom instanceof ArrayAtom)) return false;
+  if (!atom.isMultiline) return false;
+  if (atom.rows.length === 1) return false;
+
+  // @fixme: we currently only handle the case where there is only one column
+  // but in some cases (e.g. `align`) there could be more than one column
+  if (atom.rows[row].length > 1) return false;
+
+  // Capture the content of the current cell
+  const content = atom.getCell(row, 0)!;
+
+  atom.removeRow(row);
+
+  // If going backward, move to the end of the previous line
+  if (direction === 'backward') {
+    const prevLine = atom.getCell(row - 1, 0)!;
+    model.position = model.offsetOf(prevLine[prevLine.length - 1]);
+    // Add content from the deleted cell to the end of the previous line
+    atom.setCell(row - 1, 0, [...prevLine, ...content]);
+  } else {
+    // If going forward, move to the beginning of the next line
+    const nextLine = atom.getCell(row, 0)!;
+    model.position = model.offsetOf(nextLine[0]);
+    // Add content from the deleted cell to the beginning of the next line
+    atom.setCell(row, 0, [...content, ...nextLine]);
+  }
+
+  return true;
 }
 
 // function isCellEmpty(cell: [number, number]): boolean {}
