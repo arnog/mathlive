@@ -422,7 +422,7 @@ function removeCell(model: _Model, where: 'row' | 'column'): void {
         }
         break;
     }
-    if (pos) model.setPositionHandlingPlaceholder(pos);
+    if (pos !== undefined) model.setPositionHandlingPlaceholder(pos);
   }
 }
 
