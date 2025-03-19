@@ -651,7 +651,8 @@ export type ElementInfo = {
 };
 
 /**
- * Position of the caret/insertion point from the beginning of the formula. The first position is 0. The last valid offset is `mf.lastOffset`.
+ * Position of the caret/insertion point from the beginning of the formula.
+ * The first position is 0. The last valid offset is `mf.lastOffset`.
  *
  * @category Selection
  */
@@ -661,11 +662,11 @@ export type Offset = number;
  * A pair of offsets (boundary points) that can be used to denote a fragment
  * of an expression.
  *
- * A range is said to be **collapsed** when start and end are equal.
+ * A range is said to be **collapsed** when `start` and `end` are equal.
  *
  * When specifying a range, a negative offset can be used to indicate an
- * offset relative to the last valid offset, i.e. -1 is the last valid offset, -2
- * is one offset before that, etc...
+ * offset relative to the last valid offset, i.e. `-1` is the last valid
+ * offset, `-2` is one offset before that, etc...
  *
  * A normalized range will always be such that start \<= end, start \>= 0,
  * end \>= 0,  start \< lastOffset, end \< lastOffset. All the methods return
@@ -689,7 +690,9 @@ export type Range = [start: Offset, end: Offset];
  * A selection can also have a direction. While many operations are insensitive
  * to the direction, a few are. For example, when selecting a fragment of an
  * expression from left to right, the direction of this range will be "forward".
- * Pressing the left arrow key will sets the insertion at the start of the range.
+ * Pressing the left arrow key will sets the insertion at the start of the
+ * range.
+ *
  * Conversely, if the selection is made from right to left, the direction is
  * "backward" and pressing the left arrow key will set the insertion point at
  * the end of the range.
