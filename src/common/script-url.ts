@@ -90,7 +90,7 @@ export async function resolveUrl(url: string): Promise<string> {
         // The CDN jsdelivr.net adds a pseudo `/+esm` path to the URL
         // to indicate that the module version is being used.
         // Remove it.
-        gResolvedScriptUrl = gResolvedScriptUrl.replace(/\/\+esm$/, '');
+        gResolvedScriptUrl = gResolvedScriptUrl.replace(/\/\+esm$/, '/');
       }
     } catch (e) {
       console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
