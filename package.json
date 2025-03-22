@@ -157,7 +157,7 @@
     "prettier": "^3.5.3",
     "ts-jest": "^29.1.2",
     "typedoc": "^0.28.0",
-    "typedoc-plugin-markdown": "^4.4.2",
+    "typedoc-plugin-markdown": "^4.5.2",
     "typescript": "^5.3.3"
   },
   "keywords": [
