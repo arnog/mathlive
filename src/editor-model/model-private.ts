@@ -810,7 +810,7 @@ export class _Model implements Model {
   contentDidChange(options: ContentChangeOptions): void {
     if (window.mathVirtualKeyboard.visible)
       window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
-    if (this.silenceNotifications || !this.mathfield.host || !this.mathfield)
+    if (this.silenceNotifications || !this.mathfield || !this.mathfield.host)
       return;
 
     const save = this.silenceNotifications;
