@@ -1309,6 +1309,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
+      this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.onFocus();
       this.model.announce('line');
@@ -1650,6 +1651,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.blurred = false;
 
     // As a side effect, a `focus` and `focusin` events will be dispatched
+    // @fixme: this call might not be necessary. There is a keyboardDelegate.focus() call in the focus() handler.
     this.keyboardDelegate.focus();
 
     this.stopCoalescingUndo();
