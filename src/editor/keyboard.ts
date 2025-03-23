@@ -304,7 +304,7 @@ export function delegateKeyboardEvents(
       // received `compositionstart` by the time we decide
       // to cancel the composition.
       if (!compositionInProgress) return;
-      keyboardSink.blur();
+      if (typeof keyboardSink.blur === 'function') keyboardSink.blur();
       requestAnimationFrame(() => keyboardSink.focus({ preventScroll: true }));
     },
 

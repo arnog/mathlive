@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2588** With Chrome 133+ input with the physical keyboard was disabled after
+  showing the virtual keyboard.
+
 ## 0.104.1 _2025-03-18_
 
 ### Improvements

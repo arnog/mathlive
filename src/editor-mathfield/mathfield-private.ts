@@ -841,6 +841,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       case 'virtual-keyboard-toggle':
         if (this.hasFocus()) updateEnvironmentPopover(this);
+        // Workaround a Chromium 133+ issue where the keyboard sink loses focus
+        // when the virtual keyboard is shown
+        // https://github.com/arnog/mathlive/issues/2588
+        if (this.hasFocus()) {
+          this.keyboardDelegate.blur();
+          this.keyboardDelegate.focus();
+        }
         break;
 
       case 'resize':
@@ -1302,7 +1309,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   focus(options?: FocusOptions): void {
     if (!this.hasFocus()) {
-      this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.onFocus();
       this.model.announce('line');
@@ -1629,7 +1635,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         new InputEvent('beforeinput', {
           ...options,
           // To work around a bug in WebKit/Safari (the inputType property gets stripped), include the inputType as the 'data' property. (see #1843)
-          data: options.data ? options.data : options.inputType ?? '',
+          data: options.data ? options.data : (options.inputType ?? ''),
           cancelable: true,
           bubbles: true,
           composed: true,
@@ -1642,6 +1648,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (this.focusBlurInProgress || !this.blurred) return;
     this.focusBlurInProgress = true;
     this.blurred = false;
+
     // As a side effect, a `focus` and `focusin` events will be dispatched
     this.keyboardDelegate.focus();
 
