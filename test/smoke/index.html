@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="icon" href="data:," />
+  <!-- <script src="https://cdn.jsdelivr.net/npm/mathlive"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/mathlive"></script> -->
   <style>
     math-field {
       border: 1px solid var(--editable-border);
@@ -260,18 +262,6 @@
       mf.macros = {
         ...mf.macros,
         atomic: { args: 1, def: '\\class{my-class}{#1}', captureSelection: true },
-      };
-
-      mf.macros = {
-        axs: {
-          args: 1,
-          def: "\\operatorname{axs}(#1)"
-        }
-      };
-      mf.inlineShortcuts = {
-        ...mf.inlineShortcuts,
-        dx: "dx",
-        dt: "dt",
       };
 
 

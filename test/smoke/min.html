@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+
+<head>
+  <script defer src="//unpkg.com/mathlive"></script>
+  <title>untitled</title>
+</head>
+
+<body>
+  <math-field id="input-field">x+1</math-field>
+
+  <script>
+    customElements
+      .whenDefined("math-field")
+      .then(() => {
+        const mf2 = document.getElementById("input-field");
+        mf2.value = "\\sqrt{x}";
+        mf2.executeCommand("selectAll");
+      });
+
+
+
+  </script>
+</body>
+
+</html>
