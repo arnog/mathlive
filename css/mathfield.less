@@ -104,8 +104,8 @@
   --_tooltip-color: var(--tooltip-color, #fff);
   --_tooltip-box-shadow: var(
     --tooltip-box-shadow,
-    0 2px 2px 0 rgba(0, 0, 0, 0.14), 
-    0 1px 5px 0 rgba(0, 0, 0, 0.12), 
+    0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12),
     0 3px 1px -2px rgba(0, 0, 0, 0.2)
   );
 }
@@ -209,6 +209,8 @@
   font-size: 1em;
   font-family: KaTeX_Main;
   line-height: 0.5; /* On Chromium, if this is 0, no keyboard events are received */
+  /* Preferred over clip */
+  clip-path: inset(50%);
 }
 
 [part='placeholder'] {
@@ -360,7 +362,6 @@ with this style */
   fill: currentColor;
 }
 
-
 .ML__virtual-keyboard-toggle.is-pressed,
 .ML__virtual-keyboard-toggle.is-active:hover,
 .ML__virtual-keyboard-toggle.is-active {
@@ -487,8 +488,6 @@ menu .ML__base {
   text-align: center;
 }
 
-
-
 .insert-matrix-submenu {
   /* Grid doesn't work on Safari */
   // display: grid;
@@ -578,12 +577,11 @@ menu .ML__base {
   }
 }
 
-
-.ML__insert-template  {
+.ML__insert-template {
   font-size: 1em;
 }
 
 .ML__insert-label {
-  opacity: .5;
-  margin-left: 2ex
+  opacity: 0.5;
+  margin-left: 2ex;
 }
