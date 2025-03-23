@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.104.2 _2025-03-23_
 
 ### Issues Resolved
 
