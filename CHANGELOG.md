@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#2635** In Chrome (and Firefox), clicking on the padding area of the
+  mathfield would not result in the focus getting into a zombie state and
+  keyboard event no longer being dispatched.
+
 ## 0.104.2 _2025-03-23_
 
 ### Issues Resolved

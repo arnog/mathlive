@@ -14,6 +14,13 @@
   "module": "./dist/mathlive.min.mjs",
   "main": "./dist/mathlive.min.js",
   "exports": {
+    "./vue": "./dist/vue-mathlive.mjs",
+    "./fonts.css": "./dist/mathlive-fonts.css",
+    "./static.css": "./dist/mathlive-static.css",
+    "./fonts/*": "./dist/fonts/*",
+    "./sounds/*": "./dist/sounds/*",
+    "./fonts/": "./dist/fonts/",
+    "./sounds/": "./dist/sounds/",
     ".": {
       "browser": {
         "production": {
@@ -40,14 +47,7 @@
     "./ssr": {
       "types": "./dist/types/mathlive-ssr.d.ts",
       "import": "./dist/mathlive-ssr.min.mjs"
-    },
-    "./vue": "./dist/vue-mathlive.mjs",
-    "./fonts.css": "./dist/mathlive-fonts.css",
-    "./static.css": "./dist/mathlive-static.css",
-    "./fonts/*": "./dist/fonts/*",
-    "./sounds/*": "./dist/sounds/*",
-    "./fonts/": "./dist/fonts/",
-    "./sounds/": "./dist/sounds/"
+    }
   },
   "repository": {
     "type": "git",

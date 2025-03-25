@@ -1308,9 +1308,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   focus(options?: FocusOptions): void {
+    if (this.focusBlurInProgress) return;
     if (!this.hasFocus()) {
-      this.keyboardDelegate.focus();
-      this.connectToVirtualKeyboard();
       this.onFocus();
       this.model.announce('line');
     }
@@ -1650,13 +1649,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.focusBlurInProgress = true;
     this.blurred = false;
 
-    // As a side effect, a `focus` and `focusin` events will be dispatched
-    // @fixme: this call might not be necessary. There is a keyboardDelegate.focus() call in the focus() handler.
-    this.keyboardDelegate.focus();
-
     this.stopCoalescingUndo();
-
-    render(this, { interactive: true });
 
     // Save the current value.
     // It will be compared in `onBlur()` to see if the
@@ -1672,7 +1665,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
     )
       this.executeCommand('moveToNextPlaceholder');
 
-    this.focusBlurInProgress = false;
+    render(this, { interactive: true });
+
+    setTimeout(() => {
+      this.keyboardDelegate.blur();
+      this.keyboardDelegate.focus();
+      this.connectToVirtualKeyboard();
+      this.focusBlurInProgress = false;
+    }, 60);
   }
 
   onBlur(): void {

@@ -44,7 +44,7 @@
   </header>
   <main>
 
-    <math-field id="mf">\sqrt{a+1}</math-field>
+    <math-field id="mf" contenteditable="true" tabindex="0">\sqrt{a+1}</math-field>
 
     <!-- <math-field id="mf">\begin{align}\sqrt{a} +
       1 & b + 234 \\ \sqrt{c} + 1234 & d + 12345\end{align}
@@ -127,6 +127,7 @@
       version,
     } from "https://esm.run/@cortex-js/compute-engine";
 
+    // MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/dist/fonts";
 
 
     const MAX_LINE_LENGTH = 74;
@@ -259,6 +260,8 @@
 
 
     mf.addEventListener('mount', () => {
+      // MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive/dist/fonts";
+
       mf.macros = {
         ...mf.macros,
         atomic: { args: 1, def: '\\class{my-class}{#1}', captureSelection: true },
@@ -269,7 +272,6 @@
       // First time update
       updateContent(mf);
       mf.addEventListener("input", (ev) => {
-        console.log(ev);
         updateContent(mf)
       });
 

@@ -110,7 +110,7 @@
   );
 }
 
-// prevent pointer-down event on touch devices if the host isn't focused
+// Prevent pointer-down event on touch devices if the host isn't focused
 // this allows scrolling if you touch unfocused fields
 @media (hover: none) and (pointer: coarse) {
   :host(:not(:focus)) .ML__container {

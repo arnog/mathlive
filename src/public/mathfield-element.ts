@@ -1916,13 +1916,22 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
   handleEvent(evt: Event): void {
     // If the scrim for the variant panel or the menu is
     // open, ignore events.
-    // Otherwise we may end up disconecting from the VK
+    // Otherwise we may end up disconnecting from the VK
     if (Scrim.state !== 'closed') return;
 
     // Also, if the menu is open
     if (this._mathfield?.menu?.state !== 'closed') return;
 
-    if (evt.type === 'pointerdown') this.onPointerDown();
+    if (evt.type === 'pointerdown') {
+      this.onPointerDown();
+      // Some browsers (Firefox, Chrome) will get into a zombie focus state
+      // if the padding area is clicked on when the mathfield was already
+      // focused. We force the keyboard delegate to blur and refocus to
+      // prevent this.
+      const kbdDelegate = this._mathfield?.keyboardDelegate;
+      kbdDelegate?.blur();
+      kbdDelegate?.focus();
+    }
     if (evt.type === 'focus') this._mathfield?.focus();
 
     // Ignore blur events if the scrim is open (case where the variant panel
@@ -1957,6 +1966,15 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
     // Listen for an element *inside* the mathfield to get focus, e.g. the virtual keyboard toggle
     host.addEventListener('focus', this, true);
     host.addEventListener('blur', this, true);
+
+    shadowRoot.addEventListener('pointerdown', (evt) => {
+      console.log('blue', evt);
+      evt.preventDefault();
+
+      // console.log('current target', deepActiveElement());
+
+      // if (evt.target === this) this.focus();
+    });
 
     // Create an observer instance to detect when the innerHTML or textContent
     // of the element is modified

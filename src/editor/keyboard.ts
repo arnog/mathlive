@@ -309,12 +309,19 @@ export function delegateKeyboardEvents(
     },
 
     blur: (): void => {
-      if (typeof keyboardSink.blur === 'function') keyboardSink.blur();
+      if (typeof keyboardSink.blur === 'function') {
+        blurInProgress = true;
+        keyboardSink.blur();
+        blurInProgress = false;
+      }
     },
 
     focus: (): void => {
-      if (!focusInProgress && typeof keyboardSink.focus === 'function')
+      if (!focusInProgress && typeof keyboardSink.focus === 'function') {
+        focusInProgress = true;
         keyboardSink.focus({ preventScroll: true });
+        focusInProgress = false;
+      }
     },
 
     hasFocus: (): boolean => {
