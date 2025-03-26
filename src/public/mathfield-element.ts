@@ -1967,15 +1967,6 @@ import "https://unpkg.com/@cortex-js/compute-engine?module";
     host.addEventListener('focus', this, true);
     host.addEventListener('blur', this, true);
 
-    shadowRoot.addEventListener('pointerdown', (evt) => {
-      console.log('blue', evt);
-      evt.preventDefault();
-
-      // console.log('current target', deepActiveElement());
-
-      // if (evt.target === this) this.focus();
-    });
-
     // Create an observer instance to detect when the innerHTML or textContent
     // of the element is modified
     this._observer = new MutationObserver(() => {

@@ -2,6 +2,9 @@
 
 ### Issues Resolved
 
+- **#2647**, **#2634**, **#2562** Some accents (`\hat{}`, `\vec{}`) where not
+  rendered correctly in some cases.
+
 - **#2635** In Chrome (and Firefox), clicking on the padding area of the
   mathfield would not result in the focus getting into a zombie state and
   keyboard event no longer being dispatched.

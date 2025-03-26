@@ -95,12 +95,13 @@ export class AccentAtom extends Atom {
       // thus shows up much too far to the left. To account for this, we add a
       // specific class which shifts the accent over to where we want it.
       const correctionClass =
-        this.accent === 0x20d7 ||
-        this.accent === 0x20db ||
-        this.accent === 0x20dc
+        // this.accent === 94 || // ^
+        this.accent === 0x20d7 || // \vec
+        this.accent === 0x20db || // \ddot
+        this.accent === 0x20dc // \tilde
           ? ' ML__accent-combining-char'
           : '';
-      accentBox = new Box(new Box(accent), {
+      accentBox = new Box(accent, {
         classes: 'ML__accent-body' + correctionClass,
       });
     }
