@@ -2,11 +2,23 @@
 
 ### Breaking Changes
 
-In order to support alternate CDNs, in particular, jsdelivr, the file layout of
-the npm package has changed. The files that were previously in the `./dist/`
+In order to support alternate CDNs, in particular `jsdelivr`, the file layout of
+the **npm** package has changed. The files that were previously in the `./dist/`
 directory are now in the root of the package. This should not affect most users,
-but if you are importing the library from the `dist` directory, you will need to
-update your import statements.
+but if you are importing the library or auxiliary files from the `dist`
+directory, you will need to update your paths.
+
+To use `jsdelivr`, use:
+
+```js
+import { MathfieldElement } from "https://esm.run/mathlive";
+```
+
+or:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/mathlive"></script>
+```
 
 ### Issues Resolved
 
@@ -28,10 +40,10 @@ update your import statements.
 
 ### Improvements
 
-- Improved support for the `jsdelivr` CDN. To use it, use
+- Improved support for the `jsdelivr` CDN. To use it, use:
 
 ```js
-    import { MathfieldElement } from "https://esm.run/mathlive";
+import { MathfieldElement } from "https://esm.run/mathlive";
 ```
 
 ### Issues Resolved
