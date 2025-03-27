@@ -145,5 +145,12 @@ if [ "$BUILD" = "production" ]; then
     echo -e "$LINECLEAR$BASENAME$CHECK${DIM}Output files stamped${RESET}"
 
 
+    # Copy root files (README, LICENSE, etc.)
+    printf "$BASENAME${DOT}Copying root files"
+    cp README.md dist/
+    cp LICENSE.txt dist/
+    cp CHANGELOG.md dist/
+
+    node ./scripts/make-publish-package.json.js
 
 fi

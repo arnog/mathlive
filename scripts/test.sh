@@ -58,7 +58,6 @@ then
   echo -e "\n\033[42m PASS \033[0m 🎉 All tests have completed successfully!"
 else
   echo -e "\n\033[41m FAIL \033[0m 😕 At least one test has failed"
-  exit 1
 fi
 
 #

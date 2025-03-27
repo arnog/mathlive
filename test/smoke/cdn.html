@@ -2,14 +2,18 @@
 <html>
 
 <head>
-  <script defer src="//unpkg.com/mathlive"></script>
+  <!-- <script defer src="//unpkg.com/mathlive"></script> -->
+
+  <!-- <script defer src="https://cdn.jsdelivr.net/npm/mathlive"></script> -->
   <title>untitled</title>
 </head>
 
 <body>
   <math-field id="input-field">x+1</math-field>
 
-  <script>
+  <script type="module">
+    // import { MathfieldElement } from "https://esm.run/mathlive";
+    import { MathfieldElement } from "https://unpkg.com/mathlive?module";
     customElements
       .whenDefined("math-field")
       .then(() => {

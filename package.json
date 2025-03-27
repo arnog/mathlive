@@ -7,46 +7,43 @@
     "type": "individual",
     "url": "https://paypal.me/arnogourdol"
   },
+  "private": true,
   "files": [
     "/dist"
   ],
-  "types": "./dist/types/mathlive.d.ts",
-  "module": "./dist/mathlive.min.mjs",
-  "main": "./dist/mathlive.min.js",
+  "types": "./types/mathlive.d.ts",
+  "module": "./mathlive.min.mjs",
+  "main": "./mathlive.min.js",
   "exports": {
-    "./vue": "./dist/vue-mathlive.mjs",
-    "./fonts.css": "./dist/mathlive-fonts.css",
-    "./static.css": "./dist/mathlive-static.css",
-    "./fonts/*": "./dist/fonts/*",
-    "./sounds/*": "./dist/sounds/*",
-    "./fonts/": "./dist/fonts/",
-    "./sounds/": "./dist/sounds/",
+    "./vue": "./vue-mathlive.mjs",
+    "./fonts.css": "./mathlive-fonts.css",
+    "./static.css": "./mathlive-static.css",
     ".": {
       "browser": {
         "production": {
-          "types": "./dist/types/mathlive.d.ts",
-          "import": "./dist/mathlive.min.mjs",
-          "require": "./dist/mathlive.min.js"
+          "types": "./types/mathlive.d.ts",
+          "import": "./mathlive.min.mjs",
+          "require": "./mathlive.min.js"
         },
         "development": {
-          "types": "./dist/types/mathlive.d.ts",
-          "import": "./dist/mathlive.mjs",
-          "require": "./dist/mathlive.js"
+          "types": "./types/mathlive.d.ts",
+          "import": "./mathlive.mjs",
+          "require": "./mathlive.js"
         }
       },
       "node": {
-        "types": "./dist/types/mathlive-ssr.d.ts",
-        "import": "./dist/mathlive-ssr.min.mjs"
+        "types": "./types/mathlive-ssr.d.ts",
+        "import": "./mathlive-ssr.min.mjs"
       },
       "default": {
-        "types": "./dist/types/mathlive.d.ts",
-        "import": "./dist/mathlive.min.mjs",
-        "require": "./dist/mathlive.min.js"
+        "types": "./types/mathlive.d.ts",
+        "import": "./mathlive.min.mjs",
+        "require": "./mathlive.min.js"
       }
     },
     "./ssr": {
-      "types": "./dist/types/mathlive-ssr.d.ts",
-      "import": "./dist/mathlive-ssr.min.mjs"
+      "types": "./types/mathlive-ssr.d.ts",
+      "import": "./mathlive-ssr.min.mjs"
     }
   },
   "repository": {
@@ -61,6 +58,7 @@
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
     "lint": "eslint --fix src/; prettier -w src/",
     "prepare": "bash ./scripts/build.sh production",
+    "prepublishOnly": "bash ./scripts/build.sh production && npm publish dist --dry-run && exit 1",
     "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh"
