@@ -1,5 +1,13 @@
 ## 0.105.0 _2025-03-27_
 
+### Breaking Changes
+
+In order to support alternate CDNs, in particular, jsdelivr, the file layout of
+the npm package has changed. The files that were previously in the `./dist/`
+directory are now in the root of the package. This should not affect most users,
+but if you are importing the library from the `dist` directory, you will need to
+update your import statements.
+
 ### Issues Resolved
 
 - **#2647**, **#2634**, **#2562** Some accents (`\hat{}`, `\vec{}`) where not
