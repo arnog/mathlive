@@ -150,6 +150,7 @@ if [ "$BUILD" = "production" ]; then
     cp README.md dist/
     cp LICENSE.txt dist/
     cp CHANGELOG.md dist/
+    cp SECURITY.md dist/
 
     node ./scripts/make-publish-package.json.js
 

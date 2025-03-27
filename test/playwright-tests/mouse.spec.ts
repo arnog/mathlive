@@ -55,28 +55,31 @@ test('context menu select all and cut', async ({ page, browserName }) => {
   // check initial contents
   expect(
     await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
-  ).toBe('x+y=30');  
+  ).toBe('x+y=30');
 
   // use select all and cut from the context menu
-  await page.locator('#mf-1').click({button: "right"});
+  await page.locator('#mf-1').click({ button: 'right' });
   await page.locator('text=Select All').click();
-  await new Promise((resolver) => setTimeout(resolver, 1000));
-  await page.locator('#mf-1').click({button: "right"});
+  await page.waitForTimeout(1000);
+
+  await page.locator('#mf-1').click({ button: 'right' });
   await page.locator('text=Cut').click();
-  await new Promise((resolver) => setTimeout(resolver, 1000));
+  await page.waitForTimeout(1000);
 
   // make sure field is empty after
   expect(
     await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value)
   ).toBe('');
-  
+
   // paste original contents back
   // need to use keyboard shortcut since context menu paste requires browser permission
   await page.locator('#mf-1').press(`${modifierKey}+v`);
+  await page.waitForTimeout(1000);
 
   // initial contents should now be there
   expect(
-    await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => mfe.value.trim())
-  ).toBe('x+y=30');  
+    await page
+      .locator('#mf-1')
+      .evaluate((mfe: MathfieldElement) => mfe.value.trim())
+  ).toBe('x+y=30');
 });
-

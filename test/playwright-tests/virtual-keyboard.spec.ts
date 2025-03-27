@@ -53,6 +53,9 @@ test('virtual keyboard with two math fields', async ({ page }) => {
   // click to focus next math field to make sure virtual keyboard updates focused math field
   await page.locator('#mf-2').click();
 
+  // Wait for focus change
+  await page.waitForTimeout(100);
+
   const expectedResult2 = await virtualKeyboardSample2(page);
 
   // check latex of second math field

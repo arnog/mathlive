@@ -54,7 +54,9 @@ initializes automatically and works just like a `<textarea>` or `<button>`
 element. You can manipulate the mathfield using methods of the element and
 listen for events to be notified when its internal state changes.
 
-`npm install mathlive`
+```bash
+npm install mathlive
+```
 
 ```javascript
 import 'mathlive';
@@ -64,12 +66,12 @@ import 'mathlive';
 <!DOCTYPE html>
 <html lang="en-US">
   <body>
-    <math-field>f(x)=</math-field>
+    <math-field>f(x)= x+1</math-field>
   </body>
 </html>
 ```
 
-You can also add it using CDN
+You can also add it using a CDN:
 
 ```html
 <head>
@@ -77,7 +79,8 @@ You can also add it using CDN
 </head>
 ```
 
-Check documentation for [React](https://cortexjs.io/mathfield/guides/react/) and
+Check documentation for [React](https://cortexjs.io/mathfield/guides/react/),
+[Svelte](https://cortexjs.io/mathfield/guides/svelte/) and
 [interaction with Mathfield](https://cortexjs.io/mathfield/guides/interacting/).
 
 ## 📖 Documentation
@@ -89,7 +92,8 @@ controlling speech output, and displaying static math formulas. You can find all
 of these guides on the [CortexJS.io website](https://cortexjs.io/mathfield/).
 
 In addition to the guides, you can also find reference documentation of the
-MathLive API on the [Mathfield API Reference page](https://cortexjs.io/mathfield/api/).
+MathLive API on the
+[Mathfield API Reference page](https://cortexjs.io/mathfield/api/).
 
 ## FAQ
 

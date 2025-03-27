@@ -313,7 +313,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     // Start with hidden content to minimize flashing during creation
     // The visibility will be reset during render
     markup.push(
-      '<span part=container class=ML__container aria-hidden=true  style="visibility:hidden">'
+      '<span part=container class=ML__container  style="visibility:hidden">'
     );
     markup.push('<span part=content class=ML__content>');
     markup.push(contentMarkup(this));

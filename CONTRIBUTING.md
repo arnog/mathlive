@@ -72,16 +72,23 @@ Congratulations, you've become a MathLive contributor! Thanks for your help!
 
 Before you can do a local build of MathLive, you need to have the following
 dependencies installed:
-- [npm](https://www.npmjs.com/), which will also install [Node.js](https://nodejs.org)
+
+- [npm](https://www.npmjs.com/), which will also install
+  [Node.js](https://nodejs.org)
 - [Playwright](https://playwright.dev/), to run the test suite
-- If you're using Windows, you will need to install the `bash` shell. The `bash` shell is
-  required and pre-installed on macOS and Linux. For instructions
-  on how to install `bash` on Windows, see the [this article](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/)
+- If you're using Windows, you will need to install the `bash` shell. The `bash`
+  shell is required and pre-installed on macOS and Linux. For instructions on
+  how to install `bash` on Windows, see the
+  [this article](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/)
 
-Now that you have the dependencies installed, you can [fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository. 
+Now that you have the dependencies installed, you can
+[fork and clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+this repository.
 
-Then, in the cloned project folder, use the following commands to start a local dev server:
-``` bash
+Then, in the cloned project folder, use the following commands to start a local
+dev server:
+
+```bash
 # Install dependencies
 npm install
 
@@ -90,8 +97,10 @@ npm install
 npm run start
 ```
 
-To run the test suite locally, run the following commands (if the dev server is running, close it using Ctrl-C before running these commands):
-``` bash
+To run the test suite locally, run the following commands (if the dev server is
+running, close it using Ctrl-C before running these commands):
+
+```bash
 # Install playwright browsers
 # This only needs to be done once for each version of playwright
 # Additional installation of browser dependencies may be required, follow instructions
@@ -104,5 +113,25 @@ npm run build
 npm test
 ```
 
-Note that, because of how the dev server manages files, `npm run build` needs to be run before
-each `npm test` run. When debugging the Playwright browser tests, the `npx playwright test` command can be used to run only the Playwright tests. When running the Playwright tests directly, `npm run build` is not required. Also, the Playwright tests, when run with `npx playwright test`, can be run while the dev server is running.
+Note that, because of how the dev server manages files, `npm run build` needs to
+be run before each `npm test` run. When debugging the Playwright browser tests,
+the `npx playwright test` command can be used to run only the Playwright tests.
+When running the Playwright tests directly, `npm run build` is not required.
+Also, the Playwright tests, when run with `npx playwright test`, can be run
+while the dev server is running.
+
+## Publish to npm
+
+If you are a maintainer of the project, you can publish a new version of
+MathLive to npm. To do so, follow these steps:
+
+```bash
+# Update the version number in package.json
+npm version patch
+
+# Build the production version of MathLive
+npm run dist
+
+# Publish the new version to npm
+npm publish ./dist
+```

@@ -58,7 +58,6 @@
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
     "lint": "eslint --fix src/; prettier -w src/",
     "prepare": "bash ./scripts/build.sh production",
-    "prepublishOnly": "bash ./scripts/build.sh production && npm publish dist --dry-run && exit 1",
     "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
     "version": "bash ./scripts/version.sh"

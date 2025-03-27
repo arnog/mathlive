@@ -43,18 +43,18 @@ test('tab focus', async ({ page }) => {
   await page.keyboard.type('a'); // type directly to page so that Playwright doesn't manage focus
 
   // Tab to next math field and type
-  await page.keyboard.press('Tab'); // tab directly to page so that Playwright doesn't manage focus
+  await tab(page);
   await page.keyboard.type('b');
 
   // make sure second math field is focused
   await expect(page.locator('#mf-2')).toBeFocused();
 
   // Tab to next math field and type
-  await page.keyboard.press('Tab');
+  await tab(page);
   await page.keyboard.type('c');
 
   // Tab to next math field and type (this one is readonly, won't change anything)
-  await page.keyboard.press('Tab');
+  await tab(page);
   await page.keyboard.type('d');
 
   // make sure readonly mathfield has focus
@@ -62,11 +62,11 @@ test('tab focus', async ({ page }) => {
 
   // Shift-Tab three times to get back to second math field and type
   // 1/ go back to end of mf#3
-  await page.keyboard.press('Shift+Tab');
+  await shiftTab(page);
   // 2/ go to start of mf#3
-  await page.keyboard.press('Shift+Tab');
+  await shiftTab(page);
   // 3/ go to mf#2
-  await page.keyboard.press('Shift+Tab');
+  await shiftTab(page);
   await page.keyboard.type('e');
 
   // check contents of all of the math fields
@@ -85,6 +85,9 @@ test('smartSuperscript', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
   await page.locator('#mf-1').pressSequentially('y^3+z'); // smartSuperscript=true
+
+  await page.waitForTimeout(100);
+
   await page.locator('#mf-3').pressSequentially('y^3+z'); // smartSuperscript=false
 
   // check results
@@ -490,3 +493,15 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
       .evaluate((mfe: MathfieldElement) => mfe.value.trim())
   ).toBe('30=r+t');
 });
+
+async function tab(page) {
+  await page.keyboard.press('Tab');
+  // Wait some time for focus to change
+  await page.waitForTimeout(500);
+}
+
+async function shiftTab(page) {
+  await page.keyboard.press('Shift+Tab');
+  // Wait some time for focus to change
+  await page.waitForTimeout(500);
+}
