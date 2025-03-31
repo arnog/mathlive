@@ -679,7 +679,7 @@ export const STRINGS = {
     'color.grey': 'Grigio',
     'color.light-grey': 'Grigio Chiaro',
     'color.white': 'Bianco',
-  }
+  },
 
   // Japanese
   'ja': {
