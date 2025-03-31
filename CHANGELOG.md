@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2657** Avoid potential race condition when changing the focus of the
+  mathfield.
+
 ## 0.105.0 _2025-03-27_
 
 ### Breaking Changes
