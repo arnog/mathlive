@@ -408,7 +408,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const menuToggle =
       this.element!.querySelector<HTMLElement>('[part=menu-toggle]')!;
     menuToggle?.addEventListener(
-      'pointerdown',
+      'pointerup',
       (ev) => {
         if (ev.currentTarget !== menuToggle) return;
         const menu = this.menu;
