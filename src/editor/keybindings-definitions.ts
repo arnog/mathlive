@@ -73,8 +73,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'latex',
     command: ['complete', 'accept-suggestion'],
   }, // Complete the suggestion
-  { key: '[Return]', ifMode: 'latex', command: 'complete' },
-  { key: '[Enter]', ifMode: 'latex', command: 'complete' },
+  { key: '[Return]', ifMode: 'latex', command: ['complete', 'accept-all'] },
+  { key: '[Enter]', ifMode: 'latex', command: ['complete', 'accept-all'] },
   {
     key: 'shift+[Escape]',
     ifMode: 'latex',
