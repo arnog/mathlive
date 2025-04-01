@@ -274,6 +274,28 @@ export class Menu extends _MenuListState implements RootMenuState {
     return this._host.dispatchEvent(ev);
   }
 
+  filterEvent(event: Event): boolean {
+    if (event.type === 'click' && this.state !== 'modal') {
+      event.stopPropagation();
+      event.preventDefault();
+      return true;
+    } else if (event.type === 'pointerup') {
+      if (
+        Number.isFinite(this.rootMenu._openTimestamp!) &&
+        Date.now() - this.rootMenu._openTimestamp! < 120
+      ) {
+        // "modal" = pointerdown + pointerup within 120ms : keep menu open
+        this.state = 'modal';
+      }
+      if (this.state === 'modal') {
+        event.stopPropagation();
+        event.preventDefault();
+        return true;
+      }
+    }
+    return false;
+  }
+
   get host(): HTMLElement | null {
     return this._host;
   }

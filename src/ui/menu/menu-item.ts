@@ -349,13 +349,7 @@ export class _MenuItemState<T> implements MenuItemState<T> {
 
   handleEvent(event: Event): void {
     if (!this.visible || !this.enabled) return;
-
-    if (event.type === 'click') {
-      if (this.rootMenu.state === 'modal') this.select();
-      event.stopPropagation();
-      event.preventDefault();
-      return;
-    }
+    if (this.rootMenu.filterEvent(event)) return;
 
     if (event.type === 'pointerenter') {
       const ev = event as PointerEvent;
@@ -384,12 +378,9 @@ export class _MenuItemState<T> implements MenuItemState<T> {
         this.parentMenu.activeMenuItem = null;
       return;
     }
-
-    if (event.type === 'pointerup') {
-      // When modal, the items are activated on click,
-      // so ignore mouseup
-      if (this.rootMenu.state !== 'modal') this.select();
-
+    
+    if (event.type === 'click' || event.type === 'pointerup') {
+      this.select();
       event.stopPropagation();
       event.preventDefault();
       return;

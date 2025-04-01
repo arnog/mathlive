@@ -98,6 +98,7 @@ export interface RootMenuState extends MenuListState {
   state: 'closed' | 'open' | 'modal';
   readonly scrim: Element;
 
+  filterEvent(event: Event): boolean;
   cancelDelayedOperation(): void;
   scheduleOperation(op: () => void): void;
 }
