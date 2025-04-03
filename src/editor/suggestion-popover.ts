@@ -58,9 +58,8 @@ export function showSuggestionPopover(
       '<br>'
     );
 
-    template += `<li role="button" data-command="${command}" ${
-      i === mf.suggestionIndex ? 'class=ML__popover__current' : ''
-    }><span class="ML__popover__latex">${command}</span><span class="ML__popover__command">${commandMarkup}</span>`;
+    template += `<li role="button" data-command="${command}" ${i === mf.suggestionIndex ? 'class=ML__popover__current' : ''
+      }><span class="ML__popover__latex">${command}</span><span class="ML__popover__command">${commandMarkup}</span>`;
 
     if (keybinding)
       template += `<span class="ML__popover__keybinding">${keybinding}</span>`;
@@ -138,9 +137,8 @@ export function updateSuggestionPopoverPosition(
   // Prevent screen overflow horizontal.
   const panel = document.getElementById('mathlive-suggestion-popover')!;
   if (position.x + panel.offsetWidth / 2 > viewportWidth - scrollbarWidth) {
-    panel.style.left = `${
-      viewportWidth - panel.offsetWidth - scrollbarWidth
-    }px`;
+    panel.style.left = `${viewportWidth - panel.offsetWidth - scrollbarWidth
+      }px`;
   } else if (position.x - panel.offsetWidth / 2 < 0) panel.style.left = '0';
   else panel.style.left = `${position.x - panel.offsetWidth / 2}px`;
 
@@ -153,9 +151,8 @@ export function updateSuggestionPopoverPosition(
     panel.classList.add('ML__popover--reverse-direction');
     panel.classList.remove('top-tip');
     panel.classList.add('bottom-tip');
-    panel.style.top = `${
-      position.y - position.height - panel.offsetHeight - 15
-    }px`;
+    panel.style.top = `${position.y - position.height - panel.offsetHeight - 15
+      }px`;
   } else {
     panel.classList.remove('ML__popover--reverse-direction');
     panel.classList.add('top-tip');
@@ -168,8 +165,7 @@ export function hideSuggestionPopover(mf: _Mathfield): void {
   mf.suggestionIndex = 0;
   const panel = document.getElementById('mathlive-suggestion-popover');
   if (panel) {
-    panel.classList.remove('is-visible');
-    panel.innerHTML = '';
+    releaseSharedElement('mathlive-suggestion-popover');
   }
 }
 
@@ -178,27 +174,28 @@ export function createSuggestionPopover(
   html: string
 ): HTMLElement {
   let panel = document.getElementById('mathlive-suggestion-popover');
-  if (!panel) {
-    panel = getSharedElement('mathlive-suggestion-popover');
-
+  if (panel) {
+    releaseSharedElement('mathlive-suggestion-popover');
+  } else {
     injectStylesheet('suggestion-popover');
     injectStylesheet('core');
-
-    panel.addEventListener('pointerdown', (ev) => ev.preventDefault());
-    panel.addEventListener('click', (ev) => {
-      let el: HTMLElement | null = ev.target as HTMLElement;
-      while (el && !el.dataset.command) el = el.parentElement;
-      if (!el) return;
-      complete(mf, 'reject');
-      ModeEditor.insert(mf.model, el.dataset.command!, {
-        selectionMode: 'placeholder',
-        format: 'latex',
-        mode: 'math',
-      });
-      mf.dirty = true;
-      mf.focus();
-    });
   }
+
+  panel = getSharedElement('mathlive-suggestion-popover');
+  panel.addEventListener('pointerdown', (ev) => ev.preventDefault());
+  panel.addEventListener('click', (ev) => {
+    let el: HTMLElement | null = ev.target as HTMLElement;
+    while (el && !el.dataset.command) el = el.parentElement;
+    if (!el) return;
+    complete(mf, 'reject');
+    ModeEditor.insert(mf.model, el.dataset.command!, {
+      selectionMode: 'placeholder',
+      format: 'latex',
+      mode: 'math',
+    });
+    mf.dirty = true;
+    mf.focus();
+  });
 
   panel!.innerHTML = globalThis.MathfieldElement.createHTML(html);
 
