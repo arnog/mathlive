@@ -1198,7 +1198,7 @@ defineFunction('smash', '[:string]{:auto}', {
     }),
 });
 
-defineFunction(['vphantom'], '{:auto}', {
+defineFunction('vphantom', '{:auto}', {
   createAtom: (options): Atom =>
     new PhantomAtom({
       ...options,
@@ -1208,7 +1208,7 @@ defineFunction(['vphantom'], '{:auto}', {
     }),
 });
 
-defineFunction(['hphantom'], '{:auto}', {
+defineFunction('hphantom', '{:auto}', {
   createAtom: (options): Atom =>
     new PhantomAtom({
       ...options,
@@ -1219,11 +1219,20 @@ defineFunction(['hphantom'], '{:auto}', {
     }),
 });
 
-defineFunction(['phantom'], '{:auto}', {
+defineFunction('phantom', '{:auto}', {
   createAtom: (options): Atom =>
     new PhantomAtom({
       ...options,
       body: argAtoms(options.args![0]),
+      isInvisible: true,
+    }),
+});
+
+defineFunction('mathstrut', '', {
+  createAtom: (options): Atom =>
+    new PhantomAtom({
+      ...options,
+      body: [new Atom({ value: '(' })],
       isInvisible: true,
     }),
 });

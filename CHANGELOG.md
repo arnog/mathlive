@@ -6,6 +6,13 @@
   mathfield.
 - Additional Italian localized strings.
 
+### Improvements
+
+- Added support for the `\strut` and `\mathstrut` commands. These commands are
+  used to insert a strut, which is an invisible element that takes up space in
+  the math expression. This is useful for aligning expressions or for creating
+  space between elements.
+
 ## 0.105.0 _2025-03-27_
 
 ### Breaking Changes
