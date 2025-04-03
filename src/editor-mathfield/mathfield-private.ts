@@ -1670,10 +1670,28 @@ If you are using Vue, this may be because you are using the runtime-only build o
     setTimeout(() => {
       if (!isValidMathfield(this)) return;
 
+      //
+      // Capture the focus/blur events to avoid double-dispatching
+      //
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+      for (const event of ['focus', 'blur', 'focusin', 'focusout']) {
+        this.host?.addEventListener(
+          event,
+          (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+          },
+          { once: true, capture: true, signal }
+        );
+      }
+
       this.keyboardDelegate.blur();
       this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.focusBlurInProgress = false;
+
+      abortController.abort();
     }, 60);
   }
 
