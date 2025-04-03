@@ -360,16 +360,18 @@ export class MathModeEditor extends ModeEditor {
         const placeholderOffset = model.offsetOf(placeholder);
         model.setSelection(placeholderOffset - 1, placeholderOffset);
         model.announce('move'); // Should have placeholder selected
-      } else if (lastNewAtom?.body?.length) {
-        // Some commands have a body which behaves like a placeholder (such as square root)
+      } else if (lastNewAtom) {
         const body = lastNewAtom.body;
-        model.setSelection(
-          model.offsetOf(body[0]),
-          model.offsetOf(body[body.length - 1]) + 1
-        );
-      } else {
-        // No placeholder found, move to right after what we just inserted
-        model.position = model.offsetOf(lastNewAtom);
+        if (body && body.length) {
+          // Some commands have a body which behaves like a placeholder (such as square root)
+          model.setSelection(
+            model.offsetOf(body[0]),
+            model.offsetOf(body[body.length - 1]) + 1
+          );
+        } else {
+          // No placeholder found, move to right after what we just inserted
+          model.position = model.offsetOf(lastNewAtom);
+        }
       }
     } else if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.
