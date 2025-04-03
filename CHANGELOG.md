@@ -2,9 +2,15 @@
 
 ### Resolved Issues
 
-- **#2657** Avoid potential race condition when changing the focus of the
+- **#2567** Avoid potential race condition when changing the focus of the
   mathfield.
 - Additional Italian localized strings.
+- **#2638**, **#2479** Fragments that were styled with some color were not
+  rendered correctly when the mathfield was not focused.
+- **#2669** If a page had multiple mathfields, when using the suggestion
+  popover, the suggestion popover would be inserted in the wrong mathfield.
+- **#2584** In some cases, a menu item could get inadvertently selected when
+  when brining up the menu.
 
 ### Improvements
 
@@ -12,6 +18,11 @@
   used to insert a strut, which is an invisible element that takes up space in
   the math expression. This is useful for aligning expressions or for creating
   space between elements.
+- **#2662** When the command popover is displayed, pressing the **Return** key
+  will insert the command in the mathfield and close the popover.
+- **#2658** Improved localization for Italian.
+- **#2671** When inserting a command with an argument with the suggestion
+  popover, position the cursor inside the argument.
 
 ## 0.105.0 _2025-03-27_
 
