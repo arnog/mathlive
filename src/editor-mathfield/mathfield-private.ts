@@ -204,7 +204,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
-  private connectedToVirtualKeyboard: boolean;
+  private connectedToVirtualKeyboard = false;
 
   private eventController: AbortController;
   resizeObserver: ResizeObserver;

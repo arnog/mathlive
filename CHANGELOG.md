@@ -11,6 +11,8 @@
   popover, the suggestion popover would be inserted in the wrong mathfield.
 - **#2584** In some cases, a menu item could get inadvertently selected when
   when brining up the menu.
+- **#2673** When using the CJS version of the library, the height of the virtual
+  keyboard was not correctly calculated.
 
 ### Improvements
 
