@@ -13,7 +13,7 @@
   when brining up the menu.
 - **#2673** When using the CJS version of the library, the height of the virtual
   keyboard was not correctly calculated.
-- **#2667** In some cases, the state of the Undo/Redo buttons could get out of
+- **#2666** In some cases, the state of the Undo/Redo buttons could get out of
   sync with the state of the mathfield.
 
 ### Improvements
