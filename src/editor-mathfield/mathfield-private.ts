@@ -1523,6 +1523,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   popUndoStack(): void {
     this.undoManager.pop();
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this));
   }
 
   snapshot(op?: string): void {

@@ -846,13 +846,13 @@ export class _Model implements Model {
     // The mathfield could be undefined if the mathfield was disposed
     // while the selection was changing
     if (!this.mathfield) return;
-    if (window.mathVirtualKeyboard.visible)
-      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
 
-    if (this.silenceNotifications) return;
     const save = this.silenceNotifications;
-    this.silenceNotifications = true;
-    this.mathfield.onSelectionDidChange();
+    if (!save) {
+      this.silenceNotifications = true;
+      this.mathfield.onSelectionDidChange();
+    }
+
     this.silenceNotifications = save;
   }
 }
