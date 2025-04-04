@@ -15,6 +15,8 @@
   keyboard was not correctly calculated.
 - **#2666** In some cases, the state of the Undo/Redo buttons could get out of
   sync with the state of the mathfield.
+- **#2667** The edit toolbar was not displayed in the alphabetic keyboard
+  layout.
 
 ### Improvements
 

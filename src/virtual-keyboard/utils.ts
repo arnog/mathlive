@@ -581,7 +581,7 @@ function makeLayout(
       markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
       markup.push(makeLayoutsToolbar(keyboard, index));
       // If there are no keycap with editing commands, add an edit toolbar
-      if (layout.displayEditToolbar)
+      if (layout.displayEditToolbar ?? true)
         markup.push(`<div class="ML__edit-toolbar right"></div>`);
       markup.push(`</div>`);
     }
@@ -664,9 +664,9 @@ export function renderKeycap(
       markup = keycap.shift.label
         ? keycap.shift.label
         : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-          (latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
+          ((latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
             keycap.shift.key) ??
-          '';
+          '');
     }
     if (typeof keycap.shift === 'object')
       cls = keycap.shift.class ?? keycap.class ?? '';
@@ -677,8 +677,8 @@ export function renderKeycap(
     markup = keycap.label
       ? keycap.label
       : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        (latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
-        '';
+        ((latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
+        '');
 
     if (keycap.shift) {
       // There is a shift version of this keycap, render a small label
