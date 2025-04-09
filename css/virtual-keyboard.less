@@ -575,6 +575,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   &:hover {
     overflow: visible;
     background: var(--_keycap-background-hover);
+    color: var(--_keycap-text-hover);
   }
 
   .ML__latex {
@@ -860,6 +861,9 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
     color: var(--_variant-keycap-text);
     fill: currentColor;
+    &:hover {
+      color: var(--_keycap-text-hover);
+    }
     &.is-active {
       background: var(--_variant-keycap-background-active);
       color: var(--_variant-keycap-text-active);
