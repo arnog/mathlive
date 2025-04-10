@@ -2,6 +2,8 @@
 
 ### Resolved Issues
 
+- **#2526** In the virtual keyboard, the keycap text over CSS variables was not
+  displayed correctly.
 - **#2567** Avoid potential race condition when changing the focus of the
   mathfield.
 - Additional Italian localized strings.
@@ -20,6 +22,10 @@
 
 ### Improvements
 
+- Accessibility: Improved support for the high-contrast mode.
+- There is a new CSS variable to control the z-index of the suggestion popover:
+  `--suggestion-zindex`. This allows the suggestion popover to be displayed
+  above other elements on the page.
 - Added support for the `\strut` and `\mathstrut` commands. These commands are
   used to insert a strut, which is an invisible element that takes up space in
   the math expression. This is useful for aligning expressions or for creating
