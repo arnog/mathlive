@@ -563,7 +563,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * A URL fragment pointing to the directory containing the fonts
    * necessary to render a formula.
    *
-   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   * These fonts are available in the `/fonts` directory of the npm package.
    *
    * Customize this value to reflect where you have copied these fonts,
    * or to use the CDN version.
@@ -585,14 +585,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * {
    *      // Use a directory called "fonts", located next to the
    *      // `mathlive.js` (or `mathlive.mjs`) file.
-   *      fontsDirectory: './fonts/'
+   *      fontsDirectory: './fonts'
    * }
    * ```
    *
    * ```javascript
    * {
    *      // Use a directory located at the root of your website
-   *      fontsDirectory: 'https://example.com/fonts/'
+   *      fontsDirectory: 'https://example.com/fonts'
    * }
    * ```
    *
