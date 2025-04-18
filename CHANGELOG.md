@@ -6,7 +6,6 @@
   displayed correctly.
 - **#2567** Avoid potential race condition when changing the focus of the
   mathfield.
-- Additional Italian localized strings.
 - **#2638**, **#2479** Fragments that were styled with some color were not
   rendered correctly when the mathfield was not focused.
 - **#2669** If a page had multiple mathfields, when using the suggestion
