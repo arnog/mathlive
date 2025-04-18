@@ -510,7 +510,7 @@ export declare type Expression =
    To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
 
 ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
    * @category Mathfield
    */

@@ -55,7 +55,7 @@ import {
  * ```html
  * <link
  *  rel="stylesheet"
- *  href="https://unpkg.com/mathlive/mathlive-static.css"
+ *  href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
  * />
  * ```
  *
@@ -64,10 +64,9 @@ import {
  * ```html
  * <link
  *  rel="stylesheet"
- *  href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
+ *  href="https://unpkg.com/mathlive/mathlive-static.css"
  * />
  * ```
- *
  *
  *
  *
@@ -230,7 +229,7 @@ export function convertMathJsonToLatex(json: Expression): string {
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
     }
   }

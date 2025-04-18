@@ -1432,7 +1432,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * To load the Compute Engine library, use:
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine?module';
+import 'https://esm.run/@cortex-js/compute-engine';
 ```
    *
    * @category Accessing and changing the content
@@ -1445,7 +1445,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
       return null;
     }
@@ -1463,7 +1463,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
     }
   }
@@ -1676,7 +1676,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * the Compute Engine library must be loaded, for example with:
    *
    * ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
    *
    *

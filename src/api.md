@@ -232,7 +232,7 @@ If the Compute Engine library is available, return a boxed MathJSON expression r
 
 To load the Compute Engine library, use:
 ```js
-import 'https://unpkg.com/@cortex-js/compute-engine?module';
+import 'https://esm.run/@cortex-js/compute-engine';
 ```
 
 </MemberCard>
@@ -273,7 +273,7 @@ The format of the result. If using `math-json`
 the Compute Engine library must be loaded, for example with:
 
 ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
 
 **Default:** `"latex"`
@@ -1609,7 +1609,7 @@ Consider using this option if you are displaying untrusted content. Read more ab
 ##### MathfieldElement.version
 
 ```ts
-static version: string = '0.105.1';
+static version: string = '0.105.2';
 ```
 
 </MemberCard>
@@ -1684,7 +1684,7 @@ set static fontsDirectory(value: string): void
 A URL fragment pointing to the directory containing the fonts
 necessary to render a formula.
 
-These fonts are available in the `/dist/fonts` directory of the SDK.
+These fonts are available in the `/fonts` directory of the npm package.
 
 Customize this value to reflect where you have copied these fonts,
 or to use the CDN version.
@@ -1706,14 +1706,14 @@ no effect.
 {
      // Use a directory called "fonts", located next to the
      // `mathlive.js` (or `mathlive.mjs`) file.
-     fontsDirectory: './fonts/'
+     fontsDirectory: './fonts'
 }
 ```
 
 ```javascript
 {
      // Use a directory located at the root of your website
-     fontsDirectory: 'https://example.com/fonts/'
+     fontsDirectory: 'https://example.com/fonts'
 }
 ```
 
@@ -2524,7 +2524,7 @@ type OutputFormat =
   To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
 
 ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
   *
 
@@ -6060,7 +6060,7 @@ the ID of an element.
 #### Example
 
 ```ts
-import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
+import { renderMathInElement } from 'https://esm.run/mathlive';
 renderMathInElement("formula");
 ```
 
@@ -6236,7 +6236,7 @@ to the `<head>` of the document:
 ```html
 <link
  rel="stylesheet"
- href="https://unpkg.com/mathlive/mathlive-static.css"
+ href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
 />
 ```
 
@@ -6245,7 +6245,7 @@ or
 ```html
 <link
  rel="stylesheet"
- href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
+ href="https://unpkg.com/mathlive/mathlive-static.css"
 />
 ```
 
@@ -6382,7 +6382,7 @@ const version: {
 };
 ```
 
-Current version: `0.105.1`
+Current version: `0.105.2`
 
 The version string of the SDK using the [semver](https://semver.org/) convention:
 

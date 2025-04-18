@@ -104,7 +104,7 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  * the ID of an element.
  *
  * @example
- * import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
+ * import { renderMathInElement } from 'https://esm.run/mathlive';
  * renderMathInElement("formula");
  *
  * @category Static Rendering

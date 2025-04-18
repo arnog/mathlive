@@ -543,7 +543,7 @@ export class _Model implements Model {
       if (!globalThis.MathfieldElement.computeEngine) {
         if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
           console.error(
-            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://esm.run/@cortex-js/compute-engine"'
           );
         }
         return '["Error", "compute-engine-not-available"]';
