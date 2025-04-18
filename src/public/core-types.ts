@@ -535,48 +535,50 @@ export type OutputFormat =
 export type InsertOptions = {
   /** If `"auto"` or omitted, the current mode is used */
   mode?: ParseMode | 'auto';
+
   /**
    * The format of the input string:
    *
 
 | | |
 |:------------|:------------|
-|`"auto"`| The string is LaTeX fragment or command) (default)|
-|`"latex"`| The string is a LaTeX fragment|
+|`"auto"`     | The string is a LaTeX fragment or command (default)|
+|`"latex"`    | The string is a LaTeX fragment|
   *
   */
   format?: OutputFormat | 'auto';
+
   insertionMode?:
     | 'replaceSelection'
     | 'replaceAll'
     | 'insertBefore'
     | 'insertAfter';
-  /**
-   * Describes where the selection
-   * will be after the insertion:
 
-| | |
-| :---------- | :---------- |
-|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-|`"after"`| The selection will be an insertion point after the inserted text|
-|`"before"`| The selection will be an insertion point before the inserted text|
-|`"item"`| The inserted text will be selected|
-  */
+  /**
+     * Describes where the selection will be after the insertion:
+     *
+     | | |
+     | :---------- | :---------- |
+     |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+     |`"after"`      | The selection will be an insertion point after the inserted text|
+     |`"before"`     | The selection will be an insertion point before the inserted text|
+     |`"item"`       | The inserted text will be selected|
+     */
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
+  /** If `true`, silence notifications during insertion */
   silenceNotifications?: boolean;
-  /** If `true`, the mathfield will be focused after
-   * the insertion
-   */
+
+  /** If `true`, the mathfield will be focused after the insertion */
   focus?: boolean;
-  /** If `true`, provide audio and haptic feedback
-   */
+
+  /** If `true`, provide audio and haptic feedback */
   feedback?: boolean;
-  /** If `true`, scroll the mathfield into view after insertion such that the
-   * insertion point is visible
-   */
+
+  /** If `true`, scroll the mathfield into view after insertion such that the insertion point is visible */
   scrollIntoView?: boolean;
 
+  /** The style applied to the inserted content */
   style?: Style;
 };
 

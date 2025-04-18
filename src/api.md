@@ -29,7 +29,7 @@ const mf = new MathfieldElement();
 // 2. Attach it to the DOM
 document.body.appendChild(mf);
 
-// 3. Modifying options after construction
+// 3. Modifying options after the mathfield has been attached to the DOM
 mf.addEventListener("mount"), () => {
  mf.smartFence = true;
 });
@@ -66,49 +66,48 @@ Read more about [customizing the virtual keyboard appearance](#custom-appearance
 #### MathfieldElement CSS Parts
 
 In addition to the CSS variables, the mathfield exposes [CSS
-parts that can be used to style the mathfield](https://cortexjs.io/mathfield/guides/customizing/#mathfield-parts)
+parts that can be used to style the mathfield](#mathfield-parts).
 
 For example, to hide the menu button:
 
 ```css
 math-field::part(menu-toggle) {
- display: none;
+   display: none;
 }
 ```
 
 #### MathfieldElement Attributes
 
-An attribute is a key-value pair set as part of the tag:
+An attribute is a key-value pair set as part of the `<math-field>` tag:
 
 ```html
 <math-field letter-shape-style="tex"></math-field>
 ```
 
 The supported attributes are listed in the table below with their
-corresponding property.
-
-The property can also be changed directly on the `MathfieldElement` object:
+corresponding property, which can be changed directly on the
+`MathfieldElement` object:
 
 ```javascript
  mf.value = "\\sin x";
- mf.letterShapeStyle = "text";
+ mf.letterShapeStyle = "tex";
 ```
 
 The values of attributes and properties are reflected, which means you can
 change one or the other, for example:
 
 ```javascript
-mf.setAttribute('letter-shape-style',  'french');
+mf.setAttribute("letter-shape-style",  "french");
 console.log(mf.letterShapeStyle);
 // Result: "french"
 
-mf.letterShapeStyle ='tex;
-console.log(mf.getAttribute('letter-shape-style');
-// Result: 'tex'
+mf.letterShapeStyle ="tex";
+console.log(mf.getAttribute("letter-shape-style");
+// Result: "tex"
 ```
 
 An exception is the `value` property, which is not reflected on the `value`
-attribute: for consistency with other DOM elements, the `value` attribute
+attribute. For consistency with other DOM elements, the `value` attribute
 remains at its initial value.
 
 <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
@@ -134,10 +133,10 @@ remains at its initial value.
 
 </div>
 
-See the corresponding property for more details about these options.
+See [more details about these attributes](#mathfieldelementattributes).
 
-In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
-can also be used:
+In addition, the following DOM elements [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+are supported:
 - `class`
 - `data-*`
 - `hidden`
@@ -148,7 +147,7 @@ can also be used:
 
 #### MathfieldElement Events
 
-Listen to these events by using `mf.addEventListener()`. For events with
+**To listen to these events** use `mf.addEventListener()`. For events with
 additional arguments, the arguments are available in `event.detail`.
 
 <div className='symbols-table' style={{"--first-col-width":"27ex"}}>
@@ -1601,7 +1600,7 @@ This optional function will be called before a string of HTML is
 injected in the DOM, allowing that string to be sanitized
 according to a policy defined by the host.
 
-Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](mathfield/guides/security/)
+Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](/mathfield/guides/security/)
 
 </MemberCard>
 
@@ -1707,14 +1706,14 @@ no effect.
 {
      // Use a directory called "fonts", located next to the
      // `mathlive.js` (or `mathlive.mjs`) file.
-     fontsDirectory: './fonts'
+     fontsDirectory: './fonts/'
 }
 ```
 
 ```javascript
 {
      // Use a directory located at the root of your website
-     fontsDirectory: 'https://example.com/fonts'
+     fontsDirectory: 'https://example.com/fonts/'
 }
 ```
 
@@ -2345,8 +2344,7 @@ If `true`, provide audio and haptic feedback
 optional focus: boolean;
 ```
 
-If `true`, the mathfield will be focused after
-the insertion
+If `true`, the mathfield will be focused after the insertion
 
 </MemberCard>
 
@@ -2362,8 +2360,8 @@ The format of the input string:
 
 | | |
 |:------------|:------------|
-|`"auto"`| The string is LaTeX fragment or command) (default)|
-|`"latex"`| The string is a LaTeX fragment|
+|`"auto"`     | The string is a LaTeX fragment or command (default)|
+|`"latex"`    | The string is a LaTeX fragment|
 
 </MemberCard>
 
@@ -2397,8 +2395,7 @@ If `"auto"` or omitted, the current mode is used
 optional scrollIntoView: boolean;
 ```
 
-If `true`, scroll the mathfield into view after insertion such that the
-insertion point is visible
+If `true`, scroll the mathfield into view after insertion such that the insertion point is visible
 
 </MemberCard>
 
@@ -2410,15 +2407,14 @@ insertion point is visible
 optional selectionMode: "placeholder" | "after" | "before" | "item";
 ```
 
-Describes where the selection
-will be after the insertion:
+Describes where the selection will be after the insertion:
 
 | | |
 | :---------- | :---------- |
 |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-|`"after"`| The selection will be an insertion point after the inserted text|
-|`"before"`| The selection will be an insertion point before the inserted text|
-|`"item"`| The inserted text will be selected|
+|`"after"`      | The selection will be an insertion point after the inserted text|
+|`"before"`     | The selection will be an insertion point before the inserted text|
+|`"item"`       | The inserted text will be selected|
 
 </MemberCard>
 
@@ -2430,6 +2426,8 @@ will be after the insertion:
 optional silenceNotifications: boolean;
 ```
 
+If `true`, silence notifications during insertion
+
 </MemberCard>
 
 <MemberCard>
@@ -2439,6 +2437,8 @@ optional silenceNotifications: boolean;
 ```ts
 optional style: Style;
 ```
+
+The style applied to the inserted content
 
 </MemberCard>
 
@@ -2543,6 +2543,9 @@ type Offset = number;
 Position of the caret/insertion point from the beginning of the formula.
 The first position is 0. The last valid offset is `mf.lastOffset`.
 
+**See Also**
+* [`Range`](#range-1)
+
 </MemberCard>
 
 <MemberCard>
@@ -2553,8 +2556,7 @@ The first position is 0. The last valid offset is `mf.lastOffset`.
 type Range = [Offset, Offset];
 ```
 
-A pair of offsets (boundary points) that can be used to denote a fragment
-of an expression.
+A pair of offsets (boundary points) that denote a fragment of a formula.
 
 A range is said to be **collapsed** when `start` and `end` are equal.
 
@@ -2567,7 +2569,7 @@ end \>= 0,  start \< lastOffset, end \< lastOffset. All the methods return
 a normalized range.
 
 **See Also**
-* [`Selection`](#selection-1)
+* [`Offset`](#offset)
 
 </MemberCard>
 
@@ -2575,23 +2577,26 @@ a normalized range.
 
 ### Selection
 
-A selection is a set of ranges (to support discontinuous selection, for
+A **selection** is a set of ranges (to support discontinuous selection, for
 example when selecting a column in a matrix).
 
 If there is a single range and that range is collapsed, the selection is
 collapsed.
 
-A selection can also have a direction. While many operations are insensitive
-to the direction, a few are. For example, when selecting a fragment of an
-expression from left to right, the direction of this range will be "forward".
+A selection can also have a **direction**. While many operations are
+insensitive to the direction, a few are. For example, when selecting a
+fragment of a formula from left to right, the direction of this range will
+be `"forward"`.
+
 Pressing the left arrow key will sets the insertion at the start of the
 range.
 
 Conversely, if the selection is made from right to left, the direction is
-"backward" and pressing the left arrow key will set the insertion point at
+`"backward"` and pressing the left arrow key will set the insertion point at
 the end of the range.
 
 **See Also**
+* [`Offset`](#offset)
 * [`Range`](#range-1)
 
 <MemberCard>
@@ -4306,6 +4311,438 @@ to a key combination that can be generated on any keyboard.
 
 </MemberCard>
 
+## Menu
+
+<MemberCard>
+
+### DynamicValue\<T\>
+
+```ts
+type DynamicValue<T> = T | (modifiers) => T;
+```
+
+#### Type declaration
+
+• T
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItem\<T\>
+
+```ts
+type MenuItem<T> = 
+  | MenuItemDivider
+  | MenuItemHeading
+  | MenuItemSubmenu
+| MenuItemCommand<T>;
+```
+
+Declaration of a menu item
+
+#### Type declaration
+
+• T = `unknown`
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemCommand\<T\>
+
+<MemberCard>
+
+##### MenuItemCommand.ariaLabel?
+
+```ts
+optional ariaLabel: DynamicValue<string>;
+```
+
+An accessible text string that describes the item.
+Usually not necessary, as the `label` is used for this,
+however if the menu item is for example a color swatch,
+the `ariaLabel` can be used to describe the color.
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.checked?
+
+```ts
+optional checked: DynamicValue<boolean | "mixed">;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.class?
+
+```ts
+optional class: DynamicValue<string>;
+```
+
+A CSS class applied to the item
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.data?
+
+```ts
+optional data: T;
+```
+
+This data payload is passed to the `onMenuSelect()` hook and with the `menu-select` event
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.enabled?
+
+```ts
+optional enabled: DynamicValue<boolean>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.id?
+
+```ts
+optional id: string;
+```
+
+This id string is passed to the `onMenuSelect()` hook and with the `menu-select` event
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.keyboardShortcut?
+
+```ts
+optional keyboardShortcut: string;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.label?
+
+```ts
+optional label: DynamicValue<string>;
+```
+
+A string of HTML markup used to describe the item
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.onMenuSelect()?
+
+```ts
+optional onMenuSelect: (_) => void;
+```
+
+When this menu item is selected, a `menu-select` event is dispatched
+and this hook is called.
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.tooltip?
+
+```ts
+optional tooltip: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.type?
+
+```ts
+optional type: "command";
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemCommand.visible?
+
+```ts
+optional visible: DynamicValue<boolean>;
+```
+
+</MemberCard>
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemDivider
+
+A divider is a visual separator between menu items.
+It is not selectable.
+
+<MemberCard>
+
+##### MenuItemDivider.type
+
+```ts
+type: "divider";
+```
+
+</MemberCard>
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemHeading
+
+A heading is a menu item that is not selectable and used to group menu
+items.
+
+If following items (until next divider or heading) are not visible, the
+heading is not visible either.
+
+<MemberCard>
+
+##### MenuItemHeading.ariaLabel?
+
+```ts
+optional ariaLabel: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemHeading.class?
+
+```ts
+optional class: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemHeading.label?
+
+```ts
+optional label: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemHeading.tooltip?
+
+```ts
+optional tooltip: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemHeading.type
+
+```ts
+type: "heading";
+```
+
+</MemberCard>
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemProps\<T\>
+
+These props are passed to the `menu-select` event and `onMenuSelect` hook
+- `id`: the `id` associated with the menu item.
+- `data`: the `data` payload associated with the menu item
+- `modifiers`: the keyboard modifiers that were pressed when the menu item was selected
+
+<MemberCard>
+
+##### MenuItemProps.data?
+
+```ts
+optional data: T;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemProps.id?
+
+```ts
+optional id: string;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemProps.modifiers?
+
+```ts
+optional modifiers: KeyboardModifiers;
+```
+
+</MemberCard>
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemSubmenu
+
+<MemberCard>
+
+##### MenuItemSubmenu.ariaLabel?
+
+```ts
+optional ariaLabel: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.class?
+
+```ts
+optional class: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.columnCount?
+
+```ts
+optional columnCount: number;
+```
+
+If the menu is arranged in a custom grid, this is the number of columns.
+
+This property is used for keyboard navigation with the arrow keys.
+
+**Default**: 1.
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.enabled?
+
+```ts
+optional enabled: DynamicValue<boolean>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.label?
+
+```ts
+optional label: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.submenu
+
+```ts
+submenu: Readonly<MenuItem[]>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.submenuClass?
+
+```ts
+optional submenuClass: string;
+```
+
+The class applied to the submenu container.
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.tooltip?
+
+```ts
+optional tooltip: DynamicValue<string>;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.type?
+
+```ts
+optional type: "submenu";
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MenuItemSubmenu.visible?
+
+```ts
+optional visible: DynamicValue<boolean>;
+```
+
+</MemberCard>
+
+</MemberCard>
+
+<MemberCard>
+
+### MenuItemType
+
+```ts
+type MenuItemType = "command" | "divider" | "heading" | "submenu";
+```
+
+The type of a menu item:
+- `command`: a command that can be selected and executed
+- `divider`: a visual separator
+- `heading`: a heading, not selectable. If following items
+  (until next divider or heading) are not visible, the heading is not
+  visible either.
+- `submenu`: a submenu
+
+</MemberCard>
+
 ## Virtual Keyboard
 
 ### NormalizedVirtualKeyboardLayer
@@ -5589,7 +6026,10 @@ To render a specific element, use [`renderMathInElement()`](#rendermathinelement
 #### Example
 
 ```ts
-import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
+import { renderMathInDocument } from 'https://esm.run/mathlive';
+// Alternatively, you can use the **unpkg** CDN to load the library
+// import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
+
 renderMathInDocument();
 ```
 
@@ -5796,7 +6236,16 @@ to the `<head>` of the document:
 ```html
 <link
  rel="stylesheet"
- href="https://unpkg.com/mathlive/dist/mathlive-static.css"
+ href="https://unpkg.com/mathlive/mathlive-static.css"
+/>
+```
+
+or
+
+```html
+<link
+ rel="stylesheet"
+ href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
 />
 ```
 

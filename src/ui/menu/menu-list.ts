@@ -18,15 +18,21 @@ export class _MenuListState implements MenuListState {
 
   hasCheck?: boolean; // If true, has at least one checkbox or radio menu item
 
+  /** @private */
   _menuItems: Readonly<MenuItemState[]>;
 
+  /** @private */
   private _element: HTMLElement | null = null;
+  /** @private */
   private _activeMenuItem: MenuItemState | null = null;
 
+  /** @private */
   private _submenuClass?: string;
 
+  /** @private */
   private _abortController?: AbortController;
 
+  /** @private */
   protected _dirty = true;
 
   readonly columnCount: number;

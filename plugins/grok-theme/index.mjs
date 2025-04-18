@@ -433,14 +433,7 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
         }
 
         if (model.typeParameters) {
-          md.push(
-            heading(
-              opts.headingLevel,
-              this.internationalization.kindPluralString(
-                ReflectionKind.TypeParameter
-              )
-            )
-          );
+          md.push(heading(opts.headingLevel, i18n.theme_type_declaration()));
           if (this.helpers.useTableFormat('parameters')) {
             md.push(this.partials.typeParametersTable(model.typeParameters));
           } else {

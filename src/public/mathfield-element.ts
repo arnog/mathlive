@@ -585,14 +585,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * {
    *      // Use a directory called "fonts", located next to the
    *      // `mathlive.js` (or `mathlive.mjs`) file.
-   *      fontsDirectory: './fonts'
+   *      fontsDirectory: './fonts/'
    * }
    * ```
    *
    * ```javascript
    * {
    *      // Use a directory located at the root of your website
-   *      fontsDirectory: 'https://example.com/fonts'
+   *      fontsDirectory: 'https://example.com/fonts/'
    * }
    * ```
    *
@@ -627,7 +627,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  private static _fontsDirectory: string | null = './fonts';
+  private static _fontsDirectory: string | null = './fonts/';
 
   /**
    * A URL fragment pointing to the directory containing the optional
@@ -783,7 +783,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * injected in the DOM, allowing that string to be sanitized
    * according to a policy defined by the host.
    *
-   * Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](mathfield/guides/security/)
+   * Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](/mathfield/guides/security/)
    *
    */
   static createHTML: (html: string) => any = (x) => x;

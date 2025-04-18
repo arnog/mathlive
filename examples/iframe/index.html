@@ -1,27 +1,27 @@
 <!doctype html>
 <html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>MathLive IFrame Example</title>
-    <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
 
-  <body>
-    <header>
-      <h1>MathLive IFrame Example</h1>
-    </header>
+<head>
+  <meta charset="utf-8" />
+  <title>MathLive IFrame Example</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-    <main>
-      <iframe src="http://127.0.0.1:5500/examples/iframe/frame-1.html"></iframe>
-      <iframe
-        src="http://colca.lan.:5500/examples/iframe/frame-2.html"
-      ></iframe>
-    </main>
+<body>
+  <header>
+    <h1>MathLive IFrame Example</h1>
+  </header>
 
-    <script type="module">
-      import '/dist/mathlive.mjs';
-      mathVirtualKeyboard.targetOrigin = '*'; // any domain
-    </script>
-  </body>
+  <main>
+    <iframe src="http://127.0.0.1:5500/examples/iframe/frame-1.html"></iframe>
+    <iframe src="http://127.0.0.1:5500/examples/iframe/frame-2.html"></iframe>
+  </main>
+
+  <script type="module">
+    import '/dist/mathlive.mjs';
+    mathVirtualKeyboard.targetOrigin = '*'; // any domain
+  </script>
+</body>
+
 </html>

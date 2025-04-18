@@ -55,9 +55,20 @@ import {
  * ```html
  * <link
  *  rel="stylesheet"
- *  href="https://unpkg.com/mathlive/dist/mathlive-static.css"
+ *  href="https://unpkg.com/mathlive/mathlive-static.css"
  * />
  * ```
+ *
+ * or
+ *
+ * ```html
+ * <link
+ *  rel="stylesheet"
+ *  href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
+ * />
+ * ```
+ *
+ *
  *
  *
  * @param text A string of valid LaTeX. It does not have to start

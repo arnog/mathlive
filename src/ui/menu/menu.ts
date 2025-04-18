@@ -52,11 +52,15 @@ export class Menu extends _MenuListState implements RootMenuState {
 
   private typingBufferResetTimer = 0;
   private typingBuffer: string;
+  /** @private */
   private _openTimestamp?: number;
+  /** @private */
   private _onDismiss?: () => void;
   private hysteresisTimer = 0;
+  /** @private */
   private _host: HTMLElement | null;
 
+  /** @private */
   private _updating = false;
 
   /**
@@ -170,7 +174,7 @@ export class Menu extends _MenuListState implements RootMenuState {
         if (menu === this.rootMenu) {
           if (!menuItem) menu.activeMenuItem = menu.firstMenuItem;
         } else {
-          const col = menuItem ? menu.getMenuItemColumn(menuItem) ?? -1 : -1;
+          const col = menuItem ? (menu.getMenuItemColumn(menuItem) ?? -1) : -1;
           if (col <= 0 || !menuItem) {
             menu.hide();
             const activeMenu = menu.parentMenu!.activeMenuItem;
