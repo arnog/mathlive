@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- Using the kebab version of commands (for example `"select-all"` instead of
+  `"SelectAll"`) would incorrectly result in a runtime error.
+
 ## 0.105.1 _2025-04-18_
 
 ### Resolved Issues
