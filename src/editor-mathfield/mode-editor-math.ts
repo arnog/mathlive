@@ -172,7 +172,7 @@ export class MathModeEditor extends ModeEditor {
     const data =
       typeof input === 'string'
         ? input
-        : globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '';
+        : (globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '');
 
     if (
       !options.silenceNotifications &&
