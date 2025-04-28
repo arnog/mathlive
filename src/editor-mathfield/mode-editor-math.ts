@@ -362,7 +362,8 @@ export class MathModeEditor extends ModeEditor {
         model.announce('move'); // Should have placeholder selected
       } else if (lastNewAtom) {
         const body = lastNewAtom.body;
-        if (body && body.length) {
+        const hadEmptyBody = lastNewAtom.hasEmptyBranch('body');
+        if (body && hadEmptyBody) {
           // Some commands have a body which behaves like a placeholder (such as square root)
           model.setSelection(
             model.offsetOf(body[0]),
