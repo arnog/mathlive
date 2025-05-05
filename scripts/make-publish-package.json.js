@@ -20,7 +20,6 @@ const publishPackage = {
   module: rootPackage.module,
   types: rootPackage.types,
   exports: rootPackage.exports,
-  engines: rootPackage.engines,
   dependencies: rootPackage.dependencies,
   files: [
     // Optional: if you want to be explicit
