@@ -110,6 +110,18 @@
   );
 }
 
+@media (forced-colors: active) {
+  .ML__container {
+    --_caret-color: white;
+    --_selection-color: white;
+    --_smart-fence-color: white;
+    --_latex-color: white;
+    --_correct-color: white;
+    --_incorrect-color: white;
+    --_composition-text-color: white;
+  }
+}
+
 // Prevent pointer-down event on touch devices if the host isn't focused
 // this allows scrolling if you touch unfocused fields
 @media (hover: none) and (pointer: coarse) {
@@ -144,6 +156,17 @@
      Weirdly, this is required for prompts to be rendered correctly. 
    */
   isolation: isolate;
+
+  text-shadow: var(--text-shadow);
+  .ML__latex {
+    text-shadow: var(--text-shadow);
+  }
+  .ML__sqrt-line {
+    box-shadow: var(--text-shadow);
+  }
+  .ML__frac-line {
+    box-shadow: var(--text-shadow);
+  }
 }
 
 .ML__virtual-keyboard-toggle,
@@ -308,7 +331,7 @@ with this style */
   color: var(--_smart-fence-color);
 }
 
-.ML__selected,
+.ML__focused .ML__selected,
 .ML__focused .ML__selected .ML__contains-caret,
 .ML__focused .ML__selected .ML__smart-fence__close,
 .ML__focused .ML__selected .ML__placeholder {

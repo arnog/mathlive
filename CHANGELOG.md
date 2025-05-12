@@ -1,3 +1,47 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- Using the kebab version of commands (for example `"select-all"` instead of
+  `"SelectAll"`) would incorrectly result in a runtime error.
+
+## 0.105.1 _2025-04-18_
+
+### Resolved Issues
+
+- **#2526** In the virtual keyboard, the keycap text over CSS variables was not
+  displayed correctly.
+- **#2567** Avoid potential race condition when changing the focus of the
+  mathfield.
+- **#2638**, **#2479** Fragments that were styled with some color were not
+  rendered correctly when the mathfield was not focused.
+- **#2669** If a page had multiple mathfields, when using the suggestion
+  popover, the suggestion popover would be inserted in the wrong mathfield.
+- **#2584** In some cases, a menu item could get inadvertently selected when
+  when brining up the menu.
+- **#2673** When using the CJS version of the library, the height of the virtual
+  keyboard was not correctly calculated.
+- **#2666** In some cases, the state of the Undo/Redo buttons could get out of
+  sync with the state of the mathfield.
+- **#2667** The edit toolbar was not displayed in the alphabetic keyboard
+  layout.
+
+### Improvements
+
+- Accessibility: Improved support for the high-contrast mode.
+- There is a new CSS variable to control the z-index of the suggestion popover:
+  `--suggestion-zindex`. This allows the suggestion popover to be displayed
+  above other elements on the page.
+- Added support for the `\strut` and `\mathstrut` commands. These commands are
+  used to insert a strut, which is an invisible element that takes up space in
+  the math expression. This is useful for aligning expressions or for creating
+  space between elements.
+- **#2662** When the command popover is displayed, pressing the **Return** key
+  will insert the command in the mathfield and close the popover.
+- **#2658** Improved localization for Italian.
+- **#2671** When inserting a command with an argument with the suggestion
+  popover, position the cursor inside the argument.
+
 ## 0.105.0 _2025-03-27_
 
 ### Breaking Changes

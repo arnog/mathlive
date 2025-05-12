@@ -68,7 +68,7 @@ export async function loadFonts(): Promise<void> {
     }
 
     // Locate the `fonts` folder relative to the script URL
-    const fontsFolder = await resolveUrl(
+    let fontsFolder = await resolveUrl(
       globalThis.MathfieldElement.fontsDirectory
     );
     if (!fontsFolder) {
@@ -76,6 +76,9 @@ export async function loadFonts(): Promise<void> {
       gFontsState = 'error';
       return;
     }
+
+    // If the URL ends with a slash, remove it
+    if (fontsFolder.endsWith('/')) fontsFolder = fontsFolder.slice(0, -1);
 
     const fonts = (
       [

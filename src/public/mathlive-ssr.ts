@@ -55,9 +55,19 @@ import {
  * ```html
  * <link
  *  rel="stylesheet"
- *  href="https://unpkg.com/mathlive/dist/mathlive-static.css"
+ *  href="https://cdn.jsdelivr.net/npm/mathlive/mathlive-static.css"
  * />
  * ```
+ *
+ * or
+ *
+ * ```html
+ * <link
+ *  rel="stylesheet"
+ *  href="https://unpkg.com/mathlive/mathlive-static.css"
+ * />
+ * ```
+ *
  *
  *
  * @param text A string of valid LaTeX. It does not have to start
@@ -219,7 +229,7 @@ export function convertMathJsonToLatex(json: Expression): string {
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
     }
   }

@@ -125,7 +125,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   getKeycap(
     id: string | undefined
   ): Partial<VirtualKeyboardKeycap> | undefined {
-    return id ? KEYCAP_SHORTCUTS[id] ?? this.keycapRegistry[id] : undefined;
+    return id ? (KEYCAP_SHORTCUTS[id] ?? this.keycapRegistry[id]) : undefined;
   }
 
   getLayer(id: string): NormalizedVirtualKeyboardLayer | undefined {
@@ -347,10 +347,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   adjustBoundingRect(): void {
+    if (!this._element) return;
     // Adjust the keyboard height
     const h = this.boundingRect.height;
     if (this.container === document.body) {
-      this._element?.style.setProperty(
+      this._element.style.setProperty(
         '--_keyboard-height',
         `calc(${h}px + var(--_padding-top) + var(--_padding-bottom) + env(safe-area-inset-bottom, 0))`
       );
@@ -358,7 +359,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       this.container!.style.paddingBottom = this.originalContainerBottomPadding
         ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
         : `${keyboardHeight}px`;
-    } else this._element?.style.setProperty('--_keyboard-height', `${h}px`);
+    } else this._element.style.setProperty('--_keyboard-height', `${h}px`);
   }
 
   rebuild(): void {

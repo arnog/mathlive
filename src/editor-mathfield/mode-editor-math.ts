@@ -172,7 +172,7 @@ export class MathModeEditor extends ModeEditor {
     const data =
       typeof input === 'string'
         ? input
-        : globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '';
+        : (globalThis.MathfieldElement.computeEngine?.box(input).latex ?? '');
 
     if (
       !options.silenceNotifications &&
@@ -361,8 +361,18 @@ export class MathModeEditor extends ModeEditor {
         model.setSelection(placeholderOffset - 1, placeholderOffset);
         model.announce('move'); // Should have placeholder selected
       } else if (lastNewAtom) {
-        // No placeholder found, move to right after what we just inserted
-        model.position = model.offsetOf(lastNewAtom);
+        const body = lastNewAtom.body;
+        const hadEmptyBody = lastNewAtom.hasEmptyBranch('body');
+        if (body && hadEmptyBody) {
+          // Some commands have a body which behaves like a placeholder (such as square root)
+          model.setSelection(
+            model.offsetOf(body[0]),
+            model.offsetOf(body[body.length - 1]) + 1
+          );
+        } else {
+          // No placeholder found, move to right after what we just inserted
+          model.position = model.offsetOf(lastNewAtom);
+        }
       }
     } else if (options.selectionMode === 'before') {
       // Do nothing: don't change the position.

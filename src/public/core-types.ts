@@ -510,7 +510,7 @@ export declare type Expression =
    To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
 
 ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
    * @category Mathfield
    */
@@ -535,48 +535,50 @@ export type OutputFormat =
 export type InsertOptions = {
   /** If `"auto"` or omitted, the current mode is used */
   mode?: ParseMode | 'auto';
+
   /**
    * The format of the input string:
    *
 
 | | |
 |:------------|:------------|
-|`"auto"`| The string is LaTeX fragment or command) (default)|
-|`"latex"`| The string is a LaTeX fragment|
+|`"auto"`     | The string is a LaTeX fragment or command (default)|
+|`"latex"`    | The string is a LaTeX fragment|
   *
   */
   format?: OutputFormat | 'auto';
+
   insertionMode?:
     | 'replaceSelection'
     | 'replaceAll'
     | 'insertBefore'
     | 'insertAfter';
-  /**
-   * Describes where the selection
-   * will be after the insertion:
 
-| | |
-| :---------- | :---------- |
-|`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
-|`"after"`| The selection will be an insertion point after the inserted text|
-|`"before"`| The selection will be an insertion point before the inserted text|
-|`"item"`| The inserted text will be selected|
-  */
+  /**
+     * Describes where the selection will be after the insertion:
+     *
+     | | |
+     | :---------- | :---------- |
+     |`"placeholder"`| The selection will be the first available placeholder in the text that has been inserted (default)|
+     |`"after"`      | The selection will be an insertion point after the inserted text|
+     |`"before"`     | The selection will be an insertion point before the inserted text|
+     |`"item"`       | The inserted text will be selected|
+     */
   selectionMode?: 'placeholder' | 'after' | 'before' | 'item';
 
+  /** If `true`, silence notifications during insertion */
   silenceNotifications?: boolean;
-  /** If `true`, the mathfield will be focused after
-   * the insertion
-   */
+
+  /** If `true`, the mathfield will be focused after the insertion */
   focus?: boolean;
-  /** If `true`, provide audio and haptic feedback
-   */
+
+  /** If `true`, provide audio and haptic feedback */
   feedback?: boolean;
-  /** If `true`, scroll the mathfield into view after insertion such that the
-   * insertion point is visible
-   */
+
+  /** If `true`, scroll the mathfield into view after insertion such that the insertion point is visible */
   scrollIntoView?: boolean;
 
+  /** The style applied to the inserted content */
   style?: Style;
 };
 
@@ -654,13 +656,14 @@ export type ElementInfo = {
  * Position of the caret/insertion point from the beginning of the formula.
  * The first position is 0. The last valid offset is `mf.lastOffset`.
  *
+ * **See Also**
+ * * {@linkcode Range}
  * @category Selection
  */
 export type Offset = number;
 
 /**
- * A pair of offsets (boundary points) that can be used to denote a fragment
- * of an expression.
+ * A pair of offsets (boundary points) that denote a fragment of a formula.
  *
  * A range is said to be **collapsed** when `start` and `end` are equal.
  *
@@ -673,7 +676,7 @@ export type Offset = number;
  * a normalized range.
  *
  * **See Also**
- * * {@linkcode Selection}
+ * * {@linkcode Offset}
  *
  * @category Selection
  */
@@ -681,23 +684,26 @@ export type Offset = number;
 export type Range = [start: Offset, end: Offset];
 
 /**
- * A selection is a set of ranges (to support discontinuous selection, for
+ * A **selection** is a set of ranges (to support discontinuous selection, for
  * example when selecting a column in a matrix).
  *
  * If there is a single range and that range is collapsed, the selection is
  * collapsed.
  *
- * A selection can also have a direction. While many operations are insensitive
- * to the direction, a few are. For example, when selecting a fragment of an
- * expression from left to right, the direction of this range will be "forward".
+ * A selection can also have a **direction**. While many operations are
+ * insensitive to the direction, a few are. For example, when selecting a
+ * fragment of a formula from left to right, the direction of this range will
+ * be `"forward"`.
+ *
  * Pressing the left arrow key will sets the insertion at the start of the
  * range.
  *
  * Conversely, if the selection is made from right to left, the direction is
- * "backward" and pressing the left arrow key will set the insertion point at
+ * `"backward"` and pressing the left arrow key will set the insertion point at
  * the end of the range.
  *
  * **See Also**
+ * * {@linkcode Offset}
  * * {@linkcode Range}
  * @category Selection
  */

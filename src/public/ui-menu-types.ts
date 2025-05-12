@@ -8,6 +8,8 @@ import type { KeyboardModifiers } from './ui-events-types';
  *   (until next divider or heading) are not visible, the heading is not
  *   visible either.
  * - `submenu`: a submenu
+ *
+ * @category Menu
  */
 export type MenuItemType = 'command' | 'divider' | 'heading' | 'submenu';
 
@@ -16,12 +18,16 @@ export type MenuItemType = 'command' | 'divider' | 'heading' | 'submenu';
  * - `id`: the `id` associated with the menu item.
  * - `data`: the `data` payload associated with the menu item
  * - `modifiers`: the keyboard modifiers that were pressed when the menu item was selected
+ *
+ * @category Menu
  */
 export type MenuItemProps<T = unknown> = {
   id?: string;
   data?: T;
   modifiers?: KeyboardModifiers;
 };
+
+/** @category Menu */
 
 export type DynamicValue<T> = T | ((modifiers: KeyboardModifiers) => T);
 
@@ -35,6 +41,7 @@ declare global {
   }
 }
 
+/** @category Menu */
 export type MenuItemCommand<T = unknown> = {
   type?: 'command';
 
@@ -78,16 +85,20 @@ export type MenuItemCommand<T = unknown> = {
 
 /** A divider is a visual separator between menu items.
  * It is not selectable.
+ *
+ * @category Menu
  */
 export type MenuItemDivider = {
   type: 'divider';
 };
 
-/** A heading is a menu item that is not selectable
- * and used to group menu items.
+/** A heading is a menu item that is not selectable and used to group menu
+ * items.
  *
- * If followiung items (until next divider or heading) are not visible, the heading is not
- *   visible either.
+ * If following items (until next divider or heading) are not visible, the
+ * heading is not visible either.
+ *
+ * @category Menu
  */
 export type MenuItemHeading = {
   type: 'heading';
@@ -97,6 +108,8 @@ export type MenuItemHeading = {
   tooltip?: DynamicValue<string>;
   class?: DynamicValue<string>;
 };
+
+/** @category Menu */
 
 export type MenuItemSubmenu = {
   type?: 'submenu';
@@ -147,7 +160,9 @@ export function isHeading(item: MenuItem): item is MenuItemHeading {
   return 'type' in item && item.type === 'heading';
 }
 
-/** Declaration of a menu item */
+/** Declaration of a menu item
+ * @category Menu
+ */
 export type MenuItem<T = unknown> =
   | MenuItemDivider
   | MenuItemHeading

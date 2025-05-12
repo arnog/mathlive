@@ -543,7 +543,7 @@ export class _Model implements Model {
       if (!globalThis.MathfieldElement.computeEngine) {
         if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
           console.error(
-            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://unpkg.com/@cortex-js/compute-engine?module"'
+            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://esm.run/@cortex-js/compute-engine"'
           );
         }
         return '["Error", "compute-engine-not-available"]';
@@ -846,13 +846,13 @@ export class _Model implements Model {
     // The mathfield could be undefined if the mathfield was disposed
     // while the selection was changing
     if (!this.mathfield) return;
-    if (window.mathVirtualKeyboard.visible)
-      window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
 
-    if (this.silenceNotifications) return;
     const save = this.silenceNotifications;
-    this.silenceNotifications = true;
-    this.mathfield.onSelectionDidChange();
+    if (!save) {
+      this.silenceNotifications = true;
+      this.mathfield.onSelectionDidChange();
+    }
+
     this.silenceNotifications = save;
   }
 }

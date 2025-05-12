@@ -204,7 +204,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
   /** When true, the mathfield is listening to the virtual keyboard */
-  private connectedToVirtualKeyboard: boolean;
+  private connectedToVirtualKeyboard = false;
 
   private eventController: AbortController;
   resizeObserver: ResizeObserver;
@@ -1523,6 +1523,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   popUndoStack(): void {
     this.undoManager.pop();
+    if (window.mathVirtualKeyboard.visible)
+      window.mathVirtualKeyboard.update(makeProxy(this));
   }
 
   snapshot(op?: string): void {
@@ -1668,10 +1670,30 @@ If you are using Vue, this may be because you are using the runtime-only build o
     render(this, { interactive: true });
 
     setTimeout(() => {
+      if (!isValidMathfield(this)) return;
+
+      //
+      // Capture the focus/blur events to avoid double-dispatching
+      //
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+      for (const event of ['focus', 'blur', 'focusin', 'focusout']) {
+        this.host?.addEventListener(
+          event,
+          (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+          },
+          { once: true, capture: true, signal }
+        );
+      }
+
       this.keyboardDelegate.blur();
       this.keyboardDelegate.focus();
       this.connectToVirtualKeyboard();
       this.focusBlurInProgress = false;
+
+      abortController.abort();
     }, 60);
   }
 

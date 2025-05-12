@@ -250,11 +250,19 @@ export const BRAKET_MACROS: MacroDictionary = {
 };
 
 const DEFAULT_MACROS: MacroDictionary = {
+  'strut': {
+    primitive: true,
+    def: '\\phantom{\\rule[0.3\\baselineskip]{0}{0.7\\baselineskip}}',
+    args: 0,
+    captureSelection: true,
+  },
+
   'iff': {
     primitive: true,
     captureSelection: true,
     def: '\\;\\Longleftrightarrow\\;}', // >2,000 Note: additional spaces around the arrows, as per AMSMATH package definition
   },
+
   'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
   'phase': {

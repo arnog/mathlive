@@ -9,7 +9,7 @@
  * @example
  *
  * ```html
- * <script src="https://unpkg.com/mathlive"></script>
+ * <script src="https://cdn.jsdelivr.net/npm/mathlive/mathlive.min.js"></script>
  *  <math-field>\frac{1}{2}</math-field>
  * <script>
  * const mf = document.querySelector('math-field');
@@ -18,6 +18,13 @@
  * });
  * </script>
  * ```
+ *
+ * Alternatively, you can use the **unpkg** CDN to load the library
+ *
+ * ```html
+ * <script src="https://unpkg.com/mathlive"></script>
+ * ```
+ *
  *
  * @packageDocumentation Mathfield API Reference
  * @version {{SDK_VERSION}}

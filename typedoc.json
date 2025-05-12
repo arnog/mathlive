@@ -45,7 +45,7 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeReferences": true,
-  "name": "Mathfield",
+  "name": "Mathfield API Reference",
   "disableSources": true,
   "disableGit": true,
   "outputFileStrategy": "modules",
@@ -71,5 +71,11 @@
   "propertiesFormat": "list", // table | list
   "typeDeclarationFormat": "list", // table | list
   "expandObjects": true,
-  "notRenderedTags": ["@noInheritDoc", "@keywords", "@command", "@category"]
+  "notRenderedTags": [
+    "@noInheritDoc",
+    "@keywords",
+    "@command",
+    "@category",
+    "@version"
+  ]
 }

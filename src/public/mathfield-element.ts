@@ -359,14 +359,15 @@ const DEPRECATED_OPTIONS = {
  * // 2. Attach it to the DOM
  * document.body.appendChild(mf);
  *
- * // 3. Modifying options after construction
+ * // 3. Modifying options after the mathfield has been attached to the DOM
  * mf.addEventListener("mount"), () => {
  *  mf.smartFence = true;
  * });
  * ```
  *
  * Read more about customizing the appearance and behavior of the mathfield in
- * the [Customizing the Mathfield](mathfield/guides/customizing/) guide.
+ * the [Customizing the Mathfield](/mathfield/guides/customizing/) guide.
+ *
  *
  * #### MathfieldElement CSS Variables
  *
@@ -385,61 +386,60 @@ const DEPRECATED_OPTIONS = {
  * document.body.style.setProperty("--hue", "10");
  * ```
  *
- * Read more about the [CSS variables](mathfield/guides/customizing/#css-variables) available for customization.
+ * Read more about the [CSS variables](/mathfield/guides/customizing/#css-variables) available for customization.
  *
  * You can customize the appearance and zindex of the virtual keyboard panel
  * with some CSS variables associated with a selector that applies to the
  * virtual keyboard panel container.
  *
- * Read more about [customizing the virtual keyboard appearance](mathfield/guides/virtual-keyboards/#custom-appearance)
+ * Read more about [customizing the virtual keyboard appearance](/mathfield/guides/virtual-keyboards/#custom-appearance)
  *
  * #### MathfieldElement CSS Parts
  *
  * In addition to the CSS variables, the mathfield exposes [CSS
- * parts that can be used to style the mathfield](https://cortexjs.io/mathfield/guides/customizing/#mathfield-parts)
+ * parts that can be used to style the mathfield](/mathfield/guides/customizing/#mathfield-parts).
  *
  * For example, to hide the menu button:
  *
  * ```css
  * math-field::part(menu-toggle) {
- *  display: none;
+ *    display: none;
  * }
  * ```
  *
  *
  * #### MathfieldElement Attributes
  *
- * An attribute is a key-value pair set as part of the tag:
+ * An attribute is a key-value pair set as part of the `<math-field>` tag:
  *
  * ```html
  * <math-field letter-shape-style="tex"></math-field>
  * ```
  *
  * The supported attributes are listed in the table below with their
- * corresponding property.
- *
- * The property can also be changed directly on the `MathfieldElement` object:
+ * corresponding property, which can be changed directly on the
+ * `MathfieldElement` object:
  *
  * ```javascript
  *  mf.value = "\\sin x";
- *  mf.letterShapeStyle = "text";
+ *  mf.letterShapeStyle = "tex";
  * ```
  *
  * The values of attributes and properties are reflected, which means you can
  * change one or the other, for example:
  *
  * ```javascript
- * mf.setAttribute('letter-shape-style',  'french');
+ * mf.setAttribute("letter-shape-style",  "french");
  * console.log(mf.letterShapeStyle);
  * // Result: "french"
  *
- * mf.letterShapeStyle ='tex;
- * console.log(mf.getAttribute('letter-shape-style');
- * // Result: 'tex'
+ * mf.letterShapeStyle ="tex";
+ * console.log(mf.getAttribute("letter-shape-style");
+ * // Result: "tex"
  * ```
  *
  * An exception is the `value` property, which is not reflected on the `value`
- * attribute: for consistency with other DOM elements, the `value` attribute
+ * attribute. For consistency with other DOM elements, the `value` attribute
  * remains at its initial value.
  *
  *
@@ -466,10 +466,10 @@ const DEPRECATED_OPTIONS = {
  *
  * </div>
  *
- * See the corresponding property for more details about these options.
+ * See [more details about these attributes](#mathfieldelementattributes).
  *
- * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
- * can also be used:
+ * In addition, the following DOM elements [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+ * are supported:
  * - `class`
  * - `data-*`
  * - `hidden`
@@ -481,7 +481,7 @@ const DEPRECATED_OPTIONS = {
  *
  * #### MathfieldElement Events
  *
- * Listen to these events by using `mf.addEventListener()`. For events with
+ * **To listen to these events** use `mf.addEventListener()`. For events with
  * additional arguments, the arguments are available in `event.detail`.
  *
  * <div className='symbols-table' style={{"--first-col-width":"27ex"}}>
@@ -563,7 +563,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * A URL fragment pointing to the directory containing the fonts
    * necessary to render a formula.
    *
-   * These fonts are available in the `/dist/fonts` directory of the SDK.
+   * These fonts are available in the `/fonts` directory of the npm package.
    *
    * Customize this value to reflect where you have copied these fonts,
    * or to use the CDN version.
@@ -627,7 +627,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  private static _fontsDirectory: string | null = './fonts';
+  private static _fontsDirectory: string | null = './fonts/';
 
   /**
    * A URL fragment pointing to the directory containing the optional
@@ -783,7 +783,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * injected in the DOM, allowing that string to be sanitized
    * according to a policy defined by the host.
    *
-   * Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](mathfield/guides/security/)
+   * Consider using this option if you are displaying untrusted content. Read more about [Security Considerations](/mathfield/guides/security/)
    *
    */
   static createHTML: (html: string) => any = (x) => x;
@@ -1432,7 +1432,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * To load the Compute Engine library, use:
    * ```js
-import 'https://unpkg.com/@cortex-js/compute-engine?module';
+import 'https://esm.run/@cortex-js/compute-engine';
 ```
    *
    * @category Accessing and changing the content
@@ -1445,7 +1445,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
       return null;
     }
@@ -1463,7 +1463,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
         
         Load the library, for example with:
         
-        import "https://unpkg.com/@cortex-js/compute-engine?module"`
+        import "https://esm.run/@cortex-js/compute-engine"`
       );
     }
   }
@@ -1676,7 +1676,7 @@ import 'https://unpkg.com/@cortex-js/compute-engine?module';
    * the Compute Engine library must be loaded, for example with:
    *
    * ```js
-import "https://unpkg.com/@cortex-js/compute-engine?module";
+import "https://esm.run/@cortex-js/compute-engine";
 ```
    *
    *

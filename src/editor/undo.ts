@@ -64,13 +64,12 @@ export class UndoManager {
   undo(): boolean {
     if (!this.canUndo()) return false;
 
-    this.model.setState(this.stack[this.index - 1], {
-      silenceNotifications: false,
-      type: 'undo',
-    });
+    const state = this.stack[this.index - 1];
 
     this.index -= 1;
     this.lastOp = '';
+
+    this.model.setState(state, { silenceNotifications: false, type: 'undo' });
 
     return true;
   }
@@ -78,13 +77,11 @@ export class UndoManager {
   redo(): boolean {
     if (!this.canRedo()) return false;
 
+    const state = this.stack[this.index + 1];
     this.index += 1;
-    this.model.setState(this.stack[this.index], {
-      silenceNotifications: false,
-      type: 'redo',
-    });
-
     this.lastOp = '';
+
+    this.model.setState(state, { silenceNotifications: false, type: 'redo' });
 
     return true;
   }

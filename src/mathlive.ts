@@ -17,6 +17,17 @@ import {
   convertMathJsonToLatex,
 } from './public/mathlive-ssr';
 
+export {
+  MenuItemType,
+  MenuItemProps,
+  DynamicValue,
+  MenuItemCommand,
+  MenuItemDivider,
+  MenuItemHeading,
+  MenuItemSubmenu,
+  MenuItem,
+} from './public/ui-menu-types';
+
 /** @hidden */
 export type MathLiveGlobal = {
   version: string;
@@ -54,7 +65,10 @@ export function globalMathLive(): MathLiveGlobal {
  *
  *
  * @example
- * import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
+ * import { renderMathInDocument } from 'https://esm.run/mathlive';
+ * // Alternatively, you can use the **unpkg** CDN to load the library
+ * // import { renderMathInDocument } from 'https://unpkg.com/mathlive?module';
+ *
  * renderMathInDocument();
  *
  * @category Static Rendering
@@ -90,7 +104,7 @@ function getElement(element: string | HTMLElement): HTMLElement | null {
  * the ID of an element.
  *
  * @example
- * import { renderMathInElement } from 'https://unpkg.com/mathlive?module';
+ * import { renderMathInElement } from 'https://esm.run/mathlive';
  * renderMathInElement("formula");
  *
  * @category Static Rendering

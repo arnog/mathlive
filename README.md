@@ -8,20 +8,20 @@
 [![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
-MathLive is a powerful web component that provides an easy-to-use interface for
-editing math formulas.
+The MathLive library includes a `<math-field>` web component that provides an
+easy-to-use interface for editing math.
 
 With over 800 **built-in LaTeX commands**, MathLive renders beautiful,
 **TeX-quality typesetting**.
 
-It's designed for **mobile devices** with an extensive set of virtual keyboards
-for math input, and is compatible with screen readers, including custom
-math-to-speech support for improved accessibility.
+Mathfields are designed for **mobile devices** with an extensive set of virtual
+keyboards for math input, and are compatible with screen readers, including
+custom math-to-speech support for improved accessibility.
 
-MathLive outputs to LaTeX, MathML, ASCIIMath, and MathJSON formats, making it
-incredibly versatile.
+Mathfields output their content as LaTeX, MathML, ASCIIMath, and MathJSON
+formats.
 
-And the best part? It's easy to customize to your needs!
+And the best part? They're easy to customize to your needs!
 
 <img src="assets/screenshots/mathlive-demo.png">
 
@@ -106,7 +106,7 @@ out-of-band release can be made if requested by a sponsor or if a community
 member submits a pull request and requests a release to include their
 contribution.
 
-## ⋯ Related Projects
+## Related Projects
 
 <dl>
   <dt><a href="https://cortexjs.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
@@ -114,7 +114,7 @@ contribution.
   <dt><a href="https://cortexjs.io/compute-engine">Compute Engine</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/compute-engine">GitHub</a>)</dt>
   <dd>The CortexJS Compute Engine performs calculations on MathJSON expressions</dd>  
   <dt><a href="https://cortexjs.io/cortex">Cortex</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/cortex">GitHub</a>)</dt>
-  <dd>Cortex is a programming language for scientific computing</dd>  
+  <dd>Cortex is a programming language for scientific computing (work in progress)</dd>  
 </dl>
 
 ## 💬 Contact Us
