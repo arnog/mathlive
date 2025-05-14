@@ -22,7 +22,7 @@ export function requestUpdate(
   mathfield: _Mathfield | undefined | null,
   options?: { interactive: boolean }
 ): void {
-  if (!mathfield || mathfield.dirty) return;
+  if (!mathfield || mathfield.dirty || !mathfield.field) return;
   mathfield.resizeObserver.unobserve(mathfield.field);
   mathfield.dirty = true;
   requestAnimationFrame(() => {
