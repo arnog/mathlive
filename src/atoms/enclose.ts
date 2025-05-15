@@ -165,7 +165,7 @@ export class EncloseAtom extends Atom {
     );
     base.setStyle('position', 'relative');
     base.setStyle('display', 'inline-block');
-    base.setStyle('top', padding, 'em');
+    base.setStyle('top', padding - base.depth, 'em');
     base.setStyle('height', base.height + base.depth, 'em');
     base.setStyle('width', base.width, 'em');
 
@@ -283,9 +283,15 @@ export class EncloseAtom extends Atom {
     notation.height = base.height + padding;
     notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
-    notation.setStyle('left', `calc(-${borderWidth} / 2 )`);
+    notation.setStyle(
+      'left',
+      `calc(-${borderWidth} / 2 - ${(base.width + padding) / 2}em)`
+    );
     notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
-    notation.setStyle('top', `calc(${borderWidth} / 2 )`);
+    notation.setStyle(
+      'top',
+      `calc(${borderWidth} / 2 + ${padding / 2 - base.height}em)`
+    );
     // notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
 
     if (this.backgroundcolor)

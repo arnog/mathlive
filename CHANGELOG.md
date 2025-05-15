@@ -5,6 +5,10 @@
 - Using the kebab version of commands (for example `"select-all"` instead of
   `"SelectAll"`) would incorrectly result in a runtime error.
 
+- Using a padding with an `\enclose` command would not render the padding
+  correctly. To specify some padding, use
+  `\enclose{updiagonalstrike downdiagonalstrike}[padding="10px", 6px solid rgba(205, 0, 11, .4)]{42}`.
+
 ## 0.105.1 _2025-04-18_
 
 ### Resolved Issues

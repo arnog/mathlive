@@ -7,6 +7,7 @@ import type {
   MathstyleName,
   LatexValue,
   MacroDefinition,
+  DimensionUnit,
 } from '../public/core-types';
 import type { ContextInterface, BoxInterface, FontMetrics } from './types';
 
@@ -351,6 +352,14 @@ export class Context implements ContextInterface {
     if ('dimension' in val) return val;
     if ('glue' in val) return val.glue;
     if ('number' in val) return { dimension: val.number };
+
+    if ('string' in val) {
+      const number = parseFloat(val.string);
+      const m = val.string.match(/(mm|cm|ex|px|em|bp|dd|pc|in|mu)$/);
+      if (m) return { dimension: number, unit: m[0] as DimensionUnit };
+
+      return { dimension: number };
+    }
 
     return null;
   }

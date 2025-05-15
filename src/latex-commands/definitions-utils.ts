@@ -275,6 +275,9 @@ const DEFAULT_MACROS: MacroDictionary = {
   'rd': '\\mathrm{d}',
   'rD': '\\mathrm{D}',
 
+  // Derivative package
+  'odif': '\\mathrm{d}',
+
   // From Wolfram Alpha
   'doubleStruckCapitalN': '\\mathbb{N}',
   'doubleStruckCapitalR': '\\mathbb{R}',
