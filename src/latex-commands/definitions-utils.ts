@@ -324,7 +324,7 @@ const DEFAULT_MACROS: MacroDictionary = {
       // \providecommand*\coloneqq{\vcentcolon\mathrel{\mkern-1.2mu}=}
       coloneqq: '{\\mathop{\\char"2254}}', // ≔
       // \providecommand*\Coloneqq{\dblcolon\mathrel{\mkern-1.2mu}=}
-      Coloneqq: '{\\mathop{\\char"2a74}}', // ⩴
+      Coloneqq: '{\\mathop{\\char"2A74}}', // ⩴
       // \providecommand*\coloneq{\vcentcolon\mathrel{\mkern-1.2mu}\mathrel{-}}
       coloneq: '{\\mathop{\\char"2254}}', // ≔
       // \providecommand*\Coloneq{\dblcolon\mathrel{\mkern-1.2mu}\mathrel{=}}
