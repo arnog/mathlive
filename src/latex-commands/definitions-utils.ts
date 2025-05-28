@@ -105,7 +105,7 @@ export const TEXVC_MACROS: MacroDictionary = {
   exist: '\\exists',
   //  ge: '\\geq', // We have it as a builtin
   //  gggtr: '\\ggg', // We have it as a builtin
-  hAar: '\\Leftrightarrow',
+  hArr: '\\Leftrightarrow',
   harr: '\\leftrightarrow',
   Harr: '\\Leftrightarrow',
   hearts: '\\heartsuit',
