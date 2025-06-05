@@ -19,6 +19,7 @@ import { fromJson } from '../core/atom';
 import { toMathML } from '../formats/atom-to-math-ml';
 
 import { atomToAsciiMath } from '../formats/atom-to-ascii-math';
+import { atomToTypst } from '../formats/atom-to-typst';
 import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { defaultAnnounceHook } from '../editor/a11y';
 
@@ -490,6 +491,8 @@ export class _Model implements Model {
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
       return result;
     }
+
+    if (format === 'typst') return atomToTypst(atom);
 
     if (format === 'plain-text') return atomToAsciiMath(atom, { plain: true });
 

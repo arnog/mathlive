@@ -103,6 +103,7 @@ export const STRINGS = {
     'menu.cut': 'Cut',
     'menu.copy': 'Copy',
     'menu.copy-as-latex': 'Copy as LaTeX',
+    'menu.copy-as-typst': 'Copy as Typst',
     'menu.copy-as-ascii-math': 'Copy as ASCII Math',
     'menu.copy-as-mathml': 'Copy as MathML',
     'menu.paste': 'Paste',
@@ -612,9 +613,11 @@ export const STRINGS = {
     'menu.insert.log-base-template': '\\log_a(x)',
     'menu.insert.heading-calculus': 'Calcolo',
     'menu.insert.derivative': 'Derivata',
-    'menu.insert.derivative-template': '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
+    'menu.insert.derivative-template':
+      '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
     'menu.insert.nth-derivative': 'Derivata n-esima',
-    'menu.insert.nth-derivative-template': '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
+    'menu.insert.nth-derivative-template':
+      '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
     'menu.insert.integral': 'Integrale',
     'menu.insert.integral-template': '$\\int_a^b f(x)\\,\\mathrm{d}x$',
     'menu.insert.sum': 'Somma',
@@ -866,9 +869,11 @@ export const STRINGS = {
     'menu.insert.log-base-template': '\\log_a(x)',
     'menu.insert.heading-calculus': 'Rachunek różniczkowy i całkowy',
     'menu.insert.derivative': 'Pochodna',
-    'menu.insert.derivative-template': '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
+    'menu.insert.derivative-template':
+      '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
     'menu.insert.nth-derivative': 'Pochodna n-tego rzędu',
-    'menu.insert.nth-derivative-template': '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
+    'menu.insert.nth-derivative-template':
+      '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
     'menu.insert.integral': 'Całka',
     'menu.insert.integral-template': '$\\int_a^b f(x)\\,\\mathrm{d}x$',
     'menu.insert.sum': 'Suma',
@@ -1043,9 +1048,11 @@ export const STRINGS = {
     'menu.insert.log-base-template': '\\log_a(x)',
     'menu.insert.heading-calculus': 'Обчислення',
     'menu.insert.derivative': 'Похідна',
-    'menu.insert.derivative-template': '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
+    'menu.insert.derivative-template':
+      '\\dfrac{\\mathrm{d}}{\\mathrm{d}x}f(x)\\bigm|_{x=a}',
     'menu.insert.nth-derivative': 'Похідна n-го порядку',
-    'menu.insert.nth-derivative-template': '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
+    'menu.insert.nth-derivative-template':
+      '\\dfrac{\\mathrm{d}^n}{\\mathrm{d}x^n}f(x)\\bigm|_{x=a}',
     'menu.insert.integral': 'Інтеграл',
     'menu.insert.integral-template': '$\\int_a^b f(x)\\,\\mathrm{d}x$',
     'menu.insert.sum': 'Сума',
