@@ -689,6 +689,11 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
           keyboardShortcut: 'meta+C',
         },
         {
+          label: () => localize('menu.copy-as-typst')!,
+          id: 'copy-latex',
+          onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'typst'),
+        },
+        {
           label: () => localize('menu.copy-as-ascii-math')!,
           id: 'copy-ascii-math',
           onMenuSelect: () => ModeEditor.copyToClipboard(mf, 'ascii-math'),

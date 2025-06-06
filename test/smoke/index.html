@@ -88,6 +88,9 @@
     <h2 style="margin-top: 1em">LaTeX</h2>
     <div class="output" id="latex"></div>
 
+    <h2 style="margin-top: 1em">Typst</h2>
+    <div class="output" id="typst"></div>
+
     <h2>MathJSON</h2>
     <div class="output" style="white-space: nowrap">
       <div id="math-json"></div>
@@ -334,6 +337,7 @@
       const latex = mf.getValue("latex-expanded");
       try {
         setHtml("latex", mf.getValue("latex-expanded"));
+        setHtml("typst", mf.getValue("typst"));
         setHtml("ascii-math", mf.getValue("ascii-math"));
         setHtml("mathml", mf.getValue("math-ml"));
         document.getElementById("mathml-render").innerHTML =
