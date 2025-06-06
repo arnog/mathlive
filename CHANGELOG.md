@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### New Features
+
+- Export to **typst** format. Use `mf.getValue("typst")` to get the value of the
+  mathfield in typst format.
+
 ## 0.105.3 _2025-05-14_
 
 ### Resolved Issues
