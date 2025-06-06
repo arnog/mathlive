@@ -165,7 +165,10 @@ export class EncloseAtom extends Atom {
     );
     base.setStyle('position', 'relative');
     base.setStyle('display', 'inline-block');
-    base.setStyle('top', padding - base.depth, 'em');
+    // base.setStyle(
+    //   'top',
+    //   `calc(${borderWidth} / 2 + ${padding - base.height}, 'em')`
+    // );
     base.setStyle('height', base.height + base.depth, 'em');
     base.setStyle('width', base.width, 'em');
 
@@ -283,16 +286,14 @@ export class EncloseAtom extends Atom {
     notation.height = base.height + padding;
     notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
-    notation.setStyle(
-      'left',
-      `calc(-${borderWidth} / 2 - ${(base.width + padding) / 2}em)`
-    );
-    notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    // notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    notation.setStyle('height', `${notation.height + notation.depth}em`);
     notation.setStyle(
       'top',
-      `calc(${borderWidth} / 2 + ${padding / 2 - base.height}em)`
+      `calc(-${borderWidth} / 2 - ${padding}em - ${base.depth / 2}em)`
     );
-    // notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
+    notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
 
     if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
@@ -351,10 +352,10 @@ export class EncloseAtom extends Atom {
     // Set its position as relative so that the notation can be absolute
     // positioned over the base
     result.setStyle('position', 'relative');
-    result.setStyle('vertical-align', padding, 'em');
+    // result.setStyle('vertical-align', padding, 'em');
     result.setStyle(
       'height',
-      `${Math.floor(100 * (base.height + base.depth + 2 * padding)) / 100}em`
+      `${Math.floor(100 * (notation.depth + notation.height)) / 100}em`
     );
     // We set the padding later with `left` and `right` so subtract it now
     // result.setStyle('width', `${Math.floor(100 * base.width) / 100}em`);
