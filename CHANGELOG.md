@@ -5,6 +5,11 @@
 - Export to **typst** format. Use `mf.getValue("typst")` to get the value of the
   mathfield in typst format.
 
+### Resolved Issues
+
+- The commands `\iff`, `\Coloneqq` and `\hArr` did not render correctly.
+- Improved rendering in dark mode.
+
 ## 0.105.3 _2025-05-14_
 
 ### Resolved Issues

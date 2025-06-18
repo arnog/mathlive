@@ -81,6 +81,12 @@
   --_smart-fence-color: var(--smart-fence-color, currentColor);
   --_smart-fence-opacity: var(--smart-fence-opacity, 0.5);
 
+  // The color of fence, sqrt sign, when the caret is inside a "contains" zone
+  --_contains-highlight-color: var(
+    --contains-highlight-color,
+    var(--_caret-color)
+  );
+
   // The text color of content in LaTeX mode
   --_latex-color: var(--latex-color, hsl(var(--_hue), 80%, 40%));
   // The border color when a prompt is in "correct" state
@@ -110,6 +116,37 @@
   );
 }
 
+@media (prefers-color-scheme: dark) {
+  .ML__container {
+    --_contains-highlight-color: var(
+      --contains-highlight-color,
+      hsl(var(--_hue), 85%, 75%)
+    );
+    --_caret-color: var(--caret-color, hsl(var(--_hue), 65%, 55%));
+    --_selection-color: var(--selection-color, #fff);
+    --_selection-background-color: var(
+      --selection-background-color,
+      hsl(var(--_hue), 65%, 55%)
+    );
+    --_text-highlight-background-color: var(
+      --text-highlight-background-color,
+      hsla(var(--_hue), 40%, 50%, 0.6)
+    );
+    --_contains-highlight-background-color: var(
+      --contains-highlight-background-color,
+      hsl(var(--_hue), 5%, 34%)
+    );
+    --_latex-color: var(--primary, hsl(var(--_hue), 40%, 50%));
+    --_composition-background-color: #69571c;
+    --_composition-text-color: white;
+    --_placeholder-color: hsl(var(--_hue), 60%, 69%);
+
+    --_smart-fence-color: var(--smart-fence-color, #fff);
+    --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
+  }
+}
+
+// Support for high contrast mode
 @media (forced-colors: active) {
   .ML__container {
     --_caret-color: white;
@@ -129,18 +166,6 @@
     pointer-events: none;
   }
 }
-
-// @media (prefers-color-scheme: dark) {
-//   .ML__container {
-//     --_selection-background-color: hsl(var(--_hue), 25%, 45%);
-//     --_text-highlight-background-color: hsla(var(--_hue), 40%, 50%, 0.2);
-//     --_contains-highlight-background-color: hsl(var(--_hue), 5%, 34%);
-//     --_caret-color: hsl(var(--_hue), 60%, 69%);
-//     --_latex-color: var(--primary, hsl(var(--_hue), 40%, 50%));
-
-//     --_placeholder-color: hsl(var(--_hue), 60%, 69%);
-//   }
-// }
 
 /* This is the actual field content (formula) */
 .ML__content {
@@ -354,7 +379,7 @@ with this style */
 .ML__contains-caret > .ML__open,
 .ML__contains-caret .ML__sqrt-sign,
 .ML__contains-caret .ML__sqrt-line {
-  color: var(--_caret-color);
+  color: var(--_contains-highlight-color);
 }
 
 .ML__contains-highlight {
