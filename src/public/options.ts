@@ -311,7 +311,6 @@ export type EditingOptions = {
   mathVirtualKeyboardPolicy: 'auto' | 'manual' | 'sandboxed';
 };
 
-/** @internal */
 export type LayoutOptions = {
   defaultMode: 'inline-math' | 'math' | 'text';
 
