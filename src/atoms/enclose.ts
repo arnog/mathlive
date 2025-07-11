@@ -157,7 +157,7 @@ export class EncloseAtom extends Atom {
 
     const borderWidth = borderDim(this.borderStyle);
 
-    // Calculate the padding
+    // Calculate the padding on each side
     const padding = context.toEm(
       !this.padding || this.padding === 'auto'
         ? { register: 'fboxsep' }
@@ -172,11 +172,11 @@ export class EncloseAtom extends Atom {
     base.setStyle('height', base.height + base.depth, 'em');
     base.setStyle('width', base.width, 'em');
 
-    const notation = new Box(null, { classes: 'ML__notation' });
-
     // The 'ML__notation' class is required to prevent the box from being
     // omitted during rendering (otherwise it would look like an empty, no-op
     // box)
+    const notation = new Box(null, { classes: 'ML__notation' });
+
     let h = base.height + base.depth + 2 * padding;
     const w = base.width + 2 * padding;
 
@@ -282,18 +282,22 @@ export class EncloseAtom extends Atom {
       }" fill="none"`;
       svg += '/>';
     }
-    notation.width = base.width + 2 * padding + wDelta;
+    // notation.width = base.width + 2 * padding + wDelta;
     notation.height = base.height + padding;
     notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
-    notation.setStyle('left', `calc(-${borderWidth} / 2 - ${padding}em)`);
+    notation.setStyle('left', `calc(-1 * ${borderWidth} - ${padding}em)`);
     // notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
-    notation.setStyle('height', `${notation.height + notation.depth}em`);
     notation.setStyle(
-      'top',
-      `calc(-${borderWidth} / 2 - ${padding}em - ${base.depth / 2}em)`
+      'height',
+      `calc( ${base.height + base.depth + 2 * padding}em + ${borderWidth})`
     );
-    notation.setStyle('width', `${Math.floor(100 * w) / 100}em`);
+    // );
+    notation.setStyle('top', `calc(-${padding}em )`);
+    notation.setStyle(
+      'width',
+      `calc(${base.width + 2 * padding}em + ${borderWidth})`
+    );
 
     if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
@@ -364,7 +368,7 @@ export class EncloseAtom extends Atom {
 
     result.height = notation.height;
     result.depth = notation.depth;
-    result.width = notation.width - 2 * padding;
+    // result.width = notation.width - 2 * padding;
     result.left = padding;
     result.right = padding;
 
