@@ -1438,10 +1438,10 @@ set virtualKeyboardTargetOrigin(value: string): void
 
 ```ts
 get static keypressSound(): Readonly<{
-  default: string;
-  delete: string;
-  return: string;
-  spacebar: string;
+  default: null | string;
+  delete: null | string;
+  return: null | string;
+  spacebar: null | string;
 }>
 set static keypressSound(value: 
   | string
