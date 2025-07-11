@@ -477,7 +477,7 @@ const DEFAULT_AUTO_RENDER_OPTIONS: StaticRenderOptions = {
 
   asciiMath: {
     delimiters: {
-      inline: ['`', '`'], // ASCII Math delimiters
+      inline: [['`', '`']], // ASCII Math delimiters
     },
   },
 
