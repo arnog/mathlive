@@ -8,6 +8,7 @@ import { BoxAtom } from 'atoms/box';
 import { OverunderAtom } from 'atoms/overunder';
 import { GenfracAtom } from 'atoms/genfrac';
 import { AccentAtom } from 'atoms/accent';
+import { LatexValue } from 'public/core-types';
 
 type MathMLStream = {
   atoms: Atom[];
@@ -961,10 +962,21 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
             ';';
         } else if (typeof atom.value === 'string')
           result = atom.value.charAt(0);
-        else {
-          console.error('Did not expect this');
-          result = '';
+      } else if (atom.command === '\\char') {
+        // This is a \char command, which is a Unicode character
+        const val = atom.args?.[0] as LatexValue;
+        if (val !== undefined && 'number' in val) {
+          const codepoint = val.number;
+          if (typeof codepoint === 'number') {
+            result =
+              '&#x' + ('000000' + codepoint.toString(16)).slice(-4) + ';';
+          }
         }
+      } else if (typeof atom.value === 'string') {
+        result = atom.value;
+      } else {
+        console.error('Did not expect this');
+        result = '';
       }
 
       const tag = /\d/.test(result) ? 'mn' : 'mi';
