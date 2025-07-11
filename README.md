@@ -2,7 +2,7 @@
     <img alt="math live" src="assets/mathlive-1.png?raw=true">
 </div>
 
-<h3><strong>MathLive</strong></h3>
+<h3>The <strong>MathLive</strong> mathfield</h3>
 <h1>A Web Component for Math Input</h1>
 
 [![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)]()
@@ -11,14 +11,14 @@
 The MathLive library includes a `<math-field>` web component that provides an
 easy-to-use interface for editing math.
 
-With over 800 **built-in LaTeX commands**, MathLive renders beautiful,
+With over 800 **built-in LaTeX commands**, mathfields render beautiful,
 **TeX-quality typesetting**.
 
 Mathfields are designed for **mobile devices** with an extensive set of virtual
 keyboards for math input, and are compatible with screen readers, including
 custom math-to-speech support for improved accessibility.
 
-Mathfields output their content as LaTeX, MathML, ASCIIMath, and MathJSON
+Mathfields output their content as LaTeX, MathML, ASCIIMath, Typst and MathJSON
 formats.
 
 And the best part? They're easy to customize to your needs!
@@ -89,11 +89,11 @@ MathLive has an extensive set of documentation to help you get started,
 including guides on interacting with a mathfield, customizing it, executing
 commands, defining custom LaTeX macros, managing inline and keyboard shortcuts,
 controlling speech output, and displaying static math formulas. You can find all
-of these guides on the [CortexJS.io website](https://cortexjs.io/mathfield/).
+of these guides on the [MathLive.io website](https://mathlive.io/).
 
 In addition to the guides, you can also find reference documentation of the
-MathLive API on the
-[Mathfield API Reference page](https://cortexjs.io/mathfield/api/).
+mathfield API on the
+[Mathfield API Reference page](https://mathlive.io/mathfield/api/).
 
 ## FAQ
 
@@ -109,18 +109,15 @@ contribution.
 ## Related Projects
 
 <dl>
-  <dt><a href="https://cortexjs.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
+  <dt><a href="https://mathlive.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
   <dd>A lightweight data interchange format for mathematical notation.</dd>  
-  <dt><a href="https://cortexjs.io/compute-engine">Compute Engine</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/compute-engine">GitHub</a>)</dt>
-  <dd>The CortexJS Compute Engine performs calculations on MathJSON expressions</dd>  
-  <dt><a href="https://cortexjs.io/cortex">Cortex</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/cortex">GitHub</a>)</dt>
-  <dd>Cortex is a programming language for scientific computing (work in progress)</dd>  
+  <dt><a href="https://mathlive.io/compute-engine">Compute Engine</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/compute-engine">GitHub</a>)</dt>
+  <dd>The MathLive Compute Engine performs numeric and symbolic calculations on MathJSON expressions</dd>  
 </dl>
 
 ## 💬 Contact Us
 
-- Chat with the
-  [CortexJS Assistant](https://chat.openai.com/g/g-8YgEfR7ig-cortexjs-assistant)
+- Chat with the [MathLive GPT](https://chatgpt.com/g/g-8YgEfR7ig-mathlive-gpt)
 - Join our [Discord server](https://discord.gg/yhmvVeJ4Hd)
 - Drop a line to [arno@arno.org](arno@arno.org)
 
