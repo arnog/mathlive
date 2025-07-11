@@ -43,9 +43,11 @@
   </header>
   <main>
 
-    <math-field id="mf" contenteditable="true"
-      tabindex="0">\enclose{roundedbox}[mathbackground="powderblue",padding="20px",10px solid
-      blue]{\int 3.1415926j54}===</math-field>
+    <math-field id="mf" contenteditable="true" tabindex="0">3+\enclose{roundedbox}[6px solid rgba(205,
+      0, 11,
+      .4)]{1\frac{8}{6}}+\enclose{roundedbox}[6px solid rgba(205,
+      0, 11,
+      .4)]{2j}+5</math-field>
 
     <!-- <math-field id="mf" contenteditable="true" tabindex="0">3+\enclose{updiagonalstrike
       downdiagonalstrike}[padding="20px", 6px solid
@@ -118,6 +120,8 @@
       <button id="shrink">Shrink</button>
     </div>
     <div style="height: 800px"></div>
+
+    $$\foo$$
   </main>
 
 
@@ -143,6 +147,9 @@
     renderMathInDocument({
       renderAccessibleContent: false,
       asciiMath: null,
+      macros: {
+        "foo": "\\mathtt{FOO}"
+      },
     });
 
 
@@ -277,6 +284,15 @@
 
 
       // setupMathfield(mf);
+      mf.onInlineShortcut = (mf, shortcut) => {
+        if (shortcut === 'tonh')
+          return ('\\operatorname{tonh}(#@)');
+        if (shortcut === 'ton')
+          return ('\\operatorname{ton}(#@)');
+
+        return "";
+      };
+
       // First time update
       updateContent(mf);
       mf.addEventListener("input", (ev) => {

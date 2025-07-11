@@ -4,11 +4,14 @@
 
 - Export to **typst** format. Use `mf.getValue("typst")` to get the value of the
   mathfield in typst format.
+- **#2731** The keybinding `alt+shift+V` now inserts a n<sup>th root. The
+  existing `alt+V` keybinding continues to insert a square root.
 
 ### Resolved Issues
 
 - The commands `\iff`, `\Coloneqq` and `\hArr` did not render correctly.
 - Improved rendering in dark mode.
+- **#2727** Improved rendering of annotations.
 
 ## 0.105.3 _2025-05-14_
 

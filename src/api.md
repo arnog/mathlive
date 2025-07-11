@@ -2497,6 +2497,7 @@ type OutputFormat =
   | "latex-expanded"
   | "latex-unstyled"
   | "latex-without-placeholders"
+  | "typst"
   | "math-json"
   | "math-ml"
   | "plain-text"
@@ -5893,8 +5894,8 @@ Note that this affects some keybindings, but not general text input.
 type StaticRenderOptions = Partial<LayoutOptions> & {
   asciiMath: {
      delimiters: {
-        display: string[];
-        inline: string[];
+        display: [string, string][];
+        inline: [string, string][];
        };
     };
   ignoreClass: string;
@@ -6258,7 +6259,7 @@ with a mode token such as `$$` or `\(`.
 
 ##### options?
 
-`Partial`\<`LayoutOptions`\>
+`Partial`\<[`LayoutOptions`](#layoutoptions)\>
 
 </MemberCard>
 
@@ -6371,6 +6372,94 @@ type Expression =
 </MemberCard>
 
 ## Other
+
+<MemberCard>
+
+### LayoutOptions
+
+<MemberCard>
+
+##### LayoutOptions.backgroundColorMap()
+
+```ts
+backgroundColorMap: (name) => string | undefined;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.colorMap()
+
+```ts
+colorMap: (name) => string | undefined;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.defaultMode
+
+```ts
+defaultMode: "inline-math" | "math" | "text";
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.letterShapeStyle
+
+```ts
+letterShapeStyle: "auto" | "tex" | "iso" | "french" | "upright";
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.macros
+
+```ts
+macros: MacroDictionary;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.maxMatrixCols
+
+```ts
+maxMatrixCols: number;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.minFontScale
+
+```ts
+minFontScale: number;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.registers
+
+```ts
+registers: Registers;
+```
+
+LaTeX global registers override.
+
+</MemberCard>
+
+</MemberCard>
 
 <MemberCard>
 

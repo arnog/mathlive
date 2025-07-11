@@ -362,6 +362,28 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     } else this._element.style.setProperty('--_keyboard-height', `${h}px`);
   }
 
+  // adjustBoundingRect(): void {
+  //   if (!this._element) return;
+
+  //   // Adjust the keyboard height
+  //   const h = this.boundingRect.height;
+
+  //   if (this.container !== document.body) {
+  //     // We don't adjust the padding bottom if the container is not the body
+  //     this._element.style.setProperty('--_keyboard-height', `${h}px`);
+  //     return;
+  //   }
+
+  //   this._element.style.setProperty(
+  //     '--_keyboard-height',
+  //     `calc(${h}px + var(--_padding-top) + var(--_padding-bottom) + env(safe-area-inset-bottom, 0))`
+  //   );
+  //   const keyboardHeight = `${h - 1}px + var(--_padding-top) + var(--_padding-bottom) + env(safe-area-inset-bottom, 0)`;
+  //   document.body.style.paddingBottom = this.originalContainerBottomPadding
+  //     ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight})`
+  //     : `calc(${keyboardHeight})`;
+  // }
+
   rebuild(): void {
     if (this._rebuilding || !this._element) return;
 
