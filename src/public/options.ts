@@ -479,8 +479,8 @@ export type StaticRenderOptions = Partial<LayoutOptions> & {
 
   asciiMath?: {
     delimiters?: {
-      display?: string[]; // [openDelim: string, closeDelim: string][];
-      inline?: string[]; // [openDelim: string, closeDelim: string][];
+      display?: [openDelim: string, closeDelim: string][];
+      inline?: [openDelim: string, closeDelim: string][];
     };
   };
 
@@ -498,7 +498,7 @@ export type StaticRenderOptions = Partial<LayoutOptions> & {
      * Delimiter pairs that will trigger a render of the content in
      * display style or inline, respectively.
      *
-     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ] ], inline: [ ['\\(','\\)'] ] ]}`
+     * **Default**: `{display: [ ['$$', '$$'], ['\\[', '\\]'] ], inline: [ ['\\(','\\)'] ]}`
      *
      */
     delimiters?: {
