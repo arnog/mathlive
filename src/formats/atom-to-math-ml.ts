@@ -737,10 +737,7 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
       ) {
         result += '<mrow>';
         if (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') {
-          result +=
-            '<mo>' +
-            (SPECIAL_DELIMS[arrayAtom.leftDelim] || arrayAtom.leftDelim) +
-            '</mo>';
+          result += `<mo>${SPECIAL_DELIMS[arrayAtom.leftDelim] || arrayAtom.leftDelim}</mo>`;
         }
       }
 
@@ -776,10 +773,7 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
         (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
         if (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.') {
-          result +=
-            '<mo>' +
-            (SPECIAL_DELIMS[arrayAtom.leftDelim!] || arrayAtom.rightDelim) +
-            '</mo>';
+          result += `'<mo>${SPECIAL_DELIMS[arrayAtom.rightDelim!] || arrayAtom.rightDelim}</mo>`;
         }
 
         result += '</mrow>';
