@@ -192,6 +192,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // MATHLIVE BINDINGS
   { key: 'alt+p', ifMode: 'math', command: ['insert', '\\pi'] },
   { key: 'alt+v', ifMode: 'math', command: ['insert', '\\sqrt{#0}'] },
+  { key: 'alt+shift+v', ifMode: 'math', command: ['insert', '\\sqrt[#0]{#1}'] },
   { key: 'alt+o', ifMode: 'math', command: ['insert', '\\emptyset'] },
   {
     key: 'alt+d',
