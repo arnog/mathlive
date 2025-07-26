@@ -135,7 +135,7 @@
     "@cortex-js/prettier-config": "^1.2.0",
     "@playwright/test": "^1.43.0",
     "@types/jest": "^29.5.12",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.26.1",
     "autoprefixer": "^10.4.17",
     "concat-md": "^0.5.1",
