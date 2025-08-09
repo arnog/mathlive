@@ -220,6 +220,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   targetOrigin: string;
   originValidator: OriginValidator;
+  isSandbox: boolean = false;
 
   private static _singleton: VirtualKeyboard | null;
   static get singleton(): VirtualKeyboard | null {
@@ -676,7 +677,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     // browsing context. If that's the case, safely ignored messages that could
     // be dispatched from other mathfields, as we will only respond to
     // direct invocation via function dispatching on the VK instance.
-    if (window !== window.top) return;
+    if (this.isSandbox) return;
 
     if (action === 'show') {
       if (typeof msg.animate !== 'undefined')
