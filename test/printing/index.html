@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Print Test</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      math-field {
+        border: 1px solid var(--editable-border);
+        padding: 5px;
+        margin: 10px 0 10px 0;
+        border-radius: 5px;
+        background: var(--editable);
+        color: var(--on-editable);
+        max-width: 640px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Print Test</h1>
+      <ul>
+        <li><a href="../smoke/">Smoke</a></li>
+        <li class="current"><a href="../printing/">Printing</a></li>
+        <li>
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+        <li>
+          <a href="../mathfield-states/">States</a>
+        </li>
+        <li>
+          <a href="../prompts/">Prompts</a>
+        </li>
+      </ul>
+    </header>
+    <main>
+      <math-field id="mf">x^2+1</math-field>
+
+      <button id="print">
+        Print with iframe
+      </button>
+    </main>
+
+    <script type="module">
+      import {
+        convertLatexToMarkup,
+      } from '/dist/mathlive.mjs';
+
+      const mf = document.getElementById('mf');
+      const btn = document.getElementById('print');
+
+      btn.addEventListener('click', printIframe);
+
+      function printIframe() {
+        const iframe = document.createElement('iframe');
+        document.body.appendChild(iframe);
+        const printDocument = iframe.contentWindow.document;
+        printDocument.open();
+        printDocument.write(`
+<html>
+  <head>
+    <link rel="stylesheet" href="/dist/mathlive-static.css">
+  </head>
+  <body>
+  </body>
+</html>
+				`);
+        printDocument.close();
+
+        iframe.onload = async () => {
+          const markup = convertLatexToMarkup(mf.getValue('latex'));
+          const el = printDocument.createElement('div');
+          el.innerHTML = markup;
+          printDocument.body.appendChild(el);
+          iframe.contentWindow.print();
+          iframe.remove();
+        }
+      }
+    </script>
+  </body>
+</html>

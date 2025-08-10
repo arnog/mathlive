@@ -9,6 +9,7 @@ context({
   entryPoints: [
     './test/style.css',
     './test/smoke/index.html',
+    './test/printing/index.html',
     './test/virtual-keyboard/index.html',
     './test/mathfield-states/index.html',
     './test/prompts/index.html',
