@@ -213,9 +213,10 @@ export function onKeystroke(
           evt.preventDefault();
           evt.stopPropagation();
         } else {
+          // Kedyou: prefer our alined environment code
           // If we're in a multiline environment, insert a newline
-          if (model.parentEnvironment?.isMultiline)
-            mathfield.executeCommand('addRowAfter');
+          // if (model.parentEnvironment?.isMultiline)
+          //   mathfield.executeCommand('addRowAfter');
 
           // Dispatch an 'input' event matching the behavior of `<textarea>`
           model.contentDidChange({ inputType: 'insertLineBreak' });

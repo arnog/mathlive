@@ -32,6 +32,7 @@ import {
 } from './selection-utils';
 import { ArrayAtom } from '../atoms/array';
 import { LatexAtom } from '../atoms/latex';
+import { isAlignEnvironment } from '../latex-commands/environment-types';
 import { makeProxy } from 'virtual-keyboard/mathfield-proxy';
 import '../virtual-keyboard/global';
 import type { ModelState, GetAtomOptions, AnnounceVerb } from './types';
@@ -270,6 +271,24 @@ export class _Model implements Model {
 
   get lastOffset(): Offset {
     return this.atoms.length - 1;
+  }
+
+  get lastOffsetOfAligned(): Offset {
+    let offset = this.lastOffset;
+    const atom = this.atoms[offset];
+    if (atom instanceof ArrayAtom && isAlignEnvironment(atom.environmentName))
+      offset--;
+
+    return offset;
+  }
+
+  get firstOffsetOfAligned(): Offset {
+    let offset = 0;
+    const atom = this.atoms[this.lastOffset];
+    if (atom instanceof ArrayAtom && isAlignEnvironment(atom.environmentName))
+      offset++;
+
+    return offset;
   }
 
   at(index: number): Atom {
@@ -715,8 +734,11 @@ export class _Model implements Model {
   }
 
   normalizeOffset(value: Offset): Offset {
-    if (value > 0) value = Math.min(value, this.lastOffset);
-    else if (value < 0) value = this.lastOffset + value + 1;
+    // Kedyou: clamp carat to inside aligned environment
+    if (value > this.firstOffsetOfAligned)
+      value = Math.min(value, this.lastOffsetOfAligned);
+    else if (value < this.firstOffsetOfAligned)
+      value = this.firstOffsetOfAligned;
 
     return value;
   }

@@ -190,6 +190,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'ctrl+[Enter]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Return]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+  { key: '[Enter]', ifMode: 'math', command: 'createAlignedEnvironment' },
 
   // Excel keybindings:
   // shift+space: select entire row, ctrl+space: select an entire column

@@ -5,6 +5,8 @@ import { Atom, isCellBranch } from '../core/atom';
 import { _Model } from './model-private';
 import { range } from './selection-utils';
 import { MathfieldElement } from 'public/mathfield-element';
+import { isAlignEnvironment } from '../latex-commands/environment-types';
+import { alignedDelimiters } from './array';
 import type { Branch } from 'core/types';
 import type { Range } from 'public/core-types';
 import { ArrayAtom } from 'atoms/array';
@@ -329,6 +331,55 @@ function onDelete(
     }
 
     return true;
+  }
+
+  // Kedyou: custom aligned environment backspace features
+  if (
+    parent instanceof ArrayAtom &&
+    isAlignEnvironment(parent.environmentName)
+  ) {
+    console.assert(atom.parentBranch !== undefined);
+    const row = Number(atom.parentBranch![0]);
+    const column = Number(atom.parentBranch![1]);
+    const cell = parent.rows[row][column];
+    // delete aligned delimiters and place cursor into first column
+    if (
+      column === 1 && // in second column
+      direction === 'backward'
+    ) {
+      // deleting the first atom
+      if (cell?.[1] === atom && alignedDelimiters.has(atom.command)) {
+        atom.parent!.removeChild(atom);
+        // move cursor to first column
+        const leftCol = parent.rows[row][0]!;
+        model.position = model.offsetOf(leftCol[leftCol.length - 1]);
+        return true;
+      } else if (cell?.[0] === atom) {
+        // start of second column, just move to first column
+        const leftCol = parent.rows[row][0]!;
+        model.position = model.offsetOf(leftCol[leftCol.length - 1]);
+        return true;
+      }
+    }
+    // delete row if row is entirely empty and backspace at the start
+    if (
+      row !== 0 &&
+      ((parent.rows[row][0]!.length < 2 &&
+        parent.rows[row][0]![1] === undefined) ||
+        parent.rows[row][0]![1].type === 'placeholder') &&
+      ((parent.rows[row][1]!.length < 2 &&
+        parent.rows[row][1]![1] === undefined) ||
+        parent.rows[row][1]![1].type === 'placeholder')
+    ) {
+      parent.removeRow(row);
+      let above = parent.rows[row - 1][1]!;
+      // go to first column if second is empty
+      if (above.length <= 1) {
+        above = parent.rows[row - 1][0]!;
+      }
+      model.position = model.offsetOf(above[above.length - 1]);
+      return true;
+    }
   }
 
   if (parent?.type === 'genfrac' && !branch && atom.type !== 'first') {

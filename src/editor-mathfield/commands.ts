@@ -77,9 +77,10 @@ registerCommand({
       mathfield.host?.dispatchEvent(
         new Event('change', { bubbles: true, composed: true })
       );
+      // Kedyou: prefer our alined environment code
       // If we're in a multiline environment, insert a newline
-      if (model.parentEnvironment?.isMultiline)
-        mathfield.executeCommand('addRowAfter');
+      // if (model.parentEnvironment?.isMultiline)
+      //   mathfield.executeCommand('addRowAfter');
 
       model.contentDidChange({ inputType: 'insertLineBreak' });
     }

@@ -5,10 +5,12 @@ import { LatexAtom } from '../atoms/latex';
 import { TextAtom } from '../atoms/text';
 import { LETTER_AND_DIGITS } from '../latex-commands/definitions-utils';
 import type { Offset, Selection } from '../public/core-types';
+import { isAlignEnvironment } from '../latex-commands/environment-types';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
 import { PromptAtom } from '../atoms/prompt';
 import { getLocalDOMRect } from 'editor-mathfield/utils';
 import { _Mathfield } from 'editor-mathfield/mathfield-private';
+import { alignedDelimiters } from './array';
 import { deleteRange } from './delete';
 
 /*
@@ -342,7 +344,55 @@ export function move(
     pos = model.position;
     if (!isValidPosition(model, pos))
       pos = nextValidPosition(model, pos, direction);
-  } else pos = nextValidPosition(model, pos, direction);
+  } else {
+    //
+    // Kedyou: Customize cursor movement in aligned environment
+    //
+    const atom = model.at(pos);
+
+    if (
+      atom.parent instanceof ArrayAtom &&
+      isAlignEnvironment(atom.parent.environmentName)
+    ) {
+      const aligned = atom.parent;
+
+      if (direction === 'forward') {
+        // if you are in the first column
+        if (atom.parentBranch![1] === 0) {
+          const leftCell = aligned.rows[atom.parentBranch![0]][0];
+          const rightCellFirstAtom =
+            aligned.rows[atom.parentBranch![0]][1]?.[1];
+          if (
+            leftCell[leftCell.length - 1] === atom && // if you are at the last atom of the first column
+            rightCellFirstAtom && // the right cell has a first atom
+            alignedDelimiters.has(rightCellFirstAtom.command) // that atom is an aligned delimiter
+          ) {
+            // skip past the 'aligning delimiter' in the second column
+            pos++;
+          }
+        } else if (model.lastOffset === pos + 1) {
+          // prevent moving outside of aligned environment
+          model.announce('plonk');
+          return true;
+        }
+      } else if (direction === 'backward') {
+        if (pos === 1) {
+          // prevent moving outside of aligned environment
+          model.announce('plonk');
+          return true;
+        } else if (
+          atom.parentBranch![1] === 1 && // if you are in the second column
+          aligned.rows[atom.parentBranch![0]][1][1] === atom && // if you are positioned at the first element
+          alignedDelimiters.has(atom.command) // if the first element is an aligned delimiter
+        ) {
+          // skip past the 'aligning delimiter' in the second column and into the first column
+          pos--;
+        }
+      }
+    }
+
+    pos = nextValidPosition(model, pos, direction);
+  }
 
   if (pos < 0 || pos > model.lastOffset) {
     // We're going out of bounds

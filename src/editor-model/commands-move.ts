@@ -1,6 +1,7 @@
 import { isBrowser } from '../ui/utils/capabilities';
 
 import { Atom } from '../core/atom';
+import { ArrayAtom } from '../atoms/array';
 import { SubsupAtom } from '../atoms/subsup';
 import { register } from '../editor/commands';
 
@@ -8,12 +9,19 @@ import { move, skip } from './commands';
 import type { _Model } from './model-private';
 import type { BranchName } from 'core/types';
 import { isArray } from '../common/types';
+import { isAlignEnvironment } from '../latex-commands/environment-types';
 
 export function moveAfterParent(model: _Model): boolean {
   const previousPosition = model.position;
   const parent = model.at(previousPosition).parent;
   // Do nothing if at the root.
-  if (!parent?.parent) {
+  if (
+    !parent ||
+    parent.type === 'root' ||
+    (parent instanceof ArrayAtom &&
+      isAlignEnvironment(parent.environmentName) &&
+      parent.parent?.type === 'root')
+  ) {
     model.announce('plonk');
     return false;
   }
@@ -466,7 +474,13 @@ register(
     },
     moveBeforeParent: (model: _Model): boolean => {
       const { parent } = model.at(model.position);
-      if (!parent) {
+      if (
+        !parent ||
+        parent.type === 'root' ||
+        (parent instanceof ArrayAtom &&
+          isAlignEnvironment(parent.environmentName) &&
+          parent.parent?.type === 'root')
+      ) {
         model.announce('plonk');
         return false;
       }
@@ -717,22 +731,24 @@ register(
       return false;
     },
     moveToMathfieldStart: (model: _Model): boolean => {
-      if (model.selectionIsCollapsed && model.position === 0) {
+      const offset = model.firstOffsetOfAligned;
+      if (model.selectionIsCollapsed && offset === 0) {
         model.announce('plonk');
         return false;
       }
 
-      model.position = 0;
+      model.position = offset;
       model.mathfield.stopCoalescingUndo();
       return true;
     },
     moveToMathfieldEnd: (model: _Model): boolean => {
-      if (model.selectionIsCollapsed && model.position === model.lastOffset) {
+      const offset = model.lastOffsetOfAligned;
+      if (model.selectionIsCollapsed && offset === model.lastOffset) {
         model.announce('plonk');
         return false;
       }
 
-      model.position = model.lastOffset;
+      model.position = offset;
       model.mathfield.stopCoalescingUndo();
       return true;
     },
