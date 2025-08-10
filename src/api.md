@@ -6463,6 +6463,26 @@ LaTeX global registers override.
 
 <MemberCard>
 
+### DEFAULT\_KEYBOARD\_TOGGLE\_GLYPH
+
+```ts
+const DEFAULT_KEYBOARD_TOGGLE_GLYPH: string;
+```
+
+</MemberCard>
+
+<MemberCard>
+
+### MENU\_GLYPH
+
+```ts
+const MENU_GLYPH: string;
+```
+
+</MemberCard>
+
+<MemberCard>
+
 ### version
 
 ```ts

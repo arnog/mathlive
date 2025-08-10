@@ -16,6 +16,10 @@ import {
   convertLatexToSpeakableText,
   convertMathJsonToLatex,
 } from './public/mathlive-ssr';
+export {
+  DEFAULT_KEYBOARD_TOGGLE_GLYPH,
+  MENU_GLYPH,
+} from 'editor-mathfield/mathfield-private';
 
 export {
   MenuItemType,
