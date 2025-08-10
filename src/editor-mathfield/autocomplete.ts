@@ -127,7 +127,7 @@ export function complete(
     | 'accept'
     | 'accept-suggestion'
     | 'accept-all' = 'accept',
-  options?: { mode?: ParseMode; selectItem?: boolean }
+  options?: { mode?: ParseMode }
 ): boolean {
   hideSuggestionPopover(mathfield);
   const latexGroup = getLatexGroup(mathfield.model);
@@ -147,9 +147,7 @@ export function complete(
     if (completion === 'accept-suggestion') return suggestions.length !== 0;
   }
 
-  const body = getLatexGroupBody(mathfield.model).filter(
-    (x) => !x.isSuggestion
-  );
+  const body = getLatexGroupBody(mathfield.model);
 
   const latex = body.map((x) => x.value).join('');
 
@@ -168,7 +166,7 @@ export function complete(
   }
 
   ModeEditor.insert(mathfield.model, latex, {
-    selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
+    selectionMode: 'placeholder',
     format: 'latex',
     mode: 'math',
     style,

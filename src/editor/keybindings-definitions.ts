@@ -60,8 +60,8 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   {
     key: '[Escape]',
     ifMode: 'latex',
-    command: ['complete', 'complete', { selectItem: 'true' }],
-  }, // Accept the entry (without the suggestion) and select
+    command: ['complete', 'reject'],
+  }, // Cancel LaTeX mode
 
   {
     key: '\\',
