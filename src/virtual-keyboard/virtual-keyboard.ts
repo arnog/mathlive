@@ -315,6 +315,20 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return !event.defaultPrevented;
   }
 
+  /**
+   * Fire a specific event for when the close button is clicked on the virtual keyboard
+   */
+  manualClose({ animate = false } = {}): void {
+    this.hide({ animate });
+    this.dispatchEvent(
+      new Event('manual-close', {
+        bubbles: true,
+        cancelable: false,
+        composed: true,
+      })
+    );
+  }
+
   removeEventListener(
     type: string,
     callback: EventListenerOrEventListenerObject | null,

@@ -118,6 +118,10 @@ export class VirtualKeyboardProxy
     }
   }
 
+  manualClose(options?: { animate: boolean } | undefined): void {
+    this.sendMessage('manual-close', options);
+  }
+
   get isShifted(): boolean {
     return this._isShifted;
   }

@@ -42,6 +42,10 @@ register(
       window.mathVirtualKeyboard.show({ animate: true });
       return false;
     },
+    closeVirtualKeyboard: () => {
+      window.mathVirtualKeyboard.manualClose();
+      return false;
+    },
   },
   { target: 'virtual-keyboard' }
 );
