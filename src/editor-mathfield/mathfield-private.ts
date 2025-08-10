@@ -843,13 +843,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       case 'virtual-keyboard-toggle':
         if (this.hasFocus()) updateEnvironmentPopover(this);
-        // Workaround a Chromium 133+ issue where the keyboard sink loses focus
-        // when the virtual keyboard is shown
-        // https://github.com/arnog/mathlive/issues/2588
-        if (this.hasFocus()) {
-          this.keyboardDelegate.blur();
-          this.keyboardDelegate.focus();
-        }
         break;
 
       case 'resize':
@@ -1676,32 +1669,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     render(this, { interactive: true });
 
-    setTimeout(() => {
-      if (!isValidMathfield(this)) return;
-
-      //
-      // Capture the focus/blur events to avoid double-dispatching
-      //
-      const abortController = new AbortController();
-      const signal = abortController.signal;
-      for (const event of ['focus', 'blur', 'focusin', 'focusout']) {
-        this.host?.addEventListener(
-          event,
-          (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-          },
-          { once: true, capture: true, signal }
-        );
-      }
-
-      this.keyboardDelegate.blur();
-      this.keyboardDelegate.focus();
-      this.connectToVirtualKeyboard();
-      this.focusBlurInProgress = false;
-
-      abortController.abort();
-    }, 60);
+    this.keyboardDelegate.focus();
+    this.connectToVirtualKeyboard();
+    this.focusBlurInProgress = false;
   }
 
   onBlur(): void {
