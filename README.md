@@ -2,7 +2,7 @@
     <img alt="math live" src="assets/mathlive-1.png?raw=true">
 </div>
 
-<h3>The <strong>MathLive</strong> mathfield</h3>
+<h3><strong>Kedyou's fork of MathLive</strong></h3>
 <h1>A Web Component for Math Input</h1>
 
 [![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)]()
@@ -124,3 +124,43 @@ contribution.
 ## 📃 License
 
 This project is licensed under the [MIT License](LICENSE.txt).
+
+## Kedyou
+
+The Kedyou modification of MathLive allows users to type multi-lined math
+quickly and easily, simplifying the inputs to create and modify aligned
+environments.
+
+Update with the latest changes from arnog:
+
+```sh
+# Add the remote, call it "upstream":
+git remote add upstream https://github.com/arnog/mathlive/
+# Fetch all the branches of that remote into remote-tracking branches
+git fetch upstream
+# Make sure that you're on your master branch:
+git checkout master
+# Rewrite your master branch so that any commits of yours that
+# aren't already in upstream/master are replayed on top of that
+# other branch:
+git rebase upstream/master
+# After finishing rebase/merging changes, force push
+git push --force
+```
+
+### Local testing
+
+To test the MathLive in Kedyou before publishing, use `pnpm link --global`:
+
+```sh
+# In mathlive repo
+pnpm link --global
+# In the kedyou-frontend repo
+pnpm link --global @kedyou/mathlive
+```
+
+#### **`sites/frontend/package.json`**
+```diff
+-"@kedyou/mathlive": "^0.98.6"
++"@kedyou/mathlive": "link:^0.98.6"
+```
