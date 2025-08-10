@@ -1004,6 +1004,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
    */
   scrollIntoView(): void {
     if (!this.element) return;
+
+    /* Kedyou: stub scrollIntoView
     //
     // 1/ If using a mathfield element, make sure that the element is visible.
     //
@@ -1030,6 +1032,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         }
       }
     }
+    */
 
     //
     // 2/ If a render is pending, do it now to make sure we have correct layout
@@ -1037,6 +1040,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     //
     if (this.dirty) render(this, { interactive: true });
 
+    /* Kedyou: we need the mathfield to render, but not the rest
     //
     // 3/ Get the position of the caret
     //
@@ -1096,6 +1100,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         left,
       });
     }
+    */
   }
 
   insert(s: string, options?: InsertOptions): boolean {
