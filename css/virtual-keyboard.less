@@ -122,7 +122,6 @@
   --_keycap-max-width: var(--keycap-max-width, 100px);
   --_keycap-gap: var(--keycap-gap, 8px);
 
-  --_keycap-font-size: var(--keycap-font-size, ~'clamp(16px, 4cqw, 24px)');
   --_keycap-small-font-size: var(
     --keycap-small-font-size,
     calc(var(--keycap-font-size) * 0.8)
@@ -426,7 +425,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   }
 
   .big-op {
-    font-size: calc(1.25 * var(--_keycap-font-size));
+    font-size: calc(1.25 * var(--keycap-font-size, ~"clamp(16px, 4vw, 24px)"));
+    font-size: calc(1.25 * var(--keycap-font-size, ~"clamp(16px, 4cqw, 24px)"));
   }
 
   .small {
@@ -563,7 +563,8 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
   color: var(--_keycap-text);
   fill: currentColor;
-  font-size: var(--_keycap-font-size);
+  font-size: var(--keycap-font-size, ~"clamp(16px, 4vw, 24px)");
+  font-size: var(--keycap-font-size, ~"clamp(16px, 4cqw, 24px)");
   background: var(--_keycap-background);
   border: 1px solid var(--_keycap-border);
   border-bottom-color: var(--_keycap-border-bottom);

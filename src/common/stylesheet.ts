@@ -36,7 +36,7 @@ export function getStylesheetContent(id: StylesheetId): string {
     //
     case 'mathfield-element':
       content = `
-    :host { display: inline-block; background-color: field; color: fieldtext; border-width: 1px; border-style: solid; border-color: #acacac; border-radius: 2px;}
+    :host { display: inline-block; color: fieldtext; padding:4px; }
     :host([hidden]) { display: none; }
     :host([disabled]), :host([disabled]:focus), :host([disabled]:focus-within) { outline: none; opacity:  .5; }
     :host(:focus), :host(:focus-within) {
