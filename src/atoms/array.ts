@@ -743,7 +743,9 @@ export class ArrayAtom extends Atom {
     this._rows.splice(
       row,
       0,
-      new Array(this.colCount).fill(makeEmptyCell(this, !this.isMultiline))
+      Array.from({ length: this.colCount }, () =>
+        makeEmptyCell(this, !this.isMultiline)
+      )
     );
     adjustBranches(this);
     this.isDirty = true;
@@ -755,7 +757,9 @@ export class ArrayAtom extends Atom {
     this._rows.splice(
       row + 1,
       0,
-      new Array(this.colCount).fill(makeEmptyCell(this, !this.isMultiline))
+      Array.from({ length: this.colCount }, () =>
+        makeEmptyCell(this, !this.isMultiline)
+      )
     );
 
     adjustBranches(this);
