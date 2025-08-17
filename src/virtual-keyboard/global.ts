@@ -11,15 +11,29 @@ if (isBrowser() && !('mathVirtualKeyboard' in window)) {
     // VirtualKeyboard. Instantiate it during static init, otherwise
     // mathfields in iFrame will not be able to talk to it until it has been
     // instantiated (which the client may not do)
-    const kbd = VirtualKeyboard.singleton;
-    Object.defineProperty(window, 'mathVirtualKeyboard', {
-      get: () => kbd,
-    });
+    initVirtualKeyboardInCurrentBrowsingContext();
   } else {
     // When in an iFrame, the mathVirtualKeyboard is a proxy
+    // This can be overridden by calling initVirtualKeyboardInCurrentBrowsingContext()
     Object.defineProperty(window, 'mathVirtualKeyboard', {
       get: () => VirtualKeyboardProxy.singleton,
       configurable: true,
     });
   }
+}
+
+/**
+ * Initialize the virtual keyboard so that it appears in the current browsing context.
+ * (By default, it would only appear in the top-level window)
+ *
+ * @category Virtual Keyboard
+ */
+export function initVirtualKeyboardInCurrentBrowsingContext() {
+  const kbd = VirtualKeyboard.singleton;
+  if (window.mathVirtualKeyboard !== kbd) {
+    Object.defineProperty(window, 'mathVirtualKeyboard', {
+      get: () => kbd,
+    });
+  }
+  return kbd;
 }

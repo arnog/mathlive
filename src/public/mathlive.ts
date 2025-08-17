@@ -55,6 +55,8 @@ export declare function renderMathInElement(
   options?: StaticRenderOptions
 ): void;
 
+export declare function initVirtualKeyboardInCurrentBrowsingContext(): void;
+
 export declare const version: {
   mathlive: string;
 };

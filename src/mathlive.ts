@@ -133,6 +133,8 @@ export function renderMathInElement(
   _renderMathInElement(el, optionsPrivate);
 }
 
+export { initVirtualKeyboardInCurrentBrowsingContext } from "virtual-keyboard/global";
+
 /**
  * Current version: `{{SDK_VERSION}}`
  *
