@@ -168,7 +168,7 @@ export function complete(
   }
 
   ModeEditor.insert(mathfield.model, latex, {
-    selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
+    selectionMode: (options?.selectItem ?? false) ? 'item' : 'placeholder',
     format: 'latex',
     mode: 'math',
     style,

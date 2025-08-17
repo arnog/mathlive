@@ -224,7 +224,7 @@ export class VirtualKeyboardProxy
   ): void {
     if (!window.top) {
       throw new DOMException(
-        `A frame does not have access to the top window and can‘t communicate with the keyboard. Review virtualKeyboardTargetOrigin and originValidator on mathfields embedded in an iframe`,
+        `A frame does not have access to the top window and can‘t communicate with the keyboard. Review mathVirtualKeyboard.targetOrigin and originValidator on mathfields embedded in an iframe`,
         'SecurityError'
       );
     }

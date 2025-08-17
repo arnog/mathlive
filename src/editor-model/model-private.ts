@@ -652,7 +652,7 @@ export class _Model implements Model {
    *
    * This method should not be called from other methods of the model
    * (such as `setSelection`) as these methods can also be called
-   * programmatically and a feedback in these case would be innapropriate,
+   * programmatically and a feedback in these case would be inappropriate,
    * however they should be called from functions called as a result of a user
    * action, such as the functions in `commands.ts`
    */

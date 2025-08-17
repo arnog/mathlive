@@ -124,7 +124,7 @@ export const INLINE_SHORTCUTS: InlineShortcutDefinitions = {
 
   // Differentials
   // According to ISO31/XI (ISO 80000-2), differentials should be upright
-  // (not this is not universal: https://tex.stackexchange.com/questions/14821/whats-the-proper-way-to-typeset-a-differential-operator/637613#637613)
+  // (note this is not universal: https://tex.stackexchange.com/questions/14821/whats-the-proper-way-to-typeset-a-differential-operator/637613#637613)
   'dx': {
     after:
       'nothing+digit+function+frac+surd+binop+relop+punct+array+openfence+closefence+space+text',

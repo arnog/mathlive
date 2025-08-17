@@ -201,7 +201,6 @@ export function getDefault(): Required<_MathfieldOptions> {
 
     mathVirtualKeyboardPolicy: 'auto',
 
-    virtualKeyboardTargetOrigin: window?.origin,
     originValidator: 'none',
 
     onInsertStyle: defaultInsertStyleHook,

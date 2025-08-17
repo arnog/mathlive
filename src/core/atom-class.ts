@@ -1087,7 +1087,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
             letterShapeStyle: context.letterShapeStyle,
             classes,
           })
-        : Atom.createBox(context, value, { type, classes }) ?? new Box(null);
+        : (Atom.createBox(context, value, { type, classes }) ?? new Box(null));
 
     // Set other attributes
     if (context.isTight) result.isTight = true;

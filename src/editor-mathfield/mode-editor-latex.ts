@@ -133,7 +133,7 @@ export function getCommandSuggestionRange(
   let start = 0;
   let found = false;
   const last = Number.isFinite(options?.before)
-    ? options?.before ?? 0
+    ? (options?.before ?? 0)
     : model.lastOffset;
   while (start <= last && !found) {
     const atom = model.at(start);

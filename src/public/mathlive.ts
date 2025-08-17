@@ -33,6 +33,10 @@
 
 import type { VirtualKeyboardInterface } from './virtual-keyboard';
 import type { StaticRenderOptions } from './options';
+export {
+  setKeyboardLayoutLocale,
+  setKeyboardLayout,
+} from '../editor/keyboard-layout';
 
 export * from './commands';
 export * from './core-types';

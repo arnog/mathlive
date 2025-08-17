@@ -380,7 +380,7 @@ export function atomToAsciiMath(
           result =
             command === '\\operatorname'
               ? atomToAsciiMath(atom.body, options)
-              : atom.value ?? command;
+              : (atom.value ?? command);
         }
         result += ' ';
       }
