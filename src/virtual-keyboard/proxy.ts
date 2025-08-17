@@ -16,7 +16,7 @@ import type {
   VirtualKeyboardLayoutCore,
   NormalizedVirtualKeyboardLayer,
 } from '../public/virtual-keyboard';
-import { initVirtualKeyboardInCurrentBrowsingContext } from "./global";
+import { mountMathVirtualKeyboard } from './global';
 
 export const VIRTUAL_KEYBOARD_MESSAGE = 'mathlive#virtual-keyboard-message';
 
@@ -224,7 +224,6 @@ export class VirtualKeyboardProxy
     action: VirtualKeyboardMessageAction,
     payload: any = {}
   ): void {
-
     if (!this.targetWindow) {
       throw new DOMException(
         `A frame does not have access to the top window and can‘t communicate with the keyboard.`,

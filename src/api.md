@@ -5802,8 +5802,8 @@ context.
 function initVirtualKeyboardInCurrentBrowsingContext(): VirtualKeyboard
 ```
 
-Initialize the virtual keyboard so that it appears in the current browsing context.
-(By default, it would only appear in the top-level window)
+Initialize the virtual keyboard so that it appears in the current browsing
+context. By default, it would only appear in the top-level window.
 
 </MemberCard>
 

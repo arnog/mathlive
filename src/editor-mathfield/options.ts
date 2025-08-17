@@ -12,7 +12,7 @@ import { defaultExportHook } from './mode-editor';
 
 import { INLINE_SHORTCUTS } from '../editor/shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from '../editor/keybindings-definitions';
-import { initVirtualKeyboardInCurrentBrowsingContext } from '../virtual-keyboard/global';
+import { mountMathVirtualKeyboard } from '../virtual-keyboard/global';
 import { defaultInsertStyleHook } from './styling';
 
 /** @internal */
@@ -49,10 +49,8 @@ export function update(
         // (not a proxy) while inside an iframe.
         // Redefine the `mathVirtualKeyboard` getter in the current browsing context
         if (keyboardPolicy === 'sandboxed') {
-          const kbd = initVirtualKeyboardInCurrentBrowsingContext();
-          if (kbd) {
-            kbd.isSandbox = true;
-          }
+          const kbd = mountMathVirtualKeyboard();
+          if (kbd) kbd.isSandbox = true;
           keyboardPolicy = 'manual';
         }
 

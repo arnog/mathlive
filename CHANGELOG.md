@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### New Features
+
+- Added `mountMathVirtualKeyboard()` to control in which browsing context the
+  math virtual keyboard is mounted.
+
 ## 0.106.0 _2025-07-11_
 
 ### New Features
@@ -158,7 +163,6 @@ MathfieldElement.createHTML = (html) => DOMPurify.sanitize(html);
 - Generate only standard trigonometric functions, i.e. those available in the
   `amsmath` package. Use `\operatorname{}` for the others. The standard commands
   are:
-
   - `\arccos`
   - `\arcsin`
   - `\arctan`
@@ -313,7 +317,6 @@ For example:
   definition.
 
   The keycaps are one of these special shortcuts:
-
   - `[left]`, `[right]`, `[up]`, `[down]`, `[return]`, `[action]`,
   - `[space]`, `[tab]`, `[backspace]`, `[shift]`,
   - `[undo]`, `[redo]`, `[foreground-color]`, `[background-color]`,
@@ -528,7 +531,6 @@ numbers.
 
   Added CSS variables to control the appearance of the toolip displayed with
   `\mathtip` and `\texttip`:
-
   - `--tooltip-border`
   - `--tooltip-color`
   - `--tooltip-background-color`
