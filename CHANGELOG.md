@@ -5,6 +5,10 @@
 - Added `mountMathVirtualKeyboard()` to control in which browsing context the
   math virtual keyboard is mounted.
 
+### Resolved Issues
+
+- **#2800**: New line on matrix causes duplicated input
+
 ## 0.106.0 _2025-07-11_
 
 ### New Features
