@@ -184,7 +184,7 @@ export class ModeEditor {
     options: InsertOptions = {}
   ): boolean {
     const mode =
-      options.mode === 'auto' ? model.mode : options.mode ?? model.mode;
+      options.mode === 'auto' ? model.mode : (options.mode ?? model.mode);
     return ModeEditor._modes[mode].insert(model, text, options);
   }
 

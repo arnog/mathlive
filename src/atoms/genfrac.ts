@@ -134,8 +134,8 @@ export class GenfracAtom extends Atom {
           [new Box(this.numerPrefix), Atom.createBox(numContext, this.above)],
           { isTight: numContext.isTight, type: 'ignore' }
         )
-      : Atom.createBox(numContext, this.above, { type: 'ignore' }) ??
-        new Box(null, { type: 'ignore' });
+      : (Atom.createBox(numContext, this.above, { type: 'ignore' }) ??
+        new Box(null, { type: 'ignore' }));
 
     const denomContext = new Context(
       {
@@ -149,8 +149,8 @@ export class GenfracAtom extends Atom {
           new Box(this.denomPrefix),
           Atom.createBox(denomContext, this.below, { type: 'ignore' }),
         ])
-      : Atom.createBox(denomContext, this.below, { type: 'ignore' }) ??
-        new Box(null, { type: 'ignore' });
+      : (Atom.createBox(denomContext, this.below, { type: 'ignore' }) ??
+        new Box(null, { type: 'ignore' }));
 
     const ruleThickness = this.hasBarLine ? metrics.defaultRuleThickness : 0;
 

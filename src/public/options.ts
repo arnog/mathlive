@@ -340,16 +340,6 @@ export type MathfieldOptions = LayoutOptions &
   KeyboardOptions &
   MathfieldHooks & {
     /**
-     * Specify the `targetOrigin` parameter for
-     * [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
-     * to send control messages from child to parent frame to remote control
-     * of mathfield component.
-     *
-     * **Default**: `window.origin`
-     */
-    virtualKeyboardTargetOrigin: string;
-
-    /**
      * Specify how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
      * should be validated.
      *

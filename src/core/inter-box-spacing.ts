@@ -63,7 +63,8 @@ const INTER_BOX_TIGHT_SPACING = {
 };
 
 /**
- *  Handle proper spacing of, e.g. "-4" vs "1-4", by adjusting some box type
+ *  Handle proper spacing of, e.g. unary minus: "-4" vs binary minus "1-4",
+ * by adjusting some box type
  */
 function adjustType(boxes: Box[]): void {
   traverseBoxes(boxes, (prev, cur) => {
@@ -107,8 +108,8 @@ export function applyInterBoxSpacing(root: Box, context: Context): Box {
     if (!prev) return;
     const prevType = prev.type;
     const table = cur.isTight
-      ? INTER_BOX_TIGHT_SPACING[prevType] ?? null
-      : INTER_BOX_SPACING[prevType] ?? null;
+      ? (INTER_BOX_TIGHT_SPACING[prevType] ?? null)
+      : (INTER_BOX_SPACING[prevType] ?? null);
     const hskip = table?.[cur.type] ?? null;
     if (hskip === 3) addSkipBefore(cur, thin);
     if (hskip === 4) addSkipBefore(cur, med);

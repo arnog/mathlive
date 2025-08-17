@@ -1964,7 +1964,7 @@ export const STRINGS = {
   },
 
   //Czech
-  'cs': {
+  cs: {
     'keyboard.tooltip.symbols': 'Symboly',
     'keyboard.tooltip.greek': 'Řecká písmena',
     'keyboard.tooltip.numeric': 'Číselné',

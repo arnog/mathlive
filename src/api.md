@@ -1423,17 +1423,6 @@ set mathVirtualKeyboardPolicy(value: VirtualKeyboardPolicy): void
 
 <MemberCard>
 
-##### MathfieldElement.virtualKeyboardTargetOrigin
-
-```ts
-get virtualKeyboardTargetOrigin(): string
-set virtualKeyboardTargetOrigin(value: string): void
-```
-
-</MemberCard>
-
-<MemberCard>
-
 ##### MathfieldElement.keypressSound
 
 ```ts
@@ -1499,8 +1488,8 @@ Use `null` to prevent any sound from being loaded.
 ##### MathfieldElement.decimalSeparator
 
 ```ts
-get static decimalSeparator(): "," | "."
-set static decimalSeparator(value: "," | "."): void
+get static decimalSeparator(): "." | ","
+set static decimalSeparator(value: "." | ","): void
 ```
 
 The symbol used to separate the integer part from the fractional part of a
@@ -5858,45 +5847,6 @@ See [`setKeyboardLayout`](#setkeyboardlayout).
 
 </MemberCard>
 
-<MemberCard>
-
-### setKeyboardLayout()
-
-```ts
-function setKeyboardLayout(name): void
-```
-
-Change the current physical keyboard layout.
-
-Note that this affects some keybindings, but not general text input.
-
-If set to `auto` the keyboard layout is guessed.
-
-##### name
-
-`"auto"` | [`KeyboardLayoutName`](#keyboardlayoutname)
-
-</MemberCard>
-
-<MemberCard>
-
-### setKeyboardLayoutLocale()
-
-```ts
-function setKeyboardLayoutLocale(locale): void
-```
-
-Change the current physical keyboard layout to a layout that matches the
-specified locale, if one is available.
-
-Note that this affects some keybindings, but not general text input.
-
-##### locale
-
-`string`
-
-</MemberCard>
-
 ## Static Rendering
 
 <MemberCard>
@@ -6493,5 +6443,33 @@ The version string of the SDK using the [semver](https://semver.org/) convention
 * **`MAJOR`** is incremented for incompatible API changes
 * **`MINOR`** is incremented for new features
 * **`PATCH`** is incremented for bug fixes
+
+</MemberCard>
+
+<MemberCard>
+
+### setKeyboardLayout()
+
+```ts
+function setKeyboardLayout(name): KeyboardLayout
+```
+
+##### name
+
+`"auto"` | [`KeyboardLayoutName`](#keyboardlayoutname)
+
+</MemberCard>
+
+<MemberCard>
+
+### setKeyboardLayoutLocale()
+
+```ts
+function setKeyboardLayoutLocale(locale): void
+```
+
+##### locale
+
+`string`
 
 </MemberCard>

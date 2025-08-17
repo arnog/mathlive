@@ -130,14 +130,18 @@
       renderMathInDocument,
       renderMathInElement,
       MathfieldElement,
-      convertLatexToMarkup
+      convertLatexToMarkup, setKeyboardLayoutLocale
     } from "/dist/mathlive.mjs";
     // } from "https://unpkg.com/mathlive?module";
     // } from "https://esm.run/mathlive";
+    //    import {
+    //      ComputeEngine,
+    //      version,
+    //    } from "https://esm.run/@cortex-js/compute-engine";
     import {
       ComputeEngine,
       version,
-    } from "https://esm.run/@cortex-js/compute-engine";
+    } from "https://cdn.jsdelivr.net/npm/@cortex-js/compute-engine@0.30.2/dist/compute-engine.min.esm.js";
 
     // MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/dist/fonts";
 
@@ -216,6 +220,7 @@
 
 
     function setupMathfield(mf) {
+      mf.mathVirtualKeyboardPolicy = 'manual';
 
       MathfieldElement.fractionNavigationOrder = 'denominator-numerator'
 
@@ -283,7 +288,7 @@
       };
 
 
-      // setupMathfield(mf);
+      setupMathfield(mf);
       mf.onInlineShortcut = (mf, shortcut) => {
         if (shortcut === 'tonh')
           return ('\\operatorname{tonh}(#@)');

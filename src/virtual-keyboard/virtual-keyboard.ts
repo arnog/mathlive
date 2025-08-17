@@ -831,7 +831,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     el.classList.toggle('can-undo', mf.canUndo);
     el.classList.toggle('can-redo', mf.canRedo);
     el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
-    el.classList.toggle('can-copy', !mf.selectionIsCollapsed);
+    el.classList.toggle('can-cut', !mf.selectionIsCollapsed); // @fixme: Should check if readonly
     el.classList.toggle('can-paste', true);
 
     const toolbars = el.querySelectorAll('.ML__edit-toolbar');

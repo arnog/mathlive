@@ -2800,14 +2800,6 @@ mf.macros = {
     return this._mathfield?.getPromptState(id) ?? [undefined, true];
   }
 
-  /** @category Virtual Keyboard */
-  get virtualKeyboardTargetOrigin(): string {
-    return this._getOption('virtualKeyboardTargetOrigin');
-  }
-  set virtualKeyboardTargetOrigin(value: string) {
-    this._setOptions({ virtualKeyboardTargetOrigin: value });
-  }
-
   /**
    * An array of ranges representing the selection.
    *

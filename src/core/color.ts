@@ -393,12 +393,12 @@ export function defaultColorMap(s: string): string | undefined {
 
     const color = !colorName
       ? colorSpec[i].trim()
-      : FOREGROUND_COLORS[lcColorName!] ??
+      : (FOREGROUND_COLORS[lcColorName!] ??
         FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
         MATLAB_COLORS[colorName] ??
         DVIPS_COLORS[colorName] ??
         MATHEMATICA_COLORS[colorName] ??
-        colorSpec[i].trim();
+        colorSpec[i].trim());
 
     let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (m?.[1] && m[2] && m[3]) {
