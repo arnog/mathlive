@@ -1584,9 +1584,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     // Keep the content of the keyboard sink in sync with the selection.
     // Safari will not dispatch cut/copy/paste unless there is a DOM selection.
-    this.keyboardDelegate.setValue(
-      model.getValue(model.selection, 'latex-expanded')
-    );
+    // No need to sync if the mathfield is not focused: syncing has a side-effect
+    // of focusing the mathfield if not focused, which is not desirable
+    if (model.mathfield.hasFocus()) {
+      this.keyboardDelegate.setValue(
+        model.getValue(model.selection, 'latex-expanded')
+      );
+    }
 
     // If we move the selection outside of a LaTeX group, close the group
     if (model.selectionIsCollapsed) {

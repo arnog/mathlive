@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2817** Calling `setPromptValue()` no longer changes the focus to the
+  mathfield.
+
 ## 0.107.0 _2025-08-17_
 
 ### New Features
