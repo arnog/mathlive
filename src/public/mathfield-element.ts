@@ -1401,6 +1401,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return this._mathfield?.getPrompts(filter) ?? [];
   }
 
+  /** True if the mathfield has editable content, such as unlocked prompts */
+  get hasEditableContent(): boolean {
+    return this._mathfield?.hasEditableContent ?? false;
+  }
+
   /** @internal */
   get form(): HTMLFormElement | null {
     return this._internals?.['form'];

@@ -4,6 +4,7 @@
 
 - **#2817** Calling `setPromptValue()` no longer changes the focus to the
   mathfield.
+- **#2805** On mobile, show the math virtual keyboard when using prompts
 
 ## 0.107.0 _2025-08-17_
 

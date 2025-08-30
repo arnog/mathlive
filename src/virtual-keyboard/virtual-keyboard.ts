@@ -37,6 +37,7 @@ import {
 import { hideVariantsPanel, showVariantsPanel } from './variants';
 import { Style } from '../public/core-types';
 import { deepActiveElement } from '../ui/events/utils';
+import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
@@ -269,26 +270,25 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     // Listen for when a mathfield gets focused, and show
     // the virtual keyboard if needed
-    document.addEventListener('focusin', (event: FocusEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target?.isConnected) return;
-      setTimeout(() => {
-        const mf = focusedMathfield();
-        if (
-          mf &&
-          !mf.readOnly &&
-          mf.mathVirtualKeyboardPolicy === 'auto' &&
-          isTouchCapable()
-        )
-          this.show({ animate: true });
-      }, 300);
-    });
+    if (isTouchCapable()) {
+      document.addEventListener('focusin', (event: FocusEvent) => {
+        const target = event.target as HTMLElement;
+        if (!target?.isConnected) return;
+        setTimeout(() => {
+          const mf = focusedMathfield();
+          if (!mf) return;
+          if (mf.mathVirtualKeyboardPolicy === 'auto' && mf.hasEditableContent)
+            this.show({ animate: true });
+        }, 300);
+      });
+    }
 
     document.addEventListener('focusout', (evt) => {
       if (!(evt.target instanceof MathfieldElement)) return;
       if (evt.target.mathVirtualKeyboardPolicy !== 'manual') {
         // If after a short delay the active element is no longer
-        // a mathfield (or there is no active element), hide the virtual keyboard
+        // a mathfield (or there is no active element),
+        // hide the virtual keyboard
 
         setTimeout(() => {
           if (!focusedMathfield()) this.hide();
