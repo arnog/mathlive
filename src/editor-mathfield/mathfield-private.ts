@@ -738,7 +738,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       'minFontScale' in config ||
       'maxMatrixCols' in config ||
       'readOnly' in config ||
-      'placeholderContent' in config ||
+      'contentPlaceholder' in config ||
       'placeholderSymbol' in config
     )
       requestUpdate(this);
