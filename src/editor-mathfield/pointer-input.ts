@@ -292,28 +292,21 @@ function nearestAtomFromPointRecursive(
   // Do we have an array of cells?
   //
   if (atom instanceof ArrayAtom) {
-    // Find a matching cell, row by row
+    // Search all atoms in ArrayAtoms without bounds checking
     for (const row of atom.rows) {
       for (const cell of row) {
-        const cellRange: Range = [
-          model.offsetOf(cell![0]!),
-          model.offsetOf(cell![cell!.length - 1]!),
-        ];
-        const r = getRangeBoundingRect(mathfield, cellRange);
-        // Is the y within the vertical bounds of the row?
-        if (y >= r.top && y <= r.bottom) {
-          for (const atom of cell!) {
-            const r = nearestAtomFromPointRecursive(
-              mathfield,
-              cache,
-              atom,
-              x,
-              y
-            );
-            if (r[0] <= result[0]) result = r;
+        if (cell) {
+          for (const atom2 of cell) {
+            const r2 = nearestAtomFromPointRecursive(mathfield, cache, atom2, x, y);
+            if (r2[0] <= result[0]) result = r2;
           }
         }
       }
+    }
+    // Search children for additional atoms
+    for (const child of atom.children) {
+      const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
+      if (r[0] <= result[0]) result = r;
     }
   } else if (
     atom.hasChildren &&
@@ -328,24 +321,23 @@ function nearestAtomFromPointRecursive(
       if (r[0] <= result[0]) result = r;
     }
 
-    // Find a matching branch
-    // for (const branch of atom.branches) {
-    //   const siblings = atom.branch(branch);
-    //   if (!siblings || siblings.length === 0) continue;
-    //   const siblingsRange: Range = [
-    //     model.offsetOf(siblings[0]),
-    //     model.offsetOf(siblings[siblings.length - 1]),
-    //   ];
-    //   const r = getRangeBoundingRect(mathfield, siblingsRange);
-    //   // Is the y within the vertical bounds of the branch?
-    //   if (y >= r.top && y <= r.bottom) {
-    //     console.log(branch, r);
-    //     for (const atom of siblings) {
-    //       const r = nearestAtomFromPointRecursive(mathfield, cache, atom, x, y);
-    //       if (r[0] <= result[0]) result = r;
-    //     }
-    //   }
-    // }
+    // Find a matching branch - enhanced script branch searching
+    for (const branch of atom.branches) {
+      const siblings = atom.branch(branch);
+      if (!siblings || siblings.length === 0) continue;
+      const siblingsRange: Range = [
+        model.offsetOf(siblings[0]),
+        model.offsetOf(siblings[siblings.length - 1]),
+      ];
+      const r = getRangeBoundingRect(mathfield, siblingsRange);
+      // Is the y within the vertical bounds of the branch?
+      if (y >= r.top && y <= r.bottom) {
+        for (const atom of siblings) {
+          const r = nearestAtomFromPointRecursive(mathfield, cache, atom, x, y);
+          if (r[0] <= result[0]) result = r;
+        }
+      }
+    }
   }
 
   //
