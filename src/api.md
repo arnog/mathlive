@@ -1616,6 +1616,14 @@ set disabled(value: boolean): void
 
 <MemberCard>
 
+##### MathfieldElement.hasEditableContent
+
+True if the mathfield has editable content, such as unlocked prompts
+
+</MemberCard>
+
+<MemberCard>
+
 ##### MathfieldElement.mode
 
 ```ts
@@ -5847,6 +5855,38 @@ See [`setKeyboardLayout`](#setkeyboardlayout).
 
 </MemberCard>
 
+<MemberCard>
+
+### setKeyboardLayout()
+
+```ts
+function setKeyboardLayout(name): void
+```
+
+Change the current physical keyboard layout.
+
+##### name
+
+`"auto"` | [`KeyboardLayoutName`](#keyboardlayoutname)
+
+</MemberCard>
+
+<MemberCard>
+
+### setKeyboardLayoutLocale()
+
+```ts
+function setKeyboardLayoutLocale(locale): void
+```
+
+Change the current physical keyboard layout to match the specified locale.
+
+##### locale
+
+`string`
+
+</MemberCard>
+
 ## Static Rendering
 
 <MemberCard>
@@ -6443,33 +6483,5 @@ The version string of the SDK using the [semver](https://semver.org/) convention
 * **`MAJOR`** is incremented for incompatible API changes
 * **`MINOR`** is incremented for new features
 * **`PATCH`** is incremented for bug fixes
-
-</MemberCard>
-
-<MemberCard>
-
-### setKeyboardLayout()
-
-```ts
-function setKeyboardLayout(name): KeyboardLayout
-```
-
-##### name
-
-`"auto"` | [`KeyboardLayoutName`](#keyboardlayoutname)
-
-</MemberCard>
-
-<MemberCard>
-
-### setKeyboardLayoutLocale()
-
-```ts
-function setKeyboardLayoutLocale(locale): void
-```
-
-##### locale
-
-`string`
 
 </MemberCard>

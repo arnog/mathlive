@@ -36,7 +36,7 @@ import type { StaticRenderOptions } from './options';
 export {
   setKeyboardLayoutLocale,
   setKeyboardLayout,
-} from '../editor/keyboard-layout';
+} from './keyboard-layout';
 
 export * from './commands';
 export * from './core-types';
