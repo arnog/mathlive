@@ -500,9 +500,11 @@ function atomToSpeakableFragment(
       // Workaround: if the macro is expand = true, speak the atom body, otherwise speak the macro name
       const macroName = command.replace(/^\\/g, '');
       const macro = getMacros()[macroName];
-      if (macro) {
-        if (macro?.expand) result += atomToSpeakableFragment('math', atom.body);
-        else result += `${macroName} `;
+      if (macro?.expand) {
+        result += atomToSpeakableFragment('math', atom.body);
+      }
+      else {
+        result += `${macroName} `;
       }
       break;
     case 'placeholder':
