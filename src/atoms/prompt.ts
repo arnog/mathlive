@@ -159,9 +159,9 @@ export class PromptAtom extends Atom {
     result.depth = base.depth + vPadding;
     result.left = hPadding;
     result.right = hPadding;
-    result.setStyle('height', base.height + vPadding, 'em');
-    result.setStyle('top', base.depth - base.height - vPadding/2, 'em');
-    result.setStyle('vertical-align', base.depth + vPadding, 'em');
+    result.setStyle('height', base.height + 2 * vPadding, 'em');
+    result.setStyle('top', base.depth - base.height - vPadding / 2, 'em');
+    result.setStyle('vertical-align', base.depth + vPadding / 2, 'em');
     result.setStyle('margin-left', 0.5, 'em');
     result.setStyle('margin-right', 0.5, 'em');
 
