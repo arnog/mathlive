@@ -125,7 +125,7 @@ export class PromptAtom extends Atom {
     if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
     if (hPadding !== 0) {
       box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
-      box.setStyle('top', fboxsep, 'em'); // empirical
+      box.setStyle('top', fboxsep + vPadding, 'em'); // empirical
       box.setStyle('left', -hPadding, 'em');
     }
     // empty prompt should be a little wider
@@ -160,7 +160,7 @@ export class PromptAtom extends Atom {
     result.left = hPadding;
     result.right = hPadding;
     result.setStyle('height', base.height + vPadding, 'em');
-    result.setStyle('top', base.depth - base.height, 'em');
+    result.setStyle('top', base.depth - base.height - vPadding/2, 'em');
     result.setStyle('vertical-align', base.depth + vPadding, 'em');
     result.setStyle('margin-left', 0.5, 'em');
     result.setStyle('margin-right', 0.5, 'em');
