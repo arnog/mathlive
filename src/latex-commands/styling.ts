@@ -738,6 +738,12 @@ defineFunction(
         size: DELIMITER_SIZES[options.command!].size,
         delimType: DELIMITER_SIZES[options.command!].mclass,
       }),
+    // For compatibility with LaTeX, we serialize \bigl{x} as \biglx
+    serialize: (atom: SizedDelimAtom, options) =>
+      joinLatex([
+        atom.command,
+        /^[a-zA-Z]/.test(atom.value) ? `{${atom.value}}` : atom.value,
+      ]),
   }
 );
 
