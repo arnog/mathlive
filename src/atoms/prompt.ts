@@ -125,7 +125,7 @@ export class PromptAtom extends Atom {
     if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
     if (hPadding !== 0) {
       box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
-      box.setStyle('top', fboxsep, 'em'); // empirical
+      box.setStyle('top', fboxsep + vPadding, 'em'); // empirical
       box.setStyle('left', -hPadding, 'em');
     }
     // empty prompt should be a little wider
