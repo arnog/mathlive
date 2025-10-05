@@ -362,6 +362,21 @@ function onDelete(
     return true;
   }
 
+  // If we're deleting the last atom in a latex group (only the backslash),
+  // remove the latex group and switch back to math mode
+  if (
+    parent?.type === 'latexgroup' &&
+    !branch &&
+    atom.type === 'latex' &&
+    parent.body?.filter((x) => x.type === 'latex').length === 1
+  ) {
+    const pos = model.offsetOf(parent.leftSibling);
+    parent.parent!.removeChild(parent);
+    model.position = pos;
+    model.mathfield.switchMode('math');
+    return true;
+  }
+
   return false;
 }
 
