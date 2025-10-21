@@ -4313,13 +4313,13 @@ to a key combination that can be generated on any keyboard.
 
 <MemberCard>
 
-### DynamicValue\<T\>
+### DynamicValue
 
 ```ts
 type DynamicValue<T> = T | (modifiers) => T;
 ```
 
-#### Type declaration
+#### Type Declaration
 
 • T
 
@@ -4327,7 +4327,7 @@ type DynamicValue<T> = T | (modifiers) => T;
 
 <MemberCard>
 
-### MenuItem\<T\>
+### MenuItem
 
 ```ts
 type MenuItem<T> = 
@@ -4339,7 +4339,7 @@ type MenuItem<T> =
 
 Declaration of a menu item
 
-#### Type declaration
+#### Type Declaration
 
 • T = `unknown`
 
@@ -4347,7 +4347,7 @@ Declaration of a menu item
 
 <MemberCard>
 
-### MenuItemCommand\<T\>
+### MenuItemCommand
 
 <MemberCard>
 
@@ -4570,7 +4570,7 @@ type: "heading";
 
 <MemberCard>
 
-### MenuItemProps\<T\>
+### MenuItemProps
 
 These props are passed to the `menu-select` event and `onMenuSelect` hook
 - `id`: the `id` associated with the menu item.
@@ -6074,7 +6074,7 @@ renderMathInElement("formula");
 
 <MemberCard>
 
-### LatexSyntaxError\<T\>
+### LatexSyntaxError
 
 <MemberCard>
 
