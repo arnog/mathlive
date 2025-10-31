@@ -502,8 +502,7 @@ function atomToSpeakableFragment(
       const macro = getMacros()[macroName];
       if (macro?.expand) {
         result += atomToSpeakableFragment('math', atom.body);
-      }
-      else {
+      } else {
         result += `${macroName} `;
       }
       break;

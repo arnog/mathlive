@@ -81,7 +81,7 @@ function relationName(atom: Atom): string {
   } else if (atom.parentBranch === 'superscript') result = 'superscript';
   else if (atom.parentBranch === 'subscript') result = 'subscript';
 
-  if (!result) console.log('unknown relationship');
+  // if (!result) console.log('unknown relationship');
 
   return result ?? 'parent';
 }

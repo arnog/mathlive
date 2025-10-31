@@ -297,7 +297,13 @@ function nearestAtomFromPointRecursive(
       for (const cell of row) {
         if (cell) {
           for (const atom2 of cell) {
-            const r2 = nearestAtomFromPointRecursive(mathfield, cache, atom2, x, y);
+            const r2 = nearestAtomFromPointRecursive(
+              mathfield,
+              cache,
+              atom2,
+              x,
+              y
+            );
             if (r2[0] <= result[0]) result = r2;
           }
         }

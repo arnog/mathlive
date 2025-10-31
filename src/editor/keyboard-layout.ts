@@ -283,7 +283,7 @@ export function validateKeyboardLayout(evt?: KeyboardEvent): void {
 }
 
 export function setKeyboardLayoutLocale(locale: string): void {
-  console.log(`Setting keyboard layout locale to ${locale}`);
+  // console.log(`Setting keyboard layout locale to ${locale}`);
   gKeyboardLayout = gKeyboardLayouts.find((x) => locale.startsWith(x.locale));
 }
 
@@ -291,7 +291,7 @@ export function setKeyboardLayout(
   name: KeyboardLayoutName | 'auto'
 ): KeyboardLayout | undefined {
   // If name is 'auto', the layout is not found, and set to undefined
-  console.log(`Setting keyboard layout to ${name}`);
+  // console.log(`Setting keyboard layout to ${name}`);
 
   gKeyboardLayout = gKeyboardLayouts.find((x) => x.id === name);
   return gKeyboardLayout;

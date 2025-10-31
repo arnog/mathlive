@@ -71,12 +71,16 @@ export async function resolveUrl(url: string): Promise<string> {
   if (/^(?:[a-z+]+:)?\/\//i.test(url)) {
     try {
       return new URL(url).href;
-    } catch (e) {}
+    } catch (e) {
+      // Invalid URL format, try with protocol prefix
+    }
     if (url.startsWith('//')) {
       // Add the protocol
       try {
         return new URL(`${window.location.protocol}${url}`).href;
-      } catch (e) {}
+      } catch (e) {
+        // Still invalid, return as-is
+      }
     }
     return url;
   }

@@ -413,7 +413,10 @@ function makeSyntheticKeycap(element: HTMLElement): void {
     if (element.hasAttribute('data-command')) {
       try {
         keycap.command = JSON.parse(element.dataset.command!);
-      } catch (e) {}
+      } catch (e) {
+        // Invalid JSON in data-command attribute, ignore it
+        console.warn('Invalid JSON in data-command attribute', e);
+      }
     }
 
     element.id = keyboard.registerKeycap(keycap);
