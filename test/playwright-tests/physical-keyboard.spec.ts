@@ -494,6 +494,23 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
   ).toBe('30=r+t');
 });
 
+test('mathbb with superscript (issue #2867)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // Type \mathbb{R}^0 using physical keyboard
+  await page.locator('#mf-1').pressSequentially('\\mathbb{R}^0');
+
+  // Get the serialized LaTeX value
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  // Should serialize as \mathbb{R}^0, not \mathbb{R^0}
+  expect(latex).toBe('\\mathbb{R}^{0}');
+});
+
 async function tab(page) {
   await page.keyboard.press('Tab');
   // Wait some time for focus to change

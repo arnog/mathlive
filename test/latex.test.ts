@@ -2,6 +2,8 @@ import {
   convertLatexToMarkup,
   validateLatex,
 } from '../src/public/mathlive-ssr';
+import { parseLatex } from '../src/core/parser';
+import { Atom } from '../src/core/atom-class';
 
 function markupAndError(formula: string): [string, string] {
   const markup = convertLatexToMarkup(formula, { defaultMode: 'math' });
@@ -114,4 +116,26 @@ describe('INFIX COMMANDS', () => {
   });
 
   expect(error('a\\over b \\over c')).toMatch('too-many-infix-commands');
+});
+
+describe('VARIANT SERIALIZATION (issue #2867)', () => {
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    // Single digit superscripts/subscripts don't have braces
+    ['\\mathbb{R}^{0}', '\\mathbb{R}^0'],
+    ['\\mathbb{R}^0', '\\mathbb{R}^0'],
+    ['\\mathbb{N}_{1}', '\\mathbb{N}_1'],
+    ['\\mathcal{F}^{2}', '\\mathcal{F}^2'],
+    // Single letter subscripts/superscripts keep braces
+    ['\\mathfrak{g}_{n}', '\\mathfrak{g}_{n}'],
+    // Multi-character subscripts/superscripts should have braces
+    ['\\mathbb{R}^{10}', '\\mathbb{R}^{10}'],
+    ['\\mathbb{N}_{abc}', '\\mathbb{N}_{abc}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+  });
 });

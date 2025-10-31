@@ -13,6 +13,7 @@ import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
 import { addItalic } from '../editor-model/styling';
+import { getDefinition } from '../latex-commands/definitions';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -329,9 +330,44 @@ function emitVariantRun(
       console.assert(command !== undefined);
     }
 
-    const arg = joinLatex(x.map((x) => x._serialize(options)));
+    // When we have a variant command, superscripts/subscripts should be
+    // applied AFTER the variant command, not inside it.
+    // For example, \mathbb{R}^0 not \mathbb{R^0}
+    // See issue #2867
+    let trailingSupsub = '';
+    const lastAtom = x[x.length - 1];
+    const hasTrailingSupsub =
+      command &&
+      x.length > 0 &&
+      (lastAtom.branch('subscript') !== undefined ||
+        lastAtom.branch('superscript') !== undefined);
+
+    if (hasTrailingSupsub) trailingSupsub = lastAtom.supsubToLatex(options);
+
+    const arg = joinLatex(
+      x.map((atom, index) => {
+        // For the last atom with a superscript/subscript in a variant command,
+        // serialize without the supsub (we'll add it after the command)
+        if (hasTrailingSupsub && index === x.length - 1) {
+          // Get the definition to check if it has a custom serializer
+          const def = getDefinition(atom.command, atom.mode);
+          if (def?.serialize) return def.serialize(atom, options);
+
+          // Serialize the atom without superscript/subscript
+          if (atom.body && atom.command)
+            return latexCommand(atom.command, atom.bodyToLatex(options));
+
+          if (atom.body) return atom.bodyToLatex(options);
+
+          if (!atom.value || atom.value === '\u200B') return '';
+          return atom.command || atom.value;
+        }
+        return atom._serialize(options);
+      })
+    );
+
     if (!command) return arg;
-    return latexCommand(command, arg);
+    return latexCommand(command, arg) + trailingSupsub;
   });
 }
 

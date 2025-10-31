@@ -8,6 +8,9 @@
 - **#2889** Custom attributes would not be propagated to the generated markup.
 - **#2884** The command to add/remove columns and rows when in a `cases`
   environment are now enabled.
+- **#2867** In some cases, applying a superscript or subscript to a command with
+  an argument (for example `\mathbb{R}`) would incorrectly include the argument
+  in the superscript or subscript.
 
 ## 0.107.1 _2025-09-30_
 
