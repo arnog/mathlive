@@ -6,6 +6,8 @@
 - **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
   commands.
 - **#2889** Custom attributes would not be propagated to the generated markup.
+- **#2884** The command to add/remove columns and rows when in a `cases`
+  environment are now enabled.
 
 ## 0.107.1 _2025-09-30_
 

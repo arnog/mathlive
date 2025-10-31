@@ -452,7 +452,7 @@ export function makeEnvironment(
         arraystretch: 1.2,
         leftDelim: '\\lbrace',
         rightDelim: '.',
-        columns: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+        columns: casesColumns(),
       });
 
     case 'rcases':
@@ -460,7 +460,7 @@ export function makeEnvironment(
         arraystretch: 1.2,
         leftDelim: '.',
         rightDelim: '\\rbrace',
-        columns: [{ align: 'l' }, { gap: 1 }, { align: 'l' }],
+        columns: casesColumns(),
       });
 
     case 'lines':
@@ -487,4 +487,13 @@ function defaultColumns(
   maxMatrixCols: number = 10
 ): ColumnFormat[] {
   return (args as ColumnFormat[]) ?? Array(maxMatrixCols).fill({ align: 'c' });
+}
+
+function casesColumns(maxCasesColumns: number = 10): ColumnFormat[] {
+  const columns: ColumnFormat[] = [];
+  for (let i = 0; i < maxCasesColumns; i++) {
+    if (i > 0) columns.push({ gap: 1 });
+    columns.push({ align: 'l' });
+  }
+  return columns;
 }

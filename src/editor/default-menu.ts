@@ -731,6 +731,9 @@ function inMatrix(mf: _Mathfield): boolean {
     'bmatrix',
     'vmatrix',
     'Bmatrix',
+    'cases',
+    'dcases',
+    'rcases',
   ].includes(env);
 }
 
