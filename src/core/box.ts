@@ -442,8 +442,8 @@ export class Box implements BoxInterface {
     // 3.3 Attributes
     //
     if (this.attributes) {
-      props.concat(
-        Object.keys(this.attributes).map(
+      props.push(
+        ...Object.keys(this.attributes).map(
           (x) =>
             `${sanitizeAttributeName(x)}=${sanitizeAttributeValue(this.attributes![x])}`
         )

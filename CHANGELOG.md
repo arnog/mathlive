@@ -3,8 +3,9 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
-- **2849** For compatibility with KaTeX, do not wrap the argument of delimiter
+- **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
   commands.
+- **#2889** Custom attributes would not be propagated to the generated markup.
 
 ## 0.107.1 _2025-09-30_
 
