@@ -792,11 +792,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     switch (evt.type) {
       case 'focus':
-        this.onFocus();
+        this.onFocus({ suppressEvents: true });
         break;
 
       case 'blur':
-        this.onBlur();
+        this.onBlur({ dispatchEvents: false });
         break;
 
       // Safari on iOS <= 13 and Firefox on Android
@@ -1650,7 +1650,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     );
   }
 
-  onFocus(): void {
+  onFocus(options?: { suppressEvents?: boolean }): void {
     if (this.focusBlurInProgress || !this.blurred) return;
     this.focusBlurInProgress = true;
     this.blurred = false;
@@ -1676,32 +1676,49 @@ If you are using Vue, this may be because you are using the runtime-only build o
     setTimeout(() => {
       if (!isValidMathfield(this)) return;
 
-      //
-      // Capture the focus/blur events to avoid double-dispatching
-      //
-      const abortController = new AbortController();
-      const signal = abortController.signal;
-      for (const event of ['focus', 'blur', 'focusin', 'focusout']) {
-        this.host?.addEventListener(
-          event,
-          (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-          },
-          { once: true, capture: true, signal }
-        );
+      // Only suppress events when responding to a DOM focus event to avoid
+      // double-dispatching (fixes #2665). When focus() is called
+      // programmatically, we want the events to fire normally (fixes #2816).
+      const suppressEvents = options?.suppressEvents ?? false;
+      if (suppressEvents) {
+        //
+        // Capture the focus/blur events to avoid double-dispatching
+        // When responding to a DOM focus event, just focus the keyboard
+        // delegate without the blur/focus cycle
+        //
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        const captureEvent = (evt: Event) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+        };
+
+        // Add listeners that will capture focus/focusin events
+        for (const event of ['focus', 'focusin']) {
+          this.host?.addEventListener(event, captureEvent, {
+            capture: true,
+            signal,
+          });
+        }
+
+        this.keyboardDelegate.focus();
+        this.connectToVirtualKeyboard();
+        this.focusBlurInProgress = false;
+
+        // Abort the event listeners after a short delay to ensure all
+        // events from the focus have been captured
+        setTimeout(() => abortController.abort(), 0);
+      } else {
+        // Programmatic focus() call - just focus the keyboard delegate
+        // without blurring first (no need since we're not focused yet)
+        this.keyboardDelegate.focus();
+        this.connectToVirtualKeyboard();
+        this.focusBlurInProgress = false;
       }
-
-      this.keyboardDelegate.blur();
-      this.keyboardDelegate.focus();
-      this.connectToVirtualKeyboard();
-      this.focusBlurInProgress = false;
-
-      abortController.abort();
     }, 60);
   }
 
-  onBlur(): void {
+  onBlur(options?: { dispatchEvents?: boolean }): void {
     if (this.focusBlurInProgress || this.blurred) return;
     this.focusBlurInProgress = true;
 
@@ -1720,19 +1737,25 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     this.disconnectFromVirtualKeyboard();
 
-    this.host?.dispatchEvent(
-      new Event('blur', {
-        bubbles: false, // DOM 'focus' and 'blur' don't bubble
-        composed: true,
-      })
-    );
+    // When called from keyboard delegate or programmatically, dispatch events.
+    // When responding to a DOM blur event, don't dispatch again to avoid
+    // double-firing (fixes #2816).
+    const dispatchEvents = options?.dispatchEvents ?? true;
+    if (dispatchEvents) {
+      this.host?.dispatchEvent(
+        new Event('blur', {
+          bubbles: false, // DOM 'focus' and 'blur' don't bubble
+          composed: true,
+        })
+      );
 
-    this.host?.dispatchEvent(
-      new UIEvent('focusout', {
-        bubbles: true, // unlike 'blur', focusout does bubble
-        composed: true,
-      })
-    );
+      this.host?.dispatchEvent(
+        new UIEvent('focusout', {
+          bubbles: true, // unlike 'blur', focusout does bubble
+          composed: true,
+        })
+      );
+    }
 
     requestUpdate(this);
 

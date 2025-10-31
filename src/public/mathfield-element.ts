@@ -1929,15 +1929,10 @@ import "https://esm.run/@cortex-js/compute-engine";
 
     if (evt.type === 'pointerdown') {
       this.onPointerDown();
-      // Some browsers (Firefox, Chrome) will get into a zombie focus state
-      // if the padding area is clicked on when the mathfield was already
-      // focused. We force the keyboard delegate to blur and refocus to
-      // prevent this.
-      const kbdDelegate = this._mathfield?.keyboardDelegate;
-      kbdDelegate?.blur();
-      kbdDelegate?.focus();
     }
-    if (evt.type === 'focus') this._mathfield?.focus();
+    // The private mathfield handles focus/blur events directly,
+    // so we don't need to call focus() or blur() here
+    if (evt.type === 'focus') return;
 
     // Ignore blur events if the scrim is open (case where the variant panel
     // is open), or if we're in an iFrame on a touch device (see #2350).
@@ -1950,7 +1945,9 @@ import "https://esm.run/@cortex-js/compute-engine";
     // Otherwise we disconnect from the VK and end up in a weird state.
     if (Scrim.scrim?.state !== 'closed' || (touch && isInIframe())) return;
 
-    this._mathfield?.blur();
+    // Call onBlur directly to handle the blur, without dispatching events
+    // (the DOM already dispatched them)
+    this._mathfield?.onBlur({ dispatchEvents: false });
   }
 
   /**

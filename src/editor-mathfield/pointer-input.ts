@@ -244,7 +244,10 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
     // logic on what to do on focus may depend on the selection)
     if (!mathfield.hasFocus()) {
       dirty = 'none'; // focus() will refresh
-      mathfield.focus({ preventScroll: true });
+      // Call onFocus to focus the keyboard delegate
+      // Events will fire normally
+      mathfield.onFocus();
+      mathfield.model.announce('line');
     }
   } else gLastTap = null;
 

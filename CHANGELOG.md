@@ -11,6 +11,10 @@
 - **#2867** In some cases, applying a superscript or subscript to a command with
   an argument (for example `\mathbb{R}`) would incorrectly include the argument
   in the superscript or subscript.
+- **#2816** Programmatic calls to `.focus()` now correctly trigger `focusin`
+  events.
+- **#2665** Clicking on a mathfield now only fires focus events once, instead of
+  generating duplicate focus/blur/focusin/focusout events.
 
 ## 0.107.1 _2025-09-30_
 
