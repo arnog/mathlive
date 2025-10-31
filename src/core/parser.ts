@@ -1523,7 +1523,7 @@ export class Parser {
           const m = element.match(/^\s*([\d.]+)\s*([a-z]{2})/);
           if (m) {
             bboxParameter.padding = {
-              dimension: parseInt(m[1]),
+              dimension: Number.parseFloat(m[1]),
               unit: m[2] as DimensionUnit,
             };
           } else {

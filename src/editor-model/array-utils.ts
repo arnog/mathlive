@@ -77,8 +77,10 @@ export function arrayCell(
   let result: Atom[] | null = null;
   if (isArray<number>(array[colrow.row])) {
     result = array[colrow.row][colrow.col] ?? null;
-    console.assert(result.length > 0);
-    console.assert(result[0].type === 'first');
+    if (result) {
+      console.assert(result.length > 0);
+      console.assert(result[0].type === 'first');
+    }
   }
 
   return result;

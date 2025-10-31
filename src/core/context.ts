@@ -254,7 +254,7 @@ export class Context implements ContextInterface {
   }
 
   getRegister(name: string): undefined | number | string | LatexValue {
-    if (this.registers?.[name]) return this.registers[name];
+    if (this.registers && name in this.registers) return this.registers[name];
     if (this.parent) return this.parent.getRegister(name);
     return undefined;
   }
@@ -267,7 +267,7 @@ export class Context implements ContextInterface {
   }
 
   getRegisterAsGlue(name: string): Glue | undefined {
-    if (this.registers?.[name]) {
+    if (this.registers && name in this.registers) {
       const value = this.registers[name];
       if (typeof value === 'object' && 'glue' in value) return value;
       else if (typeof value === 'object' && 'dimension' in value)
@@ -285,7 +285,7 @@ export class Context implements ContextInterface {
   }
 
   getRegisterAsDimension(name: string): Dimension | undefined {
-    if (this.registers?.[name]) {
+    if (this.registers && name in this.registers) {
       const value = this.registers[name];
       if (typeof value === 'object' && 'glue' in value) return value.glue;
       else if (typeof value === 'object' && 'dimension' in value) return value;
