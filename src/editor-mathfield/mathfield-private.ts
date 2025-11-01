@@ -844,7 +844,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
         // Workaround a Chromium 133+ issue where the keyboard sink loses focus
         // when the virtual keyboard is shown
         // https://github.com/arnog/mathlive/issues/2588
-        if (this.hasFocus()) {
+        // Only do the blur/focus cycle if the keyboard policy is not manual
+        // to avoid interfering with manual keyboard control (#2859)
+        if (this.hasFocus() && this.options.mathVirtualKeyboardPolicy !== 'manual') {
           this.keyboardDelegate.blur();
           this.keyboardDelegate.focus();
         }
@@ -1701,9 +1703,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
           });
         }
 
+        this.focusBlurInProgress = false;
         this.keyboardDelegate.focus();
         this.connectToVirtualKeyboard();
-        this.focusBlurInProgress = false;
 
         // Abort the event listeners after a short delay to ensure all
         // events from the focus have been captured
@@ -1711,9 +1713,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
       } else {
         // Programmatic focus() call - just focus the keyboard delegate
         // without blurring first (no need since we're not focused yet)
+        this.focusBlurInProgress = false;
         this.keyboardDelegate.focus();
         this.connectToVirtualKeyboard();
-        this.focusBlurInProgress = false;
       }
     }, 60);
   }

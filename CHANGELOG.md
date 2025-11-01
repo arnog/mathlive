@@ -15,6 +15,9 @@
   events.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
+- **#2859** When using `mathVirtualKeyboardPolicy="manual"`, controlling the
+  virtual keyboard via `focusin`/`focusout` event listeners now works correctly.
+  The keyboard no longer closes immediately after opening.
 
 ## 0.107.1 _2025-09-30_
 
