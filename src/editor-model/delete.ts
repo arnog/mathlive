@@ -263,9 +263,14 @@ function onDelete(
     return true;
   }
 
-  if (atom.type === 'extensible-symbol' || atom.type === 'subsup') {
+  if (
+    atom.type === 'extensible-symbol' ||
+    atom.type === 'subsup' ||
+    atom.type === 'operator'
+  ) {
     //
     // Extensible operator: \sum, \int, etc...
+    // Regular operator: \lim, \sin, etc...
     // Superscript/subscript carrier
     //
     if (!branch && direction === 'forward') return false;
@@ -294,6 +299,33 @@ function onDelete(
       return true;
     }
 
+    // Check if branch is empty and handle removal before navigation
+    if (branch && atom.hasEmptyBranch(branch)) {
+      atom.removeBranch(branch);
+      if (atom.type === 'subsup' && !atom.subscript && !atom.superscript) {
+        // We've removed the last branch of a subsup
+        const pos =
+          direction === 'forward'
+            ? model.offsetOf(atom)
+            : Math.max(0, model.offsetOf(atom) - 1);
+        atom.parent!.removeChild(atom);
+        model.position = pos;
+        return true;
+      }
+      // Branch was removed, navigate out
+      if (branch === 'superscript' && direction === 'backward') {
+        model.position = model.offsetOf(atom.firstChild) - 1;
+      } else if (branch === 'subscript' && direction === 'backward') {
+        if (atom.superscript)
+          model.position = model.offsetOf(atom.superscript[0].lastSibling);
+        else model.position = model.offsetOf(atom.firstChild) - 1;
+      } else {
+        model.position = model.offsetOf(atom);
+      }
+      return true;
+    }
+
+    // Branch is not empty, handle navigation within branches
     if (branch === 'superscript') {
       if (direction === 'backward') {
         const pos = model.offsetOf(atom.firstChild) - 1;
@@ -312,19 +344,6 @@ function onDelete(
       } else {
         // Subscript last: move after
         model.position = model.offsetOf(atom);
-      }
-    }
-
-    if (branch && atom.hasEmptyBranch(branch)) {
-      atom.removeBranch(branch);
-      if (atom.type === 'subsup' && !atom.subscript && !atom.superscript) {
-        // We've removed the last branch of a subsup
-        const pos =
-          direction === 'forward'
-            ? model.offsetOf(atom)
-            : Math.max(0, model.offsetOf(atom) - 1);
-        atom.parent!.removeChild(atom);
-        model.position = pos;
       }
     }
 

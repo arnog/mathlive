@@ -18,6 +18,11 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2447** When deleting content in a subscript or superscript of operators
+  like `\lim`, the cursor would become trapped in the empty branch. Now, when
+  all content in a subscript/superscript is deleted and the delete key is
+  pressed again, the empty branch is removed and the cursor properly navigates
+  out, while keeping the operator itself intact.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
 - **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`
