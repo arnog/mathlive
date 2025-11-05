@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### New Features
+
+- Added `<math-span>` and `<math-div>` web components for lightweight static rendering of mathematical expressions. These components provide an alternative to `renderMathInDocument()` with a simpler API and support for inline (`<math-span>`) and block-level (`<math-div>`) formulas. They support LaTeX, AsciiMath, and MathJSON input formats, and offer a `render()` method for manual re-rendering.
+  - **Performance optimizations**: Lazy font loading (fonts load once globally), Intersection Observer for deferred rendering (formulas render only when visible)
+  - **Accessibility enhancements**: Auto-generated ARIA labels with speakable text, MathML fallback for screen readers, keyboard navigation support when focusable (Space/Enter to speak formula), automatic `role="img"` attribute
+
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.

@@ -11,6 +11,8 @@ import {
   convertLatexToMarkup,
   convertAsciiMathToLatex,
   convertMathJsonToLatex,
+  convertLatexToSpeakableText,
+  convertLatexToMathMl,
 } from './mathlive-ssr';
 import type { LayoutOptions } from './options';
 import type { Expression } from '@cortex-js/compute-engine';
@@ -23,6 +25,23 @@ import { loadFonts } from '../core/fonts';
 export type StaticElementFormat = 'latex' | 'ascii-math' | 'math-json';
 
 /**
+ * Global font loading state (performance optimization)
+ * Ensures fonts are loaded only once across all static elements
+ */
+let fontsLoaded = false;
+let fontLoadPromise: Promise<void> | null = null;
+
+function ensureFontsLoaded(): void {
+  if (fontsLoaded) return;
+
+  if (!fontLoadPromise) {
+    fontLoadPromise = loadFonts().then(() => {
+      fontsLoaded = true;
+    });
+  }
+}
+
+/**
  * Base class for static math rendering elements
  */
 abstract class MathStaticElement extends HTMLElement {
@@ -30,6 +49,9 @@ abstract class MathStaticElement extends HTMLElement {
   private _contentSlot: HTMLDivElement;
   private _renderContainer: HTMLDivElement;
   private _errorFallback: HTMLDivElement;
+  private _mathMLContainer?: HTMLDivElement;
+  private _observer?: IntersectionObserver;
+  private _hasRendered = false;
 
   constructor() {
     super();
@@ -60,6 +82,9 @@ abstract class MathStaticElement extends HTMLElement {
     this._shadowRoot.appendChild(this._contentSlot);
     this._shadowRoot.appendChild(this._renderContainer);
     this._shadowRoot.appendChild(this._errorFallback);
+
+    // Set up keyboard navigation if element becomes focusable
+    this.addEventListener('keydown', this._handleKeydown.bind(this));
   }
 
   /**
@@ -87,9 +112,30 @@ abstract class MathStaticElement extends HTMLElement {
   }
 
   connectedCallback(): void {
-    // Ensure fonts are loaded
-    void loadFonts();
-    this.render();
+    // Lazy load fonts globally (performance optimization)
+    ensureFontsLoaded();
+
+    // Use Intersection Observer for deferred rendering (performance optimization)
+    if ('IntersectionObserver' in window && !this._hasRendered) {
+      this._observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !this._hasRendered) {
+            this.render();
+            this._observer?.disconnect();
+          }
+        },
+        { rootMargin: '50px' }
+      );
+
+      this._observer.observe(this);
+    } else {
+      // Fallback for browsers without IntersectionObserver or already rendered
+      this.render();
+    }
+  }
+
+  disconnectedCallback(): void {
+    this._observer?.disconnect();
   }
 
   attributeChangedCallback(
@@ -97,8 +143,27 @@ abstract class MathStaticElement extends HTMLElement {
     oldValue: string | null,
     newValue: string | null
   ): void {
-    if (oldValue !== newValue) {
+    if (oldValue !== newValue && this._hasRendered) {
       this.render();
+    }
+  }
+
+  /**
+   * Handle keyboard navigation (accessibility enhancement)
+   */
+  private _handleKeydown(event: KeyboardEvent): void {
+    // Only handle keyboard events if element is focusable
+    const tabindex = this.getAttribute('tabindex');
+    if (tabindex === null) return;
+
+    // Space or Enter to hear formula description
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      const description = this.getAttribute('aria-label');
+      if (description && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(description);
+        speechSynthesis.speak(utterance);
+      }
     }
   }
 
@@ -228,6 +293,7 @@ abstract class MathStaticElement extends HTMLElement {
         this._renderContainer.innerHTML = '';
         this._errorFallback.style.display = 'none';
         this._renderContainer.style.display = 'none';
+        this._removeMathML();
         return;
       }
 
@@ -283,6 +349,11 @@ abstract class MathStaticElement extends HTMLElement {
       this._renderContainer.style.display = this.getDefaultDisplay();
       this._errorFallback.style.display = 'none';
 
+      // Add accessibility features
+      this._updateAccessibility(latex);
+
+      this._hasRendered = true;
+
       // Dispatch render event
       this.dispatchEvent(
         new CustomEvent('render', {
@@ -298,6 +369,7 @@ abstract class MathStaticElement extends HTMLElement {
       this._renderContainer.style.display = 'none';
       this._errorFallback.textContent = this.textContent ?? '';
       this._errorFallback.style.display = 'block';
+      this._removeMathML();
 
       // Dispatch error event
       this.dispatchEvent(
@@ -307,6 +379,63 @@ abstract class MathStaticElement extends HTMLElement {
           detail: { error, content: this.textContent },
         })
       );
+    }
+  }
+
+  /**
+   * Update accessibility features (ARIA labels and MathML)
+   */
+  private _updateAccessibility(latex: string): void {
+    // Only set ARIA label if user hasn't provided one
+    if (!this.hasAttribute('aria-label')) {
+      try {
+        const speakableText = convertLatexToSpeakableText(latex);
+        this.setAttribute('aria-label', speakableText);
+      } catch (error) {
+        console.warn('Could not generate speakable text:', error);
+      }
+    }
+
+    // Set role to 'img' for math formulas
+    if (!this.hasAttribute('role')) {
+      this.setAttribute('role', 'img');
+    }
+
+    // Add MathML fallback for screen readers
+    this._addMathML(latex);
+  }
+
+  /**
+   * Add hidden MathML for screen readers (accessibility enhancement)
+   */
+  private _addMathML(latex: string): void {
+    try {
+      const mathML = convertLatexToMathMl(latex);
+
+      if (!this._mathMLContainer) {
+        this._mathMLContainer = document.createElement('div');
+        this._mathMLContainer.style.position = 'absolute';
+        this._mathMLContainer.style.width = '1px';
+        this._mathMLContainer.style.height = '1px';
+        this._mathMLContainer.style.overflow = 'hidden';
+        this._mathMLContainer.style.clip = 'rect(0, 0, 0, 0)';
+        this._mathMLContainer.setAttribute('aria-hidden', 'false');
+        this._shadowRoot.appendChild(this._mathMLContainer);
+      }
+
+      this._mathMLContainer.innerHTML = mathML;
+    } catch (error) {
+      console.warn('Could not generate MathML:', error);
+    }
+  }
+
+  /**
+   * Remove MathML container
+   */
+  private _removeMathML(): void {
+    if (this._mathMLContainer) {
+      this._mathMLContainer.remove();
+      this._mathMLContainer = undefined;
     }
   }
 }

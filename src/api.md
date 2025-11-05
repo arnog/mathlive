@@ -6538,6 +6538,16 @@ connectedCallback(): void
 
 <MemberCard>
 
+##### MathDivElement.disconnectedCallback()
+
+```ts
+disconnectedCallback(): void
+```
+
+</MemberCard>
+
+<MemberCard>
+
 ##### MathDivElement.render()
 
 ```ts
@@ -6704,6 +6714,16 @@ attributeChangedCallback(name, oldValue, newValue): void
 
 ```ts
 connectedCallback(): void
+```
+
+</MemberCard>
+
+<MemberCard>
+
+##### MathSpanElement.disconnectedCallback()
+
+```ts
+disconnectedCallback(): void
 ```
 
 </MemberCard>
