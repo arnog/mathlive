@@ -329,8 +329,15 @@ export class Box implements BoxInterface {
     if (this.isSelected) backgroundColor = highlight(backgroundColor);
 
     if (backgroundColor && backgroundColor !== parent.backgroundColor) {
+      // Store the background color for both detection (via background-color style)
+      // and rendering (via CSS variable). The ::before pseudo-element will render
+      // the background behind the content to avoid painting over adjacent elements.
       this.setStyle('background-color', backgroundColor);
+      this.setStyle('--bg-color' as any, backgroundColor);
       this.setStyle('display', 'inline-block');
+      this.setStyle('position', 'relative');
+      // Add a class that CSS can target to render background via pseudo-element
+      this.classes = this.classes ? `${this.classes} ML__bg` : 'ML__bg';
     }
 
     const scale = context.scalingFactor;

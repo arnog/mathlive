@@ -23,6 +23,12 @@
   all content in a subscript/superscript is deleted and the delete key is
   pressed again, the empty branch is removed and the cursor properly navigates
   out, while keeping the operator itself intact.
+- **#2547** Fixed rendering of `\colorbox` in fractions where the colored
+  background would obscure the fraction bar. The background is now rendered
+  behind the content using a CSS pseudo-element with `z-index: -1`, preventing
+  it from painting over adjacent elements like fraction bars. This issue
+  occurred specifically with double-braced content like
+  `\frac{{\colorbox{red}{344}}}{3}`.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
 - **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`

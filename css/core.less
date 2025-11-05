@@ -786,3 +786,24 @@
     transform: scale(1) translate(0, 3em);
   }
 }
+
+// Background color with pseudo-element to prevent overlap with adjacent elements
+// The parent element has background-color set for style detection, but we override
+// it to transparent and render via ::before pseudo-element with z-index: -1
+.ML__bg {
+  background-color: transparent !important;
+}
+
+.ML__bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: -1;
+  // Clip to content box to prevent extending beyond padding
+  // This ensures backgrounds don't paint over adjacent elements like fraction bars
+  box-sizing: border-box;
+}
