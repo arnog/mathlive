@@ -28,6 +28,10 @@
   brackets, etc.) using the mouse and then inserting a fraction, the selected
   content no longer disappears. The selection is now properly used as the
   numerator of the fraction.
+- **#2754** Setting the `placeholder` property programmatically now works
+  correctly. Previously, `mathfield.placeholder = "text"` would not update the
+  placeholder. The property now follows the same pattern as all other properties
+  for consistent behavior.
 
 ## 0.107.1 _2025-09-30_
 

@@ -1539,7 +1539,8 @@ import 'https://esm.run/@cortex-js/compute-engine';
     const defaultOptions = getDefaultOptions();
     const options = this._getOptions();
     Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-      const prop = toCamelCase(x);
+      // Handle special case: 'placeholder' attribute maps to 'contentPlaceholder' option
+      const prop = x === 'placeholder' ? 'contentPlaceholder' : toCamelCase(x);
       if (MathfieldElement.optionsAttributes[x] === 'on/off') {
         if (defaultOptions[prop] !== options[prop])
           this.setAttribute(x, options[prop] ? 'on' : 'off');
@@ -2583,12 +2584,11 @@ mf.macros = {
    * @category Customization
    */
   get placeholder(): string {
-    return this.getAttribute('placeholder') ?? '';
+    return this._getOption('contentPlaceholder');
   }
 
   set placeholder(value: string) {
-    if (typeof value !== 'string') return;
-    this._mathfield?.setOptions({ contentPlaceholder: value });
+    this._setOptions({ contentPlaceholder: value });
   }
 
   /**
