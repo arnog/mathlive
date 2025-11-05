@@ -512,6 +512,37 @@ test('mathbb with superscript (issue #2867)', async ({ page }) => {
   expect(latex).toBe('\\mathbb{R}^0');
 });
 
+test('backspace on empty displaylines (issue #2739)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // Type "a", press Cmd+Enter (or Ctrl+Enter), type "b"
+  await page.locator('#mf-1').pressSequentially('a');
+  await page.locator('#mf-1').press(
+    process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter'
+  );
+  await page.locator('#mf-1').pressSequentially('b');
+
+  // Select all and delete
+  await page.locator('#mf-1').press(
+    process.platform === 'darwin' ? 'Meta+a' : 'Control+a'
+  );
+  await page.locator('#mf-1').press('Backspace');
+
+  // Press Backspace again on empty displaylines - this should not throw an error
+  await page.locator('#mf-1').press('Backspace');
+
+  // The field should either be empty or just have the displaylines structure
+  // The important thing is that no error was thrown during the backspace operations
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  // Accept either empty string, empty displaylines, or displaylines with just whitespace
+  expect(['', '\\displaylines{}', '\\displaylines{\\\\ }']).toContain(latex);
+});
+
 async function tab(page) {
   await page.keyboard.press('Tab');
   // Wait some time for focus to change

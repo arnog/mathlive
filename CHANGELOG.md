@@ -32,6 +32,11 @@
   correctly. Previously, `mathfield.placeholder = "text"` would not update the
   placeholder. The property now follows the same pattern as all other properties
   for consistent behavior.
+- **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`
+  environment. The error "Cannot read properties of undefined (reading 'length')"
+  would occur when creating a multiline display (Cmd+Enter), deleting all content,
+  and pressing Backspace again. The row deletion logic now properly handles empty
+  cells and missing rows.
 
 ## 0.107.1 _2025-09-30_
 

@@ -582,20 +582,45 @@ function deleteRow(
   if (atom.rows[row].length > 1) return false;
 
   // Capture the content of the current cell
-  const content = atom.getCell(row, 0)!;
+  const content = atom.getCell(row, 0);
+  if (!content) return false;
 
   atom.removeRow(row);
 
   // If going backward, move to the end of the previous line
   if (direction === 'backward') {
-    const prevLine = atom.getCell(row - 1, 0)!;
-    model.position = model.offsetOf(prevLine[prevLine.length - 1]);
+    const prevLine = atom.getCell(row - 1, 0);
+    if (!prevLine) {
+      // If we can't get the previous line, just position at the array
+      model.position = model.offsetOf(atom);
+      return true;
+    }
+    
+    // Handle empty prevLine - position at the array itself instead of trying to access prevLine[length-1]
+    if (prevLine.length > 0) {
+      model.position = model.offsetOf(prevLine[prevLine.length - 1]);
+    } else {
+      // prevLine is empty - position at the array atom itself
+      model.position = model.offsetOf(atom);
+    }
     // Add content from the deleted cell to the end of the previous line
     atom.setCell(row - 1, 0, [...prevLine, ...content]);
   } else {
     // If going forward, move to the beginning of the next line
-    const nextLine = atom.getCell(row, 0)!;
-    model.position = model.offsetOf(nextLine[0]);
+    const nextLine = atom.getCell(row, 0);
+    if (!nextLine) {
+      // If we can't get the next line, just position at the array
+      model.position = model.offsetOf(atom);
+      return true;
+    }
+    
+    // Handle empty nextLine - position at the array itself instead of trying to access nextLine[0]
+    if (nextLine.length > 0) {
+      model.position = model.offsetOf(nextLine[0]);
+    } else {
+      // nextLine is empty - position at the array atom itself
+      model.position = model.offsetOf(atom);
+    }
     // Add content from the deleted cell to the beginning of the next line
     atom.setCell(row, 0, [...content, ...nextLine]);
   }
