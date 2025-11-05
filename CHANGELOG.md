@@ -18,6 +18,10 @@
 - **#2859** When using `mathVirtualKeyboardPolicy="manual"`, controlling the
   virtual keyboard via `focusin`/`focusout` event listeners now works correctly.
   The keyboard no longer closes immediately after opening.
+- **#2799** When selecting content inside mathematical structures (square roots,
+  brackets, etc.) using the mouse and then inserting a fraction, the selected
+  content no longer disappears. The selection is now properly used as the
+  numerator of the fraction.
 
 ## 0.107.1 _2025-09-30_
 

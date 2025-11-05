@@ -846,7 +846,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
         // https://github.com/arnog/mathlive/issues/2588
         // Only do the blur/focus cycle if the keyboard policy is not manual
         // to avoid interfering with manual keyboard control (#2859)
-        if (this.hasFocus() && this.options.mathVirtualKeyboardPolicy !== 'manual') {
+        if (
+          this.hasFocus() &&
+          this.options.mathVirtualKeyboardPolicy !== 'manual'
+        ) {
           this.keyboardDelegate.blur();
           this.keyboardDelegate.focus();
         }

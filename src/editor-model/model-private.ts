@@ -600,38 +600,58 @@ export class _Model implements Model {
       let [start, end] = range;
 
       // Include the parent if all the children are selected
+      // But not for container atoms that are typically used as arguments
+      // (e.g., surd, leftright) as this causes issues when inserting
+      // operations on the selection (see #2799)
+      const expandableTypes = new Set([
+        'genfrac',
+        'subsup',
+        'accent',
+        'box',
+        'overlap',
+        'overunder',
+      ]);
+
       let { parent } = this.at(end);
-      if (parent) {
-        if (parent.type === 'genfrac' || parent.type === 'subsup') {
-          while (
-            parent !== this.root &&
-            childrenInRange(this, parent!, [start, end])
-          ) {
-            end = this.offsetOf(parent!);
-            parent = parent!.parent;
-          }
+      if (parent?.type && expandableTypes.has(parent.type)) {
+        while (
+          parent &&
+          parent !== this.root &&
+          parent.type &&
+          expandableTypes.has(parent.type) &&
+          childrenInRange(this, parent, [start, end])
+        ) {
+          end = this.offsetOf(parent);
+          parent = parent.parent;
         }
       }
+
       parent = this.at(start).parent;
       while (
+        parent &&
         parent !== this.root &&
-        childrenInRange(this, parent!, [start, end])
+        parent.type &&
+        expandableTypes.has(parent.type) &&
+        childrenInRange(this, parent, [start, end])
       ) {
-        start = this.offsetOf(parent!.leftSibling);
-        parent = parent!.parent;
+        start = this.offsetOf(parent.leftSibling);
+        parent = parent.parent;
       }
 
       // Now that the start has potentially changed, check again
       // if end needs to be updated
       parent = this.at(end).parent;
-      if (parent?.type === 'genfrac') {
+      if (parent?.type && expandableTypes.has(parent.type)) {
         while (
+          parent &&
           parent !== this.root &&
-          childrenInRange(this, parent!, [start, end])
+          parent.type &&
+          expandableTypes.has(parent.type) &&
+          childrenInRange(this, parent, [start, end])
         ) {
-          end = this.offsetOf(parent!);
+          end = this.offsetOf(parent);
           console.assert(end >= 0);
-          parent = parent!.parent;
+          parent = parent.parent;
         }
       }
       this._position = this.normalizeOffset(position);
