@@ -139,3 +139,24 @@ describe('VARIANT SERIALIZATION (issue #2867)', () => {
     expect(serialize(input)).toBe(expected);
   });
 });
+
+describe('MATHRM SERIALIZATION (issue #2818)', () => {
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    // \mathrm should be preserved in latex-expanded format
+    ['\\mathrm{d}', '\\mathrm{d}'],
+    ['\\mathrm{dx}', '\\mathrm{dx}'],
+    ['\\frac{\\mathrm{d}y}{\\mathrm{d}x}', '\\frac{\\mathrm{d}y}{\\mathrm{d}x}'],
+    ['x\\mathrm{d}x', 'x\\mathrm{d}x'],
+    ['a+\\mathrm{b}+c', 'a+\\mathrm{b}+c'],
+    // Other upright variants should also work
+    ['\\mathsf{A}', '\\mathsf{A}'],
+    ['\\mathtt{code}', '\\mathtt{code}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+  });
+});

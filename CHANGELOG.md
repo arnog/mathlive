@@ -9,6 +9,10 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2818** The `\mathrm` command and other upright variants (`\mathsf`, `\mathtt`)
+  are now correctly preserved when exporting to the `latex-expanded` format.
+  Previously, these commands were being stripped from the output, causing
+  `\mathrm{d}` to be serialized as just `d`.
 - **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
   commands.
 - **#2889** Custom attributes would not be propagated to the generated markup.
