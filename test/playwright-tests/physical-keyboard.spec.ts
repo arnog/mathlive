@@ -499,6 +499,7 @@ test('mathbb with superscript (issue #2867)', async ({ page }) => {
 
   // Type \mathbb{R}^0 using physical keyboard
   await page.locator('#mf-1').pressSequentially('\\mathbb{R}^0');
+  await page.locator('#mf-1').press('Enter');
 
   // Get the serialized LaTeX value
   const latex = await page
@@ -508,7 +509,7 @@ test('mathbb with superscript (issue #2867)', async ({ page }) => {
     });
 
   // Should serialize as \mathbb{R}^0, not \mathbb{R^0}
-  expect(latex).toBe('\\mathbb{R}^{0}');
+  expect(latex).toBe('\\mathbb{R}^0');
 });
 
 async function tab(page) {
