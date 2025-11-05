@@ -595,7 +595,7 @@ function deleteRow(
       model.position = model.offsetOf(atom);
       return true;
     }
-    
+
     // Handle empty prevLine - position at the array itself instead of trying to access prevLine[length-1]
     if (prevLine.length > 0) {
       model.position = model.offsetOf(prevLine[prevLine.length - 1]);
@@ -613,7 +613,7 @@ function deleteRow(
       model.position = model.offsetOf(atom);
       return true;
     }
-    
+
     // Handle empty nextLine - position at the array itself instead of trying to access nextLine[0]
     if (nextLine.length > 0) {
       model.position = model.offsetOf(nextLine[0]);

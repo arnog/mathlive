@@ -33,6 +33,11 @@
   range that is only within a single line, the returned value is no longer
   unnecessarily wrapped in a `\displaylines{}` command. The wrapper is now only
   added when the content actually spans multiple lines.
+- **#2784** The `\hat{}` accent is now properly centered over uppercase letters.
+  Previously, the accent would appear shifted rather than centered when applied
+  to uppercase characters, while it worked correctly with lowercase letters. The
+  centering algorithm now accounts for the width difference between the base
+  character and the accent to ensure proper positioning for all characters.
 - **#2799** When selecting content inside mathematical structures (square roots,
   brackets, etc.) using the mouse and then inserting a fraction, the selected
   content no longer disappears. The selection is now properly used as the
