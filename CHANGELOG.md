@@ -2,45 +2,58 @@
 
 ### New Features
 
-- Added `<math-span>` and `<math-div>` web components for lightweight static rendering of mathematical expressions. These components provide an alternative to `renderMathInDocument()` with a simpler API and support for inline (`<math-span>`) and block-level (`<math-div>`) formulas. They support LaTeX, AsciiMath, and MathJSON input formats, and offer a `render()` method for manual re-rendering.
-  - **Performance optimizations**: Lazy font loading (fonts load once globally), Intersection Observer for deferred rendering (formulas render only when visible)
-  - **Accessibility enhancements**: Auto-generated ARIA labels with speakable text, MathML fallback for screen readers, keyboard navigation support when focusable (Space/Enter to speak formula), automatic `role="img"` attribute
+- Added `<math-span>` and `<math-div>` web components for lightweight static
+  rendering of mathematical expressions. These components provide an alternative
+  to `renderMathInDocument()` with a simpler API and support for inline
+  (`<math-span>`) and block-level (`<math-div>`) formulas. They support LaTeX,
+  AsciiMath, and MathJSON input formats, and offer a `render()` method for
+  manual re-rendering.
+  - **Performance optimizations**: Lazy font loading (fonts load once globally),
+    Intersection Observer for deferred rendering (formulas render only when
+    visible)
+  - **Accessibility enhancements**: Auto-generated ARIA labels with speakable
+    text, MathML fallback for screen readers, keyboard navigation support when
+    focusable (Space/Enter to speak formula), automatic `role="img"` attribute
 
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
-- **#2818** The `\mathrm` command and other upright variants (`\mathsf`, `\mathtt`)
-  are now correctly preserved when exporting to the `latex-expanded` format.
-  Previously, these commands were being stripped from the output, causing
-  `\mathrm{d}` to be serialized as just `d`.
-- **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
-  commands.
-- **#2889** Custom attributes would not be propagated to the generated markup.
-- **#2884** The command to add/remove columns and rows when in a `cases`
-  environment are now enabled.
-- **#2867** In some cases, applying a superscript or subscript to a command with
-  an argument (for example `\mathbb{R}`) would incorrectly include the argument
-  in the superscript or subscript.
-- **#2816** Programmatic calls to `.focus()` now correctly trigger `focusin`
-  events.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
-- **#2859** When using `mathVirtualKeyboardPolicy="manual"`, controlling the
-  virtual keyboard via `focusin`/`focusout` event listeners now works correctly.
-  The keyboard no longer closes immediately after opening.
-- **#2799** When selecting content inside mathematical structures (square roots,
-  brackets, etc.) using the mouse and then inserting a fraction, the selected
-  content no longer disappears. The selection is now properly used as the
-  numerator of the fraction.
+- **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`
+  environment. The error "Cannot read properties of undefined (reading
+  'length')" would occur when creating a multiline display (Cmd+Enter), deleting
+  all content, and pressing Backspace again. The row deletion logic now properly
+  handles empty cells and missing rows.
 - **#2754** Setting the `placeholder` property programmatically now works
   correctly. Previously, `mathfield.placeholder = "text"` would not update the
   placeholder. The property now follows the same pattern as all other properties
   for consistent behavior.
-- **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`
-  environment. The error "Cannot read properties of undefined (reading 'length')"
-  would occur when creating a multiline display (Cmd+Enter), deleting all content,
-  and pressing Backspace again. The row deletion logic now properly handles empty
-  cells and missing rows.
+- **#2767** When calling `getValue()` on a mathfield in multiline mode with a
+  range that is only within a single line, the returned value is no longer
+  unnecessarily wrapped in a `\displaylines{}` command. The wrapper is now only
+  added when the content actually spans multiple lines.
+- **#2799** When selecting content inside mathematical structures (square roots,
+  brackets, etc.) using the mouse and then inserting a fraction, the selected
+  content no longer disappears. The selection is now properly used as the
+  numerator of the fraction.
+- **#2816** Programmatic calls to `.focus()` now correctly trigger `focusin`
+  events.
+- **#2818** The `\mathrm` command and other upright variants (`\mathsf`,
+  `\mathtt`) are now correctly preserved when exporting to the `latex-expanded`
+  format. Previously, these commands were being stripped from the output,
+  causing `\mathrm{d}` to be serialized as just `d`.
+- **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
+  commands.
+- **#2859** When using `mathVirtualKeyboardPolicy="manual"`, controlling the
+  virtual keyboard via `focusin`/`focusout` event listeners now works correctly.
+  The keyboard no longer closes immediately after opening.
+- **#2867** In some cases, applying a superscript or subscript to a command with
+  an argument (for example `\mathbb{R}`) would incorrectly include the argument
+  in the superscript or subscript.
+- **#2884** The command to add/remove columns and rows when in a `cases`
+  environment are now enabled.
+- **#2889** Custom attributes would not be propagated to the generated markup.
 
 ## 0.107.1 _2025-09-30_
 

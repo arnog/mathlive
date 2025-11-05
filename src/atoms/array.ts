@@ -663,8 +663,11 @@ export class ArrayAtom extends Atom {
   _serialize(options: ToLatexOptions): string {
     const result: string[] = [];
 
-    if (this.environmentName === 'lines') result.push(`\\displaylines{`);
-    else result.push(`\\begin{${this.environmentName}}`);
+    // Only wrap in \displaylines{} if there are multiple rows
+    if (this.environmentName === 'lines' && this._rows.length > 1)
+      result.push(`\\displaylines{`);
+    else if (this.environmentName !== 'lines')
+      result.push(`\\begin{${this.environmentName}}`);
 
     if (this.environmentName === 'array') {
       result.push('{');
@@ -697,8 +700,11 @@ export class ArrayAtom extends Atom {
       }
     }
 
-    if (this.environmentName === 'lines') result.push(`}`);
-    else result.push(`\\end{${this.environmentName}}`);
+    // Only close \displaylines{} if there are multiple rows
+    if (this.environmentName === 'lines' && this._rows.length > 1)
+      result.push(`}`);
+    else if (this.environmentName !== 'lines')
+      result.push(`\\end{${this.environmentName}}`);
 
     return joinLatex(result);
   }
