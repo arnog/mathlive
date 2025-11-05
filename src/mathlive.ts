@@ -17,6 +17,9 @@ import {
   convertMathJsonToLatex,
 } from './public/mathlive-ssr';
 
+import './public/math-static-elements';
+export { MathSpanElement, MathDivElement } from './public/math-static-elements';
+
 export {
   MenuItemType,
   MenuItemProps,
