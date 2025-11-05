@@ -23,6 +23,12 @@
   all content in a subscript/superscript is deleted and the delete key is
   pressed again, the empty branch is removed and the cursor properly navigates
   out, while keeping the operator itself intact.
+- **#2512** Fixed excessive blank space appearing above inline `array`
+  environments. The vertical alignment of arrays has been adjusted to align the
+  first row's baseline with surrounding text rather than centering the entire
+  array around the math axis, which was causing unwanted spacing above inline
+  arrays with column separators like
+  `\begin{array}{l|l} a & b\\ c & d\end{array}`.
 - **#2547** Fixed rendering of `\colorbox` in fractions where the colored
   background would obscure the fraction bar. The background is now rendered
   behind the content using a CSS pseudo-element with `z-index: -1`, preventing

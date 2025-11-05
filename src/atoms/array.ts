@@ -491,7 +491,12 @@ export class ArrayAtom extends Atom {
       body.push(outrow);
     }
 
-    const offset = totalHeight / 2 + AXIS_HEIGHT;
+    // For inline array environments, align the first row's baseline rather than
+    // centering around the math axis to avoid blank space above (see issue #2512)
+    const offset =
+      this.environmentName === 'array' && !this.isMultiline
+        ? body[0].height  // Align to first row's baseline
+        : totalHeight / 2 + AXIS_HEIGHT; // Center around math axis
     const contentCols: Box[] = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {
       const stack: VBoxElementAndShift[] = [];
@@ -606,6 +611,13 @@ export class ArrayAtom extends Atom {
     const inner = new Box(cols, {
       classes: ['ML__mtable', ...this.classes].join(' '),
     });
+
+    // For inline array environments, adjust the box height/depth to align
+    // properly with surrounding text (see issue #2512)
+    if (this.environmentName === 'array' && !this.isMultiline) {
+      inner.height = body[0].height;
+      inner.depth = totalHeight - body[0].height;
+    }
 
     if (
       (!this.leftDelim || this.leftDelim === '.') &&
