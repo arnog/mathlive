@@ -203,7 +203,11 @@ export class VirtualKeyboardProxy
     if (action === 'execute-command') {
       const { command } = msg;
       const commandTarget = getCommandTarget(command!);
-      if (commandTarget === 'virtual-keyboard') this.executeCommand(command!);
+      if (commandTarget === 'virtual-keyboard') {
+        this.executeCommand(command!);
+      }
+      // Note: mathfield commands are handled by the mathfield's own message listener
+      // (see mathfield-private.ts handleEvent), not by the proxy
       return;
     }
 
@@ -226,7 +230,7 @@ export class VirtualKeyboardProxy
   ): void {
     if (!this.targetWindow) {
       throw new DOMException(
-        `A frame does not have access to the top window and can‘t communicate with the keyboard.`,
+        `A frame does not have access to the top window and can't communicate with the keyboard.`,
         'SecurityError'
       );
     }

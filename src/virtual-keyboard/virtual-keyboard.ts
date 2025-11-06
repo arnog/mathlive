@@ -647,10 +647,15 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     const { action } = msg;
     if (action === 'execute-command') {
       const { command } = msg;
-
-      // Avoid an infinite messages loop if within one window
       const commandTarget = getCommandTarget(command!);
-      if (window.top !== undefined && commandTarget !== 'virtual-keyboard')
+
+      // If we're in the top window and receiving a message from an iframe,
+      // don't handle it here (the iframe's mathfield will handle it)
+      if (window === window.top && source !== window) return;
+
+      // If we're in the top window and receiving our own message for a
+      // mathfield command, don't re-execute it (we already sent it)
+      if (window === window.top && commandTarget !== 'virtual-keyboard')
         return;
 
       this.executeCommand(command!);
