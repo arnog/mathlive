@@ -14,9 +14,6 @@ export LINECLEAR="\033[1G\033[2K" # position to column 1; erase whole line
 
 cd "$(dirname "$0")/.."
 
-# Check that correct version of npm and node are installed
-npx check-node-version --package
-
 # If no "node_modules" directory, do an install first
 if [ ! -d "./node_modules" ]; then
     printf "${DOT}Installing dependencies"
