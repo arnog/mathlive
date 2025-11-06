@@ -23,6 +23,13 @@
   all content in a subscript/superscript is deleted and the delete key is
   pressed again, the empty branch is removed and the cursor properly navigates
   out, while keeping the operator itself intact.
+- **#2476** Readonly expressions can no longer be modified using the virtual
+  keyboard. Previously, when a mathfield was readonly or when the selection
+  was within a readonly portion (such as outside a prompt/placeholder in a
+  fill-in-the-blank scenario), typing on the virtual keyboard would incorrectly
+  replace or modify the readonly content. The virtual keyboard now respects
+  readonly protection, matching the behavior of the physical keyboard by
+  playing a "plonk" sound and rejecting the input.
 - **#2480** Fixed selection behavior within `\mathtip` and `\texttip` commands.
   Previously, it was only possible to select the entire content of a mathtip at
   once (e.g., all of `x+1` in `\mathtip{x+1}{test}`), even though navigation

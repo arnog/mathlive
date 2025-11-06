@@ -6,15 +6,8 @@ import { requestUpdate } from './render';
 import { ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
 
+// Commands that don't change content
 registerCommand({
-  undo: (mathfield: _Mathfield) => {
-    mathfield.undo();
-    return true;
-  },
-  redo: (mathfield: _Mathfield) => {
-    mathfield.redo();
-    return true;
-  },
   scrollIntoView: (mathfield: _Mathfield) => {
     mathfield.scrollIntoView();
     return true;
@@ -47,66 +40,96 @@ registerCommand({
     mathfield.switchMode(mode, prefix, suffix);
     return true;
   },
-  insert: (mathfield: _Mathfield, s: string, options) =>
-    mathfield.insert(s, options),
-  typedText: (mathfield: _Mathfield, text: string, options) => {
-    onInput(mathfield, text, options);
-    return true;
-  },
-  insertDecimalSeparator: (mathfield: _Mathfield) => {
-    const model = mathfield.model;
-    if (
-      model.mode === 'math' &&
-      globalThis.MathfieldElement.decimalSeparator === ','
-    ) {
-      const child = model.at(Math.max(model.position, model.anchor));
-      if (child.isDigit()) {
-        mathfield.insert('{,}', { format: 'latex' });
-        mathfield.snapshot('insert-mord');
-        return true;
-      }
-    }
-    mathfield.insert('.');
-    return true;
-  },
-  // A 'commit' command is used to simulate pressing the return/enter key,
-  // e.g. when using a virtual keyboard
-  commit: (mathfield: _Mathfield) => {
-    const model = mathfield.model;
-    if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
-      mathfield.host?.dispatchEvent(
-        new Event('change', { bubbles: true, composed: true })
-      );
-      // If we're in a multiline environment, insert a newline
-      if (model.parentEnvironment?.isMultiline)
-        mathfield.executeCommand('addRowAfter');
+});
 
-      model.contentDidChange({ inputType: 'insertLineBreak' });
-    }
-    return true;
+// Commands that change content (and affect undo/redo history)
+registerCommand(
+  {
+    undo: (mathfield: _Mathfield) => {
+      mathfield.undo();
+      return true;
+    },
+    redo: (mathfield: _Mathfield) => {
+      mathfield.redo();
+      return true;
+    },
   },
-  insertPrompt: (mathfield: _Mathfield, id?: string, options?): boolean => {
-    const promptIds = mathfield.getPrompts();
-    let prospectiveId =
-      'prompt-' +
-      Date.now().toString(36).slice(-2) +
-      Math.floor(Math.random() * 0x186a0).toString(36);
-    let i = 0;
-    while (promptIds.includes(prospectiveId) && i < 100) {
-      if (i === 99) {
-        console.error('could not find a unique ID after 100 tries');
-        return false;
+  {
+    target: 'mathfield',
+    changeContent: true,
+  }
+);
+
+// Commands that insert/modify content
+registerCommand(
+  {
+    insert: (mathfield: _Mathfield, s: string, options) =>
+      mathfield.insert(s, options),
+    typedText: (mathfield: _Mathfield, text: string, options) => {
+      onInput(mathfield, text, options);
+      return true;
+    },
+    insertDecimalSeparator: (mathfield: _Mathfield) => {
+      const model = mathfield.model;
+      if (
+        model.mode === 'math' &&
+        globalThis.MathfieldElement.decimalSeparator === ','
+      ) {
+        const child = model.at(Math.max(model.position, model.anchor));
+        if (child.isDigit()) {
+          mathfield.insert('{,}', { format: 'latex' });
+          mathfield.snapshot('insert-mord');
+          return true;
+        }
       }
-      prospectiveId =
+      mathfield.insert('.');
+      return true;
+    },
+    // A 'commit' command is used to simulate pressing the return/enter key,
+    // e.g. when using a virtual keyboard
+    commit: (mathfield: _Mathfield) => {
+      const model = mathfield.model;
+      if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
+        mathfield.host?.dispatchEvent(
+          new Event('change', { bubbles: true, composed: true })
+        );
+        // If we're in a multiline environment, insert a newline
+        if (model.parentEnvironment?.isMultiline)
+          mathfield.executeCommand('addRowAfter');
+
+        model.contentDidChange({ inputType: 'insertLineBreak' });
+      }
+      return true;
+    },
+    insertPrompt: (mathfield: _Mathfield, id?: string, options?): boolean => {
+      const promptIds = mathfield.getPrompts();
+      let prospectiveId =
         'prompt-' +
         Date.now().toString(36).slice(-2) +
         Math.floor(Math.random() * 0x186a0).toString(36);
-      i++;
-    }
-    mathfield.insert(`\\placeholder[${id ?? prospectiveId}]{}`, options);
-    return true;
+      let i = 0;
+      while (promptIds.includes(prospectiveId) && i < 100) {
+        if (i === 99) {
+          console.error('could not find a unique ID after 100 tries');
+          return false;
+        }
+        prospectiveId =
+          'prompt-' +
+          Date.now().toString(36).slice(-2) +
+          Math.floor(Math.random() * 0x186a0).toString(36);
+        i++;
+      }
+      mathfield.insert(`\\placeholder[${id ?? prospectiveId}]{}`, options);
+      return true;
+    },
   },
-});
+  {
+    target: 'mathfield',
+    canUndo: true,
+    changeContent: true,
+    changeSelection: true,
+  }
+);
 
 registerCommand(
   {
