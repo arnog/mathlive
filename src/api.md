@@ -6390,13 +6390,12 @@ Renders mathematical content as a block element using displaystyle by default.
 <math-div mode="textstyle">x + y</math-div>
 ```
 
-#### Fires
+ render - Fired when content is successfully rendered
+ render-error - Fired when rendering fails
 
-render - Fired when content is successfully rendered
+#### Group
 
-#### Fires
-
-render-error - Fired when rendering fails
+Events
 
 #### Extends
 
@@ -6572,13 +6571,12 @@ Renders mathematical content inline using textstyle by default.
 <math-span mode="displaystyle">\\sum_{i=1}^n i</math-span>
 ```
 
-#### Fires
+ render - Fired when content is successfully rendered
+ render-error - Fired when rendering fails
 
-render - Fired when content is successfully rendered
+#### Group
 
-#### Fires
-
-render-error - Fired when rendering fails
+Events
 
 #### Extends
 

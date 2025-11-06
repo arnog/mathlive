@@ -452,8 +452,8 @@ abstract class MathStaticElement extends HTMLElement {
  * <math-span mode="displaystyle">\\sum_{i=1}^n i</math-span>
  * ```
  *
- * @fires render - Fired when content is successfully rendered
- * @fires render-error - Fired when rendering fails
+ * @event render - Fired when content is successfully rendered
+ * @event render-error - Fired when rendering fails
  */
 export class MathSpanElement extends MathStaticElement {
   protected getDefaultMathstyle(): 'textstyle' | 'displaystyle' {
@@ -477,8 +477,8 @@ export class MathSpanElement extends MathStaticElement {
  * <math-div mode="textstyle">x + y</math-div>
  * ```
  *
- * @fires render - Fired when content is successfully rendered
- * @fires render-error - Fired when rendering fails
+ * @event render - Fired when content is successfully rendered
+ * @event render-error - Fired when rendering fails
  */
 export class MathDivElement extends MathStaticElement {
   protected getDefaultMathstyle(): 'textstyle' | 'displaystyle' {
