@@ -97,6 +97,11 @@
 - **#2884** The command to add/remove columns and rows when in a `cases`
   environment are now enabled.
 - **#2889** Custom attributes would not be propagated to the generated markup.
+- Fixed double-click selection of styled text. Previously, double-clicking on
+  styled content like `\mathrm{xyz}` would incorrectly select adjacent unstyled
+  text instead of the styled content itself. The selection boundary logic now
+  properly checks the next atom's style before advancing, preventing off-by-one
+  errors when determining style boundaries.
 
 ## 0.107.1 _2025-09-30_
 
