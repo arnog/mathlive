@@ -182,8 +182,12 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
     });
 
     // Reset the style bias if the anchor is different
+    // However, preserve explicit variantStyle settings to allow toggling
     if (anchor !== mathfield.model.anchor) {
-      mathfield.defaultStyle = {};
+      const preservedVariantStyle = mathfield.defaultStyle.variantStyle;
+      mathfield.defaultStyle = preservedVariantStyle !== undefined
+        ? { variantStyle: preservedVariantStyle }
+        : {};
       mathfield.styleBias = 'left';
     }
 

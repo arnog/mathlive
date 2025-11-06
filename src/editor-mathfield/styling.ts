@@ -136,8 +136,12 @@ export function validateStyle(
 
   if (style.variant) result.variant = style.variant.toLowerCase() as Variant;
 
-  if (style.variantStyle)
-    result.variantStyle = style.variantStyle.toLowerCase() as VariantStyle;
+  if (style.variantStyle !== undefined) {
+    result.variantStyle =
+      typeof style.variantStyle === 'string' && style.variantStyle !== ''
+        ? style.variantStyle.toLowerCase() as VariantStyle
+        : style.variantStyle as VariantStyle;
+  }
 
   const size = style.size ?? style.fontSize;
 
@@ -202,7 +206,8 @@ export function defaultInsertStyleHook(
   if (model.mode === 'math') {
     const atom = model.at(bias === 'right' ? info.after : info.before);
     if (!atom) return mathfield.defaultStyle;
-    return { ...atom.style, variant: 'normal' };
+    // Merge inherited style with defaultStyle, where defaultStyle takes precedence
+    return { ...atom.style, variant: 'normal', ...mathfield.defaultStyle };
   }
 
   return {};

@@ -18,6 +18,13 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2444** Font style menu items (roman, italic) are now always visible and
+  properly toggleable. Previously, these items only appeared when text was
+  selected, and toggling them when positioned after styled text would not work
+  on the first click. The toggle logic now correctly checks against the
+  computed insert style (including inherited styles from adjacent atoms) rather
+  than just the explicit default style, allowing users to easily toggle off
+  font styles like `\mathrm{}` (roman/upright).
 - **#2447** When deleting content in a subscript or superscript of operators
   like `\lim`, the cursor would become trapped in the empty branch. Now, when
   all content in a subscript/superscript is deleted and the delete key is

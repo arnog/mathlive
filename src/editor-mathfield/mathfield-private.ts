@@ -1364,9 +1364,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
 
       // Toggle the properties
+      const currentStyle = computeInsertStyle(this);
       const newStyle: PrivateStyle = { ...this.defaultStyle };
       for (const prop of Object.keys(style)) {
-        if (newStyle[prop] === style[prop]) {
+        if (currentStyle[prop] === style[prop]) {
           if (prop === 'color') delete newStyle.verbatimColor;
           if (prop === 'backgroundColor')
             delete newStyle.verbatimBackgroundColor;

@@ -844,8 +844,7 @@ function variantStyleMenuItem(
 
     tooltip: () => localize(tooltip) ?? tooltip,
 
-    visible:
-      variantStyle === 'bold' ? true : () => validVariantStyleSelection(mf),
+    visible: true,
 
     checked: () =>
       ({ some: 'mixed', all: true })[mf.queryStyle({ variantStyle })] ?? false,
