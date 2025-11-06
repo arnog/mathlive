@@ -741,7 +741,7 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
               memberName = `${model.parent.name}.${memberName}`;
           }
           if (hasCard) {
-            console.log('hasCard ' + model.name + ' ' + model.kind);
+            // console.log('hasCard ' + model.name + ' ' + model.kind);
             md.push(`<MemberCard>`);
           }
 
