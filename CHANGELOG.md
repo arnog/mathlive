@@ -23,6 +23,13 @@
   all content in a subscript/superscript is deleted and the delete key is
   pressed again, the empty branch is removed and the cursor properly navigates
   out, while keeping the operator itself intact.
+- **#2480** Fixed selection behavior within `\mathtip` and `\texttip` commands.
+  Previously, it was only possible to select the entire content of a mathtip at
+  once (e.g., all of `x+1` in `\mathtip{x+1}{test}`), even though navigation
+  with arrow keys worked correctly. Now partial selection within tooltip
+  content is properly supported, allowing users to select individual characters
+  or subexpressions. Additionally, the tooltip styling has been corrected to
+  properly display the background color, border, and shadow on hover.
 - **#2512** Fixed excessive blank space appearing above inline `array`
   environments. The vertical alignment of arrays has been adjusted to align the
   first row's baseline with surrounding text rather than centering the entire

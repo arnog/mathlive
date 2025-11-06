@@ -51,7 +51,7 @@ export class TooltipAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    const body = Atom.createBox(new Context(), this.body);
+    const body = Atom.createBox(context, this.body);
     if (!body) return null;
 
     const tooltipContext = new Context(
