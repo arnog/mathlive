@@ -753,6 +753,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.dispatchEvent(
         new MessageEvent('message', {
           source: window,
+          origin: window.origin,
           data: {
             type: VIRTUAL_KEYBOARD_MESSAGE,
             action,

@@ -63,6 +63,11 @@
   `\frac{{\colorbox{red}{344}}}{3}`.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
+- **#2698** Dispatched virtual keyboard events now include the standard `origin`
+  property when `mathVirtualKeyboardPolicy = "sandboxed"`. Previously, when
+  MathLive operated within an iframe in sandboxed mode, the MessageEvent
+  objects dispatched via `window.dispatchEvent()` were missing this property,
+  causing validation errors in environments that check for the origin domain.
 - **#2739** Fixed a crash when pressing Backspace on an empty `\displaylines`
   environment. The error "Cannot read properties of undefined (reading
   'length')" would occur when creating a multiline display (Cmd+Enter), deleting
