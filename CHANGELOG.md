@@ -22,31 +22,12 @@
 
 ### Resolved Issues
 
-- **#2570** Fixed `\bf`, `\it`, and related text formatting commands not
-  accepting braced arguments. Previously, commands like `\bf{425}` would fail to
-  parse because the parser didn't handle braced arguments for `{:rest*}`
-  deferred parameters. Additionally, the rendering system wasn't properly
-  combining `fontFamily` with `fontSeries`/`fontShape` properties, causing
-  `\bf{425}` to render in regular weight instead of bold. The parser now
-  correctly handles braced arguments, and the `getFont()` method builds compound
-  variant keys (e.g., 'roman-bold') by combining these style properties.
-- **#2619** Fixed placeholders in multi-row array environments (like
-  `\displaylines`) not being focusable with pointer clicks. The hit-testing
-  logic now properly determines which row was clicked before searching for
-  atoms, ensuring placeholders in different rows can be correctly selected.
-  Additionally, fixed prompt hit testing to include the full visual area
-  (including padding) and corrected cursor positioning to place the cursor
-  inside the prompt body rather than selecting around it.
-- **#2515** Fixed placeholders inside accent commands (`\vec{}`, `\bar{}`,
-  `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
-  in an accent command, the cursor now correctly positions inside the
-  placeholder instead of selecting the entire accent atom.
-- **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
-  iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)
-  had no effect because responsive breakpoint queries were using `max()`
-  functions that enforced minimum height values. The custom property now
-  properly accepts any user-defined value while maintaining sensible defaults
-  (60px, 52px, 42px) when no custom value is provided.
+- **#2146** Fixed nested subscript and superscript creation. Previously, typing
+  `a_b_` would select `b` instead of creating a subscript of `b`, and typing
+  `a^b_` would create a subscript of `a` instead of `b`. The depth calculation
+  functions now correctly count only subscript depth for subscripts and only
+  superscript depth for superscripts, allowing proper nesting of scripts within
+  scripts of different types.
 - **#2343** Fixed clipboard API errors when MathLive is used in sandboxed
   iframes. Previously, when pasting content in a mathfield embedded in a
   sandboxed iframe without `allow="clipboard-read; clipboard-write"`
@@ -54,6 +35,12 @@
   ("Permissions policy violation: The Clipboard API has been blocked"). The
   paste operation now gracefully handles clipboard API errors with appropriate
   user feedback.
+- **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
+  iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)
+  had no effect because responsive breakpoint queries were using `max()`
+  functions that enforced minimum height values. The custom property now
+  properly accepts any user-defined value while maintaining sensible defaults
+  (60px, 52px, 42px) when no custom value is provided.
 - **#2391** Fixed spacing for `\class`, `\cssId`, `\htmlId`, `\htmlData`,
   `\htmlStyle`, and `\href` commands. These commands now properly respect
   mathematical spacing rules, matching the behavior of similar commands like
@@ -61,12 +48,6 @@
   proper spacing before the wrapped element, while `1=\textcolor{red}{1}` would.
   The commands now create atoms with the correct type (`mord`) and use deferred
   argument parsing to ensure proper inter-atom spacing.
-- **#2146** Fixed nested subscript and superscript creation. Previously, typing
-  `a_b_` would select `b` instead of creating a subscript of `b`, and typing
-  `a^b_` would create a subscript of `a` instead of `b`. The depth calculation
-  functions now correctly count only subscript depth for subscripts and only
-  superscript depth for superscripts, allowing proper nesting of scripts within
-  scripts of different types.
 - **#2444** Font style menu items (roman, italic) are now always visible and
   properly toggleable. Previously, these items only appeared when text was
   selected, and toggling them when positioned after styled text would not work
@@ -99,19 +80,44 @@
   array around the math axis, which was causing unwanted spacing above inline
   arrays with column separators like
   `\begin{array}{l|l} a & b\\ c & d\end{array}`.
-- **#2572** Fixed typing special characters in placeholders. When typing
-  characters with keybindings (like backslash, parentheses, brackets) in a
-  selected placeholder, the characters would disappear or trigger unwanted
-  behaviors. The placeholder is now deleted before keystroke processing,
-  allowing all keybindings and character handling to work correctly.
+- **#2515** Fixed placeholders inside accent commands (`\vec{}`, `\bar{}`,
+  `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
+  in an accent command, the cursor now correctly positions inside the
+  placeholder instead of selecting the entire accent atom.
 - **#2547** Fixed rendering of `\colorbox` in fractions where the colored
   background would obscure the fraction bar. The background is now rendered
   behind the content using a CSS pseudo-element with `z-index: -1`, preventing
   it from painting over adjacent elements like fraction bars. This issue
   occurred specifically with double-braced content like
   `\frac{{\colorbox{red}{344}}}{3}`.
+- **#2570** Fixed `\bf`, `\it`, and related text formatting commands not
+  accepting braced arguments. Previously, commands like `\bf{425}` would fail to
+  parse because the parser didn't handle braced arguments for `{:rest*}`
+  deferred parameters. Additionally, the rendering system wasn't properly
+  combining `fontFamily` with `fontSeries`/`fontShape` properties, causing
+  `\bf{425}` to render in regular weight instead of bold. The parser now
+  correctly handles braced arguments, and the `getFont()` method builds compound
+  variant keys (e.g., 'roman-bold') by combining these style properties.
+- **#2572** Fixed typing special characters in placeholders. When typing
+  characters with keybindings (like backslash, parentheses, brackets) in a
+  selected placeholder, the characters would disappear or trigger unwanted
+  behaviors. The placeholder is now deleted before keystroke processing,
+  allowing all keybindings and character handling to work correctly.
+- **#2619** Fixed placeholders in multi-row array environments (like
+  `\displaylines`) not being focusable with pointer clicks. The hit-testing
+  logic now properly determines which row was clicked before searching for
+  atoms, ensuring placeholders in different rows can be correctly selected.
+  Additionally, fixed prompt hit testing to include the full visual area
+  (including padding) and corrected cursor positioning to place the cursor
+  inside the prompt body rather than selecting around it.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
+- **#2668** Fixed right-click context menu causing MathField to lose focus when
+  clicking on formatted text. Previously, right-clicking on equation text would
+  blur the field, potentially causing incorrect rendering when selecting menu
+  options like color changes. The context menu event is now prevented before
+  showing the menu, ensuring focus is maintained regardless of where the
+  right-click occurs.
 - **#2686** When deleting a range that includes special mathematical atoms like
   `\sqrt`, `\frac`, or `\enclose`, the special atom structure is now properly
   removed or cleaned up. Previously, deleting content would leave behind empty

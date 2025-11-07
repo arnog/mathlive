@@ -26,6 +26,9 @@ export async function onContextMenu(
   //
   if (event.type === 'contextmenu') {
     const evt = event as MouseEvent;
+    // Prevent default before showing menu to avoid focus loss
+    event.preventDefault();
+    event.stopPropagation();
     if (
       menu.show({
         target,
@@ -33,8 +36,6 @@ export async function onContextMenu(
         modifiers: keyboardModifiersFromEvent(evt),
       })
     ) {
-      event.preventDefault();
-      event.stopPropagation();
       return true;
     }
   }

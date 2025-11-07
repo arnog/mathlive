@@ -83,7 +83,8 @@ function getNodeBounds(node: Element): Rect {
 
   if (width === 0 || !Number.isFinite(width)) {
     const computedWidth = parseFloat(getComputedStyle(node).width);
-    if (Number.isFinite(computedWidth) && computedWidth > 0) width = computedWidth;
+    if (Number.isFinite(computedWidth) && computedWidth > 0)
+      width = computedWidth;
     else if (node instanceof HTMLElement && node.offsetWidth > 0)
       width = node.offsetWidth;
   }
@@ -126,9 +127,7 @@ export function getAtomBounds(mathfield: _Mathfield, atom: Atom): Rect | null {
   if (!atom.id) return null;
   let result: Rect | null = mathfield.atomBoundsCache?.get(atom.id) ?? null;
   if (result !== null) return result;
-  const nodes = mathfield.field.querySelectorAll(
-    `[data-atom-id="${atom.id}"]`
-  );
+  const nodes = mathfield.field.querySelectorAll(`[data-atom-id="${atom.id}"]`);
   const nodeList = Array.from(nodes);
 
   // For prompts, explicitly find and measure the overlay box (.ML__prompt)
