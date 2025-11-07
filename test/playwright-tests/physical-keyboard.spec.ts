@@ -643,6 +643,32 @@ test('nested subscripts - issue #2146', async ({ page }) => {
   expect(latex).toBe(String.raw`a^{b_{c}}`);
 });
 
+test('issue #2733: inline shortcut buffer should flush when field becomes empty', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // Type 'xxxx' which triggers the 'xx' -> '\times' shortcut
+  await page.locator('#mf-1').pressSequentially('xxxx');
+
+  // Delete twice with Backspace to make field empty
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').press('Backspace');
+
+  // Type 'x' once more
+  await page.locator('#mf-1').press('x');
+
+  // Get the latex value
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      return mfe.value;
+    });
+
+  // Should be just 'x', not 'x\times'
+  expect(latex).toBe('x');
+});
+
 async function tab(page) {
   await page.keyboard.press('Tab');
   // Wait some time for focus to change

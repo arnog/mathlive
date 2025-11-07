@@ -419,6 +419,11 @@ export function deleteBackward(model: _Model): boolean {
       model.position = model.offsetOf(target.leftSibling);
       target.parent!.removeChild(target);
       model.announce('delete', undefined, [target]);
+
+      // If the field is now empty, flush the inline shortcut buffer
+      // to prevent stale shortcuts from being triggered (issue #2733)
+      if (model.root.hasEmptyBranch('body'))
+        model.mathfield.flushInlineShortcutBuffer();
     }
   );
 }
@@ -470,6 +475,11 @@ export function deleteForward(model: _Model): boolean {
       }
 
       model.announce('delete', undefined, [target]);
+
+      // If the field is now empty, flush the inline shortcut buffer
+      // to prevent stale shortcuts from being triggered (issue #2733)
+      if (model.root.hasEmptyBranch('body'))
+        model.mathfield.flushInlineShortcutBuffer();
     }
   );
 }
@@ -753,6 +763,11 @@ export function deleteRange(
       if (specialAtomInfo.size === 0) {
         model.position = startPos;
       }
+
+      // If the field is now empty, flush the inline shortcut buffer
+      // to prevent stale shortcuts from being triggered (issue #2733)
+      if (model.root.hasEmptyBranch('body'))
+        model.mathfield.flushInlineShortcutBuffer();
     }
   );
 }
