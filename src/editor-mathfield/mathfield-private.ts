@@ -509,7 +509,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
   disconnectFromVirtualKeyboard(): void {
     if (!this.connectedToVirtualKeyboard) return;
     window.removeEventListener('message', this);
+
     window.mathVirtualKeyboard.disconnect();
+
     this.connectedToVirtualKeyboard = false;
     hideEnvironmentPopover();
   }

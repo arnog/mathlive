@@ -1166,6 +1166,23 @@ function handlePointerDown(ev: PointerEvent) {
 
   console.assert(ev.type === 'pointerdown');
 
+  // CRITICAL: Ensure connection is established before sending command
+  // This handles the case where connection was lost between keypresses
+  // Check if we have a connected window, and if not, try to reconnect
+  const vk = keyboard as any;
+  if (!vk.connectedMathfieldWindow) {
+    // Try to find the most recently focused mathfield window
+    // In iframe scenarios, this should be the iframe's contentWindow
+    const focusedMf = (window as any).focusedMathfield?.();
+    if (focusedMf) {
+      // If the mathfield is in an iframe, we need to connect to that iframe's window
+      const mfWindow = focusedMf.element?.ownerDocument?.defaultView;
+      if (mfWindow && mfWindow !== window) {
+        vk.connectedMathfieldWindow = mfWindow;
+      }
+    }
+  }
+
   const controller = new AbortController();
   const signal = controller.signal;
 
@@ -1336,7 +1353,10 @@ export function executeKeycapCommand(
       { focus: true, feedback: true, simulateKeystroke: true },
     ];
   }
-  VirtualKeyboard.singleton?.executeCommand(command);
+
+  if (VirtualKeyboard.singleton) {
+    VirtualKeyboard.singleton.executeCommand(command);
+  }
 }
 
 function isKeycapElement(el: Element): el is HTMLElement {

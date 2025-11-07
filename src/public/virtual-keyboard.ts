@@ -397,8 +397,4 @@ export type VirtualKeyboardMessage =
         | 'blur'
         | 'update-state'
         | 'update-toolbar';
-      // Omit<
-      //   VirtualKeyboardMessageAction,
-      //   'execute-command' | 'set-options'
-      // >;
     };

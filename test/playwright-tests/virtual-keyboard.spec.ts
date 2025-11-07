@@ -31,6 +31,11 @@ const keycapLocator = (page: Page, identifier: KeycapIdentifier) => {
   return page.locator(selectors.join(', ')).first();
 };
 
+type KeypressOptions = {
+  beforeKeyPress?: () => Promise<void>;
+  afterKeyPress?: (identifier: KeycapIdentifier | string) => Promise<void>;
+};
+
 test('virtual-keyboard-toggle visibility', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
@@ -43,26 +48,45 @@ test('virtual-keyboard-toggle visibility', async ({ page }) => {
   ).toBe(false);
 });
 
-async function virtualKeyboardSample1(page: Page) {
+async function virtualKeyboardSample1(
+  page: Page,
+  options?: KeypressOptions
+) {
+  const press = async (identifier: KeycapIdentifier | string) => {
+    if (options?.beforeKeyPress) await options.beforeKeyPress();
+    await keycapLocator(page, identifier).click();
+    if (options?.afterKeyPress) await options.afterKeyPress(identifier);
+    // Add small delay to simulate human timing
+    await page.waitForTimeout(50);
+  };
+
   await page.getByRole('toolbar').getByText('abc').click();
-  await keycapLocator(page, 'z').click();
+  await press('z');
   await page.getByRole('toolbar').getByText('123').click();
-  await keycapLocator(page, '=').click();
-  await keycapLocator(page, '1').click();
-  await keycapLocator(page, {
-    label: '&divide;',
-    value: '\\frac{#@}{#?}',
-  }).click();
-  await keycapLocator(page, '2').click();
+  await press('=');
+  await press('1');
+  await press({ label: '&divide;' });
+  await press('2');
 
   return 'z=\\frac12';
 }
 
-async function virtualKeyboardSample2(page: Page) {
-  await keycapLocator(page, 'n').click();
-  await keycapLocator(page, '=').click();
-  await keycapLocator(page, 'x').click();
-  await keycapLocator(page, { value: '#@^2}' }).click();
+async function virtualKeyboardSample2(
+  page: Page,
+  options?: KeypressOptions
+) {
+  const press = async (identifier: KeycapIdentifier | string) => {
+    if (options?.beforeKeyPress) await options.beforeKeyPress();
+    await keycapLocator(page, identifier).click();
+    if (options?.afterKeyPress) await options.afterKeyPress(identifier);
+    // Add small delay to simulate human timing
+    await page.waitForTimeout(50);
+  };
+
+  await press('n');
+  await press('=');
+  await press('x');
+  await press({ value: '#@^2}' });
 
   return 'n=x^2';
 }
@@ -111,16 +135,7 @@ test('virtual keyboard with two math fields', async ({ page }) => {
     .waitFor({ state: 'detached' });
 });
 
-test('math fields in iframe with virtual keyboard', async ({
-  page,
-  browserName,
-  context,
-}) => {
-  test.fixme(
-    true,
-    'Cross-iframe virtual keyboard automation is unstable with aria-label selectors'
-  );
-
+test('math fields in iframe with virtual keyboard', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/iframe_test.html');
 
   const frame = page.frame('mathlive-iframe');
@@ -130,6 +145,10 @@ test('math fields in iframe with virtual keyboard', async ({
   if (frame) {
     // toggle the virtual keyboard to visible and focus first math field
     await frame.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+
+    // Ensure the iframe mathfield has focus before sending VK commands
+    await frame.locator('#mf-1').focus();
+    await frame.waitForFunction(() => document.activeElement?.id === 'mf-1');
 
     // press some keyboard buttons (keyboard will be in main page)
     const expectedResult1 = await virtualKeyboardSample1(page);

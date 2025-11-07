@@ -402,14 +402,8 @@ test('text mode serialization (#1978)', async ({ page }) => {
 
 test('cross-origin iframe with physical keyboard', async ({
   page,
-  browserName,
   context,
 }) => {
-  test.skip(
-    browserName === 'webkit' && Boolean(process.env.CI),
-    'Iframe test is flaky in webkit on GH actions'
-  );
-
   await page.goto('/dist/playwright-test-page/iframe_test.html');
 
   const frame = page.frame('mathlive-iframe-cross-origin');

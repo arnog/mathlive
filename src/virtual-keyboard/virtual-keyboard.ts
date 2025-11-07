@@ -594,9 +594,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
           'SecurityError'
         );
       }
-      if (evt.data.action === 'disconnect')
+      if (evt.data.action === 'disconnect') {
+        // Ignore ALL disconnect requests while VK is visible
+        if (this._visible) return;
+
         this.connectedMathfieldWindow = undefined;
-      else if (
+      } else if (
         evt.data.action !== 'update-setting' &&
         evt.data.action !== 'proxy-created' &&
         evt.data.action !== 'execute-command'
@@ -655,8 +658,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
       // If we're in the top window and receiving our own message for a
       // mathfield command, don't re-execute it (we already sent it)
-      if (window === window.top && commandTarget !== 'virtual-keyboard')
-        return;
+      if (window === window.top && commandTarget !== 'virtual-keyboard') return;
 
       this.executeCommand(command!);
       return;
@@ -743,7 +745,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     }
 
     if (!target) target = this.connectedMathfieldWindow;
-
     if (
       this.targetOrigin === null ||
       this.targetOrigin === 'null' ||
@@ -855,6 +856,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   }
 
   disconnect(): void {
+    // Ignore ALL disconnect requests while VK is visible
+    if (this._visible) return;
+
     this.connectedMathfieldWindow = undefined;
   }
 
