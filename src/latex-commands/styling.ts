@@ -581,10 +581,10 @@ defineFunction('text', '{:text}', {
 
 /* Assign a class to the element.`class` is a MathJax extension, `htmlClass`
    is a KaTeX extension. */
-defineFunction(['class', 'htmlClass'], '{name:string}{content:auto}', {
+defineFunction(['class', 'htmlClass'], '{name:string}{content:auto*}', {
   createAtom: (
     options: CreateAtomOptions<[string | null, Argument | null]>
-  ): Atom => new Atom({ ...options, body: argAtoms(options.args![1]) }),
+  ): Atom => new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args![0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
@@ -597,10 +597,10 @@ defineFunction(['class', 'htmlClass'], '{name:string}{content:auto}', {
 
 /* Assign an ID to the element. `cssId` is a MathJax extension,
    `htmlId` is a KaTeX extension. */
-defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto}', {
+defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto*}', {
   createAtom: (
     options: CreateAtomOptions<[string | null, Argument | null]>
-  ): Atom => new Atom({ ...options, body: argAtoms(options.args![1]) }),
+  ): Atom => new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
@@ -615,9 +615,9 @@ defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto}', {
 });
 
 /* Assign an attribute to the element (MathJAX extension) */
-defineFunction('htmlData', '{data:string}{content:auto}', {
+defineFunction('htmlData', '{data:string}{content:auto*}', {
   createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
-    new Atom({ ...options, body: argAtoms(options.args![1]) }),
+    new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `\\htmlData{${atom.args![0] as string}}{${atom.bodyToLatex(
@@ -633,9 +633,9 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
 
 /* Assign CSS styles to the element. `style` is a MathJax extension,
   `htmlStyle` is the KaTeX extension. */
-defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
+defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto*}', {
   createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
-    new Atom({ ...options, body: argAtoms(options.args![1]) }),
+    new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
@@ -649,9 +649,9 @@ defineFunction(['style', 'htmlStyle'], '{data:string}{content:auto}', {
   },
 });
 
-defineFunction('href', '{url:string}{content:auto}', {
+defineFunction('href', '{url:string}{content:auto*}', {
   createAtom: (options: CreateAtomOptions<[string | null, Argument | null]>) =>
-    new Atom({ ...options, body: argAtoms(options.args![1]) }),
+    new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   render: (atom, context) => {
     const box = atom.createBox(context);
     const href = (atom.args![0] as string) ?? '';

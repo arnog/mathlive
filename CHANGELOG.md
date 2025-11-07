@@ -23,6 +23,13 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2391** Fixed spacing for `\class`, `\cssId`, `\htmlId`, `\htmlData`,
+  `\htmlStyle`, and `\href` commands. These commands now properly respect
+  mathematical spacing rules, matching the behavior of similar commands like
+  `\textcolor`. Previously, expressions like `1=\class{test}{1}` would not have
+  proper spacing before the wrapped element, while `1=\textcolor{red}{1}` would.
+  The commands now create atoms with the correct type (`mord`) and use deferred
+  argument parsing to ensure proper inter-atom spacing.
 - **#2146** Fixed nested subscript and superscript creation. Previously, typing
   `a_b_` would select `b` instead of creating a subscript of `b`, and typing
   `a^b_` would create a subscript of `a` instead of `b`. The depth calculation
