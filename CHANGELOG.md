@@ -61,6 +61,11 @@
   array around the math axis, which was causing unwanted spacing above inline
   arrays with column separators like
   `\begin{array}{l|l} a & b\\ c & d\end{array}`.
+- **#2572** Fixed typing special characters in placeholders. When typing
+  characters with keybindings (like backslash, parentheses, brackets) in a
+  selected placeholder, the characters would disappear or trigger unwanted
+  behaviors. The placeholder is now deleted before keystroke processing,
+  allowing all keybindings and character handling to work correctly.
 - **#2547** Fixed rendering of `\colorbox` in fractions where the colored
   background would obscure the fraction bar. The background is now rendered
   behind the content using a CSS pseudo-element with `z-index: -1`, preventing

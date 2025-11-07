@@ -98,8 +98,24 @@ export function onKeystroke(
   // Ignore the key if Command or Control is pressed (it may be a keybinding,
   // see 4.3)
   const buffer = mathfield.inlineShortcutBuffer;
+
+  // If a placeholder is selected and we're about to type a printable character,
+  // delete the placeholder first, then process the keystroke normally
+  // (including any keybindings). This fixes issue #2572.
+  if (
+    mathfield.isSelectionEditable &&
+    model.selectionIsPlaceholder &&
+    mightProducePrintableCharacter(evt)
+  ) {
+    mathfield.flushInlineShortcutBuffer();
+    // Delete the selected placeholder
+    model.deleteAtoms(range(model.selection));
+    // Snapshot this as a placeholder replacement operation
+    mathfield.snapshot('delete');
+  }
+
   if (mathfield.isSelectionEditable) {
-    if (model.mode === 'math') {
+    if (model.mode === 'math' && !model.selectionIsPlaceholder) {
       if (keystroke === '[Backspace]') {
         // If last operation was a shortcut conversion, "undo" the
         // conversion, otherwise, discard the last keystroke
@@ -629,6 +645,7 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   }
 
   const atom = model.at(model.position);
+  const wasPlaceholderSelected = model.selectionIsPlaceholder;
 
   if (
     /\d/.test(c) &&
@@ -642,7 +659,11 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     // We are inserting a digit into an empty superscript
     // If smartSuperscript is on, insert the digit, and exit the superscript.
     if (
-      !ModeEditor.insert(model, c, { style, insertionMode: 'replaceSelection' })
+      !ModeEditor.insert(model, c, {
+        style,
+        insertionMode: 'replaceSelection',
+        selectionMode: wasPlaceholderSelected ? 'after' : 'placeholder',
+      })
     ) {
       mathfield.undoManager.pop();
       return;
@@ -665,10 +686,13 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   else if (input === '\\') input = '\\backslash';
 
   // General purpose character insertion
+  // If a placeholder was selected, use 'after' selection mode to avoid
+  // re-selecting the inserted content (issue #2572)
   if (
     !ModeEditor.insert(model, input, {
       style,
       insertionMode: 'replaceSelection',
+      selectionMode: wasPlaceholderSelected ? 'after' : 'placeholder',
     })
   )
     return;

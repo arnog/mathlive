@@ -592,6 +592,56 @@ test('delete range crossing sqrt boundary - hoist remaining content (issue #2686
   expect(result).toBe('3');
 });
 
+test('typing characters in placeholder (issue #2572)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // Test: Typing in placeholder should replace it and not cause characters to disappear
+  await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => {
+    mfe.value = '\\placeholder{}';
+    // Select the placeholder (position 0 to 1)
+    mfe.selection = { ranges: [[0, 1]] };
+  });
+
+  // Type characters - they should replace the placeholder and be inserted correctly
+  await page.locator('#mf-1').pressSequentially('x+y');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.value);
+
+  // Should produce the typed content, not lose characters
+  expect(latex).toBe('x+y');
+});
+
+
+test('nested subscripts - issue #2146', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // Test scenario 1: a_b_ should create a subscript of b
+  await page.locator('#mf-1').pressSequentially('a_b_c');
+
+  let latex = await page
+    .locator('#mf-1')
+    .evaluate((e: MathfieldElement) => e.value);
+
+  // Should be a_{b_{c}}, not a_{b}c or other variations
+  expect(latex).toBe(String.raw`a_{b_{c}}`);
+
+  // Clear for next test
+  await page.locator('#mf-1').evaluate((e: MathfieldElement) => {
+    e.value = '';
+  });
+
+  // Test scenario 2: a^b_ should create a subscript of b, not a
+  await page.locator('#mf-1').pressSequentially('a^b_c');
+
+  latex = await page
+    .locator('#mf-1')
+    .evaluate((e: MathfieldElement) => e.value);
+
+  // Should be a^{b_{c}}, not a_{c}^{b} or other variations
+  expect(latex).toBe(String.raw`a^{b_{c}}`);
+});
 
 async function tab(page) {
   await page.keyboard.press('Tab');
