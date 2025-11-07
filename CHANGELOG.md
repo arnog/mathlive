@@ -106,6 +106,12 @@
   range that is only within a single line, the returned value is no longer
   unnecessarily wrapped in a `\displaylines{}` command. The wrapper is now only
   added when the content actually spans multiple lines.
+- **#2771** The `<math-field>` element now properly shrinks back to its original
+  size after deleting large multi-line formulas (e.g., `\begin{align}`
+  environments). Previously, when clearing content from a multi-row structure,
+  the empty rows would be preserved, causing the field to remain at the expanded
+  height. Now, when all content is deleted, the structure is reset to a single
+  empty row while preserving the environment type.
 - **#2784** The `\hat{}` accent is now properly centered over uppercase letters.
   Previously, the accent would appear shifted rather than centered when applied
   to uppercase characters, while it worked correctly with lowercase letters. The

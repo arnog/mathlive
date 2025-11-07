@@ -447,6 +447,18 @@ export class _Model implements Model {
   deleteAtoms(range?: Range): void {
     range ??= [0, -1];
     this.extractAtoms(range);
+
+    // When deleting all content from an ArrayAtom root, reset it to a single
+    // empty row to avoid keeping the large multi-row structure
+    if (
+      range[0] === 0 &&
+      range[1] === -1 &&
+      this.root instanceof ArrayAtom
+    ) {
+      // Remove all rows except the first one
+      while (this.root.rowCount > 1) this.root.removeRow(1);
+    }
+
     this.position = range[0];
   }
 
