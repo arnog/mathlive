@@ -160,3 +160,21 @@ describe('MATHRM SERIALIZATION (issue #2818)', () => {
     expect(serialize(input)).toBe(expected);
   });
 });
+
+describe('REST* ARGUMENT COMMANDS (issue #2570)', () => {
+  // Commands with {:rest*} deferred arguments should handle braced arguments
+  test.each([
+    '\\bf{425}',
+    '\\it{text}',
+    '\\bfseries{bold}',
+    '\\mdseries{medium}',
+    '\\upshape{upright}',
+    '\\slshape{slanted}',
+    '\\scshape{small caps}',
+    '\\rmfamily{roman}',
+    '\\sffamily{sans-serif}',
+    '\\ttfamily{monospace}',
+  ])('%#/ %p renders correctly', (x) => {
+    expect(markupAndError(x)).toMatchSnapshot();
+  });
+});
