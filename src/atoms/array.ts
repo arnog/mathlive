@@ -495,7 +495,7 @@ export class ArrayAtom extends Atom {
     // centering around the math axis to avoid blank space above (see issue #2512)
     const offset =
       this.environmentName === 'array' && !this.isMultiline
-        ? body[0].height  // Align to first row's baseline
+        ? body[0].height // Align to first row's baseline
         : totalHeight / 2 + AXIS_HEIGHT; // Center around math axis
     const contentCols: Box[] = [];
     for (let colIndex = 0; colIndex < nc; colIndex++) {

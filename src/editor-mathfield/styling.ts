@@ -139,8 +139,8 @@ export function validateStyle(
   if (style.variantStyle !== undefined) {
     result.variantStyle =
       typeof style.variantStyle === 'string' && style.variantStyle !== ''
-        ? style.variantStyle.toLowerCase() as VariantStyle
-        : style.variantStyle as VariantStyle;
+        ? (style.variantStyle.toLowerCase() as VariantStyle)
+        : (style.variantStyle as VariantStyle);
   }
 
   const size = style.size ?? style.fontSize;

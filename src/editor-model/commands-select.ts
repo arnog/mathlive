@@ -80,7 +80,11 @@ function boundary(
         }
       } else {
         // Look backward until we find a non-letter or a star
-        while (atom && atom.mode === 'latex' && /[a-zA-Z\\*]/.test(atom.value)) {
+        while (
+          atom &&
+          atom.mode === 'latex' &&
+          /[a-zA-Z\\*]/.test(atom.value)
+        ) {
           pos += dir;
           atom = model.at(pos);
         }
@@ -127,7 +131,7 @@ function boundary(
     if (atom.style.variant || atom.style.variantStyle) {
       const targetVariant = atom.style.variant;
       const targetVariantStyle = atom.style.variantStyle;
-      
+
       while (true) {
         const nextAtom = model.at(pos + dir);
         if (!nextAtom) break;
@@ -135,7 +139,7 @@ function boundary(
         if (nextAtom.style.variantStyle !== targetVariantStyle) break;
         pos += dir;
       }
-      
+
       return direction === 'backward' ? pos - 1 : pos;
     }
 

@@ -185,9 +185,10 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
     // However, preserve explicit variantStyle settings to allow toggling
     if (anchor !== mathfield.model.anchor) {
       const preservedVariantStyle = mathfield.defaultStyle.variantStyle;
-      mathfield.defaultStyle = preservedVariantStyle !== undefined
-        ? { variantStyle: preservedVariantStyle }
-        : {};
+      mathfield.defaultStyle =
+        preservedVariantStyle !== undefined
+          ? { variantStyle: preservedVariantStyle }
+          : {};
       mathfield.styleBias = 'left';
     }
 
