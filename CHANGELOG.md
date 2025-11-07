@@ -2,6 +2,11 @@
 
 ### New Features
 
+- Virtual keyboard keycaps now expose stable automation hooks. Each keycap
+  includes an `aria-label` and `data-keycap-value` alongside its serialized
+  command, allowing assistive tech and automated tests to target keys by their
+  semantic value instead of brittle glyph text. Playwright e2e tests were
+  updated to drive the keyboard using these attributes.
 - Added `<math-span>` and `<math-div>` web components for lightweight static
   rendering of mathematical expressions. These components provide an alternative
   to `renderMathInDocument()` with a simpler API and support for inline

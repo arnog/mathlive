@@ -66,6 +66,48 @@ function latexToMarkup(latex: string): string {
   return makeStruts(box, { classes: 'ML__latex' }).toMarkup();
 }
 
+function escapeAttribute(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function stripTags(value: string): string {
+  return value.replace(/<\/?[^>]+(>|$)/g, ' ');
+}
+
+function getKeycapAriaLabel(
+  keycap: Partial<VirtualKeyboardKeycap>
+): string | null {
+  const candidate =
+    keycap.tooltip ??
+    (typeof keycap.label === 'string' ? stripTags(keycap.label) : undefined) ??
+    keycap.insert ??
+    keycap.latex ??
+    keycap.key;
+  if (!candidate) return null;
+  const label = candidate.replace(/\s+/g, ' ').trim();
+  return label || null;
+}
+
+function serializeKeycapCommand(
+  command: undefined | VirtualKeyboardKeycap['command']
+): string | null {
+  if (typeof command === 'undefined' || command === null) return null;
+  try {
+    return JSON.stringify(command);
+  } catch {
+    return null;
+  }
+}
+
+function getKeycapValue(keycap: Partial<VirtualKeyboardKeycap>): string | null {
+  const value = keycap.insert ?? keycap.latex ?? keycap.key;
+  return value ?? null;
+}
+
 function normalizeLayer(
   layer: string | VirtualKeyboardLayer | (string | VirtualKeyboardLayer)[]
 ): NormalizedVirtualKeyboardLayer[] {
@@ -630,7 +672,23 @@ function makeLayer(
             layerMarkup += `<div tabindex="-1" id="${keycapId}" class="${cls}"`;
 
           if (keycap.tooltip)
-            layerMarkup += ` data-tooltip="${keycap.tooltip}"`;
+            layerMarkup += ` data-tooltip="${escapeAttribute(keycap.tooltip)}"`;
+
+          const ariaLabel = getKeycapAriaLabel(keycap);
+          if (ariaLabel)
+            layerMarkup += ` aria-label="${escapeAttribute(ariaLabel)}"`;
+
+          const serializedCommand = serializeKeycapCommand(keycap.command);
+          if (serializedCommand)
+            layerMarkup += ` data-command="${escapeAttribute(
+              serializedCommand
+            )}"`;
+
+          const keycapValue = getKeycapValue(keycap);
+          if (keycapValue)
+            layerMarkup += ` data-keycap-value="${escapeAttribute(
+              keycapValue
+            )}"`;
 
           layerMarkup += `>${markup}</div>`;
         }
