@@ -206,11 +206,15 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
         if (acceptCommandSuggestion(mathfield.model) || wasCollapsed)
           dirty = 'all';
         else dirty = 'selection';
-      } else if (mathfield.model.at(anchor).type === 'placeholder') {
+      } else if (
+        mathfield.model.at(anchor).type === 'placeholder' ||
+        mathfield.model.at(anchor).type === 'prompt'
+      ) {
         mathfield.model.setSelection(anchor - 1, anchor);
         dirty = 'selection';
       } else if (
-        mathfield.model.at(anchor).rightSibling?.type === 'placeholder'
+        mathfield.model.at(anchor).rightSibling?.type === 'placeholder' ||
+        mathfield.model.at(anchor).rightSibling?.type === 'prompt'
       ) {
         mathfield.model.setSelection(anchor, anchor + 1);
         dirty = 'selection';
@@ -301,8 +305,56 @@ function nearestAtomFromPointRecursive(
   // Do we have an array of cells?
   //
   if (atom instanceof ArrayAtom) {
-    // Search all atoms in ArrayAtoms without bounds checking
-    for (const row of atom.rows) {
+    // For arrays, we need to determine which row was clicked first
+    // to avoid selecting atoms from the wrong row (fixes #2619)
+    let targetRowIndex = -1;
+    let minRowDistance = Infinity;
+
+    // Find which row the click point is closest to vertically
+    for (let rowIndex = 0; rowIndex < atom.rows.length; rowIndex++) {
+      const row = atom.rows[rowIndex];
+      if (!row || row.length === 0) continue;
+
+      // Get bounds of all atoms in this row
+      let rowTop = Infinity;
+      let rowBottom = -Infinity;
+
+      for (const cell of row) {
+        if (cell) {
+          for (const atom2 of cell) {
+            const atomBounds = getAtomBounds(mathfield, atom2);
+            if (atomBounds) {
+              rowTop = Math.min(rowTop, atomBounds.top);
+              rowBottom = Math.max(rowBottom, atomBounds.bottom);
+            }
+          }
+        }
+      }
+
+      // Calculate vertical distance from click point to this row
+      if (rowTop !== Infinity && rowBottom !== -Infinity) {
+        let rowDistance: number;
+        if (y < rowTop) {
+          rowDistance = rowTop - y;
+        } else if (y > rowBottom) {
+          rowDistance = y - rowBottom;
+        } else {
+          // Point is within the row's vertical bounds
+          rowDistance = 0;
+        }
+
+        if (rowDistance < minRowDistance) {
+          minRowDistance = rowDistance;
+          targetRowIndex = rowIndex;
+        }
+      }
+    }
+
+    // Search only in the target row, or all rows if we couldn't determine a target
+    const rowsToSearch =
+      targetRowIndex >= 0 ? [atom.rows[targetRowIndex]] : atom.rows;
+
+    for (const row of rowsToSearch) {
       for (const cell of row) {
         if (cell) {
           for (const atom2 of cell) {
@@ -318,7 +370,8 @@ function nearestAtomFromPointRecursive(
         }
       }
     }
-    // Search children for additional atoms
+
+    // Search children for additional atoms (like delimiters)
     for (const child of atom.children) {
       const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
       if (r[0] <= result[0]) result = r;

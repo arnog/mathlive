@@ -22,15 +22,25 @@
 
 ### Resolved Issues
 
-- **#2570** Fixed `\bf`, `\it`, and related text formatting commands not accepting braced arguments. Previously, commands like `\bf{425}` would fail to parse because the parser didn't handle braced arguments for `{:rest*}` deferred parameters. Additionally, the rendering system wasn't properly combining `fontFamily` with `fontSeries`/`fontShape` properties, causing `\bf{425}` to render in regular weight instead of bold. The parser now correctly handles braced arguments, and the `getFont()` method builds compound variant keys (e.g., 'roman-bold') by combining these style properties.
-- **#2619** Fixed placeholders in multi-row array environments (like `\displaylines`) not being focusable with pointer clicks. The hit-testing logic now properly determines which row was clicked before searching for atoms, ensuring placeholders in different rows can be correctly selected.
+- **#2570** Fixed `\bf`, `\it`, and related text formatting commands not
+  accepting braced arguments. Previously, commands like `\bf{425}` would fail to
+  parse because the parser didn't handle braced arguments for `{:rest*}`
+  deferred parameters. Additionally, the rendering system wasn't properly
+  combining `fontFamily` with `fontSeries`/`fontShape` properties, causing
+  `\bf{425}` to render in regular weight instead of bold. The parser now
+  correctly handles braced arguments, and the `getFont()` method builds compound
+  variant keys (e.g., 'roman-bold') by combining these style properties.
+- **#2619** Fixed placeholders in multi-row array environments (like
+  `\displaylines`) not being focusable with pointer clicks. The hit-testing
+  logic now properly determines which row was clicked before searching for
+  atoms, ensuring placeholders in different rows can be correctly selected.
 - Improved rendering of prompts in some cases.
 - **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
   iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)
-  had no effect because responsive breakpoint queries were using `max()` functions
-  that enforced minimum height values. The custom property now properly accepts
-  any user-defined value while maintaining sensible defaults (60px, 52px, 42px)
-  when no custom value is provided.
+  had no effect because responsive breakpoint queries were using `max()`
+  functions that enforced minimum height values. The custom property now
+  properly accepts any user-defined value while maintaining sensible defaults
+  (60px, 52px, 42px) when no custom value is provided.
 - **#2343** Fixed clipboard API errors when MathLive is used in sandboxed
   iframes. Previously, when pasting content in a mathfield embedded in a
   sandboxed iframe without `allow="clipboard-read; clipboard-write"`
@@ -54,28 +64,28 @@
 - **#2444** Font style menu items (roman, italic) are now always visible and
   properly toggleable. Previously, these items only appeared when text was
   selected, and toggling them when positioned after styled text would not work
-  on the first click. The toggle logic now correctly checks against the
-  computed insert style (including inherited styles from adjacent atoms) rather
-  than just the explicit default style, allowing users to easily toggle off
-  font styles like `\mathrm{}` (roman/upright).
+  on the first click. The toggle logic now correctly checks against the computed
+  insert style (including inherited styles from adjacent atoms) rather than just
+  the explicit default style, allowing users to easily toggle off font styles
+  like `\mathrm{}` (roman/upright).
 - **#2447** When deleting content in a subscript or superscript of operators
   like `\lim`, the cursor would become trapped in the empty branch. Now, when
   all content in a subscript/superscript is deleted and the delete key is
   pressed again, the empty branch is removed and the cursor properly navigates
   out, while keeping the operator itself intact.
 - **#2476** Readonly expressions can no longer be modified using the virtual
-  keyboard. Previously, when a mathfield was readonly or when the selection
-  was within a readonly portion (such as outside a prompt/placeholder in a
+  keyboard. Previously, when a mathfield was readonly or when the selection was
+  within a readonly portion (such as outside a prompt/placeholder in a
   fill-in-the-blank scenario), typing on the virtual keyboard would incorrectly
   replace or modify the readonly content. The virtual keyboard now respects
-  readonly protection, matching the behavior of the physical keyboard by
-  playing a "plonk" sound and rejecting the input.
+  readonly protection, matching the behavior of the physical keyboard by playing
+  a "plonk" sound and rejecting the input.
 - **#2480** Fixed selection behavior within `\mathtip` and `\texttip` commands.
   Previously, it was only possible to select the entire content of a mathtip at
   once (e.g., all of `x+1` in `\mathtip{x+1}{test}`), even though navigation
-  with arrow keys worked correctly. Now partial selection within tooltip
-  content is properly supported, allowing users to select individual characters
-  or subexpressions. Additionally, the tooltip styling has been corrected to
+  with arrow keys worked correctly. Now partial selection within tooltip content
+  is properly supported, allowing users to select individual characters or
+  subexpressions. Additionally, the tooltip styling has been corrected to
   properly display the background color, border, and shadow on hover.
 - **#2512** Fixed excessive blank space appearing above inline `array`
   environments. The vertical alignment of arrays has been adjusted to align the
@@ -101,14 +111,14 @@
   removed or cleaned up. Previously, deleting content would leave behind empty
   special atom structures. Now, if a special atom becomes empty after deletion,
   it is removed entirely. Additionally, when a deletion crosses the boundary of
-  a special atom (e.g., selecting content both outside and inside a square root),
-  any remaining content inside the special atom is hoisted out, and the special
-  atom structure is removed.
+  a special atom (e.g., selecting content both outside and inside a square
+  root), any remaining content inside the special atom is hoisted out, and the
+  special atom structure is removed.
 - **#2698** Dispatched virtual keyboard events now include the standard `origin`
   property when `mathVirtualKeyboardPolicy = "sandboxed"`. Previously, when
-  MathLive operated within an iframe in sandboxed mode, the MessageEvent
-  objects dispatched via `window.dispatchEvent()` were missing this property,
-  causing validation errors in environments that check for the origin domain.
+  MathLive operated within an iframe in sandboxed mode, the MessageEvent objects
+  dispatched via `window.dispatchEvent()` were missing this property, causing
+  validation errors in environments that check for the origin domain.
 - **#2733** Fixed inline shortcut buffer persistence after deleting all content.
   When typing characters that triggered an inline shortcut (e.g., "xx" →
   "\times"), then deleting all content with Backspace, and typing again, the
