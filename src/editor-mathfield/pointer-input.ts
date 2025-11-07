@@ -70,8 +70,9 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   // If a mouse button other than the main one was pressed, return.
   if (evt.buttons > 1) return;
 
-  //Reset the atom bounds cache
-  mathfield.atomBoundsCache = new Map<string, Rect>();
+  // Initialize the atom bounds cache if it doesn't exist
+  if (!mathfield.atomBoundsCache)
+    mathfield.atomBoundsCache = new Map<string, Rect>();
 
   const that = mathfield;
   let anchor: Offset;

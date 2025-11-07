@@ -29,7 +29,6 @@ export function requestUpdate(
     if (isValidMathfield(mathfield) && mathfield.dirty) {
       mathfield.atomBoundsCache = new Map<string, Rect>();
       render(mathfield, options);
-      mathfield.atomBoundsCache = undefined;
       mathfield.resizeObserver.observe(mathfield.field);
       mathfield.resizeObserverStarted = true;
     }

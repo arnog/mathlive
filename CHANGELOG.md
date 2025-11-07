@@ -106,6 +106,12 @@
   range that is only within a single line, the returned value is no longer
   unnecessarily wrapped in a `\displaylines{}` command. The wrapper is now only
   added when the content actually spans multiple lines.
+- **#2770** Fixed cursor positioning on first click in complex formulas.
+  Previously, clicking to position the cursor in formulas with many nested
+  elements (fractions, subscripts, superscripts) would fail until keyboard
+  navigation was used first. The atom bounds cache is now properly maintained
+  across interactions, ensuring accurate cursor positioning from the first
+  click.
 - **#2771** The `<math-field>` element now properly shrinks back to its original
   size after deleting large multi-line formulas (e.g., `\begin{align}`
   environments). Previously, when clearing content from a multi-row structure,
