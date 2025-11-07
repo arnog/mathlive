@@ -73,6 +73,7 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   // Initialize the atom bounds cache if it doesn't exist
   if (!mathfield.atomBoundsCache)
     mathfield.atomBoundsCache = new Map<string, Rect>();
+  else mathfield.atomBoundsCache.clear();
 
   const that = mathfield;
   let anchor: Offset;
@@ -210,18 +211,57 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
         mathfield.model.at(anchor).type === 'placeholder' ||
         mathfield.model.at(anchor).type === 'prompt'
       ) {
-        mathfield.model.setSelection(anchor - 1, anchor);
+        // Position cursor inside the prompt/placeholder body
+        const atom = mathfield.model.at(anchor);
+        if (atom.hasChildren && atom.firstChild) {
+          mathfield.model.position = mathfield.model.offsetOf(atom.firstChild);
+        } else {
+          mathfield.model.setSelection(anchor - 1, anchor);
+        }
         dirty = 'selection';
       } else if (
         mathfield.model.at(anchor).rightSibling?.type === 'placeholder' ||
         mathfield.model.at(anchor).rightSibling?.type === 'prompt'
       ) {
-        mathfield.model.setSelection(anchor, anchor + 1);
+        // Position cursor inside the prompt/placeholder body
+        const atom = mathfield.model.at(anchor).rightSibling!;
+        if (atom.hasChildren && atom.firstChild) {
+          mathfield.model.position = mathfield.model.offsetOf(atom.firstChild);
+        } else {
+          mathfield.model.setSelection(anchor, anchor + 1);
+        }
         dirty = 'selection';
       } else {
-        mathfield.model.position = anchor;
-        if (acceptCommandSuggestion(mathfield.model)) dirty = 'all';
-        else dirty = 'selection';
+        // Check if this atom has captureSelection and contains a single
+        // placeholder/prompt child - if so, position inside that child
+        const atom = mathfield.model.at(anchor);
+        if (
+          atom.captureSelection &&
+          atom.hasChildren &&
+          atom.body &&
+          atom.body.length > 0
+        ) {
+          const bodyAtom = atom.body.find((a) => a.type !== 'first');
+          if (
+            bodyAtom &&
+            (bodyAtom.type === 'placeholder' || bodyAtom.type === 'prompt') &&
+            bodyAtom.hasChildren &&
+            bodyAtom.firstChild
+          ) {
+            mathfield.model.position = mathfield.model.offsetOf(
+              bodyAtom.firstChild
+            );
+            dirty = 'selection';
+          } else {
+            mathfield.model.position = anchor;
+            if (acceptCommandSuggestion(mathfield.model)) dirty = 'all';
+            else dirty = 'selection';
+          }
+        } else {
+          mathfield.model.position = anchor;
+          if (acceptCommandSuggestion(mathfield.model)) dirty = 'all';
+          else dirty = 'selection';
+        }
       }
 
       // `evt.detail` contains the number of consecutive clicks
@@ -489,7 +529,9 @@ export function offsetFromPoint(
   // 4/ Account for the desired bias
   //
   if (atom.leftSibling) {
-    if (options.bias === 0 && atom.type !== 'placeholder') {
+    const skipMidlineBias =
+      atom.type === 'placeholder' || atom.type === 'prompt';
+    if (options.bias === 0 && !skipMidlineBias) {
       // If the point clicked is to the left of the vertical midline,
       // adjust the offset to *before* the atom (i.e. after the
       // preceding atom)

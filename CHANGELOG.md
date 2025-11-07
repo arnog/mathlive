@@ -34,7 +34,13 @@
   `\displaylines`) not being focusable with pointer clicks. The hit-testing
   logic now properly determines which row was clicked before searching for
   atoms, ensuring placeholders in different rows can be correctly selected.
-- Improved rendering of prompts in some cases.
+  Additionally, fixed prompt hit testing to include the full visual area
+  (including padding) and corrected cursor positioning to place the cursor
+  inside the prompt body rather than selecting around it.
+- **#2515** Fixed placeholders inside accent commands (`\vec{}`, `\bar{}`,
+  `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
+  in an accent command, the cursor now correctly positions inside the
+  placeholder instead of selecting the entire accent atom.
 - **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
   iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)
   had no effect because responsive breakpoint queries were using `max()`

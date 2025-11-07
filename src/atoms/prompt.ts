@@ -5,6 +5,7 @@ import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { latexCommand } from '../core/tokenizer';
 import type { AtomJson, ToLatexOptions } from 'core/types';
+import { PlaceholderAtom } from './placeholder';
 
 export class PromptAtom extends Atom {
   readonly placeholderId?: string;
@@ -70,12 +71,39 @@ export class PromptAtom extends Atom {
 
     if (!content) return null;
 
+    const isEffectivelyEmpty =
+      !this.body ||
+      this.body.length === 0 ||
+      this.body.every((atom) => atom.type === 'first');
+
+    const placeholderMetrics = isEffectivelyEmpty
+      ? new PlaceholderAtom({
+          mode: this.mode,
+          style: this.style,
+        }).render(new Context({ parent: parentContext, isPhantom: true }))
+      : null;
+
+    const emptyHeight = placeholderMetrics?.height ?? context.metrics.xHeight;
+    const emptyDepth = placeholderMetrics?.depth ?? emptyHeight / 2;
+
     // An empty prompt should not be too small, pretend content
     // has height sigma 5 (x-height)
 
-    if (!content.height) content.height = context.metrics.xHeight;
+    if (!content.height) {
+      content.height = isEffectivelyEmpty
+        ? emptyHeight
+        : context.metrics.xHeight;
+    }
 
-    content.setStyle('vertical-align', -content.height, 'em');
+    if (!content.depth) {
+      if (isEffectivelyEmpty) content.depth = emptyDepth;
+      else content.depth = context.metrics.defaultRuleThickness;
+    }
+
+    const verticalShift = isEffectivelyEmpty
+      ? emptyDepth - emptyHeight
+      : content.depth - content.height;
+    content.setStyle('vertical-align', verticalShift, 'em');
     if (this.correctness === 'correct') {
       content.setStyle(
         'color',
@@ -89,9 +117,13 @@ export class PromptAtom extends Atom {
     }
 
     const base = new Box(content, { type: 'ord' });
+    base.height = content.height;
+    base.depth = content.depth;
     base.setStyle('display', 'inline-block');
     base.setStyle('height', content.height + content.depth, 'em');
     base.setStyle('vertical-align', -vPadding, 'em');
+    base.setStyle('position', 'relative');
+    base.setStyle('z-index', 1);
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -117,23 +149,21 @@ export class PromptAtom extends Atom {
     box.depth = base.depth + vPadding;
     box.width = base.width + 2 * hPadding;
     box.setStyle('position', 'absolute');
+    box.setStyle('z-index', 0);
+    box.setStyle('display', 'block');
+    box.setStyle('pointer-events' as any, 'auto');
 
-    box.setStyle(
-      'height',
-      `calc(${base.height + base.depth + 2 * vPadding}em - 2px)`
-    ); // @todo: remove
-    if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
-    if (hPadding !== 0) {
-      box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
-      box.setStyle('top', fboxsep + vPadding, 'em'); // empirical
-      box.setStyle('left', -hPadding, 'em');
-    }
-    // empty prompt should be a little wider
-    if (!this.body || this.body.length === 1) {
-      box.width = 3 * hPadding;
-      box.setStyle('width', `calc(100% + ${3 * hPadding}em)`);
-      box.setStyle('left', -1.5 * hPadding, 'em');
-    }
+    const overlayHeight = base.height + base.depth + 2 * vPadding;
+    box.setStyle('height', Math.max(overlayHeight, 0.6), 'em');
+
+    let overlayWidth = base.width + 2 * hPadding;
+    if (isEffectivelyEmpty)
+      overlayWidth = Math.max(overlayWidth, 3 * hPadding || 0.8);
+    box.setStyle('width', Math.max(overlayWidth, 0.6), 'em');
+
+    box.setStyle('top', fboxsep + vPadding, 'em');
+    if (isEffectivelyEmpty) box.setStyle('left', -1.5 * hPadding, 'em');
+    else if (hPadding !== 0) box.setStyle('left', -hPadding, 'em');
     let svg = ''; // strike through incorrect prompt, for users with impaired color vision
 
     if (this.correctness === 'incorrect') {
@@ -167,10 +197,16 @@ export class PromptAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return this.bind(
-      context,
-      this.attachSupsub(parentContext, { base: result })
-    );
+    const withSupSub = this.attachSupsub(parentContext, { base: result });
+    const bound = this.bind(context, withSupSub);
+
+    if (bound && this.id) {
+      box.atomID = this.id;
+      base.atomID = this.id;
+      result.atomID = this.id;
+    }
+
+    return bound;
   }
 
   _serialize(options: ToLatexOptions): string {
