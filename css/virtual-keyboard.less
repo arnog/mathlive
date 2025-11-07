@@ -963,7 +963,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 @container @xs {
   .MLK__rows {
     --_keycap-gap: ~'max(var(--_keycap-gap, 2px), 2px)';
-    --_keycap-height: ~'max(var(--_keycap-height), 42px)';
+    --_keycap-height: var(--keycap-height, 42px);
     --_keycap-width: var(
       --keycap-width,
       ~'min(min(var(--_keycap-max-width)), 10cqw), 62px)'
@@ -992,7 +992,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 @container @sm {
   .MLK__rows {
     --_keycap-gap: ~'max(var(--keycap-gap, 2px), 2px)';
-    --_keycap-height: ~'max(var(--keycap-height, 52px), 52px)';
+    --_keycap-height: var(--keycap-height, 52px);
     --_keycap-width: var(
       --keycap-width,
       ~'min(min(var(--_keycap-max-width), 10cqw), 62px)'
@@ -1032,7 +1032,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 /* Medium breakpoint: larger phones */
 @container @md {
   .MLK__rows {
-    --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
+    --_keycap-height: var(--keycap-height, 42px);
   }
 
   .MLK__rows > .MLK__row > div > small {
@@ -1042,7 +1042,7 @@ Note there are a different set of tooltip rules for the keyboard toggle
 
 @media (max-height: 768px) {
   .MLK__rows {
-    --_keycap-height: ~'max(var(--keycap-height, 42px), 42px)';
+    --_keycap-height: var(--keycap-height, 42px);
   }
   .MLK__rows > .MLK__row > div > small {
     font-size: 14px;

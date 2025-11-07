@@ -23,6 +23,12 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
+  iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)
+  had no effect because responsive breakpoint queries were using `max()` functions
+  that enforced minimum height values. The custom property now properly accepts
+  any user-defined value while maintaining sensible defaults (60px, 52px, 42px)
+  when no custom value is provided.
 - **#2343** Fixed clipboard API errors when MathLive is used in sandboxed
   iframes. Previously, when pasting content in a mathfield embedded in a
   sandboxed iframe without `allow="clipboard-read; clipboard-write"`
