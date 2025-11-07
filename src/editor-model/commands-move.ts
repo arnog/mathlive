@@ -29,14 +29,12 @@ function superscriptDepth(model: _Model): number {
   let atom: Atom | undefined = model.at(model.position);
   let wasSuperscript = false;
   while (atom) {
-    if (
-      !atom.hasEmptyBranch('superscript') ||
-      !atom.hasEmptyBranch('subscript')
-    )
+    if (!atom.hasEmptyBranch('superscript')) {
       result += 1;
-
-    if (!atom.hasEmptyBranch('superscript')) wasSuperscript = true;
-    else if (!atom.hasEmptyBranch('subscript')) wasSuperscript = false;
+      wasSuperscript = true;
+    } else if (!atom.hasEmptyBranch('subscript')) {
+      wasSuperscript = false;
+    }
 
     atom = atom.parent;
   }
@@ -49,14 +47,12 @@ function subscriptDepth(model: _Model): number {
   let atom: Atom | undefined = model.at(model.position);
   let wasSubscript = false;
   while (atom) {
-    if (
-      !atom.hasEmptyBranch('superscript') ||
-      !atom.hasEmptyBranch('subscript')
-    )
+    if (!atom.hasEmptyBranch('subscript')) {
       result += 1;
-
-    if (!atom.hasEmptyBranch('superscript')) wasSubscript = false;
-    else if (!atom.hasEmptyBranch('subscript')) wasSubscript = true;
+      wasSubscript = true;
+    } else if (!atom.hasEmptyBranch('superscript')) {
+      wasSubscript = false;
+    }
 
     atom = atom.parent;
   }
