@@ -63,6 +63,14 @@
   `\frac{{\colorbox{red}{344}}}{3}`.
 - **#2665** Clicking on a mathfield now only fires focus events once, instead of
   generating duplicate focus/blur/focusin/focusout events.
+- **#2686** When deleting a range that includes special mathematical atoms like
+  `\sqrt`, `\frac`, or `\enclose`, the special atom structure is now properly
+  removed or cleaned up. Previously, deleting content would leave behind empty
+  special atom structures. Now, if a special atom becomes empty after deletion,
+  it is removed entirely. Additionally, when a deletion crosses the boundary of
+  a special atom (e.g., selecting content both outside and inside a square root),
+  any remaining content inside the special atom is hoisted out, and the special
+  atom structure is removed.
 - **#2698** Dispatched virtual keyboard events now include the standard `origin`
   property when `mathVirtualKeyboardPolicy = "sandboxed"`. Previously, when
   MathLive operated within an iframe in sandboxed mode, the MessageEvent
