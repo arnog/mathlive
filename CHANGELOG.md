@@ -23,6 +23,13 @@
 ### Resolved Issues
 
 - Improved rendering of prompts in some cases.
+- **#2343** Fixed clipboard API errors when MathLive is used in sandboxed
+  iframes. Previously, when pasting content in a mathfield embedded in a
+  sandboxed iframe without `allow="clipboard-read; clipboard-write"`
+  permissions, unhandled promise rejections would appear in the console
+  ("Permissions policy violation: The Clipboard API has been blocked"). The
+  paste operation now gracefully handles clipboard API errors with appropriate
+  user feedback.
 - **#2391** Fixed spacing for `\class`, `\cssId`, `\htmlId`, `\htmlData`,
   `\htmlStyle`, and `\href` commands. These commands now properly respect
   mathematical spacing rules, matching the behavior of similar commands like

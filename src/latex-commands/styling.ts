@@ -584,7 +584,8 @@ defineFunction('text', '{:text}', {
 defineFunction(['class', 'htmlClass'], '{name:string}{content:auto*}', {
   createAtom: (
     options: CreateAtomOptions<[string | null, Argument | null]>
-  ): Atom => new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
+  ): Atom =>
+    new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args![0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(
@@ -600,7 +601,8 @@ defineFunction(['class', 'htmlClass'], '{name:string}{content:auto*}', {
 defineFunction(['cssId', 'htmlId'], '{id:string}{content:auto*}', {
   createAtom: (
     options: CreateAtomOptions<[string | null, Argument | null]>
-  ): Atom => new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
+  ): Atom =>
+    new Atom({ ...options, type: 'mord', body: argAtoms(options.args![1]) }),
   serialize: (atom, options) => {
     if (!atom.args?.[0] || options.skipStyles) return atom.bodyToLatex(options);
     return `${atom.command}{${atom.args![0] as string}}{${atom.bodyToLatex(

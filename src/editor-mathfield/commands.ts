@@ -191,26 +191,36 @@ registerCommand(
         return true;
       }
 
-      navigator.clipboard.readText().then((text) => {
-        if (
-          text &&
-          mathfield.model.contentWillChange({
-            inputType: 'insertFromPaste',
-            data: text,
-          })
-        ) {
-          mathfield.stopCoalescingUndo();
-          mathfield.stopRecording();
-          if (mathfield.insert(text, { mode: mathfield.model.mode })) {
-            updateAutocomplete(mathfield);
-            mathfield.startRecording();
-            mathfield.snapshot('paste');
-            mathfield.model.contentDidChange({ inputType: 'insertFromPaste' });
-            requestUpdate(mathfield);
-          }
-        } else mathfield.model.announce('plonk');
-        mathfield.startRecording();
-      });
+      navigator.clipboard
+        .readText()
+        .then((text) => {
+          if (
+            text &&
+            mathfield.model.contentWillChange({
+              inputType: 'insertFromPaste',
+              data: text,
+            })
+          ) {
+            mathfield.stopCoalescingUndo();
+            mathfield.stopRecording();
+            if (mathfield.insert(text, { mode: mathfield.model.mode })) {
+              updateAutocomplete(mathfield);
+              mathfield.startRecording();
+              mathfield.snapshot('paste');
+              mathfield.model.contentDidChange({
+                inputType: 'insertFromPaste',
+              });
+              requestUpdate(mathfield);
+            }
+          } else mathfield.model.announce('plonk');
+          mathfield.startRecording();
+        })
+        .catch(() => {
+          // Clipboard API not available (e.g., in sandboxed iframe without
+          // clipboard permissions, or due to browser security policies)
+          mathfield.model.announce('plonk');
+          mathfield.startRecording();
+        });
 
       return true;
     },

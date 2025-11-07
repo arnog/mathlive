@@ -594,16 +594,19 @@ export function deleteRange(
     { content: true, selection: true, type },
     () => {
       // Track special atom parents and their relationship to the selection
-      const specialAtomInfo = new Map<Atom, {
-        containsStart: boolean;
-        containsEnd: boolean;
-      }>();
-      
+      const specialAtomInfo = new Map<
+        Atom,
+        {
+          containsStart: boolean;
+          containsEnd: boolean;
+        }
+      >();
+
       if (result.length > 0) {
         // Check if the start and end of the selection are in different contexts
         const startAtom = result[0];
         const endAtom = result[result.length - 1];
-        
+
         // Find all special atom ancestors for both start and end
         const startAncestors = new Set<Atom>();
         let p = startAtom.parent;
@@ -621,7 +624,7 @@ export function deleteRange(
           }
           p = p.parent;
         }
-        
+
         const endAncestors = new Set<Atom>();
         p = endAtom.parent;
         while (p) {
@@ -638,7 +641,7 @@ export function deleteRange(
           }
           p = p.parent;
         }
-        
+
         // Collect all special atoms that are ancestors of any atom in the selection
         for (const atom of result) {
           p = atom.parent;
@@ -686,15 +689,21 @@ export function deleteRange(
           specialAtom.type === 'leftright'
         ) {
           const body = specialAtom.branch('body');
-          const bodyEmpty = !body || body.length === 0 || 
-              (body.length === 1 && body[0].type === 'placeholder');
-          
+          const bodyEmpty =
+            !body ||
+            body.length === 0 ||
+            (body.length === 1 && body[0].type === 'placeholder');
+
           if (bodyEmpty) {
             // Body is empty, remove the special atom
             const pos = model.offsetOf(specialAtom.leftSibling);
             specialAtom.parent.removeChild(specialAtom);
             model.position = Math.max(0, pos);
-          } else if (isBoundaryCrossing && !info.containsStart && info.containsEnd) {
+          } else if (
+            isBoundaryCrossing &&
+            !info.containsStart &&
+            info.containsEnd
+          ) {
             // Selection started outside and ended inside - hoist remaining content
             const pos = model.offsetOf(specialAtom.leftSibling);
             const content = specialAtom.removeBranch('body');
@@ -712,12 +721,16 @@ export function deleteRange(
         if (specialAtom.type === 'genfrac') {
           const above = specialAtom.branch('above');
           const below = specialAtom.branch('below');
-          
-          const aboveEmpty = !above || above.length === 0 ||
+
+          const aboveEmpty =
+            !above ||
+            above.length === 0 ||
             (above.length === 1 && above[0].type === 'placeholder');
-          const belowEmpty = !below || below.length === 0 ||
+          const belowEmpty =
+            !below ||
+            below.length === 0 ||
             (below.length === 1 && below[0].type === 'placeholder');
-          
+
           if (aboveEmpty && belowEmpty) {
             // Both empty, remove the fraction
             const pos = model.offsetOf(specialAtom.leftSibling);
@@ -741,7 +754,11 @@ export function deleteRange(
             }
             specialAtom.parent.removeChild(specialAtom);
             model.position = Math.max(0, pos);
-          } else if (isBoundaryCrossing && !info.containsStart && info.containsEnd) {
+          } else if (
+            isBoundaryCrossing &&
+            !info.containsStart &&
+            info.containsEnd
+          ) {
             // Selection started outside and ended inside - hoist whatever remains
             // For fractions, we need to check which branch has content and hoist it
             if (!aboveEmpty && !belowEmpty) {
