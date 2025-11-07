@@ -82,7 +82,11 @@ export class PromptAtom extends Atom {
           style: this.style,
         }).render(new Context({ parent: parentContext, isPhantom: true }))
       : null;
-
+    console.log(
+      'placeholderMetrics',
+      placeholderMetrics?.height,
+      placeholderMetrics?.depth
+    );
     const emptyHeight = placeholderMetrics?.height ?? context.metrics.xHeight;
     const emptyDepth = placeholderMetrics?.depth ?? emptyHeight / 2;
 
@@ -96,8 +100,9 @@ export class PromptAtom extends Atom {
     }
 
     if (!content.depth) {
-      if (isEffectivelyEmpty) content.depth = emptyDepth;
-      else content.depth = context.metrics.defaultRuleThickness;
+      content.depth = isEffectivelyEmpty
+        ? emptyDepth
+        : context.metrics.defaultRuleThickness;
     }
 
     const verticalShift = isEffectivelyEmpty
