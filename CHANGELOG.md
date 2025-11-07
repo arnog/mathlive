@@ -22,6 +22,8 @@
 
 ### Resolved Issues
 
+- **#2570** Fixed `\bf`, `\it`, and related text formatting commands not accepting braced arguments. Previously, commands like `\bf{425}` would fail to parse because the parser didn't handle braced arguments for `{:rest*}` deferred parameters. Additionally, the rendering system wasn't properly combining `fontFamily` with `fontSeries`/`fontShape` properties, causing `\bf{425}` to render in regular weight instead of bold. The parser now correctly handles braced arguments, and the `getFont()` method builds compound variant keys (e.g., 'roman-bold') by combining these style properties.
+- **#2619** Fixed placeholders in multi-row array environments (like `\displaylines`) not being focusable with pointer clicks. The hit-testing logic now properly determines which row was clicked before searching for atoms, ensuring placeholders in different rows can be correctly selected.
 - Improved rendering of prompts in some cases.
 - **#2364** Fixed `--keycap-height` CSS custom property not working in sandboxed
   iframes. Previously, setting `--keycap-height` to custom values (e.g., 15px)

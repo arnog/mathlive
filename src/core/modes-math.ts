@@ -8,7 +8,13 @@ import {
   weightString,
 } from './modes-utils';
 import type { Box } from './box';
-import type { Style, Variant, VariantStyle } from '../public/core-types';
+import type {
+  FontSeries,
+  FontShape,
+  Style,
+  Variant,
+  VariantStyle,
+} from '../public/core-types';
 import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
@@ -29,6 +35,12 @@ const VARIANTS: Record<string, [fontName: FontName, cssClass: string]> = {
   'normal-bold': ['Main-Bold', 'ML__mathbf'], // 'main' font. There is no 'math' bold
   'normal-italic': ['Math-Italic', 'ML__mathit'], // Special metrics for 'math'
   'normal-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'], // Special metrics for 'math'
+
+  // Alias for 'normal' - used by \bf, \it, \rmfamily commands
+  'roman': ['Main-Regular', 'ML__cmr'],
+  'roman-bold': ['Main-Bold', 'ML__mathbf'],
+  'roman-italic': ['Math-Italic', 'ML__mathit'],
+  'roman-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'],
 
   // Extended math symbols, arrows, etc.. at their standard Unicode codepoints
   'ams': ['AMS-Regular', 'ML__ams'],
@@ -163,6 +175,8 @@ export class MathMode extends Mode {
     style: {
       // For math mode
       fontFamily: string;
+      fontSeries?: FontSeries;
+      fontShape?: FontShape;
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
       variant: Variant;
       variantStyle?: VariantStyle;
@@ -171,8 +185,26 @@ export class MathMode extends Mode {
     console.assert(style.variant !== undefined);
 
     if (style.fontFamily) {
-      const [fontName, classes] = VARIANTS[style.fontFamily];
+      // Build the variant key from fontFamily + fontSeries + fontShape
+      let variantKey = style.fontFamily;
 
+      // Map fontSeries ('b' = bold, 'm' = medium) and fontShape ('it' = italic, 'n' = normal)
+      // to variantStyle suffixes
+      if (style.fontSeries === 'b' && style.fontShape === 'it') {
+        variantKey += '-bolditalic';
+      } else if (style.fontSeries === 'b') {
+        variantKey += '-bold';
+      } else if (style.fontShape === 'it') {
+        variantKey += '-italic';
+      }
+      // If the variant doesn't exist, try the base fontFamily
+      const variant = VARIANTS[variantKey] ?? VARIANTS[style.fontFamily];
+      if (!variant) {
+        console.error(`Unknown font family variant: ${variantKey}`);
+        return null;
+      }
+
+      const [fontName, classes] = variant;
       if (classes) box.classes += ' ' + classes;
 
       return fontName;

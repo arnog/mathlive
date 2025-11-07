@@ -1478,6 +1478,12 @@ export class Parser {
       return { group: atoms };
     }
 
+    if (type === 'rest') {
+      const atoms = this.scan();
+      if (!this.match('<}>')) this.onError({ code: 'unbalanced-braces' });
+      return { group: atoms };
+    }
+
     let result: null | Argument = null;
     if (type === 'expression') {
       this.beginContext({ mode: 'math' });
