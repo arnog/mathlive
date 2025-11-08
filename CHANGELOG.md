@@ -82,24 +82,24 @@
   arrays with column separators like
   `\begin{array}{l|l} a & b\\ c & d\end{array}`.
 - **#2515** Fixed placeholders inside accent commands (`\vec{}`, `\bar{}`,
-  `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
-  in an accent command, the cursor now correctly positions inside the
-  placeholder instead of selecting the entire accent atom.
+  `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped in
+  an accent command, the cursor now correctly positions inside the placeholder
+  instead of selecting the entire accent atom.
 - **#2521** Fixed the `/` shortcut misplacing subscripts when converting a
   selection into a fraction. Previously, selecting a symbol with an attached
   subscript, e.g. `d_0`, and pressing `/` would move only the base `d` into the
-  numerator and leave the orphaned `_0` attached to the denominator
-  placeholder. Selection normalization now automatically expands to include the
-  associated `subsup` atom so the scripted symbol stays intact inside the
-  resulting fraction.
+  numerator and leave the orphaned `_0` attached to the denominator placeholder.
+  Selection normalization now automatically expands to include the associated
+  `subsup` atom so the scripted symbol stays intact inside the resulting
+  fraction.
 - **#2558** Fixed cursor jumping to the beginning when entering a left
   parenthesis before a previously entered right parenthesis. When typing a
-  closing bracket first (e.g., `1+2+3)`), then moving the cursor back and
-  typing an opening bracket `(`, the smart fence feature would correctly create
+  closing bracket first (e.g., `1+2+3)`), then moving the cursor back and typing
+  an opening bracket `(`, the smart fence feature would correctly create
   `\left(2+3\right)` but would incorrectly position the cursor at the start of
   the expression instead of after the opening parenthesis. The cursor now
-  properly stays positioned inside the newly created fence, right after the
-  left delimiter.
+  properly stays positioned inside the newly created fence, right after the left
+  delimiter.
 - **#2547** Fixed rendering of `\colorbox` in fractions where the colored
   background would obscure the fraction bar. The background is now rendered
   behind the content using a CSS pseudo-element with `z-index: -1`, preventing
@@ -209,6 +209,14 @@
   text instead of the styled content itself. The selection boundary logic now
   properly checks the next atom's style before advancing, preventing off-by-one
   errors when determining style boundaries.
+- **#2892** Fixed superscripts and subscripts shifting upward when inside a
+  `\colorbox` command. Elements with background colors now receive proper
+  vertical alignment (`vertical-align: -depth`) to prevent positioning issues
+  with content of different heights. The fix also ensures background colors use
+  the correct color palette (background colors instead of foreground colors) and
+  maintains editability via the background color menu. Selection highlighting no
+  longer causes subscripts to shift, as vertical alignment is only applied to
+  intentional background colors, not selection highlights.
 
 ## 0.107.1 _2025-09-30_
 

@@ -106,7 +106,7 @@ export class BoxAtom extends Atom {
     if (this.backgroundcolor) {
       box.setStyle(
         'background-color',
-        context.toColor(this.backgroundcolor) ?? 'transparent'
+        context.toBackgroundColor(this.backgroundcolor) ?? 'transparent'
       );
     }
     if (this.framecolor) {

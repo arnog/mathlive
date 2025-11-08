@@ -130,8 +130,8 @@ defineFunction('boxed', '{content:math}', {
     }),
 });
 
-// Technically, using a BoxAtom is more correct (there is a small margin
-// around it). However, just changing the background color makes editing easier
+// Apply background color as a style to allow editing via the background menu.
+// The Box rendering will add proper positioning to prevent superscript/subscript shifting.
 defineFunction('colorbox', '{:value}{:text*}', {
   applyStyle: (style, _name, args: [LatexValue | null], context) => {
     return {
