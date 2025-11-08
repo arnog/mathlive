@@ -825,16 +825,14 @@ function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
           model.offsetOf(sibling),
         ]);
         body.pop();
-        parent!.addChildrenAfter(
-          [
-            new LeftRightAtom('left...right', body, {
-              leftDelim: fence,
-              rightDelim: rDelim,
-            }),
-          ],
-          atom
-        );
-        model.position = model.offsetOf(parent!.firstChild) + 1;
+        const newLeftRight = new LeftRightAtom('left...right', body, {
+          leftDelim: fence,
+          rightDelim: rDelim,
+        });
+        parent!.addChildrenAfter([newLeftRight], atom);
+
+        // Position cursor inside the new leftright, after the left delimiter
+        model.position = model.offsetOf(newLeftRight.firstChild);
         model.contentDidChange({ data: fence, inputType: 'insertText' });
         model.mathfield.snapshot('insert-fence');
         return true;

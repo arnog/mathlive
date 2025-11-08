@@ -84,6 +84,14 @@
   `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
   in an accent command, the cursor now correctly positions inside the
   placeholder instead of selecting the entire accent atom.
+- **#2558** Fixed cursor jumping to the beginning when entering a left
+  parenthesis before a previously entered right parenthesis. When typing a
+  closing bracket first (e.g., `1+2+3)`), then moving the cursor back and
+  typing an opening bracket `(`, the smart fence feature would correctly create
+  `\left(2+3\right)` but would incorrectly position the cursor at the start of
+  the expression instead of after the opening parenthesis. The cursor now
+  properly stays positioned inside the newly created fence, right after the
+  left delimiter.
 - **#2547** Fixed rendering of `\colorbox` in fractions where the colored
   background would obscure the fraction bar. The background is now rendered
   behind the content using a CSS pseudo-element with `z-index: -1`, preventing
