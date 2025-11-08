@@ -76,14 +76,13 @@ function moveToSuperscript(model: _Model): boolean {
   if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `subsup` atom instead.
-    if (target.rightSibling?.type !== 'subsup') {
-      target.parent!.addChildAfter(
-        new SubsupAtom({ style: target.style }),
-        target
-      );
+    let subsup = target.rightSibling;
+    if (subsup?.type !== 'subsup') {
+      subsup = new SubsupAtom({ style: target.style });
+      target.parent!.addChildAfter(subsup, target);
     }
 
-    target = target.rightSibling;
+    target = subsup!;
   }
 
   // Ensure there is a superscript branch
@@ -111,14 +110,13 @@ function moveToSubscript(model: _Model): boolean {
   if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `subsup` atom instead.
-    if (model.at(model.position + 1)?.type !== 'subsup') {
-      target.parent!.addChildAfter(
-        new SubsupAtom({ style: model.at(model.position).style }),
-        target
-      );
+    let subsup = target.rightSibling;
+    if (subsup?.type !== 'subsup') {
+      subsup = new SubsupAtom({ style: target.style });
+      target.parent!.addChildAfter(subsup, target);
     }
 
-    target = model.at(model.position + 1);
+    target = subsup!;
   }
 
   // Ensure there is a subscript branch

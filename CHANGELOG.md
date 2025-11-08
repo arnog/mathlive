@@ -22,12 +22,13 @@
 
 ### Resolved Issues
 
-- **#2146** Fixed nested subscript and superscript creation. Previously, typing
-  `a_b_` would select `b` instead of creating a subscript of `b`, and typing
-  `a^b_` would create a subscript of `a` instead of `b`. The depth calculation
-  functions now correctly count only subscript depth for subscripts and only
-  superscript depth for superscripts, allowing proper nesting of scripts within
-  scripts of different types.
+- **#2146** Fixed nested subscript and superscript creation when using physical
+  keyboard shortcuts (`Shift+-`, `Ctrl+-`). Previously, typing `a_b_` would
+  highlight `b` and reuse the outer subscript instead of creating a subscript of
+  `b`, and typing `a^b_` inside the exponent would unexpectedly attach the new
+  subscript to `a`. Script commands now attach to the atom that currently has
+  focus, so nested scripts work regardless of whether they are triggered by
+  synthetic text insertion or by real key combos.
 - **#2343** Fixed clipboard API errors when MathLive is used in sandboxed
   iframes. Previously, when pasting content in a mathfield embedded in a
   sandboxed iframe without `allow="clipboard-read; clipboard-write"`

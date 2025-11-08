@@ -634,7 +634,12 @@ test('nested subscripts - issue #2146', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
   // Test scenario 1: a_b_ should create a subscript of b
-  await page.locator('#mf-1').pressSequentially('a_b_c');
+  const field = page.locator('#mf-1');
+  await field.press('a');
+  await field.press('Shift+Minus');
+  await field.press('b');
+  await field.press('Shift+Minus');
+  await field.press('c');
 
   let latex = await page
     .locator('#mf-1')
@@ -649,7 +654,11 @@ test('nested subscripts - issue #2146', async ({ page }) => {
   });
 
   // Test scenario 2: a^b_ should create a subscript of b, not a
-  await page.locator('#mf-1').pressSequentially('a^b_c');
+  await field.press('a');
+  await field.press('Shift+Digit6'); // caret
+  await field.press('b');
+  await field.press('Shift+Minus');
+  await field.press('c');
 
   latex = await page
     .locator('#mf-1')
