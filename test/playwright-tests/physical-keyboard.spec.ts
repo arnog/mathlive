@@ -384,6 +384,22 @@ test('keyboard select than divide (#1981)', async ({ page }) => {
   ).toBe(String.raw`\frac{x+y}{2}`);
 });
 
+test('slash on selected subscript (#2521)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').pressSequentially('d_0');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('Shift+ArrowLeft');
+  await page.locator('#mf-1').press('/');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((e: MathfieldElement) => e.value);
+
+  expect(latex).toBe(String.raw`\frac{d_{0}}{\placeholder{}}`);
+});
+
 test('text mode serialization (#1978)', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 

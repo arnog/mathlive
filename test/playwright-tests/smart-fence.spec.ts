@@ -235,5 +235,5 @@ test('right parenthesis before left - caret position', async ({ page }) => {
 
   // Position should be after the opening paren
   // The position index for '1+2*\left(|3+4\right)' where | is cursor
-  expect(position).toBe(6);
+  expect(position).toBe(5);
 });

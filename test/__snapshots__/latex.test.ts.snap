@@ -171,14 +171,14 @@ exports[`BASIC PARSING 20/ "a=1{}" renders correctly 1`] = `
 
 exports[`REST* ARGUMENT COMMANDS (issue #2570) 0/ "\\\\bf{425}" renders correctly 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.65em"></span><span class="ML__base"><span class="ML__cmr">425</span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.65em"></span><span class="ML__base"><span class="ML__mathbf">425</span></span></span>",
   "no-error",
 ]
 `;
 
 exports[`REST* ARGUMENT COMMANDS (issue #2570) 1/ "\\\\it{text}" renders correctly 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.62em"></span><span class="ML__base"><span class="ML__cmr">text</span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.62em"></span><span class="ML__base"><span class="ML__mathit">text</span></span></span>",
   "no-error",
 ]
 `;
