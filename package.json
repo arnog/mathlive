@@ -140,7 +140,7 @@
     "autoprefixer": "^10.4.17",
     "concat-md": "^0.5.1",
     "cssnano": "^6.0.3",
-    "esbuild": "^0.25.1",
+    "esbuild": "^0.25.12",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.31.0",
