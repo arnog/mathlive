@@ -84,6 +84,13 @@
   `\hat{}`, etc.) not being clickable. When clicking on a placeholder wrapped
   in an accent command, the cursor now correctly positions inside the
   placeholder instead of selecting the entire accent atom.
+- **#2521** Fixed the `/` shortcut misplacing subscripts when converting a
+  selection into a fraction. Previously, selecting a symbol with an attached
+  subscript, e.g. `d_0`, and pressing `/` would move only the base `d` into the
+  numerator and leave the orphaned `_0` attached to the denominator
+  placeholder. Selection normalization now automatically expands to include the
+  associated `subsup` atom so the scripted symbol stays intact inside the
+  resulting fraction.
 - **#2558** Fixed cursor jumping to the beginning when entering a left
   parenthesis before a previously entered right parenthesis. When typing a
   closing bracket first (e.g., `1+2+3)`), then moving the cursor back and

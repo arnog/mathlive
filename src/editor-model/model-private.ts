@@ -182,7 +182,8 @@ export class _Model implements Model {
       // 2b/ Determine the anchor and position
       // (smallest, largest offsets, oriented as per `direction`)
       //
-      const selRange = range(value);
+      let selRange = range(value);
+      selRange = includeAttachedSubsup(this, selRange);
       if (value.direction === 'backward')
         [this._position, this._anchor] = selRange;
       else [this._anchor, this._position] = selRange;
@@ -624,7 +625,6 @@ export class _Model implements Model {
       if (parent?.type && expandableTypes.has(parent.type)) {
         while (
           parent &&
-          parent !== this.root &&
           parent.type &&
           expandableTypes.has(parent.type) &&
           childrenInRange(this, parent, [start, end])
@@ -637,7 +637,6 @@ export class _Model implements Model {
       parent = this.at(start).parent;
       while (
         parent &&
-        parent !== this.root &&
         parent.type &&
         expandableTypes.has(parent.type) &&
         childrenInRange(this, parent, [start, end])
@@ -652,7 +651,6 @@ export class _Model implements Model {
       if (parent?.type && expandableTypes.has(parent.type)) {
         while (
           parent &&
-          parent !== this.root &&
           parent.type &&
           expandableTypes.has(parent.type) &&
           childrenInRange(this, parent, [start, end])
@@ -899,9 +897,14 @@ function atomIsInRange(
 
   if (!atom.hasChildren) return true;
 
-  const firstOffset = model.offsetOf(atom.firstChild);
+  const firstChild = firstNonFirstChild(atom);
+  if (!firstChild) return false;
+  const lastChild = lastNonFirstChild(atom);
+  if (!lastChild) return false;
+
+  const firstOffset = model.offsetOf(firstChild);
   if (firstOffset >= first && firstOffset <= last) {
-    const lastOffset = model.offsetOf(atom.lastChild);
+    const lastOffset = model.offsetOf(lastChild);
     if (lastOffset >= first && lastOffset <= last) return true;
   }
 
@@ -911,10 +914,54 @@ function atomIsInRange(
 function childrenInRange(model: _Model, atom: Atom, range: Range): boolean {
   if (!atom?.hasChildren) return false;
   const [start, end] = range;
-  const first = model.offsetOf(atom.firstChild);
-  const last = model.offsetOf(atom.lastChild);
+  const firstChild = firstNonFirstChild(atom);
+  if (!firstChild) return false;
+  const lastChild = lastNonFirstChild(atom);
+  if (!lastChild) return false;
+
+  const first = model.offsetOf(firstChild);
+  const last = model.offsetOf(lastChild);
   if (first >= start && first <= end && last >= first && last <= end)
     return true;
 
   return false;
+}
+
+function includeAttachedSubsup(model: _Model, range: Range): Range {
+  let [start, end] = range;
+  const candidateOffset = end + 1;
+  if (candidateOffset > model.lastOffset) return range;
+
+  const candidate = model.at(candidateOffset);
+  if (shouldAttachSubsup(model, candidate, start, end))
+    end = model.offsetOf(candidate);
+
+  return [start, end];
+}
+
+function shouldAttachSubsup(
+  model: _Model,
+  atom: Atom | undefined,
+  start: Offset,
+  end: Offset
+): atom is Atom {
+  if (!atom || atom.type !== 'subsup') return false;
+  if (!childrenInRange(model, atom, [start, end])) return false;
+  const base = atom.leftSibling;
+  if (!base) return false;
+  const baseOffset = model.offsetOf(base);
+  return baseOffset > start && baseOffset <= end;
+}
+
+function firstNonFirstChild(atom: Atom): Atom | undefined {
+  for (const child of atom.children) if (child.type !== 'first') return child;
+  return undefined;
+}
+
+function lastNonFirstChild(atom: Atom): Atom | undefined {
+  const { children } = atom;
+  for (let i = children.length - 1; i >= 0; i--) {
+    if (children[i].type !== 'first') return children[i];
+  }
+  return undefined;
 }

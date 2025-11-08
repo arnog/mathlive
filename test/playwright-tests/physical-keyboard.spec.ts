@@ -397,7 +397,7 @@ test('slash on selected subscript (#2521)', async ({ page }) => {
     .locator('#mf-1')
     .evaluate((e: MathfieldElement) => e.value);
 
-  expect(latex).toBe(String.raw`\frac{d_{0}}{\placeholder{}}`);
+  expect(latex).toBe(String.raw`\frac{d_0}{\placeholder{}}`);
 });
 
 test('text mode serialization (#1978)', async ({ page }) => {
