@@ -604,47 +604,49 @@ export function onInput(
 
       // Extract the command name (e.g., "\frac" from "\frac{1}{2}")
       const commandMatch = latex.match(/^\\([a-zA-Z]+)/);
-      if (!commandMatch) return;
+      if (commandMatch) {
+        const commandName = '\\' + commandMatch[1];
 
-      const commandName = '\\' + commandMatch[1];
+        // Look up the command definition
+        const def = getDefinition(commandName, 'math');
+        if (def?.definitionType === 'function') {
+          // Count the number of mandatory (non-optional) arguments
+          const mandatoryArgCount = def.params.filter(
+            (p) => !p.isOptional
+          ).length;
+          if (mandatoryArgCount > 0) {
+            // Count how many complete brace pairs we have at the top level
+            let depth = 0;
+            let completedBraces = 0;
+            let inCommandName = true;
 
-      // Look up the command definition
-      const def = getDefinition(commandName, 'math');
-      if (def?.definitionType !== 'function') return;
+            for (let i = 0; i < latex.length; i++) {
+              const char = latex[i];
 
-      // Count the number of mandatory (non-optional) arguments
-      const mandatoryArgCount = def.params.filter((p) => !p.isOptional).length;
-      if (mandatoryArgCount === 0) return;
+              // Skip the command name itself
+              if (inCommandName) {
+                if (char === '\\' || /[a-zA-Z]/.test(char)) continue;
+                inCommandName = false;
+              }
 
-      // Count how many complete brace pairs we have at the top level
-      let depth = 0;
-      let completedBraces = 0;
-      let inCommandName = true;
+              if (char === '{') depth++;
+              else if (char === '}') {
+                depth--;
+                // Count a completed brace pair when we return to depth 0
+                if (depth === 0) completedBraces++;
+              }
+            }
 
-      for (let i = 0; i < latex.length; i++) {
-        const char = latex[i];
-
-        // Skip the command name itself
-        if (inCommandName) {
-          if (char === '\\' || /[a-zA-Z]/.test(char)) continue;
-          inCommandName = false;
-        }
-
-        if (char === '{') depth++;
-        else if (char === '}') {
-          depth--;
-          // Count a completed brace pair when we return to depth 0
-          if (depth === 0) completedBraces++;
-        }
-      }
-
-      // Auto-complete only if we've completed all mandatory arguments
-      // (depth is 0 and we have the right number of completed brace pairs)
-      if (depth === 0 && completedBraces === mandatoryArgCount) {
-        if (complete(mathfield, 'accept-all')) {
-          mathfield.dirty = true;
-          mathfield.scrollIntoView();
-          return;
+            // Auto-complete only if we've completed all mandatory arguments
+            // (depth is 0 and we have the right number of completed brace pairs)
+            if (depth === 0 && completedBraces === mandatoryArgCount) {
+              if (complete(mathfield, 'accept-all')) {
+                mathfield.dirty = true;
+                mathfield.scrollIntoView();
+                return;
+              }
+            }
+          }
         }
       }
     }
