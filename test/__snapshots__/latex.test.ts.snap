@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`ARGUMENTS 0/ "\\\\frac" renders correctly 1`] = `
 [
@@ -140,8 +140,7 @@ exports[`BASIC PARSING 16/ "a-b" renders correctly 1`] = `
 ]
 `;
 
-exports[`BASIC PARSING 17/ "a
-b" renders correctly 1`] = `
+exports[`BASIC PARSING 17/ "a\\nb" renders correctly 1`] = `
 [
   "<span class="ML__latex"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">ab</span></span></span>",
   "no-error",
