@@ -217,6 +217,8 @@
   maintains editability via the background color menu. Selection highlighting no
   longer causes subscripts to shift, as vertical alignment is only applied to
   intentional background colors, not selection highlights.
+- Fix empty-line selection highlighting in multiline mathfields
+
 
 ## 0.107.1 _2025-09-30_
 

@@ -109,10 +109,10 @@ export function contentMarkup(
     model.root.caret = undefined;
     model.root.isSelected = false;
     model.root.containsCaret = true;
-    for (const atom of model.atoms) {
-      atom.caret = undefined;
-      atom.isSelected = false;
-      atom.containsCaret = false;
+  for (const atom of model.atoms) {
+    atom.caret = undefined;
+    atom.isSelected = false;
+    atom.containsCaret = false;
     }
     if (model.selectionIsCollapsed) {
       const atom = model.at(model.position);
@@ -123,7 +123,10 @@ export function contentMarkup(
         ancestor = ancestor.parent;
       }
     } else {
-      const atoms = model.getAtoms(model.selection, { includeChildren: true });
+      const atoms = model.getAtoms(model.selection, {
+        includeChildren: true,
+        includeFirstAtoms: true,
+      });
       for (const atom of atoms) atom.isSelected = true;
     }
 
@@ -264,6 +267,11 @@ export function renderSelection(
   }
 
   const model = mathfield.model;
+  // The DOM may mutate when focus or selection moves (placeholders,
+  // caret containers, etc.). Recompute atom bounds every time we redraw the
+  // selection to avoid reusing stale rectangles that no longer line up with
+  // the rendered nodes.
+  mathfield.atomBoundsCache?.clear();
 
   // Cache the scale factor
   // In some cases we don't need it, so we want to avoid computing it
@@ -334,11 +342,12 @@ export function renderSelection(
   //
   // 2. Display the non-collapsed selection
   //
-
-  for (const x of unionRects(
+  const s = scaleFactor();
+  const rects = unionRects(
     getSelectionBounds(mathfield, { excludeAtomsWithBackground: true })
-  )) {
-    const s = scaleFactor();
+  );
+
+  for (const x of rects) {
     x.left /= s;
     x.right /= s;
     x.top /= s;
@@ -350,7 +359,7 @@ export function renderSelection(
     selectionElement.style.left = `${x.left}px`;
     selectionElement.style.top = `${x.top}px`;
     selectionElement.style.width = `${Math.ceil(x.right - x.left)}px`;
-    selectionElement.style.height = `${Math.ceil(x.bottom - x.top - 1)}px`;
+    selectionElement.style.height = `${Math.max(1, Math.ceil(x.bottom - x.top - 1))}px`;
     field.insertBefore(selectionElement, field.childNodes[0]);
   }
 }

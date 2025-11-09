@@ -188,7 +188,17 @@ export class _Model implements Model {
         [this._position, this._anchor] = selRange;
       else [this._anchor, this._position] = selRange;
 
-      const first = this.at(selRange[0] + 1);
+      let firstIndex = selRange[0] + 1;
+      while (
+        firstIndex <= this.lastOffset &&
+        this.at(firstIndex)?.type === 'first' &&
+        firstIndex < selRange[1]
+      )
+        firstIndex += 1;
+      const first =
+        firstIndex <= this.lastOffset
+          ? this.at(firstIndex)
+          : this.at(selRange[1]);
       const last = this.at(selRange[1]);
 
       const commonAncestor = Atom.commonAncestor(first, last);
@@ -351,7 +361,12 @@ export class _Model implements Model {
       end = arg2;
     } else {
       [start, end] = arg1;
-      options = (arg2 as GetAtomOptions) ?? {};
+      // Don't reassign options if it was already set from a Selection.
+      // This preserves options like includeFirstAtoms when a Selection is
+      // converted to a Range above.
+      if (Object.keys(options).length === 0) {
+        options = (arg2 as GetAtomOptions) ?? {};
+      }
     }
 
     if (!Number.isFinite(start)) return [];
@@ -360,8 +375,16 @@ export class _Model implements Model {
 
     if (start < 0) start = this.lastOffset - start + 1;
     if (end < 0) end = this.lastOffset + end + 1;
-    const first = Math.min(start, end) + 1;
-    const last = Math.max(start, end);
+
+    // Convert selection positions to atom offsets.
+    // Position 0 is before the first atom, position 1 is after the first atom, etc.
+    // A selection [0, 1] should include atoms at offsets 0 and 1.
+    // Special case: when selection starts at position 0, include offset 0 (typically
+    // the first 'first' atom in structures like multiline arrays).
+    const minPos = Math.min(start, end);
+    const maxPos = Math.max(start, end);
+    const first = minPos === 0 ? 0 : minPos + 1;
+    const last = maxPos;
 
     // If this is the entire selection, return the root
     if (!options.includeChildren && first === 1 && last === this.lastOffset)
@@ -370,7 +393,8 @@ export class _Model implements Model {
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
       const atom = this.atoms[i];
-      if (atomIsInRange(this, atom, first, last)) result.push(atom);
+      if (atomIsInRange(this, atom, first, last, options.includeFirstAtoms))
+        result.push(atom);
     }
 
     if (!options.includeChildren) {
@@ -379,7 +403,13 @@ export class _Model implements Model {
         let ancestorIncluded = false;
         let { parent } = atom;
         while (parent && !ancestorIncluded) {
-          ancestorIncluded = atomIsInRange(this, parent, first, last);
+          ancestorIncluded = atomIsInRange(
+            this,
+            parent,
+            first,
+            last,
+            options.includeFirstAtoms
+          );
           parent = parent.parent;
         }
 
@@ -886,20 +916,33 @@ export class _Model implements Model {
   }
 }
 
+/**
+ * Check if an atom is within the specified offset range.
+ * @param includeFirstAtoms - If true, include 'first' atoms which are normally
+ *   filtered out. Needed for rendering when all atoms (including 'first' atoms
+ *   in empty array cells) need to have their selection state set.
+ */
 function atomIsInRange(
   model: _Model,
   atom: Atom,
   first: Offset,
-  last: Offset
+  last: Offset,
+  includeFirstAtoms?: boolean
 ): boolean {
   const offset = model.offsetOf(atom);
   if (offset < first || offset > last) return false;
 
   if (!atom.hasChildren) return true;
 
-  const firstChild = firstNonFirstChild(atom);
+  // For atoms with children, check if their first and last children are in range.
+  // When includeFirstAtoms is true, use all children; otherwise skip 'first' atoms.
+  const firstChild = includeFirstAtoms
+    ? atom.firstChild
+    : firstNonFirstChild(atom);
   if (!firstChild) return false;
-  const lastChild = lastNonFirstChild(atom);
+  const lastChild = includeFirstAtoms
+    ? atom.lastChild
+    : lastNonFirstChild(atom);
   if (!lastChild) return false;
 
   const firstOffset = model.offsetOf(firstChild);

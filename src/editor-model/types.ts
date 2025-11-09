@@ -23,4 +23,7 @@ export type ModelState = {
 
 export type GetAtomOptions = {
   includeChildren?: boolean;
+  /** If true, include 'first' atoms which are normally filtered out.
+   * Useful for rendering when all atoms need selection state set. */
+  includeFirstAtoms?: boolean;
 };

@@ -184,6 +184,36 @@ function normalizeCells(
   return result;
 }
 
+function isEmptyMultilineCell(cell: ReadonlyArray<Atom>): boolean {
+  return cell.length > 0 && cell.every((atom) => atom.type === 'first');
+}
+
+function makeEmptyLineAnchor(
+  cell: ReadonlyArray<Atom>,
+  context: Context,
+  metrics: { height: number; depth: number }
+): Box {
+  const marker = new Box(null, { classes: 'ML__empty-line-anchor' });
+  const idSource = cell[0];
+  if (idSource) {
+    if (!idSource.id) idSource.id = context.makeID();
+    marker.atomID = idSource.id;
+  }
+  marker.setStyle('display', 'inline-block');
+  marker.setStyle('width', 0);
+  marker.setStyle('position', 'relative');
+  marker.setStyle('height', Math.max(0, metrics.height + metrics.depth), 'em');
+  marker.setStyle('vertical-align', -metrics.depth, 'em');
+  marker.height = metrics.height;
+  marker.depth = metrics.depth;
+
+  const caretAtom = cell.find((atom) => atom.caret);
+  if (caretAtom?.caret) marker.caret = caretAtom.caret;
+  if (cell.some((atom) => atom.isSelected)) marker.selected(true);
+
+  return marker;
+}
+
 function normalizeCell(
   cell: ReadonlyArray<Atom>,
   mode: ParseMode
@@ -456,8 +486,13 @@ export class ArrayAtom extends Atom {
       const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
       for (const element of inrow) {
         const elt =
-          Atom.createBox(cellContext, element, { type: 'ignore' }) ??
-          new Box(null, { type: 'ignore' });
+          this.isMultiline && element && isEmptyMultilineCell(element)
+            ? makeEmptyLineAnchor(element, cellContext, {
+                height: arstrutHeight / cellContext.scalingFactor,
+                depth: arstrutDepth / cellContext.scalingFactor,
+              })
+            : Atom.createBox(cellContext, element, { type: 'ignore' }) ??
+              new Box(null, { type: 'ignore' });
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
