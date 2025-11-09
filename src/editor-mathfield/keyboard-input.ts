@@ -15,7 +15,11 @@ import {
 import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 
-import { removeSuggestion, updateAutocomplete } from './autocomplete';
+import {
+  acceptCommandSuggestion,
+  removeSuggestion,
+  updateAutocomplete,
+} from './autocomplete';
 import { requestUpdate } from './render';
 import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
@@ -249,6 +253,18 @@ export function onKeystroke(
         // Stop adopting the style from surrounding atoms
         // (the bias is reset when the selection changes)
         mathfield.styleBias = 'none';
+
+        // Check if there's an active autocomplete suggestion and accept it
+        if (acceptCommandSuggestion(model)) {
+          mathfield.snapshot('accept-suggestion');
+          mathfield.dirty = true;
+          mathfield.scrollIntoView();
+          if (evt.preventDefault) {
+            evt.preventDefault();
+            evt.stopPropagation();
+          }
+          return false;
+        }
 
         // The space bar can be used to separate inline shortcuts
         mathfield.flushInlineShortcutBuffer();
