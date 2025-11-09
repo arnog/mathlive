@@ -16,10 +16,12 @@ import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 
 import {
-  acceptCommandSuggestion,
+  complete,
   removeSuggestion,
   updateAutocomplete,
 } from './autocomplete';
+import { getLatexGroupBody } from './mode-editor-latex';
+import { getDefinition } from '../latex-commands/definitions-utils';
 import { requestUpdate } from './render';
 import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
@@ -244,6 +246,20 @@ export function onKeystroke(
       return success;
     }
 
+    // Handle Space key in LaTeX mode to complete and exit
+    if (keystroke === '[Space]' && model.mode === 'latex') {
+      // Try to complete the LaTeX command and exit LaTeX mode
+      if (complete(mathfield, 'accept-all')) {
+        mathfield.dirty = true;
+        mathfield.scrollIntoView();
+        if (evt.preventDefault) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
+        return false;
+      }
+    }
+
     if ((!selector || keystroke === '[Space]') && model.mode === 'math') {
       //
       // 5.5 If this is the Space bar and we're just before or right after
@@ -253,18 +269,6 @@ export function onKeystroke(
         // Stop adopting the style from surrounding atoms
         // (the bias is reset when the selection changes)
         mathfield.styleBias = 'none';
-
-        // Check if there's an active autocomplete suggestion and accept it
-        if (acceptCommandSuggestion(model)) {
-          mathfield.snapshot('accept-suggestion');
-          mathfield.dirty = true;
-          mathfield.scrollIntoView();
-          if (evt.preventDefault) {
-            evt.preventDefault();
-            evt.stopPropagation();
-          }
-          return false;
-        }
 
         // The space bar can be used to separate inline shortcuts
         mathfield.flushInlineShortcutBuffer();
@@ -595,6 +599,60 @@ export function onInput(
         updateAutocomplete(mathfield);
       }
     );
+
+    // Check if we just typed a closing brace that completes all mandatory arguments
+    // This needs to be done AFTER deferNotifications completes
+    if (text === '}') {
+      const latexBody = getLatexGroupBody(model);
+      const latex = latexBody.map((x) => x.value).join('');
+
+      // Extract the command name (e.g., "\frac" from "\frac{1}{2}")
+      const commandMatch = latex.match(/^\\([a-zA-Z]+)/);
+      if (!commandMatch) return;
+
+      const commandName = '\\' + commandMatch[1];
+
+      // Look up the command definition
+      const def = getDefinition(commandName, 'math');
+      if (!def || def.definitionType !== 'function') return;
+
+      // Count the number of mandatory (non-optional) arguments
+      const mandatoryArgCount = def.params.filter((p) => !p.isOptional).length;
+      if (mandatoryArgCount === 0) return;
+
+      // Count how many complete brace pairs we have at the top level
+      let depth = 0;
+      let completedBraces = 0;
+      let inCommandName = true;
+
+      for (let i = 0; i < latex.length; i++) {
+        const char = latex[i];
+
+        // Skip the command name itself
+        if (inCommandName) {
+          if (char === '\\' || /[a-zA-Z]/.test(char)) continue;
+          inCommandName = false;
+        }
+
+        if (char === '{') {
+          depth++;
+        } else if (char === '}') {
+          depth--;
+          // Count a completed brace pair when we return to depth 0
+          if (depth === 0) completedBraces++;
+        }
+      }
+
+      // Auto-complete only if we've completed all mandatory arguments
+      // (depth is 0 and we have the right number of completed brace pairs)
+      if (depth === 0 && completedBraces === mandatoryArgCount) {
+        if (complete(mathfield, 'accept-all')) {
+          mathfield.dirty = true;
+          mathfield.scrollIntoView();
+          return;
+        }
+      }
+    }
   } else if (model.mode === 'text') {
     const style = { ...getSelectionStyle(model), ...mathfield.defaultStyle };
     for (const c of graphemes)

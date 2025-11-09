@@ -300,10 +300,10 @@ export function setKeyboardLayout(
 export function getActiveKeyboardLayout(): KeyboardLayout {
   // if ((gKeyboardLayout ?? gKeyboardLayouts[0])?.displayName === 'French')
   //   debugger;
-  console.log(
-    'Active keyboard layout:',
-    (gKeyboardLayout ?? gKeyboardLayouts[0])?.displayName
-  );
+  // console.log(
+  //   'Active keyboard layout:',
+  //   (gKeyboardLayout ?? gKeyboardLayouts[0])?.displayName
+  // );
   return gKeyboardLayout ?? gKeyboardLayouts[0];
 }
 

@@ -19,6 +19,24 @@
   - **Accessibility enhancements**: Auto-generated ARIA labels with speakable
     text, MathML fallback for screen readers, keyboard navigation support when
     focusable (Space/Enter to speak formula), automatic `role="img"` attribute
+- **#2732** Pressing the Space key in LaTeX mode now completes the LaTeX command
+  and exits LaTeX mode, similar to pressing Enter. Previously, users typing
+  LaTeX commands like `\alpha` would remain in LaTeX mode until pressing Enter,
+  and incomplete commands would be lost when dismissing dialogs. Now pressing
+  Space after a valid LaTeX command completes it and returns to math mode,
+  making LaTeX input more intuitive and preventing data loss. Additionally, when
+  typing LaTeX commands with mandatory arguments (like `\frac{1}{2}`), the
+  command now auto-completes and exits LaTeX mode when the closing brace of the
+  last mandatory argument is typed. The implementation uses the command registry
+  to determine the exact number of mandatory arguments, ensuring correct
+  behavior for all commands including those with nested arguments.
+- **#2786** Fixed scientific notation handling when creating fractions. When
+  typing scientific notation like `5e-2` or `3.14×10^{-2}` and then pressing `/`
+  to create a fraction, the entire expression now stays together in the
+  numerator instead of being split apart. Previously, only part of the number
+  would be included (e.g., just `2` from `5e-2`), breaking the scientific
+  notation. The fix recognizes both e-notation (`5e-2`, `3.14e+10`) and ×10^
+  notation (`3.14×10^{-2}`, `5×10^3`) as atomic units.
 
 ### Resolved Issues
 

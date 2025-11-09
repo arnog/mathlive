@@ -549,6 +549,113 @@ function getImplicitArgOffset(model: _Model): Offset {
 }
 
 /**
+ * Check if the atom is part of a scientific notation pattern
+ * Handles both: 5e-2 and 3.14×10^-2 formats
+ */
+function isPartOfScientificNotation(atom: Atom): boolean {
+  // Pattern 1: 'e' notation (e.g., 5e-2, 3.14e+10)
+  // Check if this is 'e' preceded by a digit
+  if (atom.type === 'mord' && atom.value === 'e') {
+    const left = atom.leftSibling;
+    if (left && left.isDigit()) return true;
+  }
+
+  // Check if this is '+' or '-' preceded by 'e' and that 'e' is preceded by a digit
+  // Note: minus might be '-' (hyphen-minus) or '−' (minus sign U+2212)
+  if (
+    atom.type === 'mbin' &&
+    (atom.value === '+' || atom.value === '-' || atom.value === '−')
+  ) {
+    const left = atom.leftSibling;
+    const right = atom.rightSibling;
+    if (
+      left &&
+      left.type === 'mord' &&
+      left.value === 'e' &&
+      right &&
+      right.isDigit()
+    ) {
+      const leftLeft = left.leftSibling;
+      if (leftLeft && leftLeft.isDigit()) return true;
+    }
+  }
+
+  // Pattern 2: ×10^ notation (e.g., 3.14×10^-2, 5×10^3)
+  // The structure is: digit(s) × 1 0 subsup
+  // where the subsup has the exponent in its superscript branch
+
+  // Check if this is a subsup atom (the ^ part after 10)
+  if (atom.type === 'subsup') {
+    // Check if left siblings are "0" and "1"
+    const left1 = atom.leftSibling; // should be "0"
+    if (left1 && left1.isDigit() && left1.value === '0') {
+      const left2 = left1.leftSibling; // should be "1"
+      if (left2 && left2.isDigit() && left2.value === '1') {
+        // Check if preceded by × (times)
+        const left3 = left2.leftSibling;
+        if (left3 && left3.type === 'mbin' && (left3.value === '×' || left3.value === '\\times')) {
+          // Check if the times is preceded by a digit
+          const left4 = left3.leftSibling;
+          if (left4 && left4.isDigit()) return true;
+        }
+      }
+    }
+  }
+
+  // Check if this is "0" that's part of "10^"
+  if (atom.isDigit() && atom.value === '0') {
+    const left = atom.leftSibling; // should be "1"
+    const right = atom.rightSibling; // should be subsup
+    if (
+      left && left.isDigit() && left.value === '1' &&
+      right && right.type === 'subsup'
+    ) {
+      // Check if "1" is preceded by ×
+      const left2 = left.leftSibling;
+      if (left2 && left2.type === 'mbin' && (left2.value === '×' || left2.value === '\\times')) {
+        // Check if × is preceded by a digit
+        const left3 = left2.leftSibling;
+        if (left3 && left3.isDigit()) return true;
+      }
+    }
+  }
+
+  // Check if this is "1" that's part of "10^"
+  if (atom.isDigit() && atom.value === '1') {
+    const right1 = atom.rightSibling; // should be "0"
+    if (right1 && right1.isDigit() && right1.value === '0') {
+      const right2 = right1.rightSibling; // should be subsup
+      if (right2 && right2.type === 'subsup') {
+        // Check if preceded by ×
+        const left = atom.leftSibling;
+        if (left && left.type === 'mbin' && (left.value === '×' || left.value === '\\times')) {
+          // Check if × is preceded by a digit
+          const left2 = left.leftSibling;
+          if (left2 && left2.isDigit()) return true;
+        }
+      }
+    }
+  }
+
+  // Check if this is × (times) in the pattern digit × 10^exponent
+  if (atom.type === 'mbin' && (atom.value === '×' || atom.value === '\\times')) {
+    const left = atom.leftSibling;
+    const right1 = atom.rightSibling; // should be "1"
+    if (left && left.isDigit() && right1 && right1.isDigit() && right1.value === '1') {
+      const right2 = right1.rightSibling; // should be "0"
+      if (right2 && right2.isDigit() && right2.value === '0') {
+        const right3 = right2.rightSibling; // should be subsup
+        if (right3 && right3.type === 'subsup') {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  *
  * Predicate returns true if the atom should be considered an implicit argument.
  *
@@ -559,6 +666,10 @@ function getImplicitArgOffset(model: _Model): Offset {
 function isImplicitArg(atom: Atom): boolean {
   // A digit, or a decimal point
   if (atom.isDigit()) return true;
+
+  // Check for scientific notation patterns
+  if (isPartOfScientificNotation(atom)) return true;
+
   if (
     atom.type &&
     /^(mord|surd|subsup|leftright|mop|mclose)$/.test(atom.type)
