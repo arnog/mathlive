@@ -195,6 +195,11 @@
   causing `\mathrm{d}` to be serialized as just `d`.
 - **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
   commands.
+- **#2851** Fixed multiline row merging when deleting across multiple lines.
+  Previously, when a selection spanned multiple rows in a multiline environment
+  (like `\displaylines`) and was deleted, the remaining content would stay on
+  separate lines instead of merging. Now, when deleting across rows, the
+  remaining fragments are properly merged into a single line.
 - **#2859** When using `mathVirtualKeyboardPolicy="manual"`, controlling the
   virtual keyboard via `focusin`/`focusout` event listeners now works correctly.
   The keyboard no longer closes immediately after opening.
@@ -218,7 +223,6 @@
   longer causes subscripts to shift, as vertical alignment is only applied to
   intentional background colors, not selection highlights.
 - Fix empty-line selection highlighting in multiline mathfields
-
 
 ## 0.107.1 _2025-09-30_
 

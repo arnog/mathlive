@@ -527,20 +527,63 @@ export function deleteRange(
         ];
         const rowSpan = endRow - startRow + 1;
 
-        if (rowSpan === 2) {
-          // // If the selection spans two rows, delete the entire row
-          // parentArray.removeRow(startRow);
-          // model.position = model.offsetOf(parentArray.getCell(startRow, 0)!);
-          // return true;
-        }
+        if (rowSpan >= 2) {
+          return model.deferNotifications(
+            { content: true, selection: true, type },
+            () => {
+              // Check if cells exist
+              const startCell = parentArray.getCell(startRow, startColumn);
+              const endCell = parentArray.getCell(endRow, endColumn);
+              if (!startCell || !endCell) return;
 
-        if (rowSpan > 2) {
-          // More than two span: delete the selection, then rows in the middle
-          model.extractAtoms([startOffset, endOffset]);
-          for (let i = startRow + 1; i < endRow; i++) parentArray.removeRow(i);
-          model.position = startOffset;
+              // Delete the atoms in the selection
+              model.extractAtoms([startOffset, endOffset]);
 
-          return true;
+              // Get what remains in each cell after extraction
+              const remainingStart = parentArray.getCell(startRow, startColumn);
+              const remainingEnd = parentArray.getCell(endRow, endColumn);
+
+              // Remove middle rows (if any) - iterate backwards to maintain indices
+              for (let i = endRow - 1; i > startRow; i--)
+                parentArray.removeRow(i);
+
+              // If start and end were on different rows, merge them
+              if (startRow !== endRow) {
+                // After removing middle rows, the end row is now at startRow + 1
+                const nowRemainingEnd = parentArray.getCell(startRow + 1, startColumn);
+
+                if (remainingStart && nowRemainingEnd) {
+                  // Merge: content from start row + content from end row
+                  const mergedContent = [
+                    ...remainingStart.filter((x) => x.type !== 'first'),
+                    ...nowRemainingEnd.filter((x) => x.type !== 'first'),
+                  ];
+
+                  // Update the start row with merged content
+                  parentArray.setCell(startRow, startColumn, mergedContent);
+
+                  // Remove the end row
+                  parentArray.removeRow(startRow + 1);
+                }
+              }
+
+              // Position cursor at the merge point
+              const mergedCell = parentArray.getCell(startRow, startColumn);
+              if (mergedCell) {
+                // Position should be right after what was in the start row originally
+                const targetIndex = remainingStart
+                  ? remainingStart.filter((x) => x.type !== 'first').length
+                  : 0;
+                model.position = model.offsetOf(
+                  mergedCell[targetIndex] ?? mergedCell[0]
+                );
+              } else {
+                model.position = startOffset;
+              }
+
+              parentArray.isDirty = true;
+            }
+          );
         }
       }
     }
