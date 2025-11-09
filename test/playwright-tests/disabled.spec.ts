@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:8080/test/smoke/');
+  await page.goto('/dist/playwright-test-page/');
   await page.waitForSelector('math-field', { timeout: 5000 });
 });
 
