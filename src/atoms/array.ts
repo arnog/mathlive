@@ -491,8 +491,8 @@ export class ArrayAtom extends Atom {
                 height: arstrutHeight / cellContext.scalingFactor,
                 depth: arstrutDepth / cellContext.scalingFactor,
               })
-            : Atom.createBox(cellContext, element, { type: 'ignore' }) ??
-              new Box(null, { type: 'ignore' });
+            : (Atom.createBox(cellContext, element, { type: 'ignore' }) ??
+              new Box(null, { type: 'ignore' }));
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);

@@ -109,10 +109,10 @@ export function contentMarkup(
     model.root.caret = undefined;
     model.root.isSelected = false;
     model.root.containsCaret = true;
-  for (const atom of model.atoms) {
-    atom.caret = undefined;
-    atom.isSelected = false;
-    atom.containsCaret = false;
+    for (const atom of model.atoms) {
+      atom.caret = undefined;
+      atom.isSelected = false;
+      atom.containsCaret = false;
     }
     if (model.selectionIsCollapsed) {
       const atom = model.at(model.position);

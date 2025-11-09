@@ -550,7 +550,10 @@ export function deleteRange(
               // If start and end were on different rows, merge them
               if (startRow !== endRow) {
                 // After removing middle rows, the end row is now at startRow + 1
-                const nowRemainingEnd = parentArray.getCell(startRow + 1, startColumn);
+                const nowRemainingEnd = parentArray.getCell(
+                  startRow + 1,
+                  startColumn
+                );
 
                 if (remainingStart && nowRemainingEnd) {
                   // Merge: content from start row + content from end row
