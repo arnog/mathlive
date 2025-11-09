@@ -724,6 +724,16 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
   switch (atom.type) {
     case 'first':
       break; // Nothing to do
+    case 'error':
+      // Line breaks (\\) in multiline environments are represented by the table structure
+      // in MathML, so we don't need to output anything for them
+      if (atom.command === '\\\\') break;
+      // For other error atoms, wrap in merror
+      result = `<merror${makeID(atom.id, options)}>${toMathML(
+        atom.body,
+        options
+      )}</merror>`;
+      break;
     case 'group':
     case 'root':
       result = toMathML(atom.body, options);
@@ -772,7 +782,7 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
         (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
         if (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
-          result += `'<mo>${SPECIAL_DELIMS[arrayAtom.rightDelim!] || arrayAtom.rightDelim}</mo>`;
+          result += `<mo>${SPECIAL_DELIMS[arrayAtom.rightDelim!] || arrayAtom.rightDelim}</mo>`;
 
         result += '</mrow>';
       }

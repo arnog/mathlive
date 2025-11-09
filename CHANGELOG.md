@@ -50,6 +50,13 @@
 
 ### Resolved Issues
 
+- Fixed MathML serialization for multiline mathfields. Previously, serializing
+  multiline mathfields (such as `\displaylines{\\ }`) to MathML would result in
+  invalid MathML with syntax errors and console warnings. The fix corrects a
+  syntax error in array delimiter serialization and properly handles line break
+  (`\\`) atoms in multiline environments by skipping them (since line breaks are
+  represented by the `<mtr>` table structure in MathML, not by explicit line
+  break atoms).
 - **#2146** Fixed nested subscript and superscript creation when using physical
   keyboard shortcuts (`Shift+-`, `Ctrl+-`). Previously, typing `a_b_` would
   highlight `b` and reuse the outer subscript instead of creating a subscript of
