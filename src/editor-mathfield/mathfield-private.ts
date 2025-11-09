@@ -179,7 +179,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
   readonly keyboardDelegate: Readonly<KeyboardDelegate>;
 
-  _keybindings?: Readonly<Keybinding[]>; // Normalized keybindings (raw ones in config)
+  _keybindings?: readonly Keybinding[]; // Normalized keybindings (raw ones in config)
   keyboardLayout: KeyboardLayoutName;
 
   inlineShortcutBuffer: {
@@ -672,7 +672,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return 'some';
   }
 
-  get keybindings(): Readonly<Keybinding[]> {
+  get keybindings(): readonly Keybinding[] {
     if (this._keybindings) return this._keybindings;
 
     const [keybindings, errors] = normalizeKeybindings(
@@ -698,7 +698,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return this._menu;
   }
 
-  set menuItems(menuItems: Readonly<MenuItem[]>) {
+  set menuItems(menuItems: readonly MenuItem[]) {
     if (this._menu) this._menu.menuItems = menuItems;
     else this._menu = new Menu(menuItems, { host: this.host });
   }
@@ -957,7 +957,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     return perform(this, command);
   }
 
-  get errors(): Readonly<LatexSyntaxError[]> {
+  get errors(): readonly LatexSyntaxError[] {
     return validateLatex(this.model.getValue(), { context: this.context });
   }
 
@@ -1055,35 +1055,49 @@ If you are using Vue, this may be because you are using the runtime-only build o
       const selectionBounds = getSelectionBounds(this);
       if (selectionBounds.length > 0) {
         let maxRight = -Infinity;
-        let minTop = -Infinity;
+        let minTop = Infinity; // We want the minimum (topmost) value
+        let maxBottom = -Infinity;
         for (const r of selectionBounds) {
           if (r.right > maxRight) maxRight = r.right;
           if (r.top < minTop) minTop = r.top;
+          if (r.bottom > maxBottom) maxBottom = r.bottom;
         }
 
+        const selectionHeight = maxBottom - minTop;
+        // selectionBounds are field-relative, convert to viewport coordinates
         caretPoint = {
           x: maxRight + fieldBounds.left - this.field!.scrollLeft,
           y: minTop + fieldBounds.top - this.field!.scrollTop,
-          height: 0,
+          height: selectionHeight,
         };
       }
     }
 
     //
-    // 4/ Make sure that the caret is vertically visible, but because
-    // vertical scrolling of the field occurs via a scroller that includes
-    // the field and the virtual keyboard toggle, we'll handle the horizontal
-    // scrolling separately
+    // 4/ Make sure that the caret is vertically visible
     //
     if (this.host && caretPoint) {
       const hostBounds = this.host.getBoundingClientRect();
 
+      // Add some padding so we scroll before reaching the very edge
+      const SCROLL_PADDING = 20;
+
       const y = caretPoint.y;
+      const bottom = caretPoint.y + caretPoint.height;
       let top = this.host.scrollTop;
-      if (y < hostBounds.top) top = y - hostBounds.top + this.host.scrollTop;
-      else if (y > hostBounds.bottom)
-        top = y - hostBounds.bottom + this.host.scrollTop + caretPoint.height;
-      this.host.scroll({ top, left: 0 });
+
+      // Check if top of caret/selection is above visible area (with padding)
+      if (y < hostBounds.top + SCROLL_PADDING) {
+        top = y - hostBounds.top + this.host.scrollTop - SCROLL_PADDING;
+      }
+      // Check if bottom of caret/selection is below visible area (with padding)
+      else if (bottom > hostBounds.bottom - SCROLL_PADDING) {
+        top = bottom - hostBounds.bottom + this.host.scrollTop + SCROLL_PADDING;
+      }
+
+      // Only scroll if the position actually changed
+      if (top !== this.host.scrollTop)
+        this.host.scroll({ top, behavior: 'auto' });
     }
 
     //
@@ -1098,10 +1112,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       else if (x > fieldBounds.right)
         left = x - fieldBounds.right + this.field!.scrollLeft + 20;
 
-      this.field!.scroll({
-        top: this.field!.scrollTop, // should always be 0
-        left,
-      });
+      this.field!.scroll({ top: this.field!.scrollTop, left });
     }
   }
 

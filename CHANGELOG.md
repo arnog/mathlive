@@ -193,6 +193,14 @@
   `\mathtt`) are now correctly preserved when exporting to the `latex-expanded`
   format. Previously, these commands were being stripped from the output,
   causing `\mathrm{d}` to be serialized as just `d`.
+- **#2847** Fixed scroll behavior in fixed-height mathfield containers. When
+  navigating with arrow keys or Tab/Shift+Tab to move between placeholders, the
+  container now properly scrolls to keep the cursor or selection visible.
+  Previously, selecting placeholders would cause the scroll to jump to the top,
+  and navigating upward wouldn't scroll when the cursor was on the first line.
+  The fix also adds padding (20px) so scrolling happens before the cursor
+  reaches the very edge of the viewport, and ensures full selections are visible
+  rather than just showing 1 pixel.
 - **#2849** For compatibility with KaTeX, do not wrap the argument of delimiter
   commands.
 - **#2851** Fixed multiline row merging when deleting across multiple lines.

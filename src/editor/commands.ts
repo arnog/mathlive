@@ -145,7 +145,16 @@ export function perform(
   }
 
   // Render the mathfield
-  if (dirty) requestUpdate(mathfield);
+  if (dirty) {
+    // If the command changed selection, set dirty and call scrollIntoView
+    // which will render synchronously before scrolling
+    if (info?.changeSelection && handled) {
+      mathfield.dirty = true;
+      mathfield.scrollIntoView();
+    } else {
+      requestUpdate(mathfield);
+    }
+  }
 
   return handled;
 }
