@@ -15,13 +15,12 @@ export class PromptAtom extends Atom {
     placeholderId?: string,
     correctness?: 'correct' | 'incorrect' | undefined,
     locked = false,
-    body?: Readonly<Atom[]>,
+    body?: readonly Atom[],
     options?: {
       mode?: ParseMode;
       style?: Style;
     }
   ) {
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     super({
       type: 'prompt',
       mode: options?.mode ?? 'math',

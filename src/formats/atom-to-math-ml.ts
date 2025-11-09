@@ -515,7 +515,7 @@ function scanOperator(stream: MathMLStream, final: number, options) {
  * @param final last index of the input to stop conversion to
  */
 export function toMathML(
-  input: number | boolean | string | Atom | Readonly<Atom[]> | undefined,
+  input: number | boolean | string | Atom | readonly Atom[] | undefined,
   options?: { generateID?: boolean },
   initial?: number,
   final?: number
@@ -736,9 +736,8 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
         (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
         result += '<mrow>';
-        if (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') {
+        if (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.')
           result += `<mo>${SPECIAL_DELIMS[arrayAtom.leftDelim] || arrayAtom.leftDelim}</mo>`;
-        }
       }
 
       result += '<mtable';
@@ -772,9 +771,8 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
         (arrayAtom.leftDelim && arrayAtom.leftDelim !== '.') ||
         (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
       ) {
-        if (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.') {
+        if (arrayAtom.rightDelim && arrayAtom.rightDelim !== '.')
           result += `'<mo>${SPECIAL_DELIMS[arrayAtom.rightDelim!] || arrayAtom.rightDelim}</mo>`;
-        }
 
         result += '</mrow>';
       }
@@ -966,9 +964,8 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
               '&#x' + ('000000' + codepoint.toString(16)).slice(-4) + ';';
           }
         }
-      } else if (typeof atom.value === 'string') {
-        result = atom.value;
-      } else {
+      } else if (typeof atom.value === 'string') result = atom.value;
+      else {
         console.error('Did not expect this');
         result = '';
       }

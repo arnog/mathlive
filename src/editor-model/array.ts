@@ -52,7 +52,7 @@ function parentArray(
   // change the array type
   //
   //
-  if (atom && atom.type === 'array') {
+  if (atom?.type === 'array') {
     const array = atom as ArrayAtom;
     if (array.environmentName === 'lines') {
       // Convert to `split` if adding columns
@@ -168,7 +168,7 @@ function isPlaceholderCell(
   // const pos = model.offsetOf(array.getCell(row, column)![1]);
   // return pos >= 0 && model.at(pos).type === 'placeholder';
   const cell = array.getCell(row, column);
-  if (!cell || cell.length !== 2) return false;
+  if (cell?.length !== 2) return false;
   return cell[1].type === 'placeholder';
 }
 
@@ -271,8 +271,8 @@ export function addRowAfter(model: _Model): boolean {
 
     // Get content before/after the cursor
     const [first, last] = cellSiblings(model)!;
-    let after = model.extractAtoms([model.position, model.offsetOf(last)]);
-    let before = model.extractAtoms([model.offsetOf(first), model.position]);
+    const after = model.extractAtoms([model.position, model.offsetOf(last)]);
+    const before = model.extractAtoms([model.offsetOf(first), model.position]);
 
     const array = first.parent as ArrayAtom;
     const [row, col] = first.parentBranch as [number, number];

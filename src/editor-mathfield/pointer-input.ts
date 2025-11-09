@@ -213,11 +213,10 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
       ) {
         // Position cursor inside the prompt/placeholder body
         const atom = mathfield.model.at(anchor);
-        if (atom.hasChildren && atom.firstChild) {
+        if (atom.hasChildren && atom.firstChild)
           mathfield.model.position = mathfield.model.offsetOf(atom.firstChild);
-        } else {
-          mathfield.model.setSelection(anchor - 1, anchor);
-        }
+        else mathfield.model.setSelection(anchor - 1, anchor);
+
         dirty = 'selection';
       } else if (
         mathfield.model.at(anchor).rightSibling?.type === 'placeholder' ||
@@ -225,11 +224,10 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
       ) {
         // Position cursor inside the prompt/placeholder body
         const atom = mathfield.model.at(anchor).rightSibling!;
-        if (atom.hasChildren && atom.firstChild) {
+        if (atom.hasChildren && atom.firstChild)
           mathfield.model.position = mathfield.model.offsetOf(atom.firstChild);
-        } else {
-          mathfield.model.setSelection(anchor, anchor + 1);
-        }
+        else mathfield.model.setSelection(anchor, anchor + 1);
+
         dirty = 'selection';
       } else {
         // Check if this atom has captureSelection and contains a single
@@ -374,11 +372,9 @@ function nearestAtomFromPointRecursive(
       // Calculate vertical distance from click point to this row
       if (rowTop !== Infinity && rowBottom !== -Infinity) {
         let rowDistance: number;
-        if (y < rowTop) {
-          rowDistance = rowTop - y;
-        } else if (y > rowBottom) {
-          rowDistance = y - rowBottom;
-        } else {
+        if (y < rowTop) rowDistance = rowTop - y;
+        else if (y > rowBottom) rowDistance = y - rowBottom;
+        else {
           // Point is within the row's vertical bounds
           rowDistance = 0;
         }

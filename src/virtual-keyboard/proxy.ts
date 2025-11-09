@@ -203,9 +203,8 @@ export class VirtualKeyboardProxy
     if (action === 'execute-command') {
       const { command } = msg;
       const commandTarget = getCommandTarget(command!);
-      if (commandTarget === 'virtual-keyboard') {
-        this.executeCommand(command!);
-      }
+      if (commandTarget === 'virtual-keyboard') this.executeCommand(command!);
+
       // Note: mathfield commands are handled by the mathfield's own message listener
       // (see mathfield-private.ts handleEvent), not by the proxy
       return;

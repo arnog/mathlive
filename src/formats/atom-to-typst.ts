@@ -232,7 +232,7 @@ function joinAsciiMath(xs: string[]): string {
   return result;
 }
 
-export function atomToTypst(atom: Atom | Readonly<Atom[]> | undefined): string {
+export function atomToTypst(atom: Atom | readonly Atom[] | undefined): string {
   if (!atom) return '';
   if (isArray<Atom>(atom)) {
     if (atom.length === 0) return '';
@@ -253,9 +253,9 @@ export function atomToTypst(atom: Atom | Readonly<Atom[]> | undefined): string {
 
     let i = 0;
     const result: string[] = [];
-    while (atom[i] && atom[i].mode === 'math') {
+    while (atom[i]?.mode === 'math') {
       let digits = '';
-      while (atom[i] && atom[i].type === 'mord' && /\d/.test(atom[i].value))
+      while (atom[i]?.type === 'mord' && /\d/.test(atom[i].value))
         digits += atom[i++].value;
       if (digits) result.push(digits);
       else result.push(atomToTypst(atom[i++]));
@@ -345,20 +345,16 @@ export function atomToTypst(atom: Atom | Readonly<Atom[]> | undefined): string {
         let rDelim = leftrightAtom.matchingRightDelim();
         if (rDelim && IDENTIFIERS[rDelim]) rDelim = IDENTIFIERS[rDelim];
 
-        if (lDelim) {
-          lDelim = FENCES[lDelim] ?? lDelim;
-        }
-        if (rDelim) {
-          rDelim = FENCES[rDelim] ?? rDelim;
-        }
+        if (lDelim) lDelim = FENCES[lDelim] ?? lDelim;
+
+        if (rDelim) rDelim = FENCES[rDelim] ?? rDelim;
 
         if (lDelim && rDelim) {
           result = `lr(${REVERSE_FENCES[lDelim] ?? lDelim}${atomToTypst(leftrightAtom.body)}${
             REVERSE_FENCES[rDelim] ?? rDelim
           })`;
-        } else {
+        } else
           result = `lr(${lDelim}${atomToTypst(leftrightAtom.body)}${rDelim})`;
-        }
       }
 
       break;
@@ -450,17 +446,15 @@ export function atomToTypst(atom: Atom | Readonly<Atom[]> | undefined): string {
           'matrix': '#none',
         }[environment];
 
-        if (delim) {
-          result = `mat(delim: ${delim}, ${rows.join(' ; ')})`;
-        } else if (environment === 'cases' || environment === 'rcases') {
+        if (delim) result = `mat(delim: ${delim}, ${rows.join(' ; ')})`;
+        else if (environment === 'cases' || environment === 'rcases')
           result = `cases(reverse: #${environment === 'rcases'}, ${rows.join(', ')})`;
-        } else if (environment === 'aligned') {
+        else if (environment === 'aligned') {
           result = array
             .map((row) => row.map(atomToTypst).join(' & '))
             .join(' \\ ');
-        } else {
+        } else
           result = array.map((row) => row.map(atomToTypst).join('')).join('');
-        }
       }
       break;
 
@@ -493,16 +487,12 @@ export function atomToTypst(atom: Atom | Readonly<Atom[]> | undefined): string {
 
   if (!result) {
     const customFunction = CUSTOM_FUNCTIONS[atom.command.slice(1)];
-    if (customFunction) {
-      result = `${customFunction}(${atomToTypst(atom.body)})`;
-    }
+    if (customFunction) result = `${customFunction}(${atomToTypst(atom.body)})`;
   }
 
   if (!result) {
     const customConverter = CUSTOM_CONVERTERS[atom.command.slice(1)];
-    if (customConverter) {
-      result = customConverter(atom);
-    }
+    if (customConverter) result = customConverter(atom);
   }
 
   if (!atom.hasEmptyBranch('subscript')) {

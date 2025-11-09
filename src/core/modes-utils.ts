@@ -33,7 +33,7 @@ export abstract class Mode {
   }
 
   static serialize(
-    atoms: Readonly<Atom[]> | undefined,
+    atoms: readonly Atom[] | undefined,
     options: ToLatexOptions
   ): string {
     if (!atoms || atoms.length === 0) return '';
@@ -74,7 +74,7 @@ export abstract class Mode {
     style?: Style
   ): Atom | null;
 
-  abstract serialize(run: Readonly<Atom[]>, options: ToLatexOptions): string[];
+  abstract serialize(run: readonly Atom[], options: ToLatexOptions): string[];
 
   /*
    * Calculate the effective font name to be used for metrics
@@ -97,7 +97,7 @@ export abstract class Mode {
 /*
  * Return an array of runs with the same mode
  */
-export function getModeRuns(atoms: Readonly<Atom[]>): Readonly<Atom[]>[] {
+export function getModeRuns(atoms: readonly Atom[]): (readonly Atom[])[] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
   let currentMode = 'NONE';
@@ -117,7 +117,7 @@ export function getModeRuns(atoms: Readonly<Atom[]>): Readonly<Atom[]>[] {
 
 /** This "weight" is only for math mode. Text mode uses fontSeries. */
 export function weightString(atom: Atom): string {
-  if (!atom || atom.mode !== 'math') return '';
+  if (atom?.mode !== 'math') return '';
   const { style } = atom;
   if (!style) return '';
   if (!style.variantStyle) return '';
@@ -157,9 +157,9 @@ export function variantString(atom: Atom): string {
  *   for the specified property)
  */
 export function getPropertyRuns(
-  atoms: Readonly<Atom[]>,
+  atoms: readonly Atom[],
   property: keyof Style | 'bold'
-): Readonly<Atom[]>[] {
+): (readonly Atom[])[] {
   const result: Atom[][] = [];
   let run: Atom[] = [];
   let currentValue: string | number | undefined = undefined;
@@ -189,10 +189,7 @@ export function getPropertyRuns(
   return result;
 }
 
-function emitColorRun(
-  run: Readonly<Atom[]>,
-  options: ToLatexOptions
-): string[] {
+function emitColorRun(run: readonly Atom[], options: ToLatexOptions): string[] {
   const { parent } = run[0];
   const parentColor = parent?.style.color;
 
@@ -229,7 +226,7 @@ function emitColorRun(
 }
 
 function emitBackgroundColorRun(
-  run: Readonly<Atom[]>,
+  run: readonly Atom[],
   options: ToLatexOptions
 ): string[] {
   const { parent } = run[0];
@@ -254,7 +251,7 @@ function emitBackgroundColorRun(
 }
 
 function emitFontSizeRun(
-  run: Readonly<Atom[]>,
+  run: readonly Atom[],
   options: ToLatexOptions
 ): string[] {
   if (run.length === 0) return [];

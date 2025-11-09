@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import { Atom } from './atom';
 import { joinLatex, latexCommand } from './tokenizer';
 import {
@@ -190,13 +189,11 @@ export class MathMode extends Mode {
 
       // Map fontSeries ('b' = bold, 'm' = medium) and fontShape ('it' = italic, 'n' = normal)
       // to variantStyle suffixes
-      if (style.fontSeries === 'b' && style.fontShape === 'it') {
+      if (style.fontSeries === 'b' && style.fontShape === 'it')
         variantKey += '-bolditalic';
-      } else if (style.fontSeries === 'b') {
-        variantKey += '-bold';
-      } else if (style.fontShape === 'it') {
-        variantKey += '-italic';
-      }
+      else if (style.fontSeries === 'b') variantKey += '-bold';
+      else if (style.fontShape === 'it') variantKey += '-italic';
+
       // If the variant doesn't exist, try the base fontFamily
       const variant = VARIANTS[variantKey] ?? VARIANTS[style.fontFamily];
       if (!variant) {
@@ -315,7 +312,7 @@ function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
 }
 
 function emitVariantRun(
-  run: Readonly<Atom[]>,
+  run: readonly Atom[],
   options: ToLatexOptions
 ): string[] {
   const { parent } = run[0];

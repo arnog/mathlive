@@ -63,7 +63,7 @@ export type ParseMode = 'math' | 'text' | 'latex';
     | `unexpected-token`            |  An unexpected character was encountered.  |
     | `unexpected-end-of-string`    |  The end of the string was reached, but some required arguments were missing. |
     | `improper-alphabetic-constant`    | The alphabetic constant prefix `` ` `` was not followed by a letter or single character command. |
-* @category Conversion 
+* @category Conversion
 */
 export type ParserErrorCode =
   | 'unknown-command'

@@ -70,8 +70,7 @@ function boundary(
       if (direction === 'backward') {
         // Look backward until we find a non-letter or a backslash
         while (
-          atom &&
-          atom.mode === 'latex' &&
+          atom?.mode === 'latex' &&
           atom.value !== '\\' &&
           /[a-zA-Z]/.test(atom.value)
         ) {
@@ -80,11 +79,7 @@ function boundary(
         }
       } else {
         // Look backward until we find a non-letter or a star
-        while (
-          atom &&
-          atom.mode === 'latex' &&
-          /[a-zA-Z\\*]/.test(atom.value)
-        ) {
+        while (atom?.mode === 'latex' && /[a-zA-Z\\*]/.test(atom.value)) {
           pos += dir;
           atom = model.at(pos);
         }
@@ -92,7 +87,7 @@ function boundary(
     } else if (atom.value === '{') {
       if (direction === 'forward') {
         // Start of a group, select whole group
-        while (atom && atom.mode === 'latex' && atom.value !== '}') {
+        while (atom?.mode === 'latex' && atom.value !== '}') {
           pos += dir;
           atom = model.at(pos);
         }
@@ -101,7 +96,7 @@ function boundary(
       return pos - 1;
     } else if (atom.value === '}') {
       if (direction === 'backward') {
-        while (atom && atom.mode === 'latex' && atom.value !== '{') {
+        while (atom?.mode === 'latex' && atom.value !== '{') {
           pos += dir;
           atom = model.at(pos);
         }

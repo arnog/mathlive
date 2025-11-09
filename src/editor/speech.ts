@@ -44,8 +44,8 @@ function speak(
 ): boolean {
   speakOptions = speakOptions ?? { withHighlighting: false };
   const { model } = mathfield;
-  function getAtoms(scope: SpeechScope): Atom | Readonly<Atom[]> | null {
-    let result: Atom | Readonly<Atom[]> | null = null;
+  function getAtoms(scope: SpeechScope): Atom | readonly Atom[] | null {
+    let result: Atom | readonly Atom[] | null = null;
     switch (scope) {
       case 'all':
         result = model.root;

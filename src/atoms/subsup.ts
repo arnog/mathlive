@@ -11,22 +11,24 @@ export class SubsupAtom extends Atom {
     this.subsupPlacement = 'auto';
   }
 
-  get children(): Readonly<Atom[]> {
+  get children(): readonly Atom[] {
     if (!this._children) {
       const result: Atom[] = [];
 
       const sub = this.branch('subscript');
-      if (sub)
+      if (sub) {
         for (const x of sub) {
           result.push(...x.children);
           result.push(x);
         }
+      }
       const sup = this.branch('superscript');
-      if (sup)
+      if (sup) {
         for (const x of sup) {
           result.push(...x.children);
           result.push(x);
         }
+      }
       this._children = result;
     }
     return this._children;

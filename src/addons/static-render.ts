@@ -376,7 +376,7 @@ function scanElement(
   // which may insert multiple nodes (one for the accessible markup, one for
   // the formula)
   const nodes = [...element.childNodes];
-  for (let childNode of nodes) {
+  for (const childNode of nodes) {
     if (childNode.nodeType === 3) {
       //
       // A text node

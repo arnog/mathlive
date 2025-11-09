@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import { Offset, Range, InsertOptions } from '../public/core-types';
 import { LatexAtom, LatexGroupAtom } from '../atoms/latex';
 import { range } from '../editor-model/selection-utils';
@@ -121,7 +120,7 @@ export function getLatexGroup(model: _Model): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x.type === 'latexgroup') as LatexGroupAtom;
 }
 
-export function getLatexGroupBody(model: _Model): Readonly<LatexAtom[]> {
+export function getLatexGroupBody(model: _Model): readonly LatexAtom[] {
   const atom = getLatexGroup(model);
   return (atom?.body?.filter((x) => x.type === 'latex') as LatexAtom[]) ?? [];
 }

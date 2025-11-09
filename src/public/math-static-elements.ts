@@ -58,9 +58,9 @@ abstract class MathStaticElement extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' })!;
 
     // Add stylesheets
-    if ('adoptedStyleSheets' in this._shadowRoot) {
+    if ('adoptedStyleSheets' in this._shadowRoot)
       (this._shadowRoot as any).adoptedStyleSheets = [getStylesheet('core')];
-    } else {
+    else {
       const styleElement = document.createElement('style');
       styleElement.textContent = getStylesheetContent('core');
       (this._shadowRoot as ShadowRoot).appendChild(styleElement);
@@ -143,9 +143,7 @@ abstract class MathStaticElement extends HTMLElement {
     oldValue: string | null,
     newValue: string | null
   ): void {
-    if (oldValue !== newValue && this._hasRendered) {
-      this.render();
-    }
+    if (oldValue !== newValue && this._hasRendered) this.render();
   }
 
   /**
@@ -172,9 +170,9 @@ abstract class MathStaticElement extends HTMLElement {
    */
   get mode(): 'textstyle' | 'displaystyle' {
     const modeAttr = this.getAttribute('mode');
-    if (modeAttr === 'textstyle' || modeAttr === 'displaystyle') {
+    if (modeAttr === 'textstyle' || modeAttr === 'displaystyle')
       return modeAttr;
-    }
+
     return this.getDefaultMathstyle();
   }
 
@@ -191,9 +189,9 @@ abstract class MathStaticElement extends HTMLElement {
       formatAttr === 'latex' ||
       formatAttr === 'ascii-math' ||
       formatAttr === 'math-json'
-    ) {
+    )
       return formatAttr;
-    }
+
     return 'latex';
   }
 
@@ -218,20 +216,17 @@ abstract class MathStaticElement extends HTMLElement {
       value === 'iso' ||
       value === 'french' ||
       value === 'upright'
-    ) {
+    )
       return value;
-    }
+
     return undefined;
   }
 
   set letterShapeStyle(
     value: 'auto' | 'tex' | 'iso' | 'french' | 'upright' | undefined
   ) {
-    if (value === undefined) {
-      this.removeAttribute('letter-shape-style');
-    } else {
-      this.setAttribute('letter-shape-style', value);
-    }
+    if (value === undefined) this.removeAttribute('letter-shape-style');
+    else this.setAttribute('letter-shape-style', value);
   }
 
   /**
@@ -242,11 +237,8 @@ abstract class MathStaticElement extends HTMLElement {
   }
 
   set macros(value: string | undefined) {
-    if (value === undefined) {
-      this.removeAttribute('macros');
-    } else {
-      this.setAttribute('macros', value);
-    }
+    if (value === undefined) this.removeAttribute('macros');
+    else this.setAttribute('macros', value);
   }
 
   /**
@@ -258,11 +250,8 @@ abstract class MathStaticElement extends HTMLElement {
   }
 
   set minFontScale(value: number | undefined) {
-    if (value === undefined) {
-      this.removeAttribute('min-font-scale');
-    } else {
-      this.setAttribute('min-font-scale', String(value));
-    }
+    if (value === undefined) this.removeAttribute('min-font-scale');
+    else this.setAttribute('min-font-scale', String(value));
   }
 
   /**
@@ -274,11 +263,8 @@ abstract class MathStaticElement extends HTMLElement {
   }
 
   set maxMatrixCols(value: number | undefined) {
-    if (value === undefined) {
-      this.removeAttribute('max-matrix-cols');
-    } else {
-      this.setAttribute('max-matrix-cols', String(value));
-    }
+    if (value === undefined) this.removeAttribute('max-matrix-cols');
+    else this.setAttribute('max-matrix-cols', String(value));
   }
 
   /**
@@ -287,7 +273,7 @@ abstract class MathStaticElement extends HTMLElement {
   render(): void {
     try {
       // Get the content to render
-      let content = this.textContent?.trim() ?? '';
+      const content = this.textContent?.trim() ?? '';
 
       if (!content) {
         this._renderContainer.innerHTML = '';
@@ -321,9 +307,8 @@ abstract class MathStaticElement extends HTMLElement {
         defaultMode: this.mode === 'displaystyle' ? 'math' : 'inline-math',
       };
 
-      if (this.letterShapeStyle) {
+      if (this.letterShapeStyle)
         options.letterShapeStyle = this.letterShapeStyle;
-      }
 
       if (this.macros) {
         try {
@@ -333,13 +318,11 @@ abstract class MathStaticElement extends HTMLElement {
         }
       }
 
-      if (this.minFontScale !== undefined) {
+      if (this.minFontScale !== undefined)
         options.minFontScale = this.minFontScale;
-      }
 
-      if (this.maxMatrixCols !== undefined) {
+      if (this.maxMatrixCols !== undefined)
         options.maxMatrixCols = this.maxMatrixCols;
-      }
 
       // Render the content
       const markup = convertLatexToMarkup(latex, options);
@@ -397,9 +380,7 @@ abstract class MathStaticElement extends HTMLElement {
     }
 
     // Set role to 'img' for math formulas
-    if (!this.hasAttribute('role')) {
-      this.setAttribute('role', 'img');
-    }
+    if (!this.hasAttribute('role')) this.setAttribute('role', 'img');
 
     // Add MathML fallback for screen readers
     this._addMathML(latex);
@@ -496,13 +477,11 @@ export class MathDivElement extends MathStaticElement {
 function registerStaticElements(): void {
   if (typeof window === 'undefined') return;
 
-  if (!window.customElements?.get('math-span')) {
+  if (!window.customElements?.get('math-span'))
     window.customElements?.define('math-span', MathSpanElement);
-  }
 
-  if (!window.customElements?.get('math-div')) {
+  if (!window.customElements?.get('math-div'))
     window.customElements?.define('math-div', MathDivElement);
-  }
 }
 
 // Auto-register on module load

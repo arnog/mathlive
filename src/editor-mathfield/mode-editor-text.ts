@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import type { InsertOptions } from '../public/core-types';
 
 import { parseLatex } from '../core/core';

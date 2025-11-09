@@ -147,16 +147,16 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     this.rebuild();
   }
 
-  private _layouts: Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;
+  private _layouts: readonly (VirtualKeyboardName | VirtualKeyboardLayout)[];
 
-  get layouts(): Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]> {
+  get layouts(): readonly (VirtualKeyboardName | VirtualKeyboardLayout)[] {
     return this._layouts;
   }
   set layouts(
     value:
       | 'default'
       | (VirtualKeyboardName | VirtualKeyboardLayout)[]
-      | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
+      | readonly (VirtualKeyboardName | VirtualKeyboardLayout)[]
   ) {
     this.updateNormalizedLayouts(value);
     this.rebuild();
@@ -166,7 +166,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     value:
       | 'default'
       | (VirtualKeyboardName | VirtualKeyboardLayout)[]
-      | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
+      | readonly (VirtualKeyboardName | VirtualKeyboardLayout)[]
   ): void {
     const layouts = Array.isArray(value) ? [...value] : [value];
     const defaultIndex = layouts.findIndex((x) => x === 'default');

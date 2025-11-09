@@ -181,7 +181,7 @@ class Tokenizer {
 function expand(
   lex: Tokenizer,
   args: null | ((arg: string) => string | undefined)
-): Readonly<Token[]> {
+): readonly Token[] {
   const result: Token[] = [];
   let token = lex.next();
   if (token) {
@@ -300,7 +300,7 @@ export function tokenize(
   return result;
 }
 
-export function joinLatex(segments: Readonly<string[]>): string {
+export function joinLatex(segments: readonly string[]): string {
   let sep = '';
   const result: string[] = [];
   for (const segment of segments) {
@@ -330,7 +330,7 @@ export function joinLatex(segments: Readonly<string[]>): string {
  */
 export function latexCommand(
   command: string,
-  ...args: Readonly<string[]>
+  ...args: readonly string[]
 ): string {
   console.assert(command.startsWith('\\'));
 

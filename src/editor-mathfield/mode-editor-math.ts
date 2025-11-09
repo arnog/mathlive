@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import type { Expression } from '@cortex-js/compute-engine/dist/types/math-json';
 
 import type { InsertOptions, Offset, OutputFormat } from '../public/core-types';
@@ -301,9 +299,8 @@ export class MathModeEditor extends ModeEditor {
     // 3/ Insert the new atoms
     //
 
-    if (newAtoms.length === 1 && newAtoms[0].isRoot) {
-      model.root = newAtoms[0];
-    } else {
+    if (newAtoms.length === 1 && newAtoms[0].isRoot) model.root = newAtoms[0];
+    else {
       const { parent } = model.at(model.position);
       const hadEmptyBody = parent!.hasEmptyBranch('body');
 
@@ -394,9 +391,9 @@ function convertStringToAtoms(
   s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions
-): [OutputFormat, Readonly<Atom[]>] {
+): [OutputFormat, readonly Atom[]] {
   let format: OutputFormat | undefined = undefined;
-  let result: Readonly<Atom[]> = [];
+  let result: readonly Atom[] = [];
 
   if (typeof s !== 'string' || options.format === 'math-json') {
     const ce = globalThis.MathfieldElement.computeEngine;

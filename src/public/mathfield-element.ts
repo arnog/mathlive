@@ -142,7 +142,7 @@ const gDeferredState = new WeakMap<
     value: string | undefined;
     selection: Selection;
     options: Partial<MathfieldOptions>;
-    menuItems: Readonly<MenuItem[]> | undefined;
+    menuItems: readonly MenuItem[] | undefined;
   }
 >();
 
@@ -549,7 +549,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * Custom elements lifecycle hooks
    * @internal
    */
-  static get observedAttributes(): Readonly<string[]> {
+  static get observedAttributes(): readonly string[] {
     return [
       ...Object.keys(this.optionsAttributes),
       'contenteditable', // Global attribute
@@ -1477,7 +1477,7 @@ import 'https://esm.run/@cortex-js/compute-engine';
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
-  get errors(): Readonly<LatexSyntaxError[]> {
+  get errors(): readonly LatexSyntaxError[] {
     return this._mathfield?.errors ?? [];
   }
 
@@ -1928,9 +1928,8 @@ import "https://esm.run/@cortex-js/compute-engine";
     // Also, if the menu is open
     if (this._mathfield?.menu?.state !== 'closed') return;
 
-    if (evt.type === 'pointerdown') {
-      this.onPointerDown();
-    }
+    if (evt.type === 'pointerdown') this.onPointerDown();
+
     // The private mathfield handles focus/blur events directly,
     // so we don't need to call focus() or blur() here
     if (evt.type === 'focus') return;
@@ -2249,7 +2248,7 @@ import "https://esm.run/@cortex-js/compute-engine";
     this._setOptions({ defaultMode: value });
   }
 
-  /** 
+  /**
    * A dictionary of LaTeX macros to be used to interpret and render the content.
    *
    * For example, to add a new macro to the default macro dictionary:
@@ -2360,7 +2359,7 @@ mf.macros = {
     this._setOptions({ backgroundColorMap: value });
   }
 
-  /** 
+  /**
   * Control the letter shape style:
 
   | `letterShapeStyle` | xyz | ABC | αβɣ | ΓΔΘ |
@@ -2387,8 +2386,8 @@ mf.macros = {
   * As for roman uppercase, they are recommended by "Lexique des règles
   * typographiques en usage à l’Imprimerie Nationale". It should be noted
   * that this convention is not universally followed.
-  * 
-  * @category Customization 
+  *
+  * @category Customization
 */
   get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
     return this._getOption('letterShapeStyle');
@@ -2626,12 +2625,12 @@ mf.macros = {
    * @category Menu
    */
 
-  get menuItems(): Readonly<MenuItem[]> {
+  get menuItems(): readonly MenuItem[] {
     if (!this._mathfield) throw new Error('Mathfield not mounted');
     return this._mathfield.menu._menuItems.map((x) => x.menuItem) ?? [];
   }
 
-  set menuItems(menuItems: Readonly<MenuItem[]>) {
+  set menuItems(menuItems: readonly MenuItem[]) {
     if (!this._mathfield) throw new Error('Mathfield not mounted');
     if (this._mathfield) {
       const btn =
@@ -2698,11 +2697,11 @@ mf.macros = {
   }
 
   /** @category Keyboard Shortcuts   */
-  get keybindings(): Readonly<Keybinding[]> {
+  get keybindings(): readonly Keybinding[] {
     if (!this._mathfield) throw new Error('Mathfield not mounted');
     return this._getOption('keybindings');
   }
-  set keybindings(value: Readonly<Keybinding[]>) {
+  set keybindings(value: readonly Keybinding[]) {
     if (!this._mathfield) throw new Error('Mathfield not mounted');
     this._setOptions({ keybindings: value });
   }

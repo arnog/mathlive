@@ -181,7 +181,6 @@ export function localize(
   // %@ or %1$@, where the $1 indicates the index of the parameter to substitute
   // and the @ indicates that the parameter is a string
 
-  // eslint-disable-next-line no-control-regex
   const regex = /(%@|%([0-9]+)\$@)/g;
   let match = regex.exec(result);
   let index = 0;

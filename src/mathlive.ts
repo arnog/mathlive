@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import type { StaticRenderOptions } from './public/options';
 export * from './public/mathlive';
 

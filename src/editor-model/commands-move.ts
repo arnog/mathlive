@@ -32,9 +32,7 @@ function superscriptDepth(model: _Model): number {
     if (!atom.hasEmptyBranch('superscript')) {
       result += 1;
       wasSuperscript = true;
-    } else if (!atom.hasEmptyBranch('subscript')) {
-      wasSuperscript = false;
-    }
+    } else if (!atom.hasEmptyBranch('subscript')) wasSuperscript = false;
 
     atom = atom.parent;
   }
@@ -50,9 +48,7 @@ function subscriptDepth(model: _Model): number {
     if (!atom.hasEmptyBranch('subscript')) {
       result += 1;
       wasSubscript = true;
-    } else if (!atom.hasEmptyBranch('superscript')) {
-      wasSubscript = false;
-    }
+    } else if (!atom.hasEmptyBranch('superscript')) wasSubscript = false;
 
     atom = atom.parent;
   }
@@ -274,7 +270,7 @@ function getTabbableElements(): HTMLElement[] {
 // Select all the children of an atom, or a branch
 function select(
   model: _Model,
-  target: Atom | Readonly<Atom[]>,
+  target: Atom | readonly Atom[],
   direction: 'backward' | 'forward' = 'forward'
 ): boolean {
   const previousPosition = model.position;
@@ -518,14 +514,14 @@ register(
         if (model.selectionIsCollapsed) {
           // 2.1/ Select entire zone
           let first = atom;
-          while (first && first.mode === 'text') first = first.leftSibling;
+          while (first?.mode === 'text') first = first.leftSibling;
           let last = atom;
           while (last.rightSibling?.mode === 'text') last = last.rightSibling;
           if (first && last) return select(model, [first, last]);
         }
         if (atom.rightSibling.mode === 'text') {
           let next = atom;
-          while (next && next.mode === 'text') next = next.rightSibling;
+          while (next?.mode === 'text') next = next.rightSibling;
           // Leap to after text zone
           if (next) {
             leapTo(model, next.leftSibling ?? next);
@@ -575,7 +571,7 @@ register(
         // If found a text atom, select the entire zone
         if (sibling.mode === 'text') {
           let last = sibling;
-          while (last && last.mode === 'text') last = last.rightSibling;
+          while (last?.mode === 'text') last = last.rightSibling;
           return select(model, [
             sibling.leftSibling ?? sibling,
             last.leftSibling ?? last,
@@ -628,12 +624,12 @@ register(
         if (model.selectionIsCollapsed) {
           // 2.1/ Select entire zone
           let first = atom;
-          while (first && first.mode === 'text') first = first.leftSibling;
+          while (first?.mode === 'text') first = first.leftSibling;
           let last = atom;
           while (last.rightSibling?.mode === 'text') last = last.rightSibling;
           if (first && last) return select(model, [first, last]);
         }
-        while (atom && atom.mode === 'text') atom = atom.leftSibling;
+        while (atom?.mode === 'text') atom = atom.leftSibling;
         if (atom) return leapTo(model, atom);
         // If text zone is first zone, move to start of mathfield
         return leapTo(model, 0);
@@ -672,7 +668,7 @@ register(
           // If found a text atom, select the entire zone
           if (sibling.mode === 'text') {
             let first = sibling;
-            while (first && first.mode === 'text') first = first.leftSibling;
+            while (first?.mode === 'text') first = first.leftSibling;
             return select(model, [sibling, first]);
           }
           return select(model, sibling);

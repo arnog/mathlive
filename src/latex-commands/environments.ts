@@ -13,7 +13,7 @@ import { Parser } from 'core/parser';
 
 /*
  The star at the end of the name of an environment indicates that the
- equations will not be numbered and the counter for the equations 
+ equations will not be numbered and the counter for the equations
  will not be incremented.
 
 \notag will also turn off the numbering (but the counter will still be incremented).
@@ -87,7 +87,7 @@ defineFunction('displaylines', '', {
     return lines as Argument[];
   },
   createAtom: (options) =>
-    new ArrayAtom('lines', options.args as Readonly<Atom[]>[][], [], {
+    new ArrayAtom('lines', options.args as (readonly Atom[])[][], [], {
       // arraystretch: 1.2,
       leftDelim: '.',
       rightDelim: '.',
@@ -240,8 +240,8 @@ is a continuous function.
 
 export function makeEnvironment(
   name: Environment,
-  content: Readonly<Atom[]>[][] = [[[]]],
-  rowGaps: Readonly<Dimension[]> = [],
+  content: (readonly Atom[])[][] = [[[]]],
+  rowGaps: readonly Dimension[] = [],
   args: readonly (null | Argument)[] = [],
   maxMatrixCols?: number
 ): ArrayAtom {

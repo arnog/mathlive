@@ -8,7 +8,7 @@ export class OverlapAtom extends Atom {
   private readonly boxType?: BoxType;
   constructor(
     options: CreateAtomOptions & {
-      body: string | Readonly<Atom[]>;
+      body: string | readonly Atom[];
       align?: 'left' | 'right';
       boxType?: BoxType;
     }

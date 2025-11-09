@@ -52,7 +52,7 @@ export function parseHex(hex: string): RgbColor | undefined {
     };
     if (hex.length === 8) result.a = parseInt(hex[6] + hex[7], 16) / 255;
   }
-  if (result && typeof result.a === 'undefined') result.a = 1.0;
+  if (typeof result?.a === 'undefined') result.a = 1.0;
   return result;
 }
 

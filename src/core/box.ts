@@ -37,7 +37,7 @@ export function boxType(type: AtomType | undefined): BoxType | undefined {
   return result;
 }
 
-export function atomsBoxType(atoms: Readonly<Atom[]>): BoxType {
+export function atomsBoxType(atoms: readonly Atom[]): BoxType {
   if (atoms.length === 0) return 'ord';
   const first = boxType(atoms[0].type);
   const last = boxType(atoms[atoms.length - 1].type);
@@ -413,7 +413,7 @@ export class Box implements BoxInterface {
     //
     // 3. Markup for props
     //
-    let props: string[] = [];
+    const props: string[] = [];
 
     //
     // 3.1 Classes
@@ -449,10 +449,11 @@ export class Box implements BoxInterface {
     if (this.id) props.push(` data-atom-id=${sanitizeAttributeValue(this.id)}`);
 
     // A (HTML5) CSS id may not contain a space
-    if (this.cssId)
+    if (this.cssId) {
       props.push(
         ` id=${sanitizeAttributeValue(`"${this.cssId.replace(/ /g, '-')}"`)}`
       );
+    }
 
     //
     // 3.3 Attributes

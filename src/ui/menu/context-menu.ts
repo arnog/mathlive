@@ -35,9 +35,8 @@ export async function onContextMenu(
         location: eventLocation(evt),
         modifiers: keyboardModifiersFromEvent(evt),
       })
-    ) {
+    )
       return true;
-    }
   }
 
   //

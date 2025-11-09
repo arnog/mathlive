@@ -192,9 +192,8 @@ export function getRangeBoundingRect(mf: _Mathfield, range: Range): Rect {
   for (let i = start; i <= end; i++) {
     const bounds = getAtomBounds(mf, mf.model.at(i));
     if (bounds) {
-      if (!result) {
-        result = bounds;
-      } else {
+      if (!result) result = bounds;
+      else {
         result.top = Math.min(result.top, bounds.top);
         result.bottom = Math.max(result.bottom, bounds.bottom);
         result.left = Math.min(result.left, bounds.left);

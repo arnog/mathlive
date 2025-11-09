@@ -313,15 +313,14 @@ function onDelete(
         return true;
       }
       // Branch was removed, navigate out
-      if (branch === 'superscript' && direction === 'backward') {
+      if (branch === 'superscript' && direction === 'backward')
         model.position = model.offsetOf(atom.firstChild) - 1;
-      } else if (branch === 'subscript' && direction === 'backward') {
+      else if (branch === 'subscript' && direction === 'backward') {
         if (atom.superscript)
           model.position = model.offsetOf(atom.superscript[0].lastSibling);
         else model.position = model.offsetOf(atom.firstChild) - 1;
-      } else {
-        model.position = model.offsetOf(atom);
-      }
+      } else model.position = model.offsetOf(atom);
+
       return true;
     }
 
@@ -580,9 +579,7 @@ export function deleteRange(
                 model.position = model.offsetOf(
                   mergedCell[targetIndex] ?? mergedCell[0]
                 );
-              } else {
-                model.position = startOffset;
-              }
+              } else model.position = startOffset;
 
               parentArray.isDirty = true;
             }
@@ -665,9 +662,9 @@ export function deleteRange(
               p.type === 'genfrac' ||
               p.type === 'overunder') &&
             p.parent
-          ) {
+          )
             startAncestors.add(p);
-          }
+
           p = p.parent;
         }
 
@@ -682,9 +679,9 @@ export function deleteRange(
               p.type === 'genfrac' ||
               p.type === 'overunder') &&
             p.parent
-          ) {
+          )
             endAncestors.add(p);
-          }
+
           p = p.parent;
         }
 
@@ -753,9 +750,9 @@ export function deleteRange(
             // Selection started outside and ended inside - hoist remaining content
             const pos = model.offsetOf(specialAtom.leftSibling);
             const content = specialAtom.removeBranch('body');
-            if (content && content.length > 0) {
+            if (content && content.length > 0)
               specialAtom.parent.addChildrenAfter(content, specialAtom);
-            }
+
             specialAtom.parent.removeChild(specialAtom);
             model.position = Math.max(0, pos);
           }
@@ -786,18 +783,18 @@ export function deleteRange(
             // Hoist the denominator
             const pos = model.offsetOf(specialAtom.leftSibling);
             const content = specialAtom.removeBranch('below');
-            if (content && content.length > 0) {
+            if (content && content.length > 0)
               specialAtom.parent.addChildrenAfter(content, specialAtom);
-            }
+
             specialAtom.parent.removeChild(specialAtom);
             model.position = Math.max(0, pos);
           } else if (!aboveEmpty && belowEmpty) {
             // Hoist the numerator
             const pos = model.offsetOf(specialAtom.leftSibling);
             const content = specialAtom.removeBranch('above');
-            if (content && content.length > 0) {
+            if (content && content.length > 0)
               specialAtom.parent.addChildrenAfter(content, specialAtom);
-            }
+
             specialAtom.parent.removeChild(specialAtom);
             model.position = Math.max(0, pos);
           } else if (
@@ -812,9 +809,9 @@ export function deleteRange(
               // For now, just hoist the numerator
               const pos = model.offsetOf(specialAtom.leftSibling);
               const content = specialAtom.removeBranch('above');
-              if (content && content.length > 0) {
+              if (content && content.length > 0)
                 specialAtom.parent.addChildrenAfter(content, specialAtom);
-              }
+
               specialAtom.parent.removeChild(specialAtom);
               model.position = Math.max(0, pos);
             }
@@ -823,9 +820,7 @@ export function deleteRange(
       }
 
       // Set position to where deletion started if not already set
-      if (specialAtomInfo.size === 0) {
-        model.position = startPos;
-      }
+      if (specialAtomInfo.size === 0) model.position = startPos;
 
       // If the field is now empty, flush the inline shortcut buffer
       // to prevent stale shortcuts from being triggered (issue #2733)
@@ -865,9 +860,9 @@ function deleteRow(
     }
 
     // Handle empty prevLine - position at the array itself instead of trying to access prevLine[length-1]
-    if (prevLine.length > 0) {
+    if (prevLine.length > 0)
       model.position = model.offsetOf(prevLine[prevLine.length - 1]);
-    } else {
+    else {
       // prevLine is empty - position at the array atom itself
       model.position = model.offsetOf(atom);
     }
@@ -883,9 +878,8 @@ function deleteRow(
     }
 
     // Handle empty nextLine - position at the array itself instead of trying to access nextLine[0]
-    if (nextLine.length > 0) {
-      model.position = model.offsetOf(nextLine[0]);
-    } else {
+    if (nextLine.length > 0) model.position = model.offsetOf(nextLine[0]);
+    else {
       // nextLine is empty - position at the array atom itself
       model.position = model.offsetOf(atom);
     }

@@ -111,7 +111,7 @@ export class _Model implements Model {
     this.silenceNotifications = wasSuppressing;
   }
 
-  get atoms(): Readonly<Atom[]> {
+  get atoms(): readonly Atom[] {
     return this.root.children;
   }
 
@@ -313,7 +313,7 @@ export class _Model implements Model {
 
     while (atom && atom.parent?.type !== 'array') atom = atom.parent;
 
-    if (!atom?.parent || atom.parent.type !== 'array') return undefined;
+    if (atom?.parent?.type !== 'array') return undefined;
 
     return [this.offsetOf(atom.firstSibling), this.offsetOf(atom.lastSibling)];
   }
@@ -328,18 +328,18 @@ export class _Model implements Model {
    * Note that an atom with children is included in the result only if
    * all its children are in range.
    */
-  getAtoms(arg: Selection, options?: GetAtomOptions): ReadonlyArray<Atom>;
-  getAtoms(arg: Range, options?: GetAtomOptions): ReadonlyArray<Atom>;
+  getAtoms(arg: Selection, options?: GetAtomOptions): readonly Atom[];
+  getAtoms(arg: Range, options?: GetAtomOptions): readonly Atom[];
   getAtoms(
     from: Offset,
     to?: Offset,
     options?: GetAtomOptions
-  ): ReadonlyArray<Atom>;
+  ): readonly Atom[];
   getAtoms(
     arg1: Selection | Range | Offset,
     arg2?: Offset | GetAtomOptions,
     arg3?: GetAtomOptions
-  ): ReadonlyArray<Atom> {
+  ): readonly Atom[] {
     let options = arg3 ?? {};
     if (isSelection(arg1)) {
       options = (arg2 as GetAtomOptions) ?? {};
@@ -364,9 +364,8 @@ export class _Model implements Model {
       // Don't reassign options if it was already set from a Selection.
       // This preserves options like includeFirstAtoms when a Selection is
       // converted to a Range above.
-      if (Object.keys(options).length === 0) {
+      if (Object.keys(options).length === 0)
         options = (arg2 as GetAtomOptions) ?? {};
-      }
     }
 
     if (!Number.isFinite(start)) return [];
@@ -463,11 +462,10 @@ export class _Model implements Model {
       // delete all the children of the root.
       if (result[0].isRoot) {
         // If the root is an array, get the cells
-        if (result[0] instanceof ArrayAtom) {
+        if (result[0] instanceof ArrayAtom)
           result = result[0]!.rows.flatMap((x) => x.flatMap((y) => y!));
-        } else {
-          result = [...(result[0].body ?? result[0].children)];
-        }
+        else result = [...(result[0].body ?? result[0].children)];
+
         result = result.filter((x) => x.type !== 'first');
       }
     }
@@ -654,8 +652,7 @@ export class _Model implements Model {
       let { parent } = this.at(end);
       if (parent?.type && expandableTypes.has(parent.type)) {
         while (
-          parent &&
-          parent.type &&
+          parent?.type &&
           expandableTypes.has(parent.type) &&
           childrenInRange(this, parent, [start, end])
         ) {
@@ -666,8 +663,7 @@ export class _Model implements Model {
 
       parent = this.at(start).parent;
       while (
-        parent &&
-        parent.type &&
+        parent?.type &&
         expandableTypes.has(parent.type) &&
         childrenInRange(this, parent, [start, end])
       ) {
@@ -680,8 +676,7 @@ export class _Model implements Model {
       parent = this.at(end).parent;
       if (parent?.type && expandableTypes.has(parent.type)) {
         while (
-          parent &&
-          parent.type &&
+          parent?.type &&
           expandableTypes.has(parent.type) &&
           childrenInRange(this, parent, [start, end])
         ) {
@@ -715,7 +710,7 @@ export class _Model implements Model {
   announce(
     command: AnnounceVerb,
     previousPosition?: number,
-    atoms: Readonly<Atom[]> = []
+    atoms: readonly Atom[] = []
   ): void {
     const success =
       this.mathfield.host?.dispatchEvent(
@@ -849,7 +844,7 @@ export class _Model implements Model {
 
     while (atom && atom.parent?.type !== 'array') atom = atom.parent;
 
-    if (!atom?.parent || atom.parent.type !== 'array') return undefined;
+    if (atom?.parent?.type !== 'array') return undefined;
 
     return atom.parentBranch as [number, number];
   }
@@ -869,8 +864,7 @@ export class _Model implements Model {
   contentDidChange(options: ContentChangeOptions): void {
     if (window.mathVirtualKeyboard.visible)
       window.mathVirtualKeyboard.update(makeProxy(this.mathfield));
-    if (this.silenceNotifications || !this.mathfield || !this.mathfield.host)
-      return;
+    if (this.silenceNotifications || !this.mathfield?.host) return;
 
     const save = this.silenceNotifications;
     this.silenceNotifications = true;
@@ -988,7 +982,7 @@ function shouldAttachSubsup(
   start: Offset,
   end: Offset
 ): atom is Atom {
-  if (!atom || atom.type !== 'subsup') return false;
+  if (atom?.type !== 'subsup') return false;
   if (!childrenInRange(model, atom, [start, end])) return false;
   const base = atom.leftSibling;
   if (!base) return false;
@@ -1003,8 +997,8 @@ function firstNonFirstChild(atom: Atom): Atom | undefined {
 
 function lastNonFirstChild(atom: Atom): Atom | undefined {
   const { children } = atom;
-  for (let i = children.length - 1; i >= 0; i--) {
+  for (let i = children.length - 1; i >= 0; i--)
     if (children[i].type !== 'first') return children[i];
-  }
+
   return undefined;
 }

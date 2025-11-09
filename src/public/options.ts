@@ -259,7 +259,7 @@ export type ContentChangeOptions = {
 
 /** @internal */
 export type KeyboardOptions = {
-  keybindings: Readonly<Keybinding[]>;
+  keybindings: readonly Keybinding[];
 };
 
 /** @internal */

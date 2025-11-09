@@ -68,7 +68,7 @@ export class Menu extends _MenuListState implements RootMenuState {
    *
    */
   constructor(
-    menuItems: Readonly<MenuItem[]>,
+    menuItems: readonly MenuItem[],
     options?: { host?: HTMLElement | null }
   ) {
     super(menuItems);

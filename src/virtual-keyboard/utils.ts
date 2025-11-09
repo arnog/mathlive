@@ -679,16 +679,18 @@ function makeLayer(
             layerMarkup += ` aria-label="${escapeAttribute(ariaLabel)}"`;
 
           const serializedCommand = serializeKeycapCommand(keycap.command);
-          if (serializedCommand)
+          if (serializedCommand) {
             layerMarkup += ` data-command="${escapeAttribute(
               serializedCommand
             )}"`;
+          }
 
           const keycapValue = getKeycapValue(keycap);
-          if (keycapValue)
+          if (keycapValue) {
             layerMarkup += ` data-keycap-value="${escapeAttribute(
               keycapValue
             )}"`;
+          }
 
           layerMarkup += `>${markup}</div>`;
         }
@@ -724,8 +726,7 @@ export function renderKeycap(
     else if (typeof keycap.shift === 'object') {
       markup = keycap.shift.label
         ? keycap.shift.label
-        : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-          ((latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
+        : ((latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
             keycap.shift.key) ??
           '');
     }
@@ -737,8 +738,7 @@ export function renderKeycap(
     //
     markup = keycap.label
       ? keycap.label
-      : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        ((latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
+      : ((latexToMarkup(keycap.latex || keycap.insert || '') || keycap.key) ??
         '');
 
     if (keycap.shift) {
@@ -749,7 +749,6 @@ export function renderKeycap(
       else if (keycap.shift.label) shiftLabel = keycap.shift.label;
       else {
         shiftLabel =
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
           (latexToMarkup(keycap.shift.latex || keycap.shift.insert || '') ||
             keycap.shift.key) ??
           '';
@@ -1177,9 +1176,8 @@ function handlePointerDown(ev: PointerEvent) {
     if (focusedMf) {
       // If the mathfield is in an iframe, we need to connect to that iframe's window
       const mfWindow = focusedMf.element?.ownerDocument?.defaultView;
-      if (mfWindow && mfWindow !== window) {
+      if (mfWindow && mfWindow !== window)
         vk.connectedMathfieldWindow = mfWindow;
-      }
     }
   }
 
@@ -1354,9 +1352,8 @@ export function executeKeycapCommand(
     ];
   }
 
-  if (VirtualKeyboard.singleton) {
+  if (VirtualKeyboard.singleton)
     VirtualKeyboard.singleton.executeCommand(command);
-  }
 }
 
 function isKeycapElement(el: Element): el is HTMLElement {

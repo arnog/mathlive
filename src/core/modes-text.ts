@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import { TextAtom } from '../atoms/text';
 
 import type { Atom } from './atom';
@@ -15,7 +13,7 @@ function emitStringTextRun(run: Atom[], options: ToLatexOptions): string[] {
 }
 
 function emitFontShapeTextRun(
-  run: Readonly<Atom[]>,
+  run: readonly Atom[],
   options: ToLatexOptions
 ): string[] {
   return getPropertyRuns(run, 'fontShape').map((x: Atom[]) => {

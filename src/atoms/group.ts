@@ -9,7 +9,7 @@ import { getDefinition } from '../latex-commands/definitions-utils';
 export class GroupAtom extends Atom {
   private boxType?: BoxType;
 
-  constructor(arg: Readonly<Atom[]>, mode: ParseMode) {
+  constructor(arg: readonly Atom[], mode: ParseMode) {
     super({ type: 'group', mode });
     this.body = arg;
 
@@ -21,7 +21,7 @@ export class GroupAtom extends Atom {
     this.displayContainsHighlight = false;
 
     // French decimal point, i.e. `{,}`
-    if (arg && arg.length === 1 && arg[0].command === ',')
+    if (arg?.length === 1 && arg[0].command === ',')
       this.captureSelection = true;
   }
 

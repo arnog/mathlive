@@ -43,8 +43,8 @@ export class GenfracAtom extends Atom {
   private readonly mathstyleName?: MathstyleName;
 
   constructor(
-    above: Readonly<Atom[]>,
-    below: Readonly<Atom[]>,
+    above: readonly Atom[],
+    below: readonly Atom[],
     options: GenfracOptions
   ) {
     super({
@@ -87,7 +87,7 @@ export class GenfracAtom extends Atom {
 
   // The order of the children, which is used for keyboard navigation order,
   // may be customized for fractions...
-  get children(): Readonly<Atom[]> {
+  get children(): readonly Atom[] {
     if (this._children) return this._children;
 
     const result: Atom[] = [];

@@ -173,7 +173,7 @@ function joinAsciiMath(xs: string[]): string {
  * If `plain` is true, the output will not include quotes around text mode
  */
 export function atomToAsciiMath(
-  atom: Atom | Readonly<Atom[]> | undefined,
+  atom: Atom | readonly Atom[] | undefined,
   options?: { plain: boolean }
 ): string {
   if (!atom) return '';
@@ -199,9 +199,9 @@ export function atomToAsciiMath(
 
     let i = 0;
     const result: string[] = [];
-    while (atom[i] && atom[i].mode === 'math') {
+    while (atom[i]?.mode === 'math') {
       let digits = '';
-      while (atom[i] && atom[i].type === 'mord' && /\d/.test(atom[i].value))
+      while (atom[i]?.type === 'mord' && /\d/.test(atom[i].value))
         digits += atom[i++].value;
       if (digits) result.push(digits);
       else result.push(atomToAsciiMath(atom[i++], options));

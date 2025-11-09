@@ -167,9 +167,7 @@ export function updateSuggestionPopoverPosition(
 export function hideSuggestionPopover(mf: _Mathfield): void {
   mf.suggestionIndex = 0;
   const panel = document.getElementById('mathlive-suggestion-popover');
-  if (panel) {
-    releaseSharedElement('mathlive-suggestion-popover');
-  }
+  if (panel) releaseSharedElement('mathlive-suggestion-popover');
 }
 
 export function createSuggestionPopover(
@@ -177,9 +175,8 @@ export function createSuggestionPopover(
   html: string
 ): HTMLElement {
   let panel = document.getElementById('mathlive-suggestion-popover');
-  if (panel) {
-    releaseSharedElement('mathlive-suggestion-popover');
-  } else {
+  if (panel) releaseSharedElement('mathlive-suggestion-popover');
+  else {
     injectStylesheet('suggestion-popover');
     injectStylesheet('core');
   }

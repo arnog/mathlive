@@ -124,7 +124,6 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   return result;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function argumentsFromJson(
   json: any[] | string
 ): undefined | Argument[] | string {

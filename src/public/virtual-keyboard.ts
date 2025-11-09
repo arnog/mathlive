@@ -204,13 +204,13 @@ export interface VirtualKeyboardOptions {
    *
    *
    */
-  get layouts(): Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;
+  get layouts(): readonly (VirtualKeyboardName | VirtualKeyboardLayout)[];
   set layouts(
     value:
       | VirtualKeyboardName
       | VirtualKeyboardLayout
       | (VirtualKeyboardName | VirtualKeyboardLayout)[]
-      | Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>
+      | readonly (VirtualKeyboardName | VirtualKeyboardLayout)[]
   );
 
   /**
@@ -366,7 +366,7 @@ export type VirtualKeyboardMessage =
       boundingRect: DOMRect;
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-      layouts: Readonly<(string | VirtualKeyboardLayout)[]>;
+      layouts: readonly (string | VirtualKeyboardLayout)[];
       editToolbar?: EditToolbarOptions;
       setKeycap: { keycap: string; value: Partial<VirtualKeyboardKeycap> };
       isShifted: boolean;
@@ -377,7 +377,7 @@ export type VirtualKeyboardMessage =
       action: 'update-setting';
       alphabeticLayout?: AlphabeticKeyboardLayout;
       layers: Record<string, string | Partial<VirtualKeyboardLayer>>;
-      layouts: Readonly<(VirtualKeyboardName | VirtualKeyboardLayout)[]>;
+      layouts: readonly (VirtualKeyboardName | VirtualKeyboardLayout)[];
       editToolbar?: EditToolbarOptions;
       setKeycap: { keycap: string; value: Partial<VirtualKeyboardKeycap> };
     }

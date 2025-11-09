@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import { Mode } from './modes-utils';
 import { Atom } from './atom';
 

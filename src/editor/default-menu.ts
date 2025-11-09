@@ -31,7 +31,7 @@ function getSelectionPlainString(mf: _Mathfield): string {
   return result;
 }
 
-function getSelectionAtoms(mf: _Mathfield): Readonly<Atom[]> {
+function getSelectionAtoms(mf: _Mathfield): readonly Atom[] {
   const model = mf.model;
   const ranges = model.selection.ranges;
   if (ranges.length !== 1) return [];
@@ -222,7 +222,7 @@ function getDecorationSubmenu(mf: _Mathfield): MenuItem[] {
   ];
 }
 
-function getBackgroundColorSubmenu(mf: _Mathfield): Readonly<MenuItem[]> {
+function getBackgroundColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(BACKGROUND_COLORS)) {
     result.push({
@@ -248,7 +248,7 @@ function getBackgroundColorSubmenu(mf: _Mathfield): Readonly<MenuItem[]> {
   return result;
 }
 
-function getColorSubmenu(mf: _Mathfield): Readonly<MenuItem[]> {
+function getColorSubmenu(mf: _Mathfield): readonly MenuItem[] {
   const result: MenuItem[] = [];
   for (const color of Object.keys(FOREGROUND_COLORS)) {
     result.push({
@@ -284,9 +284,8 @@ class InsertMatrixMenuItem extends _MenuItemState<{
   }
 
   set active(value: boolean) {
-    const cells = this.parentMenu.children as unknown as Readonly<
-      InsertMatrixMenuItem[]
-    >;
+    const cells = this.parentMenu
+      .children as unknown as readonly InsertMatrixMenuItem[];
     if (value) {
       // Make all the items with a smaller column or row active as well
       for (const cell of cells) {
