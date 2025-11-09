@@ -1024,6 +1024,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   /** @internal */
   private static _decimalSeparator: ',' | '.' = '.';
 
+  /** The template used to format numbers in scientific notation.
+   * The template should include the placeholders `#1` and `#2`, which will
+   * be replaced by the significand and exponent, respectively.
+   *
+   * The template is used when typing a number in scientific notation, e.g.
+   * `1.23e4`, which will be rendered as `1.23×10^4`.
+   *
+   * **Default**: `'#1\\times10^{#2}'`
+   *
+   * Other common formats include:
+   * - `'#1\\,\\mathrm{E}\\mathop{#2}'` (e.g. `1.23\,\mathrm{E}\mathop{-4}`)
+   *
+   * @category Localization
+   */
+  static set scientificNotationTemplate(value: string | null) {
+    this._scientificNotationTemplate = value;
+  }
+
+  static get scientificNotationTemplate(): string | null {
+    return this._scientificNotationTemplate;
+  }
+
+  /** @internal */
+  private static _scientificNotationTemplate: string | null =
+    '#1\\times10^{#2}';
+
   /**
    * When using the keyboard to navigate a fraction, the order in which the
    * numerator and navigator are traversed:

@@ -505,6 +505,142 @@ export function onKeystroke(
 }
 
 /**
+ * Detect if the content before the cursor matches a scientific notation pattern.
+ * Returns the match information if found, null otherwise.
+ *
+ * Pattern: digits + (e|E) + optional(+|-) + digits
+ * Examples: 3.14e2, 5E-3, 1.23e+10
+ */
+function detectScientificNotation(model: _Model): {
+  startOffset: number;
+  endOffset: number;
+  significand: string;
+  exponent: string;
+} | null {
+  const { position } = model;
+
+  // Get atoms at and to the left of the cursor
+  // We need to check from position (not position-1) because when a non-inserting
+  // character like space is pressed, the cursor doesn't advance
+  let offset = position;
+  const atoms: Atom[] = [];
+
+  // Collect atoms going backwards from cursor position
+  // Include digits, decimal points, 'e'/'E', and +/- signs
+  while (offset > 0) {
+    const atom = model.at(offset);
+    const value = atom.value;
+
+    // Only collect atoms that could be part of scientific notation
+    if (
+      atom.type === 'mord' ||
+      (atom.type === 'mbin' && (value === '+' || value === '-' || value === '\u2212'))
+    ) {
+      atoms.unshift(atom);
+      offset--;
+    } else {
+      break;
+    }
+  }
+
+  if (atoms.length === 0) return null;
+
+  // Build the string from atoms
+  const text = atoms.map((a) => a.value).join('');
+
+  // Match scientific notation pattern: significand e|E [+|-] exponent
+  // Respect the localized decimal separator
+  const separator = globalThis.MathfieldElement?.decimalSeparator ?? '.';
+  const separatorRegex = separator === '.' ? '\\.' : ',';
+  // Use non-capturing group (?:...) to avoid shifting match groups
+  const pattern = new RegExp(
+    `^(\\d+(?:${separatorRegex}\\d*)?)[eE]([+\\-\u2212]?)(\\d+)$`
+  );
+  const match = text.match(pattern);
+
+  if (!match) return null;
+
+  const significand = match[1];
+  const sign = match[2];
+  const exponentDigits = match[3];
+  const exponent = sign + exponentDigits;
+
+  return {
+    startOffset: offset,
+    endOffset: position,
+    significand,
+    exponent,
+  };
+}
+
+/**
+ * Apply the scientific notation template to format the detected pattern.
+ * Template uses #1 for significand and #2 for exponent.
+ */
+function applyScientificNotationTemplate(
+  significand: string,
+  exponent: string
+): string | null {
+  const template = globalThis.MathfieldElement?.scientificNotationTemplate;
+
+  // Validate template
+  if (!template || template === '' || !template.includes('#1') || !template.includes('#2'))
+    return null;
+
+  // Replace placeholders
+  let result = template.replace('#1', significand);
+  result = result.replace('#2', exponent);
+
+  return result;
+}
+
+/**
+ * Check if scientific notation should be formatted and apply the template if applicable.
+ * This is called when a non-digit character is typed or after a timeout.
+ */
+function formatScientificNotationIfApplicable(mathfield: _Mathfield): boolean {
+  const { model } = mathfield;
+
+  // Only format in math mode
+  if (model.mode !== 'math') return false;
+
+  // Detect scientific notation pattern
+  const match = detectScientificNotation(model);
+  if (!match) return false;
+
+  // Apply template
+  const formatted = applyScientificNotationTemplate(
+    match.significand,
+    match.exponent
+  );
+  if (!formatted) return false;
+
+  // Replace the matched range with the formatted template
+  model.deferNotifications(
+    { content: true, selection: true, type: 'insertText' },
+    () => {
+      // Select the scientific notation atoms
+      model.selection = {
+        ranges: [[match.startOffset, match.endOffset]],
+        direction: 'forward',
+      };
+
+      // Insert the formatted template
+      ModeEditor.insert(model, formatted, {
+        insertionMode: 'replaceSelection',
+        selectionMode: 'after',
+      });
+    }
+  );
+
+  mathfield.snapshot('format-scientific-notation');
+  mathfield.dirty = true;
+  mathfield.scrollIntoView();
+
+  return true;
+}
+
+/**
  * This handler is invoked when text has been input with an input method.
  * As a result, `text` can be a sequence of characters to be inserted.
  * @param {object} options
@@ -682,6 +818,13 @@ function getLeftSiblings(mf: _Mathfield): Atom[] {
 function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   const model = mathfield.model;
 
+  // Check if we should format scientific notation before processing the character
+  // This needs to happen before special character handling (like space)
+  // After formatting, continue to insert the triggering character
+  if (!/\d/.test(c)) {
+    formatScientificNotationIfApplicable(mathfield);
+  }
+
   // Some characters are mapped to commands. Handle them here.
   // This is important to handle synthetic text input and
   // non-US keyboards, on which, for example, the '^' key is
@@ -769,6 +912,20 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     return;
 
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
+
+  // If typing a digit, set up a timeout to format after user stops typing
+  if (/\d/.test(c)) {
+    // Use inlineShortcutTimeout if > 0, otherwise use a default of 1000ms
+    const timeoutValue = mathfield.options.inlineShortcutTimeout > 0
+      ? mathfield.options.inlineShortcutTimeout
+      : 1000;
+
+    // Clear any existing timeout first
+    clearTimeout(mathfield.scientificNotationTimer);
+    mathfield.scientificNotationTimer = setTimeout(() => {
+      formatScientificNotationIfApplicable(mathfield);
+    }, timeoutValue);
+  }
 }
 
 export function getSelectionStyle(model: _Model): Readonly<Style> {

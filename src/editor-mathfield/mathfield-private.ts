@@ -188,6 +188,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     leftSiblings: Atom[];
   }[];
   inlineShortcutBufferFlushTimer: ReturnType<typeof setTimeout>;
+  scientificNotationTimer: ReturnType<typeof setTimeout>;
 
   private blurred: boolean;
 
@@ -259,6 +260,9 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     this.inlineShortcutBuffer = [];
     this.inlineShortcutBufferFlushTimer = 0 as unknown as ReturnType<
+      typeof setTimeout
+    >;
+    this.scientificNotationTimer = 0 as unknown as ReturnType<
       typeof setTimeout
     >;
 

@@ -37,6 +37,16 @@
   would be included (e.g., just `2` from `5e-2`), breaking the scientific
   notation. The fix recognizes both e-notation (`5e-2`, `3.14e+10`) and ×10^
   notation (`3.14×10^{-2}`, `5×10^3`) as atomic units.
+- **Scientific notation template auto-formatting**. When typing scientific
+  notation in e-notation format (e.g., `3.14e2`, `5E-3`, `1.23e+10`), MathLive
+  now automatically formats it using a customizable template. The formatting is
+  triggered either when typing a non-digit character after the notation or after
+  a brief pause in typing (controlled by `inlineShortcutTimeout`). The template
+  is configured via the `scientificNotationTemplate` property (default:
+  `#1\times10^{#2}`) where `#1` is replaced with the significand and `#2` with
+  the exponent. For example, typing `3.14e2` followed by a space will
+  automatically format to `3.14×10²`. The feature respects the
+  `decimalSeparator` setting for internationalization.
 
 ### Resolved Issues
 
