@@ -165,6 +165,12 @@
   MathLive operated within an iframe in sandboxed mode, the MessageEvent objects
   dispatched via `window.dispatchEvent()` were missing this property, causing
   validation errors in environments that check for the origin domain.
+- **#2714** Disabled mathfields no longer receive focus or accept keyboard
+  input. Previously, clicking on or calling `.focus()` on a disabled mathfield
+  would trigger focus events and allow keyboard input like `{` and `/` to modify
+  the content, despite the documented behavior that disabled mathfields should
+  not be focusable. Disabled mathfields are now properly non-focusable,
+  preventing all focus events and keyboard input.
 - **#2733** Fixed inline shortcut buffer persistence after deleting all content.
   When typing characters that triggered an inline shortcut (e.g., "xx" →
   "\times"), then deleting all content with Backspace, and typing again, the

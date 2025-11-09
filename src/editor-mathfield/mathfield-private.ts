@@ -1087,13 +1087,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
       let top = this.host.scrollTop;
 
       // Check if top of caret/selection is above visible area (with padding)
-      if (y < hostBounds.top + SCROLL_PADDING) {
+      if (y < hostBounds.top + SCROLL_PADDING)
         top = y - hostBounds.top + this.host.scrollTop - SCROLL_PADDING;
-      }
       // Check if bottom of caret/selection is below visible area (with padding)
-      else if (bottom > hostBounds.bottom - SCROLL_PADDING) {
+      else if (bottom > hostBounds.bottom - SCROLL_PADDING)
         top = bottom - hostBounds.bottom + this.host.scrollTop + SCROLL_PADDING;
-      }
 
       // Only scroll if the position actually changed
       if (top !== this.host.scrollTop)
@@ -1326,7 +1324,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   focus(options?: FocusOptions): void {
-    if (this.focusBlurInProgress) return;
+    if (this.disabled || this.focusBlurInProgress) return;
     if (!this.hasFocus()) {
       this.onFocus();
       this.model.announce('line');
@@ -1670,7 +1668,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   onFocus(options?: { suppressEvents?: boolean }): void {
-    if (this.focusBlurInProgress || !this.blurred) return;
+    if (this.disabled || this.focusBlurInProgress || !this.blurred) return;
     this.focusBlurInProgress = true;
     this.blurred = false;
 

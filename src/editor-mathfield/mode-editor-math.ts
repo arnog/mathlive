@@ -569,8 +569,7 @@ function isPartOfScientificNotation(atom: Atom): boolean {
     const left = atom.leftSibling;
     const right = atom.rightSibling;
     if (
-      left &&
-      left.type === 'mord' &&
+      left?.type === 'mord' &&
       left.value === 'e' &&
       right &&
       right.isDigit()
@@ -593,7 +592,10 @@ function isPartOfScientificNotation(atom: Atom): boolean {
       if (left2 && left2.isDigit() && left2.value === '1') {
         // Check if preceded by × (times)
         const left3 = left2.leftSibling;
-        if (left3 && left3.type === 'mbin' && (left3.value === '×' || left3.value === '\\times')) {
+        if (
+          left3?.type === 'mbin' &&
+          (left3.value === '×' || left3.value === '\\times')
+        ) {
           // Check if the times is preceded by a digit
           const left4 = left3.leftSibling;
           if (left4 && left4.isDigit()) return true;
@@ -607,12 +609,17 @@ function isPartOfScientificNotation(atom: Atom): boolean {
     const left = atom.leftSibling; // should be "1"
     const right = atom.rightSibling; // should be subsup
     if (
-      left && left.isDigit() && left.value === '1' &&
-      right && right.type === 'subsup'
+      left &&
+      left.isDigit() &&
+      left.value === '1' &&
+      right?.type === 'subsup'
     ) {
       // Check if "1" is preceded by ×
       const left2 = left.leftSibling;
-      if (left2 && left2.type === 'mbin' && (left2.value === '×' || left2.value === '\\times')) {
+      if (
+        left2?.type === 'mbin' &&
+        (left2.value === '×' || left2.value === '\\times')
+      ) {
         // Check if × is preceded by a digit
         const left3 = left2.leftSibling;
         if (left3 && left3.isDigit()) return true;
@@ -625,10 +632,13 @@ function isPartOfScientificNotation(atom: Atom): boolean {
     const right1 = atom.rightSibling; // should be "0"
     if (right1 && right1.isDigit() && right1.value === '0') {
       const right2 = right1.rightSibling; // should be subsup
-      if (right2 && right2.type === 'subsup') {
+      if (right2?.type === 'subsup') {
         // Check if preceded by ×
         const left = atom.leftSibling;
-        if (left && left.type === 'mbin' && (left.value === '×' || left.value === '\\times')) {
+        if (
+          left?.type === 'mbin' &&
+          (left.value === '×' || left.value === '\\times')
+        ) {
           // Check if × is preceded by a digit
           const left2 = left.leftSibling;
           if (left2 && left2.isDigit()) return true;
@@ -638,16 +648,23 @@ function isPartOfScientificNotation(atom: Atom): boolean {
   }
 
   // Check if this is × (times) in the pattern digit × 10^exponent
-  if (atom.type === 'mbin' && (atom.value === '×' || atom.value === '\\times')) {
+  if (
+    atom.type === 'mbin' &&
+    (atom.value === '×' || atom.value === '\\times')
+  ) {
     const left = atom.leftSibling;
     const right1 = atom.rightSibling; // should be "1"
-    if (left && left.isDigit() && right1 && right1.isDigit() && right1.value === '1') {
+    if (
+      left &&
+      left.isDigit() &&
+      right1 &&
+      right1.isDigit() &&
+      right1.value === '1'
+    ) {
       const right2 = right1.rightSibling; // should be "0"
       if (right2 && right2.isDigit() && right2.value === '0') {
         const right3 = right2.rightSibling; // should be subsup
-        if (right3 && right3.type === 'subsup') {
-          return true;
-        }
+        if (right3?.type === 'subsup') return true;
       }
     }
   }

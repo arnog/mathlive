@@ -15,11 +15,7 @@ import {
 import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 
-import {
-  complete,
-  removeSuggestion,
-  updateAutocomplete,
-} from './autocomplete';
+import { complete, removeSuggestion, updateAutocomplete } from './autocomplete';
 import { getLatexGroupBody } from './mode-editor-latex';
 import { getDefinition } from '../latex-commands/definitions-utils';
 import { requestUpdate } from './render';
@@ -614,7 +610,7 @@ export function onInput(
 
       // Look up the command definition
       const def = getDefinition(commandName, 'math');
-      if (!def || def.definitionType !== 'function') return;
+      if (def?.definitionType !== 'function') return;
 
       // Count the number of mandatory (non-optional) arguments
       const mandatoryArgCount = def.params.filter((p) => !p.isOptional).length;
@@ -634,9 +630,8 @@ export function onInput(
           inCommandName = false;
         }
 
-        if (char === '{') {
-          depth++;
-        } else if (char === '}') {
+        if (char === '{') depth++;
+        else if (char === '}') {
           depth--;
           // Count a completed brace pair when we return to depth 0
           if (depth === 0) completedBraces++;

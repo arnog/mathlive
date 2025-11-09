@@ -1788,6 +1788,7 @@ import "https://esm.run/@cortex-js/compute-engine";
    *
    */
   focus(): void {
+    if (this.disabled) return;
     this._mathfield?.focus();
   }
 

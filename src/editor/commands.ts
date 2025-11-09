@@ -151,9 +151,7 @@ export function perform(
     if (info?.changeSelection && handled) {
       mathfield.dirty = true;
       mathfield.scrollIntoView();
-    } else {
-      requestUpdate(mathfield);
-    }
+    } else requestUpdate(mathfield);
   }
 
   return handled;
