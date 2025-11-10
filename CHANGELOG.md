@@ -205,6 +205,12 @@
   the content, despite the documented behavior that disabled mathfields should
   not be focusable. Disabled mathfields are now properly non-focusable,
   preventing all focus events and keyboard input.
+- **#2728** Fixed missing spacer elements when using the `\class` command.
+  Previously, expressions like `x+\class{highlight}{y}+1` would not have proper
+  spacing before the styled content, causing the spacer element between the `+`
+  operator and the wrapped content to be missing. The `\class` command now uses
+  `boxType: 'lift'` to properly expose its contents to the inter-box spacing
+  algorithm, matching the behavior of similar styling commands like `\emph`.
 - **#2733** Fixed inline shortcut buffer persistence after deleting all content.
   When typing characters that triggered an inline shortcut (e.g., "xx" →
   "\times"), then deleting all content with Backspace, and typing again, the

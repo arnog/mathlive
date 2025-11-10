@@ -593,7 +593,7 @@ defineFunction(['class', 'htmlClass'], '{name:string}{content:auto*}', {
     )}}`;
   },
   render: (atom, context) =>
-    atom.createBox(context, { classes: (atom.args![0] as string) ?? '' }),
+    atom.createBox(context, { classes: (atom.args![0] as string) ?? '', boxType: 'lift' }),
 });
 
 /* Assign an ID to the element. `cssId` is a MathJax extension,
