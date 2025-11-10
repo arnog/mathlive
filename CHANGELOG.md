@@ -186,6 +186,13 @@
   options like color changes. The context menu event is now prevented before
   showing the menu, ensuring focus is maintained regardless of where the
   right-click occurs.
+- **#2685** Fixed physical keyboard not working after programmatic focus with
+  manual virtual keyboard policy. When calling `mf.focus()` programmatically at
+  page load with `mathVirtualKeyboardPolicy: "manual"`, the physical keyboard
+  would stop working. This was caused by a double `onFocus()` invocation that
+  set up event capture listeners at the wrong time. The fix prevents the second
+  `onFocus()` call when focus is initiated programmatically, ensuring keyboard
+  events are properly routed.
 - **#2686** When deleting a range that includes special mathematical atoms like
   `\sqrt`, `\frac`, or `\enclose`, the special atom structure is now properly
   removed or cleaned up. Previously, deleting content would leave behind empty

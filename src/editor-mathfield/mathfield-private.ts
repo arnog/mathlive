@@ -202,6 +202,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   // the `change` event is dispatched
   private valueOnFocus: string;
   private focusBlurInProgress = false;
+  private programmaticFocusInProgress = false;
 
   private geometryChangeTimer: ReturnType<typeof requestAnimationFrame>;
 
@@ -818,7 +819,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     switch (evt.type) {
       case 'focus':
-        this.onFocus({ suppressEvents: true });
+        // Skip handling DOM focus events that result from programmatic focus()
+        // calls to prevent double onFocus() invocation (fixes #2685)
+        if (!this.programmaticFocusInProgress)
+          this.onFocus({ suppressEvents: true });
         break;
 
       case 'blur':
@@ -1349,6 +1353,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   focus(options?: FocusOptions): void {
     if (this.disabled || this.focusBlurInProgress) return;
     if (!this.hasFocus()) {
+      this.programmaticFocusInProgress = true;
       this.onFocus();
       this.model.announce('line');
     }
@@ -1754,6 +1759,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.focusBlurInProgress = false;
         this.keyboardDelegate.focus();
         this.connectToVirtualKeyboard();
+
+        // Clear the flag after the DOM focus event has been processed
+        setTimeout(() => {
+          this.programmaticFocusInProgress = false;
+        }, 0);
       }
     }, 60);
   }
