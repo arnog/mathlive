@@ -400,14 +400,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if (evt.target !== this.host) return;
         this.handleEvent(evt);
       };
-      if ('PointerEvent' in window)
+      if ('PointerEvent' in window) {
         this.host.addEventListener('pointerdown', hostPointerHandler, {
           signal,
-        });
-      else
+        }); }
+      } else {
         this.host.addEventListener('mousedown', hostPointerHandler, {
           signal,
         });
+      }
     }
 
     this.element

@@ -534,13 +534,12 @@ function detectScientificNotation(model: _Model): {
     // Only collect atoms that could be part of scientific notation
     if (
       atom.type === 'mord' ||
-      (atom.type === 'mbin' && (value === '+' || value === '-' || value === '\u2212'))
+      (atom.type === 'mbin' &&
+        (value === '+' || value === '-' || value === '\u2212'))
     ) {
       atoms.unshift(atom);
       offset--;
-    } else {
-      break;
-    }
+    } else break;
   }
 
   if (atoms.length === 0) return null;
@@ -584,7 +583,12 @@ function applyScientificNotationTemplate(
   const template = globalThis.MathfieldElement?.scientificNotationTemplate;
 
   // Validate template
-  if (!template || template === '' || !template.includes('#1') || !template.includes('#2'))
+  if (
+    !template ||
+    template === '' ||
+    !template.includes('#1') ||
+    !template.includes('#2')
+  )
     return null;
 
   // Replace placeholders
@@ -821,9 +825,7 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   // Check if we should format scientific notation before processing the character
   // This needs to happen before special character handling (like space)
   // After formatting, continue to insert the triggering character
-  if (!/\d/.test(c)) {
-    formatScientificNotationIfApplicable(mathfield);
-  }
+  if (!/\d/.test(c)) formatScientificNotationIfApplicable(mathfield);
 
   // Some characters are mapped to commands. Handle them here.
   // This is important to handle synthetic text input and
@@ -916,9 +918,10 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
   // If typing a digit, set up a timeout to format after user stops typing
   if (/\d/.test(c)) {
     // Use inlineShortcutTimeout if > 0, otherwise use a default of 1000ms
-    const timeoutValue = mathfield.options.inlineShortcutTimeout > 0
-      ? mathfield.options.inlineShortcutTimeout
-      : 1000;
+    const timeoutValue =
+      mathfield.options.inlineShortcutTimeout > 0
+        ? mathfield.options.inlineShortcutTimeout
+        : 1000;
 
     // Clear any existing timeout first
     clearTimeout(mathfield.scientificNotationTimer);

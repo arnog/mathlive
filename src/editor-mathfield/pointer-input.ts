@@ -197,13 +197,13 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   const selectionAnchorX = anchorInsideField
     ? anchorX
     : anchorInsideContainer || anchorInsideHost
-    ? clamp(anchorX, bounds.left, bounds.right)
-    : anchorX;
+      ? clamp(anchorX, bounds.left, bounds.right)
+      : anchorX;
   const selectionAnchorY = anchorInsideField
     ? anchorY
     : anchorInsideContainer || anchorInsideHost
-    ? clamp(anchorY, bounds.top, bounds.bottom)
-    : anchorY;
+      ? clamp(anchorY, bounds.top, bounds.bottom)
+      : anchorY;
 
   if (anchorInsideField || anchorInsideContainer || anchorInsideHost) {
     // Clicking or tapping the field resets the keystroke buffer
