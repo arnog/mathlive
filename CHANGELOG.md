@@ -93,6 +93,14 @@
   proper spacing before the wrapped element, while `1=\textcolor{red}{1}` would.
   The commands now create atoms with the correct type (`mord`) and use deferred
   argument parsing to ensure proper inter-atom spacing.
+- **#2419** Fixed parsing of dollar-delimited math expressions when using
+  `insert()` in text mode. Previously, when inserting strings like
+  `"La fonction $f$ est croissante"` into a mathfield with `defaultMode="text"`,
+  the dollar signs and their content were being escaped, preventing proper
+  math mode switching. The text mode editor now correctly preserves math
+  regions delimited by `$...$` or `$$...$$` while only escaping special
+  characters in text regions, allowing mixed text and inline math expressions
+  to be inserted correctly.
 - **#2444** Font style menu items (roman, italic) are now always visible and
   properly toggleable. Previously, these items only appeared when text was
   selected, and toggling them when positioned after styled text would not work

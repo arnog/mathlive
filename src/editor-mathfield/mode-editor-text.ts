@@ -103,17 +103,73 @@ export class TextModeEditor extends ModeEditor {
 }
 
 function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
+  // If the string contains dollar signs, we need to preserve the math regions
+  // and only escape special characters in text regions
+  if (s.includes('$')) {
+    const segments: string[] = [];
+    let i = 0;
+    let inMath = false;
+    let currentSegment = '';
+
+    while (i < s.length) {
+      if (s[i] === '$') {
+        // Check for $$
+        if (i + 1 < s.length && s[i + 1] === '$') {
+          // Process current text segment before switching modes
+          if (!inMath && currentSegment) {
+            segments.push(escapeTextModeCharacters(currentSegment));
+            currentSegment = '';
+          } else if (inMath && currentSegment) {
+            segments.push(currentSegment);
+            currentSegment = '';
+          }
+          segments.push('$$');
+          inMath = !inMath;
+          i += 2;
+        } else {
+          // Single $
+          // Process current segment before switching modes
+          if (!inMath && currentSegment) {
+            segments.push(escapeTextModeCharacters(currentSegment));
+            currentSegment = '';
+          } else if (inMath && currentSegment) {
+            segments.push(currentSegment);
+            currentSegment = '';
+          }
+          segments.push('$');
+          inMath = !inMath;
+          i += 1;
+        }
+      } else {
+        currentSegment += s[i];
+        i += 1;
+      }
+    }
+
+    // Process any remaining segment
+    if (currentSegment) {
+      if (inMath) {
+        segments.push(currentSegment);
+      } else {
+        segments.push(escapeTextModeCharacters(currentSegment));
+      }
+    }
+
+    return parseLatex(segments.join(''), { context, parseMode: 'text' });
+  }
+
+  // No dollar signs - escape all special characters as before
+  return parseLatex(escapeTextModeCharacters(s), { context, parseMode: 'text' });
+}
+
+function escapeTextModeCharacters(s: string): string {
   // Map special TeX characters to alternatives
   // Must do this one first, since other replacements include backslash
   s = s.replace(/\\/g, '\\textbackslash ');
 
   s = s.replace(/#/g, '\\#');
-  s = s.replace(/\$/g, '\\$');
   s = s.replace(/%/g, '\\%');
   s = s.replace(/&/g, '\\&');
-  // S = s.replace(/:/g, '\\colon');     // text colon?
-  // s = s.replace(/\[/g, '\\lbrack');
-  // s = s.replace(/]/g, '\\rbrack');
   s = s.replace(/_/g, '\\_');
   s = s.replace(/{/g, '\\textbraceleft ');
   s = s.replace(/}/g, '\\textbraceright ');
@@ -123,7 +179,7 @@ function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
   s = s.replace(/~/g, '\\textasciitilde ');
   s = s.replace(/£/g, '\\textsterling ');
 
-  return parseLatex(s, { context, parseMode: 'text' });
+  return s;
 }
 
 new TextModeEditor();
