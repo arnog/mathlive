@@ -50,6 +50,15 @@
 
 ### Resolved Issues
 
+- Fixed click positioning in multiline environments. When clicking in a multiline
+  environment (such as `\displaylines`, `gather`, `align`, etc.), the caret is
+  now correctly positioned on the line that is closest to the click point
+  vertically, rather than selecting atoms from other lines based on overall
+  Euclidean distance. For example, when clicking horizontally below an atom on
+  line 1 but vertically at the level of line 2, the caret will now be positioned
+  on line 2 instead of incorrectly jumping to line 1. This fix ensures that
+  clicking in multiline content respects the visual line structure, making
+  editing more intuitive and predictable.
 - Fixed MathML serialization for multiline mathfields. Previously, serializing
   multiline mathfields (such as `\displaylines{\\ }`) to MathML would result in
   invalid MathML with syntax errors and console warnings. The fix corrects a

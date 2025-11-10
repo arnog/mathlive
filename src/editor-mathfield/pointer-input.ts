@@ -438,9 +438,12 @@ function nearestAtomFromPointRecursive(
     }
 
     // Search children for additional atoms (like delimiters)
-    for (const child of atom.children) {
-      const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
-      if (r[0] <= result[0]) result = r;
+    // For multiline arrays, skip this to avoid selecting atoms from wrong rows
+    if (!atom.isMultiline) {
+      for (const child of atom.children) {
+        const r = nearestAtomFromPointRecursive(mathfield, cache, child, x, y);
+        if (r[0] <= result[0]) result = r;
+      }
     }
   } else if (
     atom.hasChildren &&
