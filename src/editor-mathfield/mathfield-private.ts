@@ -403,7 +403,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if ('PointerEvent' in window) {
         this.host.addEventListener('pointerdown', hostPointerHandler, {
           signal,
-        }); }
+        });
       } else {
         this.host.addEventListener('mousedown', hostPointerHandler, {
           signal,

@@ -50,15 +50,15 @@
 
 ### Resolved Issues
 
-- Fixed click positioning in multiline environments. When clicking in a multiline
-  environment (such as `\displaylines`, `gather`, `align`, etc.), the caret is
-  now correctly positioned on the line that is closest to the click point
-  vertically, rather than selecting atoms from other lines based on overall
-  Euclidean distance. For example, when clicking horizontally below an atom on
-  line 1 but vertically at the level of line 2, the caret will now be positioned
-  on line 2 instead of incorrectly jumping to line 1. This fix ensures that
-  clicking in multiline content respects the visual line structure, making
-  editing more intuitive and predictable.
+- Fixed click positioning in multiline environments. When clicking in a
+  multiline environment (such as `\displaylines`, `gather`, `align`, etc.), the
+  caret is now correctly positioned on the line that is closest to the click
+  point vertically, rather than selecting atoms from other lines based on
+  overall Euclidean distance. For example, when clicking horizontally below an
+  atom on line 1 but vertically at the level of line 2, the caret will now be
+  positioned on line 2 instead of incorrectly jumping to line 1. This fix
+  ensures that clicking in multiline content respects the visual line structure,
+  making editing more intuitive and predictable.
 - Fixed MathML serialization for multiline mathfields. Previously, serializing
   multiline mathfields (such as `\displaylines{\\ }`) to MathML would result in
   invalid MathML with syntax errors and console warnings. The fix corrects a
@@ -243,6 +243,16 @@
   `\mathtt`) are now correctly preserved when exporting to the `latex-expanded`
   format. Previously, these commands were being stripped from the output,
   causing `\mathrm{d}` to be serialized as just `d`.
+- **#2832**, **#2727** Fixed rendering of `\cancel`, `\bcancel`, `\xcancel`, and
+  other SVG-based enclosure notations (diagonal strikes, horizontal/vertical
+  strikes, etc.). In v0.106.0+, these notations became completely invisible due
+  to SVG elements having 0 width in their viewBox. Additionally, when visible,
+  the positioning of strike lines was incorrect, particularly for complex
+  expressions and fractions. The fix restores proper width calculations and
+  implements symmetric padding for notation boxes, using em-based coordinates
+  with small margins for accurate line positioning. Strike lines now properly
+  cover content from corner to corner without extending too far or appearing
+  offset.
 - **#2847** Fixed scroll behavior in fixed-height mathfield containers. When
   navigating with arrow keys or Tab/Shift+Tab to move between placeholders, the
   container now properly scrolls to keep the cursor or selection visible.
