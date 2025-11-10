@@ -171,6 +171,14 @@
   selected placeholder, the characters would disappear or trigger unwanted
   behaviors. The placeholder is now deleted before keystroke processing,
   allowing all keybindings and character handling to work correctly.
+- **#2579** Fixed multiple mathfields showing blinking cursors simultaneously
+  when `focus()` is called rapidly on multiple mathfields. This occurred
+  because Chromium browsers don't fire blur events reliably during rapid focus
+  changes, causing multiple mathfields to remain in a focused state. The fix
+  implements global focus tracking to ensure only one mathfield can be focused
+  at a time, explicitly blurring any previously focused mathfield when a new
+  one gains focus. This handles browser blur event quirks while maintaining
+  backward compatibility with all existing focus/blur behavior.
 - **#2619** Fixed placeholders in multi-row array environments (like
   `\displaylines`) not being focusable with pointer clicks. The hit-testing
   logic now properly determines which row was clicked before searching for

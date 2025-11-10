@@ -147,6 +147,13 @@ const MENU_GLYPH = `<svg xmlns="http://www.w3.org/2000/svg" style="height: 18px;
 
 /** @internal */
 export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
+  /**
+   * Global tracker for the currently focused mathfield.
+   * Used to handle cases where browsers don't fire blur events reliably
+   * (e.g., when focus() is called rapidly on multiple mathfields).
+   */
+  private static _globallyFocusedMathfield: _Mathfield | undefined;
+
   readonly model: _Model;
 
   readonly undoManager: UndoManager;
@@ -1697,8 +1704,26 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   onFocus(options?: { suppressEvents?: boolean }): void {
     if (this.disabled || this.focusBlurInProgress || !this.blurred) return;
+
+    // If another mathfield is globally tracked as focused, blur it first.
+    // This handles cases where browsers don't fire blur events reliably
+    // (e.g., rapid focus() calls on multiple mathfields in Chromium).
+    const previouslyFocusedMathfield = _Mathfield._globallyFocusedMathfield;
+    if (
+      previouslyFocusedMathfield &&
+      previouslyFocusedMathfield !== this &&
+      !previouslyFocusedMathfield.disabled &&
+      previouslyFocusedMathfield.hasFocus()
+    ) {
+      // Call onBlur directly to avoid DOM event timing issues
+      previouslyFocusedMathfield.onBlur({ dispatchEvents: true });
+    }
+
     this.focusBlurInProgress = true;
     this.blurred = false;
+
+    // Update the global tracker to point to this mathfield
+    _Mathfield._globallyFocusedMathfield = this;
 
     this.stopCoalescingUndo();
 
@@ -1775,6 +1800,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.stopCoalescingUndo();
 
     this.blurred = true;
+
+    // Clear the global tracker if it points to this mathfield
+    if (_Mathfield._globallyFocusedMathfield === this) {
+      _Mathfield._globallyFocusedMathfield = undefined;
+    }
+
     this.ariaLiveText!.textContent = '';
 
     hideSuggestionPopover(this);
