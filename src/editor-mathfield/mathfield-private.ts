@@ -167,6 +167,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   /** The element from which events are emitted, usually a MathfieldElement */
   readonly host: HTMLElement | undefined;
 
+  container: HTMLElement;
   field: HTMLElement;
   readonly ariaLiveText: HTMLElement;
   // readonly accessibleMathML: HTMLElement;
@@ -373,7 +374,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this._l10Subscription = l10n.subscribe(() => l10n.update(this.element!));
     l10n.update(this.element!);
 
-    this.field = this.element.querySelector('[part=content]')!;
+    this.container = this.element.querySelector('[part=container]')!;
+    this.field = this.container.querySelector('[part=content]')!;
 
     // Listen to 'click' events on the part of the field that doesn't have
     // content, so we avoid sending two 'click' events
@@ -387,9 +389,26 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.field.addEventListener('wheel', this, { passive: false, signal });
 
     // Delegate pointer events
+    const pointerTarget = this.element;
     if ('PointerEvent' in window)
-      this.field.addEventListener('pointerdown', this, { signal });
-    else this.field.addEventListener('mousedown', this, { signal });
+      pointerTarget.addEventListener('pointerdown', this, { signal });
+    else pointerTarget.addEventListener('mousedown', this, { signal });
+
+    // Capture pointer events that occur on the shadow host (i.e. padding around the container)
+    if (this.host) {
+      const hostPointerHandler = (evt: Event): void => {
+        if (evt.target !== this.host) return;
+        this.handleEvent(evt);
+      };
+      if ('PointerEvent' in window)
+        this.host.addEventListener('pointerdown', hostPointerHandler, {
+          signal,
+        });
+      else
+        this.host.addEventListener('mousedown', hostPointerHandler, {
+          signal,
+        });
+    }
 
     this.element
       .querySelector<HTMLElement>('[part=virtual-keyboard-toggle]')
@@ -807,23 +826,28 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       // Safari on iOS <= 13 and Firefox on Android
       case 'mousedown':
-        if (this.userSelect !== 'none')
+        if (
+          this.userSelect !== 'none' &&
+          !(evt.target as HTMLElement | null)?.closest(
+            '[part=virtual-keyboard-toggle],[part=menu-toggle]'
+          )
+        )
           onPointerDown(this, evt as PointerEvent);
 
         break;
 
       case 'pointerdown':
-        if (!evt.defaultPrevented && this.userSelect !== 'none') {
+        if (
+          !evt.defaultPrevented &&
+          this.userSelect !== 'none' &&
+          !(evt.target as HTMLElement | null)?.closest(
+            '[part=virtual-keyboard-toggle],[part=menu-toggle]'
+          )
+        ) {
           onPointerDown(this, evt as PointerEvent);
           // Firefox convention: holding the shift key disables custom context menu
           if ((evt as PointerEvent).shiftKey === false) {
-            if (
-              await onContextMenu(
-                evt,
-                this.element!.querySelector<HTMLElement>('[part=container]')!,
-                this.menu
-              )
-            )
+            if (await onContextMenu(evt, this.container, this.menu))
               PointerTracker.stop();
           }
         }
@@ -834,13 +858,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           this.userSelect !== 'none' &&
           (evt as PointerEvent).shiftKey === false
         ) {
-          if (
-            await onContextMenu(
-              evt,
-              this.element!.querySelector<HTMLElement>('[part=container]')!,
-              this.menu
-            )
-          )
+          if (await onContextMenu(evt, this.container, this.menu))
             PointerTracker.stop();
         }
         break;

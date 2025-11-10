@@ -66,6 +66,16 @@ function isPointerEvent(evt: Event | null): evt is PointerEvent {
   );
 }
 
+function pointInRect(x: number, y: number, rect: DOMRect): boolean {
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}
+
 export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   // If a mouse button other than the main one was pressed, return.
   if (evt.buttons > 1) return;
@@ -170,16 +180,36 @@ export function onPointerDown(mathfield: _Mathfield, evt: PointerEvent): void {
   }
 
   const bounds = field.getBoundingClientRect();
-  if (
-    anchorX >= bounds.left &&
-    anchorX <= bounds.right &&
-    anchorY >= bounds.top &&
-    anchorY <= bounds.bottom
-  ) {
+  const containerBounds =
+    mathfield.container?.getBoundingClientRect() ??
+    mathfield.element.getBoundingClientRect();
+  const hostBounds =
+    mathfield.element?.getBoundingClientRect() ?? containerBounds;
+  const anchorInsideField = pointInRect(anchorX, anchorY, bounds);
+  const anchorInsideContainer =
+    !anchorInsideField && containerBounds
+      ? pointInRect(anchorX, anchorY, containerBounds)
+      : false;
+  const anchorInsideHost =
+    !anchorInsideField && !anchorInsideContainer && hostBounds
+      ? pointInRect(anchorX, anchorY, hostBounds)
+      : false;
+  const selectionAnchorX = anchorInsideField
+    ? anchorX
+    : anchorInsideContainer || anchorInsideHost
+    ? clamp(anchorX, bounds.left, bounds.right)
+    : anchorX;
+  const selectionAnchorY = anchorInsideField
+    ? anchorY
+    : anchorInsideContainer || anchorInsideHost
+    ? clamp(anchorY, bounds.top, bounds.bottom)
+    : anchorY;
+
+  if (anchorInsideField || anchorInsideContainer || anchorInsideHost) {
     // Clicking or tapping the field resets the keystroke buffer
     mathfield.flushInlineShortcutBuffer();
 
-    anchor = offsetFromPoint(mathfield, anchorX, anchorY, {
+    anchor = offsetFromPoint(mathfield, selectionAnchorX, selectionAnchorY, {
       bias: 0,
     });
 
