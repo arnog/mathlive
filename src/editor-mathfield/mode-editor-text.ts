@@ -148,18 +148,18 @@ function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
 
     // Process any remaining segment
     if (currentSegment) {
-      if (inMath) {
-        segments.push(currentSegment);
-      } else {
-        segments.push(escapeTextModeCharacters(currentSegment));
-      }
+      if (inMath) segments.push(currentSegment);
+      else segments.push(escapeTextModeCharacters(currentSegment));
     }
 
     return parseLatex(segments.join(''), { context, parseMode: 'text' });
   }
 
   // No dollar signs - escape all special characters as before
-  return parseLatex(escapeTextModeCharacters(s), { context, parseMode: 'text' });
+  return parseLatex(escapeTextModeCharacters(s), {
+    context,
+    parseMode: 'text',
+  });
 }
 
 function escapeTextModeCharacters(s: string): string {

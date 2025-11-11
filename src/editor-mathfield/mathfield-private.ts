@@ -1802,9 +1802,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     this.blurred = true;
 
     // Clear the global tracker if it points to this mathfield
-    if (_Mathfield._globallyFocusedMathfield === this) {
+    if (_Mathfield._globallyFocusedMathfield === this)
       _Mathfield._globallyFocusedMathfield = undefined;
-    }
 
     this.ariaLiveText!.textContent = '';
 
