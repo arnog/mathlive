@@ -2,6 +2,7 @@
 
 ### Resolved Issues
 
+- Fixed virtual keyboard toggle requiring triple-click to activate.
 - **#2892** Fixed vertical alignment issues when using `\colorbox` with
   expressions that have both subscripts and superscripts. Previously, applying a
   background color to an expression like `N_{k}^{2019}` would cause the

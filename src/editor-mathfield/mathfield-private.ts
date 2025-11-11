@@ -419,20 +419,23 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     }
 
-    this.element
-      .querySelector<HTMLElement>('[part=virtual-keyboard-toggle]')
-      ?.addEventListener(
-        'click',
-        () => {
-          if (window.mathVirtualKeyboard.visible)
-            window.mathVirtualKeyboard.hide();
-          else {
-            window.mathVirtualKeyboard.show({ animate: true });
-            window.mathVirtualKeyboard.update(makeProxy(this));
-          }
-        },
-        { signal }
-      );
+    const virtualKeyboardToggle =
+      this.element.querySelector<HTMLElement>('[part=virtual-keyboard-toggle]');
+    virtualKeyboardToggle?.addEventListener(
+      'pointerdown',
+      (ev) => {
+        if (ev.currentTarget !== virtualKeyboardToggle) return;
+        if (window.mathVirtualKeyboard.visible)
+          window.mathVirtualKeyboard.hide();
+        else {
+          window.mathVirtualKeyboard.show({ animate: true });
+          window.mathVirtualKeyboard.update(makeProxy(this));
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+      },
+      { signal }
+    );
 
     // Listen for contextmenu events on the field
     this.field.addEventListener('contextmenu', this, { signal });
