@@ -945,7 +945,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
           { box: subBox, shift: subShift, marginLeft: slant },
           { box: supBox, shift: -supShift },
         ],
-      }).wrap(parentContext);
+      });
     } else if (subBox && !supBox) {
       // Rule 18b
       subShift = Math.max(

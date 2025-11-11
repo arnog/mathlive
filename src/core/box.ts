@@ -337,14 +337,6 @@ export class Box implements BoxInterface {
       this.setStyle('--bg-color' as any, backgroundColor);
       this.setStyle('display', 'inline-block');
       this.setStyle('position', 'relative');
-      // Add vertical-align to prevent superscript/subscript shifting (#2892)
-      // Only apply when there's an actual background color (not just selection highlight)
-      // The depth centers the baseline properly for elements with different heights
-      if (
-        originalBackgroundColor &&
-        originalBackgroundColor !== parent.backgroundColor
-      )
-        this.setStyle('vertical-align', -this.depth, 'em');
       // Add a class that CSS can target to render background via pseudo-element
       this.classes = this.classes ? `${this.classes} ML__bg` : 'ML__bg';
     }

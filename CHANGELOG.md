@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2892** Fixed vertical alignment issues when using `\colorbox` with
+  expressions that have both subscripts and superscripts. Previously, applying a
+  background color to an expression like `N_{k}^{2019}` would cause the
+  subscripts and superscripts to be misaligned or shift upward. Colorboxes now
+  render correctly with proper baseline alignment regardless of whether the
+  content has only a subscript, only a superscript, or both.
+
 ## 0.108.0 _2025-11-09_
 
 ### New Features
@@ -96,11 +107,11 @@
 - **#2419** Fixed parsing of dollar-delimited math expressions when using
   `insert()` in text mode. Previously, when inserting strings like
   `"La fonction $f$ est croissante"` into a mathfield with `defaultMode="text"`,
-  the dollar signs and their content were being escaped, preventing proper
-  math mode switching. The text mode editor now correctly preserves math
-  regions delimited by `$...$` or `$$...$$` while only escaping special
-  characters in text regions, allowing mixed text and inline math expressions
-  to be inserted correctly.
+  the dollar signs and their content were being escaped, preventing proper math
+  mode switching. The text mode editor now correctly preserves math regions
+  delimited by `$...$` or `$$...$$` while only escaping special characters in
+  text regions, allowing mixed text and inline math expressions to be inserted
+  correctly.
 - **#2444** Font style menu items (roman, italic) are now always visible and
   properly toggleable. Previously, these items only appeared when text was
   selected, and toggling them when positioned after styled text would not work
@@ -172,13 +183,13 @@
   behaviors. The placeholder is now deleted before keystroke processing,
   allowing all keybindings and character handling to work correctly.
 - **#2579** Fixed multiple mathfields showing blinking cursors simultaneously
-  when `focus()` is called rapidly on multiple mathfields. This occurred
-  because Chromium browsers don't fire blur events reliably during rapid focus
-  changes, causing multiple mathfields to remain in a focused state. The fix
-  implements global focus tracking to ensure only one mathfield can be focused
-  at a time, explicitly blurring any previously focused mathfield when a new
-  one gains focus. This handles browser blur event quirks while maintaining
-  backward compatibility with all existing focus/blur behavior.
+  when `focus()` is called rapidly on multiple mathfields. This occurred because
+  Chromium browsers don't fire blur events reliably during rapid focus changes,
+  causing multiple mathfields to remain in a focused state. The fix implements
+  global focus tracking to ensure only one mathfield can be focused at a time,
+  explicitly blurring any previously focused mathfield when a new one gains
+  focus. This handles browser blur event quirks while maintaining backward
+  compatibility with all existing focus/blur behavior.
 - **#2619** Fixed placeholders in multi-row array environments (like
   `\displaylines`) not being focusable with pointer clicks. The hit-testing
   logic now properly determines which row was clicked before searching for
