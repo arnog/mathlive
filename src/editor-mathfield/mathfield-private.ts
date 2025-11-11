@@ -332,7 +332,10 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     markup.push(contentMarkup(this));
     markup.push('</span>');
 
-    // 2.1/ The virtual keyboard toggle
+    // 2.1/ Wrapper for toggle buttons
+    markup.push('<div class=ML__toggles>');
+
+    // 2.1.1/ The virtual keyboard toggle
     if (window.mathVirtualKeyboard) {
       markup.push(
         `<div part=virtual-keyboard-toggle class=ML__virtual-keyboard-toggle role=button ${
@@ -343,12 +346,14 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
       markup.push('</div>');
     }
 
-    // 2.2// The menu toggle
+    // 2.1.2/ The menu toggle
     markup.push(
       `<div part=menu-toggle class=ML__menu-toggle role=button data-l10n-tooltip="tooltip.menu">`
     );
     markup.push(MENU_GLYPH);
     markup.push('</div>');
+
+    markup.push('</div>'); // end toggles wrapper
 
     markup.push('</span>'); // end container
 
@@ -419,8 +424,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
     }
 
-    const virtualKeyboardToggle =
-      this.element.querySelector<HTMLElement>('[part=virtual-keyboard-toggle]');
+    const virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
+      '[part=virtual-keyboard-toggle]'
+    );
     virtualKeyboardToggle?.addEventListener(
       'pointerdown',
       (ev) => {
@@ -463,7 +469,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
     );
 
     if (
-      this.model.atoms.length <= 1 ||
       this.disabled ||
       (this.readOnly && !this.hasEditableContent) ||
       this.userSelect === 'none'
@@ -491,10 +496,15 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.resizeObserverStarted = false;
         return;
       }
+      this.updateToggleLayout();
       requestUpdate(this);
     });
     this.resizeObserverStarted = true;
     this.resizeObserver.observe(this.field);
+    this.resizeObserver.observe(this.container);
+
+    // Initial toggle layout check (delayed to ensure rendering is complete)
+    setTimeout(() => this.updateToggleLayout(), 100);
 
     window.mathVirtualKeyboard.addEventListener(
       'virtual-keyboard-toggle',
@@ -922,6 +932,26 @@ If you are using Vue, this may be because you are using the runtime-only build o
       default:
         console.warn('Unexpected event type', evt.type);
     }
+  }
+
+  /** Update toggle button layout based on mathfield height */
+  updateToggleLayout(): void {
+    if (!this.element || !this.host) return;
+
+    const toggles = this.element.querySelector<HTMLElement>('.ML__toggles');
+    if (!toggles) return;
+
+    // Use host height to account for both content height and CSS-specified height
+    const height = this.host.offsetHeight;
+    const hasVerticalClass = toggles.classList.contains(
+      'ML__toggles--vertical'
+    );
+
+    // Automatically apply vertical layout when mathfield is tall (>= 100px)
+    if (height >= 100 && !hasVerticalClass)
+      toggles.classList.add('ML__toggles--vertical');
+    else if (height < 100 && hasVerticalClass)
+      toggles.classList.remove('ML__toggles--vertical');
   }
 
   dispose(): void {

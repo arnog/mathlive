@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### New Features
+
+- **Responsive toggle button layout**: The virtual keyboard toggle and menu
+  button now automatically switch from horizontal (side-by-side) to vertical
+  (stacked) layout when the mathfield height is 100px or greater. This happens
+  dynamically as you add content to the mathfield.
+
 ### Resolved Issues
 
 - Fixed virtual keyboard toggle requiring triple-click to activate.

@@ -26,14 +26,19 @@
   }
 }
 
+:host {
+  display: block;
+}
+
 // The .ML__container includes the visible parts of the math-field:
-// the .ML__content and the .ML__virtual-keyboard-toggle.
+// the .ML__content and the toggle buttons (wrapped in .ML__toggles).
 // .ML__container
 //      > .ML__content
 //            > .ML__latex > .ML__base
 //            > .ML__selection
-//      > .ML__virtual-keyboard-toggle
-//      > .ML__menu-toggle
+//      > .ML__toggles
+//            > .ML__virtual-keyboard-toggle
+//            > .ML__menu-toggle
 .ML__container {
   display: inline-flex;
   flex-flow: row;
@@ -44,7 +49,7 @@
   padding: 4px;
   box-sizing: border-box;
 
-  /* This attribute is necessary to work around a Firefox issue where 
+  /* This attribute is necessary to work around a Firefox issue where
   where clicking multiple times on the border leads to a focused mathfield that cannot be edited until focus is lost and regained (also fixes the multiple cursor issue on firefox that can occur with the same sequence of events).
   */
   pointer-events: auto;
@@ -191,6 +196,27 @@
   }
   .ML__frac-line {
     box-shadow: var(--text-shadow);
+  }
+}
+
+/* Container for the virtual keyboard toggle and menu toggle buttons */
+.ML__toggles {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+  align-self: flex-start;
+}
+
+/* Vertical layout modifier */
+.ML__toggles--vertical {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .ML__virtual-keyboard-toggle,
+  .ML__menu-toggle {
+    margin-right: 0;
   }
 }
 

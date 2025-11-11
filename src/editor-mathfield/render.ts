@@ -203,8 +203,8 @@ export function render(
       mathfield.userSelect === 'none'
     )
       hideMenu = true;
-    // If the width of the element is less than 50px, hide the menu
-    if (!hideMenu && field.offsetWidth < 50) hideMenu = true;
+    // If the width of the mathfield element is less than 50px, hide the menu
+    if (!hideMenu && mathfield.element.offsetWidth < 50) hideMenu = true;
 
     menuToggle.style.display = hideMenu ? 'none' : '';
   }
@@ -228,6 +228,11 @@ export function render(
   // 4. Render the selection/caret
   //
   renderSelection(mathfield, renderOptions.interactive);
+
+  //
+  // 5. Update toggle button layout based on content height
+  //
+  mathfield.updateToggleLayout();
 
   mathfield.dirty = false;
 }
