@@ -1,58 +1,78 @@
 <div align="center">
-    <img alt="math live" src="assets/mathlive-1.png?raw=true">
+    <img alt="MathLive" src="assets/mathlive-1.png?raw=true">
 </div>
 
-<h3>The <strong>MathLive</strong> mathfield</h3>
-<h1>A Web Component for Math Input</h1>
+<h1 align="center">MathLive</h1>
+<p align="center"><em>Web components for math input, display, and accessibility.</em></p>
 
 [![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/arnog/mathlive/master/LICENSE.txt)
 
-The MathLive library includes a `<math-field>` web component that provides an
-easy-to-use interface for editing math.
+MathLive ships batteries-included UI components that bring TeX-quality math to
+the web. Drop a mathfield on the page, wire up the events you care about, and
+MathLive handles rendering, editing, speech, and keyboard UX for you.
 
-With over 800 **built-in LaTeX commands**, mathfields render beautiful,
-**TeX-quality typesetting**.
+- 800+ built-in LaTeX commands with high-fidelity typesetting
+- Mobile-ready virtual keyboards and physical keyboard shortcuts
+- Export/import as LaTeX, MathML, ASCIIMath, Typst, or MathJSON
+- Screen-reader friendly with math-to-speech and ARIA labels
+- Highly customizable UI, themes, macros, commands, and behaviors
 
-Mathfields are designed for **mobile devices** with an extensive set of virtual
-keyboards for math input, and are compatible with screen readers, including
-custom math-to-speech support for improved accessibility.
+<img src="assets/screenshots/mathlive-demo.png" alt="MathLive demo screenshot">
 
-Mathfields output their content as LaTeX, MathML, ASCIIMath, Typst and MathJSON
-formats.
-
-And the best part? They're easy to customize to your needs!
-
-<img src="assets/screenshots/mathlive-demo.png">
-
-<table align="center" >
+<table align="center">
     <tr>
         <td width='50%' align='center' style="border:none;">
-            <img alt="The popover panel" 
+            <img alt="Popover panel" 
             style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/popover.png">
         </td>
         <td width='50%' align='center' style="border:none;">
-            <img alt="A Virtual Keyboard" 
+            <img alt="Virtual keyboard" 
             style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/virtualKeyboard.png">
         </td>
     </tr>
     <tr style="background-color: initial; border: none;">
         <td colspan="2" align="center" style="border:none;">
-            <img width="50%" alt="The Loop Equation" 
+            <img width="50%" alt="Loop equation" 
             style='margin:15px; box-shadow: 0px 5px 15px #000; border: 1px solid #eee' 
             src="assets/screenshots/loop-eqn.png">
         </td>
     </tr>
 </table>
 
-## 🚀 Getting Started
+## Components at a Glance
 
-Using MathLive is easy! Simply add a `<math-field>` tag to your page. It
-initializes automatically and works just like a `<textarea>` or `<button>`
-element. You can manipulate the mathfield using methods of the element and
-listen for events to be notified when its internal state changes.
+**`<math-field>`** - The flagship math editor. Provides text-area like APIs
+(`value`, `selection`, `executeCommand()`), emits `input` and `change` events,
+and exposes a full virtual keyboard UI with custom layouts.
+
+**`<math-span>`** - Inline, lightweight renderer for static math. Ideal for
+embedding expressions inside paragraphs without initializing a full mathfield.
+
+**`<math-div>`** - Block-level renderer for static math and display equations.
+Useful for articles, assessments, or anywhere you previously called
+`renderMathInDocument()`.
+
+Both static components:
+
+- Accept LaTeX by default and support `format="ascii-math"` or
+  `format="math-json"`
+- Expose a `mode` attribute (`textstyle`/`displaystyle`)
+- Lazy-load shared fonts once, defer rendering until visible via Intersection
+  Observer, and auto-generate ARIA labels with speech-friendly text
+- Provide an imperative `render()` method when you need to update content
+  programmatically
+
+```html
+<math-span>e^{i\pi} + 1 = 0</math-span>
+<math-div format="ascii-math">int_0^oo e^(-x^2) dx</math-div>
+```
+
+## 🚀 Quick Start
+
+Install and import the component bundle:
 
 ```bash
 npm install mathlive
@@ -62,64 +82,75 @@ npm install mathlive
 import 'mathlive';
 ```
 
+Render a mathfield:
+
 ```html
 <!DOCTYPE html>
 <html lang="en-US">
   <body>
-    <math-field>f(x)= x+1</math-field>
+    <math-field virtual-keyboard-mode="auto" smart-fence>f(x)=x+1</math-field>
   </body>
 </html>
 ```
 
-You can also add it using a CDN:
+Render static math without the editor chrome:
+
+```html
+<math-span id="area">A = \pi r^2</math-span>
+<math-div format="math-json" mode="displaystyle">
+  {"kind":"Multiply","args":["x",{"kind":"Power","base":"y","exponent":2}]}
+</math-div>
+<script type="module">
+  const formula = document.getElementById('area');
+  formula.textContent = 'A = \\pi r^2';
+  await formula.render();
+</script>
+```
+
+Or load MathLive from a CDN:
 
 ```html
 <head>
-    <script src="https://unpkg.com/mathlive"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathlive"></script>
 </head>
 ```
 
-Check documentation for [React](https://cortexjs.io/mathfield/guides/react/),
-[Svelte](https://cortexjs.io/mathfield/guides/svelte/) and
-[interaction with Mathfield](https://cortexjs.io/mathfield/guides/interacting/).
+### Framework Guides
+
+- [React](https://cortexjs.io/mathfield/guides/react/)
+- [Svelte](https://cortexjs.io/mathfield/guides/svelte/)
+- [Interacting with a mathfield](https://cortexjs.io/mathfield/guides/interacting/)
 
 ## 📖 Documentation
 
-MathLive has an extensive set of documentation to help you get started,
-including guides on interacting with a mathfield, customizing it, executing
-commands, defining custom LaTeX macros, managing inline and keyboard shortcuts,
-controlling speech output, and displaying static math formulas. You can find all
-of these guides on the [MathLive.io website](https://mathlive.io/).
-
-In addition to the guides, you can also find reference documentation of the
-mathfield API on the
-[Mathfield API Reference page](https://mathlive.io/mathfield/api/).
+Comprehensive guides cover customization, command execution, macros, keyboard
+shortcuts, speech output, static rendering, and more. Browse everything on
+[MathLive.io](https://mathlive.io/) and dig into the
+[Mathfield API reference](https://mathlive.io/mathfield/api/) for full typings
+and method docs.
 
 ## FAQ
 
-**Q:** When is the next release?
+**Q: When is the next release?**
 
-MathLive follows a semi-annual release cycle, with major releases typically
-scheduled for June and January. These may be followed by patch releases to
-address any issues that arise shortly after deployment. Additionally, an
-out-of-band release can be made if requested by a sponsor or if a community
-member submits a pull request and requests a release to include their
-contribution.
+MathLive follows a semi-annual cadence with major drops around June and January,
+plus patch releases for regression fixes. Sponsor requests or community pull
+requests can trigger out-of-band releases when needed.
 
 ## Related Projects
 
 <dl>
   <dt><a href="https://mathlive.io/math-json">MathJSON</a> (on <a href="https://github.com/cortex-js/math-json">GitHub</a>)</dt>
-  <dd>A lightweight data interchange format for mathematical notation.</dd>  
+  <dd>A lightweight data interchange format for mathematical notation.</dd>
   <dt><a href="https://mathlive.io/compute-engine">Compute Engine</a> (on <a href="https://github.com/cortex-js/math-json/tree/master/src/compute-engine">GitHub</a>)</dt>
-  <dd>The MathLive Compute Engine performs numeric and symbolic calculations on MathJSON expressions</dd>  
+  <dd>Performs numeric and symbolic calculations on MathJSON expressions.</dd>
 </dl>
 
 ## 💬 Contact Us
 
 - Chat with the [MathLive GPT](https://chatgpt.com/g/g-8YgEfR7ig-mathlive-gpt)
 - Join our [Discord server](https://discord.gg/yhmvVeJ4Hd)
-- Drop a line to [arno@arno.org](arno@arno.org)
+- Email [arno@arno.org](mailto:arno@arno.org)
 
 ## 📃 License
 
