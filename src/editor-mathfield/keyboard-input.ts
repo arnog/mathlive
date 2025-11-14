@@ -63,7 +63,6 @@ export function onKeystroke(
   const { model } = mathfield;
 
   const keystroke = keyboardEventToString(evt);
-
   // 1. Update the current keyboard layout based on this event
   if (evt.isTrusted) {
     validateKeyboardLayout(evt);
@@ -101,6 +100,8 @@ export function onKeystroke(
   // see 4.3)
   const buffer = mathfield.inlineShortcutBuffer;
 
+  let placeholderReplaced = false;
+
   // If a placeholder is selected and we're about to type a printable character,
   // delete the placeholder first, then process the keystroke normally
   // (including any keybindings). This fixes issue #2572.
@@ -114,10 +115,14 @@ export function onKeystroke(
     model.deleteAtoms(range(model.selection));
     // Snapshot this as a placeholder replacement operation
     mathfield.snapshot('delete');
+    placeholderReplaced = true;
   }
 
   if (mathfield.isSelectionEditable) {
-    if (model.mode === 'math' && !model.selectionIsPlaceholder) {
+    if (
+      model.mode === 'math' &&
+      (!model.selectionIsPlaceholder || placeholderReplaced)
+    ) {
       if (keystroke === '[Backspace]') {
         // If last operation was a shortcut conversion, "undo" the
         // conversion, otherwise, discard the last keystroke

@@ -349,9 +349,21 @@ export class MathModeEditor extends ModeEditor {
     //
     if (options.selectionMode === 'placeholder') {
       // Move to the next placeholder
-      const placeholder = newAtoms
-        .flatMap((x) => [x, ...x.children])
-        .find((x) => x.type === 'placeholder');
+      let placeholder: Atom | undefined;
+      if (newAtoms.length === 1 && newAtoms[0].type === 'genfrac') {
+        const numerator = newAtoms[0].branch('above');
+        placeholder = numerator?.find((x) => x.type === 'placeholder');
+        if (!placeholder) {
+          const denominator = newAtoms[0].branch('below');
+          placeholder = denominator?.find((x) => x.type === 'placeholder');
+        }
+      }
+
+      if (!placeholder) {
+        placeholder = newAtoms
+          .flatMap((x) => [x, ...x.children])
+          .find((x) => x.type === 'placeholder');
+      }
 
       if (placeholder) {
         const placeholderOffset = model.offsetOf(placeholder);

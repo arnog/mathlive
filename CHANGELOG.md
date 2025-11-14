@@ -1,3 +1,15 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2899** Typing an inline shortcut immediately after inserting a structure
+  (e.g. `sin/cos`) now expands the shortcut correctly and keeps the caret in the
+  numerator placeholder. The inline shortcut buffer is flushed in place, so the
+  first character typed in a fresh placeholder is tracked again, and genfrac
+  insertion prioritizes the numerator placeholder before falling back to the
+  denominator. This fixes both the missing `\cos` expansion and the regression
+  where the denominator was erroneously selected after `/`.
+
 ## 0.108.1 _2025-11-11_
 
 ### New Features

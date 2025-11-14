@@ -991,7 +991,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   flushInlineShortcutBuffer(options?: { defer: boolean }): void {
     options ??= { defer: false };
     if (!options.defer) {
-      this.inlineShortcutBuffer = [];
+      this.inlineShortcutBuffer.length = 0;
       clearTimeout(this.inlineShortcutBufferFlushTimer);
       this.inlineShortcutBufferFlushTimer = 0;
       return;

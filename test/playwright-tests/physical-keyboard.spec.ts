@@ -368,6 +368,20 @@ test('inline shortcut after long expression (#1978)', async ({ page }) => {
   ).toBe(String.raw`x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}+\alpha`);
 });
 
+test('inline shortcut after inserting a fraction (#2899)', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').pressSequentially('sin');
+  await page.locator('#mf-1').press('/');
+  await page.locator('#mf-1').press('c');
+  await page.locator('#mf-1').press('o');
+  await page.locator('#mf-1').press('s');
+
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+  ).toBe(String.raw`\sin\frac{\cos}{\placeholder{}}`);
+});
+
 test('keyboard select than divide (#1981)', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
