@@ -708,6 +708,20 @@ test('issue #2733: inline shortcut buffer should flush when field becomes empty'
   expect(latex).toBe('x');
 });
 
+test('backspace should not trap caret in empty latex group', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').pressSequentially('a\\');
+  await page.locator('#mf-1').press('Backspace');
+  await page.locator('#mf-1').press('Backspace');
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.value);
+
+  expect(latex).toBe('');
+});
+
 async function tab(page) {
   await page.keyboard.press('Tab');
   // Wait some time for focus to change
