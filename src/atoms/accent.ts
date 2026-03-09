@@ -132,6 +132,8 @@ export class AccentAtom extends Atom {
       ],
     });
 
+    // Use an `ord` box type so inter-box spacing with following relations
+    // (e.g. `\hat{x}=`) matches regular atom spacing.
     const result = new Box(accentBox, { type: 'ord' });
     if (this.caret) result.caret = this.caret;
     this.bind(context, result.wrap(context));
