@@ -394,22 +394,22 @@ export function onKeystroke(
 
   //
   // 6.1 If we have a `moveAfterParent` selector (usually triggered with
-  // `spacebar`), and we're at the end of a smart fence, close the fence with
-  // an empty (.) right delimiter
+  // `spacebar`), and we're at the end of a smart fence, accept the pending
+  // closing delimiter so it is no longer rendered as a suggestion.
   //
   const child = model.at(Math.max(model.position, model.anchor));
   const { parent } = child;
   if (
     selector === 'moveAfterParent' &&
-    parent?.type === 'leftright' &&
+    parent instanceof LeftRightAtom &&
     child.isLastSibling &&
     mathfield.options.smartFence &&
-    insertSmartFence(model, '.', mathfield.defaultStyle)
+    parent.rightDelim === '?'
   ) {
-    // Pressing the space bar (moveAfterParent selector) when at the end
-    // of a potential smartFence will close it as a semi-open fence
+    parent.rightDelim = parent.matchingRightDelim();
+    parent.isDirty = true;
     selector = '';
-    requestUpdate(mathfield); // Re-render the closed smartFence
+    requestUpdate(mathfield); // Re-render with a committed right delimiter
   }
 
   //
