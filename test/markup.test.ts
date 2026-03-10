@@ -167,6 +167,17 @@ describe('SPACING AND KERN', () => {
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });
+
+  test('accent keeps relation spacing before equals', () => {
+    const spacingBeforeEquals = (latex: string): string | undefined => {
+      const markup = convertLatexToMarkup(latex, { defaultMode: 'math' });
+      return markup.match(
+        /width:([0-9.]+)em"><\/span><span class="ML__cmr">=/
+      )?.[1];
+    };
+
+    expect(spacingBeforeEquals('\\hat{x}=')).toBe(spacingBeforeEquals('x='));
+  });
 });
 
 function testLeftRightDelimiter(openDel, closeDel) {
