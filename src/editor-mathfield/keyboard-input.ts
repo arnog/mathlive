@@ -852,6 +852,20 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     } as const
   )[c];
 
+  if (selector === 'moveAfterParent') {
+    const child = model.at(Math.max(model.position, model.anchor));
+    const { parent } = child;
+    if (
+      parent instanceof LeftRightAtom &&
+      child.isLastSibling &&
+      mathfield.options.smartFence &&
+      parent.rightDelim === '?'
+    ) {
+      parent.rightDelim = parent.matchingRightDelim();
+      parent.isDirty = true;
+    }
+  }
+
   if (selector) {
     mathfield.executeCommand(selector);
     return;
