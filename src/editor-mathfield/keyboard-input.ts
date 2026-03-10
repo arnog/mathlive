@@ -406,10 +406,11 @@ export function onKeystroke(
     mathfield.options.smartFence &&
     parent.rightDelim === '?'
   ) {
+    mathfield.snapshot();
     parent.rightDelim = parent.matchingRightDelim();
     parent.isDirty = true;
-    selector = '';
-    requestUpdate(mathfield); // Re-render with a committed right delimiter
+    model.contentDidChange({ inputType: 'insertText' });
+    mathfield.snapshot('insert-fence');
   }
 
   //
@@ -861,8 +862,11 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
       mathfield.options.smartFence &&
       parent.rightDelim === '?'
     ) {
+      mathfield.snapshot();
       parent.rightDelim = parent.matchingRightDelim();
       parent.isDirty = true;
+      model.contentDidChange({ inputType: 'insertText' });
+      mathfield.snapshot('insert-fence');
     }
   }
 

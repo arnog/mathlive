@@ -43,6 +43,12 @@ test('space accepts smart fence closing delimiter styling', async ({
 
   expect(hasGhostCloseBefore).toBe(true);
   expect(hasGhostCloseAfter).toBe(false);
+
+  // Verify the LaTeX value has a committed right delimiter
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(latex).toBe(String.raw`\cos\left(x\right)`);
 });
 
 // #1375
