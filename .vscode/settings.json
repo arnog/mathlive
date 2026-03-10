@@ -50,5 +50,6 @@
     "overrideConfigFile": ".eslintrc.json"
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "prettier.configPath": "./node_modules/@cortex-js/prettier-config/index.json"
+  "prettier.configPath": "./node_modules/@cortex-js/prettier-config/index.json",
+  "liveServer.settings.port": 5502
 }
