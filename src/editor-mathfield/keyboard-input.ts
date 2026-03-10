@@ -394,22 +394,23 @@ export function onKeystroke(
 
   //
   // 6.1 If we have a `moveAfterParent` selector (usually triggered with
-  // `spacebar`), and we're at the end of a smart fence, close the fence with
-  // an empty (.) right delimiter
+  // `spacebar`), and we're at the end of a smart fence, accept the pending
+  // closing delimiter so it is no longer rendered as a suggestion.
   //
   const child = model.at(Math.max(model.position, model.anchor));
   const { parent } = child;
   if (
     selector === 'moveAfterParent' &&
-    parent?.type === 'leftright' &&
+    parent instanceof LeftRightAtom &&
     child.isLastSibling &&
     mathfield.options.smartFence &&
-    insertSmartFence(model, '.', mathfield.defaultStyle)
+    parent.rightDelim === '?'
   ) {
-    // Pressing the space bar (moveAfterParent selector) when at the end
-    // of a potential smartFence will close it as a semi-open fence
-    selector = '';
-    requestUpdate(mathfield); // Re-render the closed smartFence
+    mathfield.snapshot();
+    parent.rightDelim = parent.matchingRightDelim();
+    parent.isDirty = true;
+    model.contentDidChange({ inputType: 'insertText' });
+    mathfield.snapshot('insert-fence');
   }
 
   //
@@ -851,6 +852,23 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
         : 'moveAfterParent',
     } as const
   )[c];
+
+  if (selector === 'moveAfterParent') {
+    const child = model.at(Math.max(model.position, model.anchor));
+    const { parent } = child;
+    if (
+      parent instanceof LeftRightAtom &&
+      child.isLastSibling &&
+      mathfield.options.smartFence &&
+      parent.rightDelim === '?'
+    ) {
+      mathfield.snapshot();
+      parent.rightDelim = parent.matchingRightDelim();
+      parent.isDirty = true;
+      model.contentDidChange({ inputType: 'insertText' });
+      mathfield.snapshot('insert-fence');
+    }
+  }
 
   if (selector) {
     mathfield.executeCommand(selector);

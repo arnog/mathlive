@@ -21,6 +21,36 @@ test('right parenthesis first', async ({ page }) => {
   expect(latex).toBe(String.raw`\left(1\right)`);
 });
 
+test('space accepts smart fence closing delimiter styling', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  await page.locator('#mf-1').pressSequentially('cos(x', { delay: 50 });
+  const hasGhostCloseBefore = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) =>
+      Boolean(mfe.shadowRoot?.querySelector('.ML__smart-fence__close'))
+    );
+
+  await page.locator('#mf-1').press('Space');
+
+  const hasGhostCloseAfter = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) =>
+      Boolean(mfe.shadowRoot?.querySelector('.ML__smart-fence__close'))
+    );
+
+  expect(hasGhostCloseBefore).toBe(true);
+  expect(hasGhostCloseAfter).toBe(false);
+
+  // Verify the LaTeX value has a committed right delimiter
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(latex).toBe(String.raw`\cos\left(x\right)`);
+});
+
 // #1375
 test('curly brackes', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');

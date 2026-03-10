@@ -35,13 +35,29 @@ context({
   sourcemap: true,
   sourceRoot: '../src',
   sourcesContent: false,
-}).then((ctx) =>
-  ctx
-    .serve({ host: '127.0.0.1', port: 9029, servedir: '.' })
-    .then(({ host, port }) => {
-      if (host === '0.0.0.0' || !host) host = 'localhost';
+}).then(async (ctx) => {
+  const startPort = 9029;
+  const maxAttempts = 10;
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const { host: h, port } = await ctx.serve({
+        host: '127.0.0.1',
+        port: startPort + i,
+        servedir: '.',
+      });
+      const displayHost = h === '0.0.0.0' || !h ? 'localhost' : h;
       console.log(
-        ` 🚀 Server ready \u001b[1;35m http://${host}:${port}/dist/smoke/\u001b[0m`
+        ` 🚀 Server ready \u001b[1;35m http://${displayHost}:${port}/dist/smoke/\u001b[0m`
       );
-    })
-);
+      return;
+    } catch (e) {
+      if (e.message && e.message.includes('address already in use')) {
+        console.log(` ⚠ Port ${startPort + i} in use, trying ${startPort + i + 1}...`);
+        continue;
+      }
+      throw e;
+    }
+  }
+  console.error(` ❌ Could not find an available port (tried ${startPort}-${startPort + maxAttempts - 1})`);
+  process.exit(1);
+});
