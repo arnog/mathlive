@@ -2,9 +2,35 @@
 
 ### Resolved Issues
 
+- **#2946** Fixed virtual keyboard toggle focus issues. Clicking the
+  `virtual-keyboard-toggle` button now correctly focuses the mathfield and
+  accepts virtual keyboard input. (contributed by @mgreminger)
+
+- **#2956** Fixed incorrect inter-atom spacing before relation operators (e.g.
+  `=`) when using accent commands like `\hat{x}`. (contributed by @repst)
+
+- **#2957** Fixed a caret trap in LaTeX command mode after deleting a lone
+  backslash. Empty `latexgroup` containers are now removed when delete operations
+  remove the last LaTeX atom. (contributed by @repst)
+
+- **#2958** Fixed smart-fence closing delimiter remaining in ghost styling after
+  pressing Space. The closing delimiter is now properly committed and rendered
+  normally. (contributed by @repst)
+
 - Fixed the caret getting trapped inside a LaTeX command group when navigating
   with arrow keys. Pressing left or right arrow to move past the boundary of a
   `\command` now correctly accepts the command and exits LaTeX mode.
+
+### Improvements
+
+- **#2935** Fixed Korean localization translation errors. (contributed by
+  @onu032001)
+
+- **#2938** Removed debug `console.log` from `PromptAtom`. (contributed by
+  @remiangot)
+
+- **#2726** Updated Italian localization with improved translations and
+  capitalization normalization. (contributed by @GGilli)
 
 ## 0.108.3 _2026-02-11_
 

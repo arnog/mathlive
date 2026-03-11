@@ -6234,7 +6234,7 @@ convertLatexToAsciiMath("\\frac{1}{2}");
 
 `string`
 
-##### parseMode
+##### parseMode?
 
 `ParseMode` = `'math'`
 
@@ -6306,7 +6306,7 @@ Convert a LaTeX string to a string of MathML markup.
 A string of valid LaTeX. It does not have to start
 with a mode token such as a `$$` or `\(`.
 
-##### options
+##### options?
 
 ###### generateID?
 
