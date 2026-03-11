@@ -40,6 +40,7 @@ test('tab focus', async ({ page }) => {
 
   // focus first math field by clicking it then type
   await page.locator('#mf-1').click();
+  await page.waitForTimeout(100); // need to pause for focus state to settle
   await page.keyboard.type('a'); // type directly to page so that Playwright doesn't manage focus
 
   // Tab to next math field and type
@@ -541,15 +542,15 @@ test('backspace on empty displaylines (issue #2739)', async ({ page }) => {
 
   // Type "a", press Cmd+Enter (or Ctrl+Enter), type "b"
   await page.locator('#mf-1').pressSequentially('a');
-  await page.locator('#mf-1').press(
-    process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter'
-  );
+  await page
+    .locator('#mf-1')
+    .press(process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
   await page.locator('#mf-1').pressSequentially('b');
 
   // Select all and delete
-  await page.locator('#mf-1').press(
-    process.platform === 'darwin' ? 'Meta+a' : 'Control+a'
-  );
+  await page
+    .locator('#mf-1')
+    .press(process.platform === 'darwin' ? 'Meta+a' : 'Control+a');
   await page.locator('#mf-1').press('Backspace');
 
   // Press Backspace again on empty displaylines - this should not throw an error
@@ -571,52 +572,62 @@ test('delete range with sqrt - all content (issue #2686)', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
   // Test deleting a range that includes all sqrt content
-  const result = await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => {
-    mfe.value = '\\sqrt{abc}+x';
-    // Select all content inside sqrt by setting selection programmatically
-    // The selection should be from the first atom inside sqrt to the last
-    mfe.selection = { ranges: [[1, 4]] }; // Select "abc" inside the sqrt
-    // Delete the selection
-    mfe.executeCommand('deleteBackward');
-    return mfe.value;
-  });
+  const result = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      mfe.value = '\\sqrt{abc}+x';
+      // Select all content inside sqrt by setting selection programmatically
+      // The selection should be from the first atom inside sqrt to the last
+      mfe.selection = { ranges: [[1, 4]] }; // Select "abc" inside the sqrt
+      // Delete the selection
+      mfe.executeCommand('deleteBackward');
+      return mfe.value;
+    });
 
   // When all content of sqrt is deleted, the sqrt should be removed
   expect(result).toBe('+x');
 });
 
-test('delete range with empty sqrt after deletion (issue #2686)', async ({ page }) => {
+test('delete range with empty sqrt after deletion (issue #2686)', async ({
+  page,
+}) => {
   await page.goto('/dist/playwright-test-page/');
 
   // Test that when all content in sqrt is deleted, the sqrt is removed
-  const result = await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => {
-    mfe.value = '\\sqrt{a}+b';
-    // Select just "a" from inside the sqrt - this should leave sqrt empty
-    mfe.selection = { ranges: [[1, 2]] };
-    mfe.executeCommand('deleteBackward');
-    return mfe.value;
-  });
+  const result = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      mfe.value = '\\sqrt{a}+b';
+      // Select just "a" from inside the sqrt - this should leave sqrt empty
+      mfe.selection = { ranges: [[1, 2]] };
+      mfe.executeCommand('deleteBackward');
+      return mfe.value;
+    });
 
   // After deleting "a", sqrt should be removed (empty), leaving just "+b"
   expect(result).toBe('+b');
 });
 
-test('delete range crossing sqrt boundary - hoist remaining content (issue #2686)', async ({ page }) => {
+test('delete range crossing sqrt boundary - hoist remaining content (issue #2686)', async ({
+  page,
+}) => {
   await page.goto('/dist/playwright-test-page/');
 
   // Test the scenario: 1√23 -> select "1" and "2" -> delete -> should get "3"
-  const result = await page.locator('#mf-1').evaluate((mfe: MathfieldElement) => {
-    mfe.value = '1\\sqrt{23}';
-    // Debug: let's see the positions
-    // Position 0: before "1"
-    // Position 1: after "1"
-    // Position 2: inside sqrt, before "2"
-    // Position 3: inside sqrt, between "2" and "3"
-    // Position 4: inside sqrt, after "3"
-    mfe.selection = { ranges: [[0, 3]] }; // Select "1" and "2"
-    mfe.executeCommand('deleteBackward');
-    return mfe.value;
-  });
+  const result = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => {
+      mfe.value = '1\\sqrt{23}';
+      // Debug: let's see the positions
+      // Position 0: before "1"
+      // Position 1: after "1"
+      // Position 2: inside sqrt, before "2"
+      // Position 3: inside sqrt, between "2" and "3"
+      // Position 4: inside sqrt, after "3"
+      mfe.selection = { ranges: [[0, 3]] }; // Select "1" and "2"
+      mfe.executeCommand('deleteBackward');
+      return mfe.value;
+    });
 
   // After deleting "1" and "2", should hoist the "3" that remains in sqrt
   expect(result).toBe('3');
@@ -642,7 +653,6 @@ test('typing characters in placeholder (issue #2572)', async ({ page }) => {
   // Should produce the typed content, not lose characters
   expect(latex).toBe('x+y');
 });
-
 
 test('nested subscripts - issue #2146', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
