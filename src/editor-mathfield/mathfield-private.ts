@@ -1685,12 +1685,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
       const mode = cursor.mode ?? effectiveMode(this.options);
       if (
         latexGroup &&
-        (pos < model.offsetOf(latexGroup.firstChild) - 1 ||
-          pos > model.offsetOf(latexGroup.lastChild) + 1)
+        (pos < model.offsetOf(latexGroup.firstChild) ||
+          pos > model.offsetOf(latexGroup.lastChild))
       ) {
         // We moved outside a LaTeX group
         complete(this, 'accept', { mode });
-        model.position = model.offsetOf(cursor);
+        const cursorOffset = model.offsetOf(cursor);
+        if (cursorOffset >= 0) model.position = cursorOffset;
       } else {
         // If we're at the start or the end of a LaTeX group,
         // move inside the group and don't switch mode.
