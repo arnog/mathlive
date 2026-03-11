@@ -1,5 +1,11 @@
 ### [Unreleased]
 
+### Resolved Issues
+
+- Fixed the caret getting trapped inside a LaTeX command group when navigating
+  with arrow keys. Pressing left or right arrow to move past the boundary of a
+  `\command` now correctly accepts the command and exits LaTeX mode.
+
 ## 0.108.3 _2026-02-11_
 
 ### Resolved Issues
