@@ -436,11 +436,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
         else {
           window.mathVirtualKeyboard.show({ animate: true });
           window.mathVirtualKeyboard.update(makeProxy(this));
+          // Scroll after VK slide-in animation completes (0.28s)
+          setTimeout(() => this.scrollIntoView(), 300);
         }
         ev.preventDefault();
         ev.stopPropagation();
-        this.keyboardDelegate.blur();
-        this.focus();
+        if (!this.hasFocus()) this.focus({ preventScroll: true });
       },
       { signal }
     );
@@ -902,8 +903,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
           this.hasFocus() &&
           this.options.mathVirtualKeyboardPolicy !== 'manual'
         ) {
+          // Prevent the blur/focus cycle from triggering onBlur/onFocus
+          // which would disconnect/reconnect the virtual keyboard
+          this.focusBlurInProgress = true;
           this.keyboardDelegate.blur();
           this.keyboardDelegate.focus();
+          this.focusBlurInProgress = false;
         }
         break;
 
