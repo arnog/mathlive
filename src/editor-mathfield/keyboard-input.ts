@@ -1074,11 +1074,12 @@ function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
       if (sibling) {
         model.mathfield.snapshot();
         // We've found a matching sibling
-        const body = model.extractAtoms([
+        let body = model.extractAtoms([
           model.offsetOf(atom),
           model.offsetOf(sibling),
         ]);
         body.pop();
+        body = body.filter((a) => a.type !== 'first');
         const newLeftRight = new LeftRightAtom('left...right', body, {
           leftDelim: fence,
           rightDelim: rDelim,

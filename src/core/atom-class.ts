@@ -1134,7 +1134,10 @@ function getStyleRuns(atoms: readonly Atom[]): (readonly Atom[])[] {
   const runs: Atom[][] = [];
   let run: Atom[] = [];
   for (const atom of atoms) {
-    if (atom.type === 'first') run.push(atom);
+    if (atom.type === 'first') {
+      run.push(atom);
+      continue;
+    }
     if (!style && !atom.style) run.push(atom);
     else {
       const atomStyle = atom.style;

@@ -329,6 +329,8 @@ export class MathModeEditor extends ModeEditor {
       if (cursor) {
         cursor.parent!.addChildrenAfter(newAtoms, cursor);
       } else {
+        // cursor can be null when deferred implicit arg deletion
+        // leaves model.position pointing past the last atom
         const body = parent.branch('body');
         const firstAtom = body?.[0];
         if (firstAtom) {

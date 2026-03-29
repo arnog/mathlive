@@ -732,6 +732,21 @@ test('backspace should not trap caret in empty latex group', async ({ page }) =>
   expect(latex).toBe('');
 });
 
+test('no phantom caret after inserting left paren', async ({ page }) => {
+  // Regression: getStyleRuns was pushing "first" atoms twice into the same run,
+  // causing duplicate ML__caret spans in the rendered output
+  await page.goto('/dist/playwright-test-page/');
+  const mf = page.locator('#mf-1');
+
+  await mf.pressSequentially('5');
+  await mf.pressSequentially(')');
+  await mf.press('Home');
+  expect(await mf.locator('.ML__caret').count()).toBe(1);
+
+  await mf.pressSequentially('(');
+  expect(await mf.locator('.ML__caret').count()).toBe(1);
+});
+
 test('fraction after parenthesized expression', async ({ page }) => {
   // Regression test: inserting fraction after parenthesized expression
   // Steps: type 5, add ), Home, add (, End, press /
