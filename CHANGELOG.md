@@ -1,4 +1,13 @@
-### 0.109.0 _2026-03-11_
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2974** Fixed empty/unresponsive mathfield after inserting a fraction
+  following a parenthesized expression built via keyboard (e.g.
+  `5 ) Home ( End /`). Also fixed a phantom duplicate caret that appeared after
+  the same input sequence. (contributed by @zojize)
+
+## 0.109.0 _2026-03-11_
 
 ### Resolved Issues
 
@@ -10,8 +19,8 @@
   `=`) when using accent commands like `\hat{x}`. (contributed by @repst)
 
 - **#2957** Fixed a caret trap in LaTeX command mode after deleting a lone
-  backslash. Empty `latexgroup` containers are now removed when delete operations
-  remove the last LaTeX atom. (contributed by @repst)
+  backslash. Empty `latexgroup` containers are now removed when delete
+  operations remove the last LaTeX atom. (contributed by @repst)
 
 - **#2958** Fixed smart-fence closing delimiter remaining in ghost styling after
   pressing Space. The closing delimiter is now properly committed and rendered
