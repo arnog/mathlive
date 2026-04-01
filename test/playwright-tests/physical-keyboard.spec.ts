@@ -868,6 +868,38 @@ test('fraction after complex parenthesized expression', async ({ page }) => {
   expect(final).not.toBe('');
 });
 
+test('select and wrap in parens then delete should not empty field (#2974)', async ({ page }) => {
+  // Regression: typing 1, selecting it, typing ( to wrap in parens,
+  // then pressing Delete should not make the mathfield empty/uninteractable
+  await page.goto('/dist/playwright-test-page/');
+  const mf = page.locator('#mf-1');
+
+  // Type 1
+  await mf.pressSequentially('1');
+
+  // Select the 1 with Shift+Left
+  await mf.press('Shift+ArrowLeft');
+
+  // Type ( to wrap selection in parentheses
+  await mf.pressSequentially('(');
+
+  // Verify the parenthesized expression was created
+  let latex = await mf.evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(latex).toBe('\\left(1\\right)');
+
+  // Press Delete - this should delete the selected content, not break the field
+  await mf.press('Delete');
+
+  latex = await mf.evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(latex).toBe('');
+
+  // Field should still accept input
+  await mf.pressSequentially('2');
+  const finalLatex = await mf.evaluate((mfe: MathfieldElement) => mfe.value);
+  expect(finalLatex).toBe('2');
+});
+
+
 async function tab(page) {
   await page.keyboard.press('Tab');
   // Wait some time for focus to change

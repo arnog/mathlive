@@ -995,7 +995,8 @@ function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
     // There is a selection, wrap it with the fence
     model.mathfield.snapshot();
     const [start, end] = range(model.selection);
-    const body = model.extractAtoms([start, end]);
+    let body = model.extractAtoms([start, end]);
+    body = body.filter((a) => a.type !== 'first');
     const atom = parent!.addChildrenAfter(
       [
         new LeftRightAtom('left...right', body, {
