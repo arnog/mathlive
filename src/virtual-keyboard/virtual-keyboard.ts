@@ -656,9 +656,9 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       // don't handle it here (the iframe's mathfield will handle it)
       if (window === window.top && source !== window) return;
 
-      // If we're in the top window and receiving our own message for a
-      // mathfield command, don't re-execute it (we already sent it)
-      if (window === window.top && commandTarget !== 'virtual-keyboard') return;
+      // If we're receiving our own message for a mathfield command,
+      // don't re-execute it here (the local mathfield will handle it)
+      if (source === window && commandTarget !== 'virtual-keyboard') return;
 
       this.executeCommand(command!);
       return;
