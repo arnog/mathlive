@@ -161,6 +161,31 @@ test('math fields in iframe with virtual keyboard', async ({ page }) => {
   }
 });
 
+test('sandboxed iframe math field with virtual keyboard', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/iframe_test.html');
+
+  const frame = page.frame('mathlive-iframe-cross-origin');
+
+  expect(frame).toBeTruthy();
+
+  if (frame) {
+    await frame.locator('#mf-1').evaluate((mfe: MathfieldElement) => {
+      mfe.mathVirtualKeyboardPolicy = 'sandboxed';
+    });
+
+    await frame.locator('#mf-1').click();
+    await frame.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+    await frame.locator('.MLK__layer.is-visible').waitFor();
+    await frame.getByRole('toolbar').getByText('abc').click();
+    await frame.locator('.MLK__layer.is-visible [aria-label="z"]').click();
+
+    const latex = await frame
+      .locator('#mf-1')
+      .evaluate((mfe: MathfieldElement) => mfe.value);
+    expect(latex).toBe('z');
+  }
+});
+
 test('Switch layer by shift', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
