@@ -121,8 +121,11 @@
   );
 }
 
+// Dark mode via system preference. Scoped with :not([theme='light']) so that
+// an explicit theme='light' on the host overrides the system preference.
+// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  .ML__container {
+  :host(:not([theme='light'])) .ML__container {
     --_contains-highlight-color: var(
       --contains-highlight-color,
       hsl(var(--_hue), 85%, 75%)

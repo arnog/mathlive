@@ -74,8 +74,11 @@
   --content-bg: var(--neutral-200);
 }
 
+// Dark mode via system preference. Scoped with :not([theme='light']) so that
+// an explicit theme='light' on the host overrides the system preference.
+// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host(:not([theme='light'])) {
     --ui-menu-bg: var(--neutral-200);
   }
 }

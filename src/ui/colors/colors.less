@@ -166,8 +166,11 @@
   --magenta-900: #8a004c;
 }
 
+// Dark mode via system preference. Scoped with :not([theme='light']) so that
+// an explicit theme='light' on the host overrides the system preference.
+// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host(:not([theme='light'])) {
     --semantic-blue: var(--blue-700);
     --semantic-red: var(--red-400);
     --semantic-orange: var(--orange-400);
