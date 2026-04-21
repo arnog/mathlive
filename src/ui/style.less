@@ -1,6 +1,10 @@
 @import 'colors/colors.less';
 
-:host {
+// `:host([theme='light'])` is listed alongside `:host` so that an explicit
+// theme='light' attribute outranks the `@media (prefers-color-scheme: dark)`
+// block below (which matches `:host` at lower specificity).
+:host,
+:host([theme='light']) {
   --ui-font-family:
     'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -74,11 +78,8 @@
   --content-bg: var(--neutral-200);
 }
 
-// Dark mode via system preference. Scoped with :not([theme='light']) so that
-// an explicit theme='light' on the host overrides the system preference.
-// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  :host(:not([theme='light'])) {
+  :host {
     --ui-menu-bg: var(--neutral-200);
   }
 }

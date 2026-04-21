@@ -39,7 +39,12 @@
 //      > .ML__toggles
 //            > .ML__virtual-keyboard-toggle
 //            > .ML__menu-toggle
-.ML__container {
+//
+// `:host([theme='light']) .ML__container` is listed alongside `.ML__container`
+// so that an explicit theme='light' attribute outranks the
+// `@media (prefers-color-scheme: dark)` block below.
+.ML__container,
+:host([theme='light']) .ML__container {
   display: inline-flex;
   flex-flow: row;
   justify-content: space-between;
@@ -121,18 +126,8 @@
   );
 }
 
-// `--_smart-fence-opacity` is a <number> so it can't ride a `light-dark()`
-// expression — mirror the system-preference value on the attribute selector so
-// theme='dark' matches system-dark behavior.
-:host([theme='dark']) .ML__container {
-  --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
-}
-
-// Dark mode via system preference. Scoped with :not([theme='light']) so that
-// an explicit theme='light' on the host overrides the system preference.
-// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  :host(:not([theme='light'])) .ML__container {
+  .ML__container {
     --_contains-highlight-color: var(
       --contains-highlight-color,
       hsl(var(--_hue), 85%, 75%)

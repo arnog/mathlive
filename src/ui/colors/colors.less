@@ -1,11 +1,8 @@
-// TODO: once Browserslist drops browsers older than Chrome 123 / Safari 17.5 /
-// Firefox 120, collapse the mirrored dark-mode blocks below into `light-dark()`
-// declarations and rely on `color-scheme` to switch. Custom-property
-// declarations fall back invalid-at-computed-value-time in older browsers, so
-// the palette must stay expressed as discrete cascade branches until then.
-:host {
-  color-scheme: light dark;
-
+// `:host([theme='light'])` is listed alongside `:host` so that an explicit
+// theme='light' attribute outranks the `@media (prefers-color-scheme: dark)`
+// block below (which matches `:host` at lower specificity).
+:host,
+:host([theme='light']) {
   --primary-color: #5898ff;
   --primary-color-dimmed: #c0c0f0;
   --primary-color-dark: var(--blue-500);
@@ -173,11 +170,8 @@
   --magenta-900: #8a004c;
 }
 
-// Dark mode via system preference. Scoped with :not([theme='light']) so that
-// an explicit theme='light' on the host overrides the system preference.
-// See issue #2999.
 @media (prefers-color-scheme: dark) {
-  :host(:not([theme='light'])) {
+  :host {
     --semantic-blue: var(--blue-700);
     --semantic-red: var(--red-400);
     --semantic-orange: var(--orange-400);
@@ -200,13 +194,7 @@
   }
 }
 
-:host([theme='light']) {
-  color-scheme: light;
-}
-
 :host([theme='dark']) {
-  color-scheme: dark;
-
   --semantic-blue: var(--blue-700);
   --semantic-red: var(--red-400);
   --semantic-orange: var(--orange-400);

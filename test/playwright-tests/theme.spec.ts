@@ -3,9 +3,8 @@ import { test, expect } from '@playwright/test';
 const LIGHT_NEUTRAL_100 = 'rgb(245, 245, 245)'; // #f5f5f5
 const DARK_NEUTRAL_100 = 'rgb(18, 18, 18)'; //    #121212
 
-// Probe a custom property via a real color channel so that light-dark()
-// resolves. Reading the custom property with getPropertyValue returns the
-// unresolved `light-dark(...)` expression.
+// Probe a custom property via a real color channel so computed-value
+// normalization applies — lets us compare against rgb(...) constants.
 const readVar = (id: string, varName: string) => `
   (() => {
     const mf = document.getElementById(${JSON.stringify(id)});
@@ -14,17 +13,6 @@ const readVar = (id: string, varName: string) => `
   })()
 `;
 
-const readColorScheme = (id: string) => `
-  (() => {
-    const mf = document.getElementById(${JSON.stringify(id)});
-    return getComputedStyle(mf).colorScheme;
-  })()
-`;
-
-// --_caret-color is defined in mathfield.less on .ML__container. Probing
-// it verifies that file's light-dark() rewrite resolves correctly, not just
-// colors.less. The container inherits its computed color-scheme from the
-// host, so probing the container itself is sufficient.
 const readCaretColor = (id: string) => `
   (() => {
     const mf = document.getElementById(${JSON.stringify(id)});
@@ -89,28 +77,13 @@ test('removing theme attribute restores system preference', async ({ page }) => 
   );
 });
 
-test('theme attribute pins the computed color-scheme', async ({ page }) => {
-  // Default tracks the system preference.
+test('mathfield.less container variables respect theme attribute', async ({
+  page,
+}) => {
+  // `--_caret-color` is defined on .ML__container in mathfield.less. This
+  // verifies the :not([theme='light']) scoping on that file's media query,
+  // not just the palette overrides in colors.less.
   await page.emulateMedia({ colorScheme: 'dark' });
-  expect(await page.evaluate(readColorScheme('mf-1'))).toBe('light dark');
-
-  await page.evaluate(() => {
-    document.getElementById('mf-1')!.setAttribute('theme', 'light');
-  });
-  expect(await page.evaluate(readColorScheme('mf-1'))).toBe('light');
-
-  await page.evaluate(() => {
-    document.getElementById('mf-1')!.setAttribute('theme', 'dark');
-  });
-  expect(await page.evaluate(readColorScheme('mf-1'))).toBe('dark');
-});
-
-test('mathfield.less variables respect theme attribute', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
-
-  // `--_caret-color` is a container-scoped variable defined in mathfield.less,
-  // not colors.less. The container inherits its computed color-scheme from
-  // the host, so light-dark() in mathfield.less resolves accordingly.
   const darkCaret = await page.evaluate(readCaretColor('mf-1'));
 
   await page.evaluate(() => {
@@ -118,9 +91,6 @@ test('mathfield.less variables respect theme attribute', async ({ page }) => {
   });
   const lightCaret = await page.evaluate(readCaretColor('mf-1'));
 
-  // The two modes should produce different caret colors; we don't care about
-  // the exact hsl values, just that light-dark() actually resolved to a
-  // different branch.
   expect(darkCaret).not.toBe(lightCaret);
   expect(darkCaret).not.toBe('');
   expect(lightCaret).not.toBe('');
