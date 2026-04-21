@@ -1,17 +1,15 @@
 import { test, expect } from '@playwright/test';
 
-// Regression tests for https://github.com/arnog/mathlive/issues/2999
-// theme="light" must override `prefers-color-scheme: dark` so that an
-// author-set attribute is authoritative over the OS-level preference.
+const LIGHT_NEUTRAL_100 = 'rgb(245, 245, 245)'; // #f5f5f5
+const DARK_NEUTRAL_100 = 'rgb(18, 18, 18)'; //    #121212
 
-const LIGHT_NEUTRAL_100 = '#f5f5f5';
-const DARK_NEUTRAL_100 = '#121212';
-
-const readNeutral100 = (id: string) =>
-  `(() => {
+const readNeutral100 = (id: string) => `
+  (() => {
     const mf = document.getElementById(${JSON.stringify(id)});
-    return getComputedStyle(mf).getPropertyValue('--neutral-100').trim();
-  })()`;
+    mf.style.setProperty('outline-color', 'var(--neutral-100)');
+    return getComputedStyle(mf).outlineColor;
+  })()
+`;
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');

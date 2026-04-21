@@ -1,4 +1,6 @@
 :host {
+  color-scheme: light dark;
+
   --primary-color: #5898ff;
   --primary-color-dimmed: #c0c0f0;
   --primary-color-dark: var(--blue-500);
@@ -22,15 +24,20 @@
   --semantic-orange: var(--orange-400);
   --semantic-green: var(--green-700);
 
-  --neutral-100: #f5f5f5;
-  --neutral-200: #eeeeee;
-  --neutral-300: #e0e0e0;
-  --neutral-400: #bdbdbd;
+  --semantic-bg-blue: light-dark(transparent, var(--blue-25));
+  --semantic-bg-red: light-dark(transparent, var(--red-25));
+  --semantic-bg-orange: light-dark(transparent, var(--orange-25));
+  --semantic-bg-green: light-dark(transparent, var(--green-25));
+
+  --neutral-100: light-dark(#f5f5f5, #121212);
+  --neutral-200: light-dark(#eeeeee, #424242);
+  --neutral-300: light-dark(#e0e0e0, #616161);
+  --neutral-400: light-dark(#bdbdbd, #757575);
   --neutral-500: #9e9e9e;
-  --neutral-600: #757575;
-  --neutral-700: #616161;
-  --neutral-800: #424242;
-  --neutral-900: #212121;
+  --neutral-600: light-dark(#757575, #bdbdbd);
+  --neutral-700: light-dark(#616161, #e0e0e0);
+  --neutral-800: light-dark(#424242, #eeeeee);
+  --neutral-900: light-dark(#212121, #f5f5f5);
 
   --red-25: #fff8f7;
   --red-50: #fff1ef;
@@ -166,53 +173,12 @@
   --magenta-900: #8a004c;
 }
 
-// Dark mode via system preference. Scoped with :not([theme='light']) so that
-// an explicit theme='light' on the host overrides the system preference.
-// See issue #2999.
-@media (prefers-color-scheme: dark) {
-  :host(:not([theme='light'])) {
-    --semantic-blue: var(--blue-700);
-    --semantic-red: var(--red-400);
-    --semantic-orange: var(--orange-400);
-    --semantic-green: var(--green-700);
-
-    --semantic-bg-blue: var(--blue-25);
-    --semantic-bg-red: var(--red-25);
-    --semantic-bg-orange: var(--orange-25);
-    --semantic-bg-green: var(--green-25);
-
-    --neutral-100: #121212;
-    --neutral-200: #424242;
-    --neutral-300: #616161;
-    --neutral-400: #757575;
-    --neutral-500: #9e9e9e;
-    --neutral-600: #bdbdbd;
-    --neutral-700: #e0e0e0;
-    --neutral-800: #eeeeee;
-    --neutral-900: #f5f5f5;
-  }
+:host([theme='light']) {
+  color-scheme: light;
 }
 
 :host([theme='dark']) {
-  --semantic-blue: var(--blue-700);
-  --semantic-red: var(--red-400);
-  --semantic-orange: var(--orange-400);
-  --semantic-green: var(--green-700);
-
-  --semantic-bg-blue: var(--blue-25);
-  --semantic-bg-red: var(--red-25);
-  --semantic-bg-orange: var(--orange-25);
-  --semantic-bg-green: var(--green-25);
-
-  --neutral-100: #121212;
-  --neutral-200: #424242;
-  --neutral-300: #616161;
-  --neutral-400: #757575;
-  --neutral-500: #9e9e9e;
-  --neutral-600: #bdbdbd;
-  --neutral-700: #e0e0e0;
-  --neutral-800: #eeeeee;
-  --neutral-900: #f5f5f5;
+  color-scheme: dark;
 }
 
 /* @media (prefers-color-scheme: dark) {
