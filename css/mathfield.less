@@ -39,12 +39,7 @@
 //      > .ML__toggles
 //            > .ML__virtual-keyboard-toggle
 //            > .ML__menu-toggle
-//
-// `:host([theme='light']) .ML__container` is listed alongside `.ML__container`
-// so that an explicit theme='light' attribute outranks the
-// `@media (prefers-color-scheme: dark)` block below.
-.ML__container,
-:host([theme='light']) .ML__container {
+.ML__container {
   display: inline-flex;
   flex-flow: row;
   justify-content: space-between;
@@ -113,10 +108,6 @@
     transparent
   );
 
-  // Duplicated from core.less so that `:host([theme='light'])` can outrank
-  // the dark `@media (prefers-color-scheme: dark)` rule below.
-  --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
-
   // Tooltip displayed with \mathtip or \texttip
   --_tooltip-border: var(--tooltip-border, 1px solid transparent);
   --_tooltip-border-radius: var(--tooltip-border-radius, 8px);
@@ -130,8 +121,16 @@
   );
 }
 
+// Explicit theme='dark' in a system-light environment: the dark media query
+// below won't fire, so mirror its smart-fence-opacity here.
+:host([theme='dark']) .ML__container {
+  --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
+}
+
+// :not([theme='light']) scoping lets explicit theme='light' override system
+// dark without raising base specificity above forced-colors below. See #2999.
 @media (prefers-color-scheme: dark) {
-  .ML__container {
+  :host(:not([theme='light'])) .ML__container {
     --_contains-highlight-color: var(
       --contains-highlight-color,
       hsl(var(--_hue), 85%, 75%)
