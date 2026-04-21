@@ -88,3 +88,25 @@ test('mathfield.less container variables respect theme attribute', async ({
   expect(darkCaret).not.toBe('');
   expect(lightCaret).not.toBe('');
 });
+
+test('theme="dark" on light OS applies dark container palette', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  const lightCaret = await page.evaluate(readCaretColor('mf-1'));
+
+  await page.evaluate(() => {
+    document.getElementById('mf-1')!.setAttribute('theme', 'dark');
+  });
+  const darkCaret = await page.evaluate(readCaretColor('mf-1'));
+
+  expect(darkCaret).not.toBe(lightCaret);
+
+  // Sanity: this dark caret should match the one produced by dark OS with no theme attribute.
+  await page.evaluate(() => {
+    document.getElementById('mf-1')!.removeAttribute('theme');
+  });
+  await page.emulateMedia({ colorScheme: 'dark' });
+  const osDarkCaret = await page.evaluate(readCaretColor('mf-1'));
+  expect(darkCaret).toBe(osDarkCaret);
+});
