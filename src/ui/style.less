@@ -74,8 +74,6 @@
   --content-bg: var(--neutral-200);
 }
 
-// :not([theme='light']) scoping lets explicit theme='light' override system
-// dark without raising base specificity above :lang/:dir overrides below.
 @media (prefers-color-scheme: dark) {
   :host(:not([theme='light'])) {
     --ui-menu-bg: var(--neutral-200);

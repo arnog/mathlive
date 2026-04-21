@@ -121,14 +121,10 @@
   );
 }
 
-// Explicit theme='dark' in a system-light environment: the dark media query
-// below won't fire, so mirror its smart-fence-opacity here.
 :host([theme='dark']) .ML__container {
   --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
 }
 
-// :not([theme='light']) scoping lets explicit theme='light' override system
-// dark without raising base specificity above forced-colors below.
 @media (prefers-color-scheme: dark) {
   :host(:not([theme='light'])) .ML__container {
     --_contains-highlight-color: var(

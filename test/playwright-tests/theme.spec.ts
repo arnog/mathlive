@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-const LIGHT_NEUTRAL_100 = 'rgb(245, 245, 245)'; // #f5f5f5
-const DARK_NEUTRAL_100 = 'rgb(18, 18, 18)'; //    #121212
+const LIGHT_NEUTRAL_100 = 'rgb(245, 245, 245)';
+const DARK_NEUTRAL_100 = 'rgb(18, 18, 18)';
 
-// Probe a custom property via a real color channel so computed-value
-// normalization applies — lets us compare against rgb(...) constants.
 const readVar = (id: string, varName: string) => `
   (() => {
     const mf = document.getElementById(${JSON.stringify(id)});
@@ -30,12 +28,10 @@ test.beforeEach(async ({ page }) => {
 test('theme="light" overrides prefers-color-scheme: dark', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
 
-  // With no theme attribute, the system dark preference should apply.
   expect(await page.evaluate(readVar('mf-1', '--neutral-100'))).toBe(
     DARK_NEUTRAL_100
   );
 
-  // Setting theme='light' should flip back to the light palette.
   await page.evaluate(() => {
     document.getElementById('mf-1')!.setAttribute('theme', 'light');
   });
@@ -80,9 +76,6 @@ test('removing theme attribute restores system preference', async ({ page }) => 
 test('mathfield.less container variables respect theme attribute', async ({
   page,
 }) => {
-  // `--_caret-color` is defined on .ML__container in mathfield.less. This
-  // verifies the :not([theme='light']) scoping on that file's media query,
-  // not just the palette overrides in colors.less.
   await page.emulateMedia({ colorScheme: 'dark' });
   const darkCaret = await page.evaluate(readCaretColor('mf-1'));
 
