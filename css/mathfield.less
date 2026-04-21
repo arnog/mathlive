@@ -60,54 +60,40 @@
   touch-action: none;
 
   // The color of the caret, the insertion point.
-  --_caret-color: var(
-    --caret-color,
-    light-dark(hsl(var(--_hue), 40%, 49%), hsl(var(--_hue), 65%, 55%))
-  );
+  --_caret-color: var(--caret-color, hsl(var(--_hue), 40%, 49%));
 
   // The color of the selection, and its background
-  --_selection-color: var(--selection-color, light-dark(#000, #fff));
+  --_selection-color: var(--selection-color, #000);
   --_selection-background-color: var(
     --selection-background-color,
-    light-dark(hsl(var(--_hue), 70%, 85%), hsl(var(--_hue), 65%, 55%))
+    hsl(var(--_hue), 70%, 85%)
   );
 
   // The background color indicating the caret is in a text zone
-  --_text-highlight-background-color: light-dark(
-    var(--highlight-text, hsla(var(--_hue), 40%, 50%, 0.1)),
-    var(--text-highlight-background-color, hsla(var(--_hue), 40%, 50%, 0.6))
+  --_text-highlight-background-color: var(
+    --highlight-text,
+    hsla(var(--_hue), 40%, 50%, 0.1)
   );
 
   // The background color indicating the scope/zone of the caret, i.e. the
   // inside of a square root or a fraction.
   --_contains-highlight-background-color: var(
     --contains-highlight-background-color,
-    light-dark(hsl(var(--_hue), 40%, 95%), hsl(var(--_hue), 5%, 34%))
+    hsl(var(--_hue), 40%, 95%)
   );
 
   // The color and opacity of a smart fence (automatically added ")" or "}")
-  --_smart-fence-color: var(
-    --smart-fence-color,
-    light-dark(currentColor, #fff)
-  );
+  --_smart-fence-color: var(--smart-fence-color, currentColor);
   --_smart-fence-opacity: var(--smart-fence-opacity, 0.5);
 
   // The color of fence, sqrt sign, when the caret is inside a "contains" zone
   --_contains-highlight-color: var(
     --contains-highlight-color,
-    light-dark(var(--_caret-color), hsl(var(--_hue), 85%, 75%))
-  );
-
-  --_placeholder-color: light-dark(
-    var(--placeholder-color, hsl(var(--_hue), 40%, 49%)),
-    hsl(var(--_hue), 60%, 69%)
+    var(--_caret-color)
   );
 
   // The text color of content in LaTeX mode
-  --_latex-color: light-dark(
-    var(--latex-color, hsl(var(--_hue), 80%, 40%)),
-    var(--primary, hsl(var(--_hue), 40%, 50%))
-  );
+  --_latex-color: var(--latex-color, hsl(var(--_hue), 80%, 40%));
   // The border color when a prompt is in "correct" state
   --_correct-color: var(--correct-color, #10a000);
   // The border color when a prompt is in "incorrect" state
@@ -115,14 +101,8 @@
 
   // A composition is zone controlled by an input method, for example, the
   // Japanese input method, or dead keys on macOS, i.e. alt+U.
-  --_composition-background-color: light-dark(
-    var(--composition-background-color, #fff1c2),
-    #69571c
-  );
-  --_composition-text-color: light-dark(
-    var(--composition-text-color, black),
-    white
-  );
+  --_composition-background-color: var(--composition-background-color, #fff1c2);
+  --_composition-text-color: var(--composition-text-color, black);
   --_composition-underline-color: var(
     --composition-underline-color,
     transparent
@@ -141,11 +121,42 @@
   );
 }
 
+// `--_smart-fence-opacity` is a <number> so it can't ride a `light-dark()`
+// expression — mirror the system-preference value on the attribute selector so
+// theme='dark' matches system-dark behavior.
 :host([theme='dark']) .ML__container {
   --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
 }
+
+// Dark mode via system preference. Scoped with :not([theme='light']) so that
+// an explicit theme='light' on the host overrides the system preference.
+// See issue #2999.
 @media (prefers-color-scheme: dark) {
   :host(:not([theme='light'])) .ML__container {
+    --_contains-highlight-color: var(
+      --contains-highlight-color,
+      hsl(var(--_hue), 85%, 75%)
+    );
+    --_caret-color: var(--caret-color, hsl(var(--_hue), 65%, 55%));
+    --_selection-color: var(--selection-color, #fff);
+    --_selection-background-color: var(
+      --selection-background-color,
+      hsl(var(--_hue), 65%, 55%)
+    );
+    --_text-highlight-background-color: var(
+      --text-highlight-background-color,
+      hsla(var(--_hue), 40%, 50%, 0.6)
+    );
+    --_contains-highlight-background-color: var(
+      --contains-highlight-background-color,
+      hsl(var(--_hue), 5%, 34%)
+    );
+    --_latex-color: var(--primary, hsl(var(--_hue), 40%, 50%));
+    --_composition-background-color: #69571c;
+    --_composition-text-color: white;
+    --_placeholder-color: hsl(var(--_hue), 60%, 69%);
+
+    --_smart-fence-color: var(--smart-fence-color, #fff);
     --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
   }
 }

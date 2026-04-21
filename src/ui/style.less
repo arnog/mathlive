@@ -43,7 +43,7 @@
   --ui-field-border-invalid: 0.5px solid var(--border-color);
   --ui-field-border-focus: 0.5px solid var(--border-color);
 
-  --ui-menu-bg: light-dark(var(--neutral-100), var(--neutral-200));
+  --ui-menu-bg: var(--neutral-100);
   --ui-menu-text: var(--neutral-900);
 
   --ui-menu-bg-hover: var(--neutral-200);
@@ -72,6 +72,19 @@
 
   --page-bg: var(--neutral-100);
   --content-bg: var(--neutral-200);
+}
+
+// Dark mode via system preference. Scoped with :not([theme='light']) so that
+// an explicit theme='light' on the host overrides the system preference.
+// See issue #2999.
+@media (prefers-color-scheme: dark) {
+  :host(:not([theme='light'])) {
+    --ui-menu-bg: var(--neutral-200);
+  }
+}
+
+:host([theme='dark']) {
+  --ui-menu-bg: var(--neutral-200);
 }
 
 /* PingFang SC is a macOS font. Microsoft Yahei is a Windows font. 
