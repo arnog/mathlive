@@ -1,8 +1,4 @@
-// `:host([theme='light'])` is listed alongside `:host` so that an explicit
-// theme='light' attribute outranks the `@media (prefers-color-scheme: dark)`
-// block below (which matches `:host` at lower specificity).
-:host,
-:host([theme='light']) {
+:host {
   --primary-color: #5898ff;
   --primary-color-dimmed: #c0c0f0;
   --primary-color-dark: var(--blue-500);
@@ -170,8 +166,10 @@
   --magenta-900: #8a004c;
 }
 
+// :not([theme='light']) scoping lets explicit theme='light' override system
+// dark without raising base specificity.
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host(:not([theme='light'])) {
     --semantic-blue: var(--blue-700);
     --semantic-red: var(--red-400);
     --semantic-orange: var(--orange-400);
