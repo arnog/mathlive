@@ -113,6 +113,10 @@
     transparent
   );
 
+  // Duplicated from core.less so that `:host([theme='light'])` can outrank
+  // the dark `@media (prefers-color-scheme: dark)` rule below.
+  --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
+
   // Tooltip displayed with \mathtip or \texttip
   --_tooltip-border: var(--tooltip-border, 1px solid transparent);
   --_tooltip-border-radius: var(--tooltip-border-radius, 8px);
