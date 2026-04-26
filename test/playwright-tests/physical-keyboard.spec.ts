@@ -477,18 +477,19 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
     'Keyboard paste does not work when headless on Linux (works when run with gui on Linux or headless/gui on MacOs)'
   );
 
-  const modifierKey = /Mac|iPod|iPhone|iPad/.test(
-    await page.evaluate(() => navigator.platform)
-  )
-    ? 'Meta'
-    : 'Control';
+  // Use process.platform (the real OS) rather than navigator.platform,
+  // which Playwright's bundled Chromium and Firefox both report as 'Win32'
+  // even on macOS.
+  const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 
-  let selectAllCommand = `${modifierKey}+a`;
-  if (modifierKey === 'Meta' && browserName === 'chromium') {
-    // Cmd-a not working with Chromium on Mac, need to use Control-A
-    // Cmd-a works correctly on Chrome and Edge on Mac
-    selectAllCommand = 'Control+a';
-  }
+  // On macOS, Cmd+A doesn't trigger select-all in Playwright's bundled
+  // Chromium/Firefox (both spoof a Win32 user agent). Use Ctrl+A instead;
+  // it works in Playwright on Mac and is the standard select-all on other
+  // platforms. Cmd+A works correctly in real Chrome/Edge/Firefox on Mac.
+  const selectAllCommand =
+    modifierKey === 'Meta' && (browserName === 'chromium' || browserName === 'firefox')
+      ? 'Control+a'
+      : `${modifierKey}+a`;
 
   await page.goto('/dist/playwright-test-page/');
 

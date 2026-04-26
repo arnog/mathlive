@@ -42,11 +42,9 @@ test('context menu select all and cut', async ({ page, browserName }) => {
     'Keyboard paste does not work when headless on Linux (works when run with gui on Linux or headless/gui on MacOs)'
   );
 
-  const modifierKey = /Mac|iPod|iPhone|iPad/.test(
-    await page.evaluate(() => navigator.platform)
-  )
-    ? 'Meta'
-    : 'Control';
+  // Use process.platform (the real OS) rather than navigator.platform,
+  // which Playwright's bundled Chromium reports as 'Win32' even on macOS.
+  const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 
   await page.goto('/dist/playwright-test-page/');
 
