@@ -1,3 +1,28 @@
+## [Unreleased]
+
+### Resolved Issues
+
+- **#2931** Fixed virtual keyboard recursion in sandboxed iframe mathfields. The
+  message handling guard now checks the `source` window rather than only the
+  top-level window, preventing the local mathfield from re-dispatching its own
+  command messages and avoiding the resulting infinite loop. (contributed by
+  @konbu310)
+
+- Fixed duplicated safe area padding below the virtual keyboard. The
+  `--_keyboard-height` calculation no longer adds `env(safe-area-inset-bottom)`
+  on top of `--_padding-bottom`, which already includes it; this removes the
+  doubled empty space that appeared below the keyboard on devices with bottom
+  safe areas. (contributed by @Blibbo)
+
+- Fixed a stacking issue in the color picker where the background of
+  neighboring color swatches could paint over the border of the active swatch.
+  The focused color now has an explicit `z-index` to keep it above its
+  neighbors. (contributed by @Blibbo)
+
+### Improvements
+
+- Added Catalan (`ca`) localization. (contributed by @aaronFortuno)
+
 ## 0.109.1 _2026-04-01_
 
 ### Resolved Issues

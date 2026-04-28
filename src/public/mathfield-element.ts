@@ -1007,8 +1007,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   static set decimalSeparator(value: ',' | '.') {
     this._decimalSeparator = value;
     if (this._computeEngine) {
-      this._computeEngine.decimalSeparator =
-        this.decimalSeparator === ',' ? '{,}' : '.';
+      console.warn(
+        `MathLive {{SDK_VERSION}}: setting MathfieldElement.decimalSeparator after the Compute Engine has been created has no effect on the engine. Reassign MathfieldElement.computeEngine with a freshly configured instance to apply the new separator.`
+      );
     }
   }
 
@@ -1094,8 +1095,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
       this._computeEngine = new ComputeEngineCtor();
 
-      if (this._computeEngine && this.decimalSeparator === ',')
-        this._computeEngine.decimalSeparator = '{,}';
+      if (this._computeEngine && this.decimalSeparator === ',') {
+        // Compute Engine 0.55 removed the public decimalSeparator setter; the
+        // value now lives on the engine's LatexSyntax instance and is only
+        // reachable via its (private) _options field.
+        const opts = (this._computeEngine.latexSyntax as any)?._options;
+        if (opts) opts.decimalSeparator = '{,}';
+      }
     }
     return this._computeEngine ?? null;
   }

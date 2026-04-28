@@ -643,9 +643,12 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       onMenuSelect: () => {
         const expr = mf.expression!;
         const unknown = expr?.unknowns[0];
-        const results = expr
-          .solve(unknown)
-          ?.map((x) => x.simplify().latex ?? '');
+        const solutions = expr.solve(unknown);
+        const results = Array.isArray(solutions)
+          ? solutions.map(
+              (x) => (x as unknown as typeof expr).simplify().latex ?? ''
+            )
+          : null;
         if (!results) {
           mf.model.announce('plonk');
           return;
