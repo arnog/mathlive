@@ -1622,7 +1622,7 @@ Consider using this option if you are displaying untrusted content. Read more ab
 ##### MathfieldElement.version
 
 ```ts
-static version: string = '0.109.1';
+static version: string = '0.109.2';
 ```
 
 </MemberCard>
@@ -6860,7 +6860,7 @@ const version: {
 };
 ```
 
-Current version: `0.109.1`
+Current version: `0.109.2`
 
 The version string of the SDK using the [semver](https://semver.org/) convention:
 
