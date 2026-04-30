@@ -933,11 +933,11 @@ function atomIsInRange(
   const firstChild = includeFirstAtoms
     ? atom.firstChild
     : firstNonFirstChild(atom);
-  if (!firstChild) return false;
+  if (!firstChild) return true;
   const lastChild = includeFirstAtoms
     ? atom.lastChild
     : lastNonFirstChild(atom);
-  if (!lastChild) return false;
+  if (!lastChild) return true;
 
   const firstOffset = model.offsetOf(firstChild);
   if (firstOffset >= first && firstOffset <= last) {
