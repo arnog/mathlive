@@ -205,7 +205,7 @@ export function defaultInsertStyleHook(
 
   if (model.mode === 'math') {
     const atom = model.at(bias === 'right' ? info.after : info.before);
-    if (!atom) return mathfield.defaultStyle;
+    if (!atom) return { variant: 'normal', ...mathfield.defaultStyle };
     // Merge inherited style with defaultStyle, where defaultStyle takes precedence
     return { ...atom.style, variant: 'normal', ...mathfield.defaultStyle };
   }
