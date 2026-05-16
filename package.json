@@ -128,7 +128,7 @@
   },
   "prettier": "@cortex-js/prettier-config",
   "dependencies": {
-    "@cortex-js/compute-engine": "0.55.6"
+    "@cortex-js/compute-engine": "0.58.0"
   },
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
