@@ -70,39 +70,24 @@ export class PromptAtom extends Atom {
 
     if (!content) return null;
 
-    const isEffectivelyEmpty =
-      !this.body ||
-      this.body.length === 0 ||
-      this.body.every((atom) => atom.type === 'first');
+    // Measure the placeholder symbol's metrics once — used both as a fallback
+    // for empty prompts and as a minimum box size so the outline doesn't shrink
+    // when content is typed.
+    const placeholderMetrics = new PlaceholderAtom({
+      mode: this.mode,
+      style: this.style,
+    }).render(new Context({ parent: parentContext, isPhantom: true }));
+    // Minimum dimensions: at least as tall as the placeholder symbol (approx 1em
+    // total), so the outline stays stable regardless of what character is typed.
+    const minHeight = placeholderMetrics?.height ?? context.metrics.xHeight;
+    const minDepth = placeholderMetrics?.depth ?? 0;
 
-    const placeholderMetrics = isEffectivelyEmpty
-      ? new PlaceholderAtom({
-          mode: this.mode,
-          style: this.style,
-        }).render(new Context({ parent: parentContext, isPhantom: true }))
-      : null;
-    const emptyHeight = placeholderMetrics?.height ?? context.metrics.xHeight;
-    const emptyDepth = placeholderMetrics?.depth ?? emptyHeight / 2;
+    // Clamp content metrics to the minimum — unconditionally — so that typing
+    // 'x', '1', or any short character never shrinks the prompt outline.
+    const effectiveHeight = Math.max(content.height ?? 0, minHeight);
+    const effectiveDepth = Math.max(content.depth ?? 0, minDepth);
 
-    // An empty prompt should not be too small, pretend content
-    // has height sigma 5 (x-height)
-
-    if (!content.height) {
-      content.height = isEffectivelyEmpty
-        ? emptyHeight
-        : context.metrics.xHeight;
-    }
-
-    if (!content.depth) {
-      content.depth = isEffectivelyEmpty
-        ? emptyDepth
-        : context.metrics.defaultRuleThickness;
-    }
-
-    const verticalShift = isEffectivelyEmpty
-      ? emptyDepth - emptyHeight
-      : content.depth - content.height;
-    content.setStyle('vertical-align', verticalShift, 'em');
+    content.setStyle('vertical-align', -effectiveHeight, 'em');
     if (this.correctness === 'correct') {
       content.setStyle(
         'color',
@@ -115,14 +100,23 @@ export class PromptAtom extends Atom {
       );
     }
 
+    // Minimum inner width to keep the prompt square (outline width = outline height).
+    const squareSide = effectiveHeight + effectiveDepth + 2 * vPadding;
+    const minInnerWidth = squareSide - 2 * hPadding;
+
     const base = new Box(content, { type: 'ord' });
-    base.height = content.height;
-    base.depth = content.depth;
     base.setStyle('display', 'inline-block');
-    base.setStyle('height', content.height + content.depth, 'em');
+    base.height = effectiveHeight;
+    base.depth = effectiveDepth;
+    base.setStyle('height', effectiveHeight + effectiveDepth, 'em');
     base.setStyle('vertical-align', -vPadding, 'em');
-    base.setStyle('position', 'relative');
-    base.setStyle('z-index', 1);
+
+    // Enforce square minimum: widen base whenever content is narrower.
+    if ((content.width ?? 0) < minInnerWidth) {
+      base.width = minInnerWidth;
+      base.setStyle('width', minInnerWidth, 'em');
+      base.setStyle('text-align', 'center');
+    }
 
     // This box will represent the box (background and border).
     // It's positioned to overlap the base.
@@ -148,21 +142,15 @@ export class PromptAtom extends Atom {
     box.depth = base.depth + vPadding;
     box.width = base.width + 2 * hPadding;
     box.setStyle('position', 'absolute');
-    box.setStyle('z-index', 0);
-    box.setStyle('display', 'block');
-    box.setStyle('pointer-events' as any, 'auto');
 
-    const overlayHeight = base.height + base.depth + 2 * vPadding;
-    box.setStyle('height', Math.max(overlayHeight, 0.6), 'em');
-
-    let overlayWidth = base.width + 2 * hPadding;
-    if (isEffectivelyEmpty)
-      overlayWidth = Math.max(overlayWidth, 3 * hPadding || 0.8);
-    box.setStyle('width', Math.max(overlayWidth, 0.6), 'em');
-
-    box.setStyle('top', fboxsep + vPadding, 'em');
-    if (isEffectivelyEmpty) box.setStyle('left', -1.5 * hPadding, 'em');
-    else if (hPadding !== 0) box.setStyle('left', -hPadding, 'em');
+    // base already has clamped (minimum) dimensions, so no extra max() needed
+    box.setStyle('height', base.height + base.depth + 2 * vPadding, 'em');
+    if (hPadding === 0) box.setStyle('width', '100%'); // @todo: remove
+    if (hPadding !== 0) {
+      box.setStyle('width', `calc(100% + ${2 * hPadding}em)`); // @todo: remove
+      box.setStyle('top', fboxsep, 'em'); // empirical
+      box.setStyle('left', -hPadding, 'em');
+    }
     let svg = ''; // strike through incorrect prompt, for users with impaired color vision
 
     if (this.correctness === 'incorrect') {
@@ -183,29 +171,22 @@ export class PromptAtom extends Atom {
     result.setStyle('display', 'inline-block');
     result.setStyle('line-height', 0);
 
-    // The padding adds to the width and height of the pod
-    result.height = base.height + vPadding + 0.2;
-    result.depth = base.depth + vPadding;
+    result.height = effectiveHeight + vPadding + 0.2;
+    result.depth = effectiveDepth + vPadding;
     result.left = hPadding;
     result.right = hPadding;
-    result.setStyle('height', base.height + 2 * vPadding, 'em');
-    result.setStyle('top', base.depth - base.height - vPadding / 2, 'em');
-    result.setStyle('vertical-align', base.depth + vPadding / 2, 'em');
-    result.setStyle('margin-left', 0.5, 'em');
-    result.setStyle('margin-right', 0.5, 'em');
+    result.setStyle('height', effectiveHeight + 2 * vPadding, 'em');
+    result.setStyle('top', effectiveDepth - effectiveHeight - vPadding / 2, 'em');
+    result.setStyle('vertical-align', effectiveDepth + vPadding / 2, 'em');
+    result.setStyle('margin-left', 'calc(0.5em + 1px)');
+    result.setStyle('margin-right', 'calc(0.5em + 1px)');
 
     if (this.caret) result.caret = this.caret;
 
-    const withSupSub = this.attachSupsub(parentContext, { base: result });
-    const bound = this.bind(context, withSupSub);
-
-    if (bound && this.id) {
-      box.atomID = this.id;
-      base.atomID = this.id;
-      result.atomID = this.id;
-    }
-
-    return bound;
+    return this.bind(
+      context,
+      this.attachSupsub(parentContext, { base: result })
+    );
   }
 
   _serialize(options: ToLatexOptions): string {

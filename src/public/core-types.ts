@@ -410,6 +410,7 @@ export type BoxCSSProperties =
   | 'margin-top'
   | 'margin-left'
   | 'margin-right'
+  | 'text-align'
   | 'opacity'
   | 'padding'
   | 'padding-left'
