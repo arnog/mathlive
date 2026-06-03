@@ -33,6 +33,7 @@ import '../core/modes';
 import { getDefaultContext } from '../core/context-utils';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
 import { LayoutOptions } from './options';
+import { MacroDictionary } from './core-types';
 import { ContextInterface } from 'core/types';
 import {
   getMacroDefinition,
@@ -151,10 +152,28 @@ export function convertLatexToMarkup(
 /**
  * Check if a string of LaTeX is valid and return an array of syntax errors.
  *
+ * @param options.macros - Additional macro definitions to recognize during
+ * validation. These extend (not replace) the default macros. Useful for
+ * commands that MathLive renders correctly but are not part of its built-in
+ * command set (e.g. `\newline`).
+ *
+ * @example
+ * validateLatex('\\newline', { macros: { newline: '' } }); // returns []
+ *
  * @category Conversion
  */
-export function validateLatex(s: string): LatexSyntaxError[] {
-  return validateLatexInternal(s, { context: getDefaultContext() });
+export function validateLatex(
+  s: string,
+  options?: { macros?: MacroDictionary }
+): LatexSyntaxError[] {
+  const from = getDefaultContext();
+  if (options?.macros) {
+    const extraMacros = normalizeMacroDictionary(options.macros);
+    const baseMacro = from.getMacro!;
+    from.getMacro = (token) =>
+      getMacroDefinition(token, extraMacros) ?? baseMacro(token);
+  }
+  return validateLatexInternal(s, { context: from });
 }
 
 /**
