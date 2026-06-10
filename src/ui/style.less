@@ -75,7 +75,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host(:not([theme='light'])) {
     --ui-menu-bg: var(--neutral-200);
   }
 }
