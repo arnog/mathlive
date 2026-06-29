@@ -6,7 +6,7 @@ import { Atom } from '../core/atom';
 import { keyboardEventToChar, keyboardEventToString } from '../editor/keyboard';
 import { getInlineShortcut } from '../editor/shortcuts';
 import { getCommandForKeybinding } from '../editor/keybindings';
-import { SelectorPrivate } from '../editor/commands';
+import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
 import {
   getActiveKeyboardLayout,
   validateKeyboardLayout,
@@ -29,6 +29,7 @@ import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
 import { mightProducePrintableCharacter } from '../ui/events/utils';
 import { computeInsertStyle } from './styling';
+import { canVibrate } from '../ui/utils/capabilities';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
@@ -682,7 +683,12 @@ export function onInput(
   //
   if (options.focus) mathfield.focus();
 
-  if (options.feedback) globalThis.MathfieldElement.playSound('keypress');
+  if (options.feedback) {
+    if (globalThis.MathfieldElement.keypressVibration && canVibrate())
+      navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
+
+    globalThis.MathfieldElement.playSound('keypress');
+  }
 
   //
   // 2/ Switch mode if requested
