@@ -11,6 +11,32 @@ import { ArrayAtom } from 'atoms/array';
 import { PlaceholderAtom } from 'atoms/placeholder';
 import { BoundedArgumentAtom } from 'atoms/bounded-argument';
 
+function isEmptyBoundedOperator(atom: Atom | undefined): atom is Atom {
+  if (!atom || atom.type !== 'extensible-symbol') return false;
+
+  const boundedSlots = (atom as Atom & {
+    boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+  }).boundedArgumentSlots;
+  const isEmptySlot = (branch: 'subscript' | 'superscript') => {
+    const children = atom.branch(branch);
+    if (!children || children.length !== 2) return false;
+    const argument = children[1];
+    return (
+      argument instanceof PlaceholderAtom ||
+      (argument instanceof BoundedArgumentAtom &&
+        argument.body?.length === 2 &&
+        argument.body[1] instanceof PlaceholderAtom)
+    );
+  };
+
+  return Boolean(
+    boundedSlots?.subscript &&
+      boundedSlots.superscript &&
+      isEmptySlot('subscript') &&
+      isEmptySlot('superscript'),
+  );
+}
+
 // import {
 //     arrayFirstCellByRow,
 //     arrayColRow,
@@ -419,6 +445,22 @@ export function deleteBackward(model: _Model): boolean {
       if (target && onDelete(model, 'backward', target)) return;
 
       if (target?.isFirstSibling) {
+        // A bounded command keeps placeholder branches after its contents are
+        // deleted. Once navigation has reached the leading sentinel, the
+        // next Backspace should remove that now-empty operator instead of
+        // being mistaken for a no-op at the start of the containing branch.
+        const next = target.rightSibling;
+        if (isEmptyBoundedOperator(next)) {
+          const parent = next.parent;
+          if (parent) {
+            const position = model.offsetOf(next.leftSibling);
+            parent.removeChild(next);
+            model.position = position;
+            model.announce('delete', undefined, [next]);
+            return;
+          }
+        }
+
         if (onDelete(model, 'backward', target.parent!, target.parentBranch))
           return;
 

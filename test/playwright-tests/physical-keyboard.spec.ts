@@ -601,6 +601,40 @@ test('bounded operator arguments remain editable after deletion', async ({ page 
   }
 });
 
+test('bounded operators delete body, bounds, then the operator', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  for (const command of ['int', 'sum', 'prod']) {
+    await field.evaluate((mfe: MathfieldElement, operator: string) => {
+      mfe.setValue(`\\${operator}{x}{y}z`, { format: 'latex' });
+      mfe.position = mfe.lastOffset;
+      mfe.focus();
+    }, command);
+
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{x}^{y}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{\\placeholder{}}^{y}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{\\placeholder{}}^{\\placeholder{}}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe('');
+  }
+});
+
 test('backspace on empty displaylines (issue #2739)', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
