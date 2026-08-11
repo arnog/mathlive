@@ -8,6 +8,8 @@ import { MathfieldElement } from 'public/mathfield-element';
 import type { Branch } from 'core/types';
 import type { Range } from 'public/core-types';
 import { ArrayAtom } from 'atoms/array';
+import { PlaceholderAtom } from 'atoms/placeholder';
+import { BoundedArgumentAtom } from 'atoms/bounded-argument';
 
 // import {
 //     arrayFirstCellByRow,
@@ -301,6 +303,20 @@ function onDelete(
 
     // Check if branch is empty and handle removal before navigation
     if (branch && atom.hasEmptyBranch(branch)) {
+      const boundedSlots = (atom as Atom & {
+        boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+      }).boundedArgumentSlots;
+      if (
+        boundedSlots &&
+        ((branch === 'subscript' && boundedSlots.subscript) ||
+          (branch === 'superscript' && boundedSlots.superscript))
+      ) {
+        // Keep a visible editable slot for the bounded-command form after
+        // its last character is deleted.
+        atom.setChildren([new PlaceholderAtom()], branch);
+        model.position = model.offsetOf(atom.firstChild);
+        return true;
+      }
       atom.removeBranch(branch);
       if (atom.type === 'subsup' && !atom.subscript && !atom.superscript) {
         // We've removed the last branch of a subsup
@@ -416,8 +432,27 @@ export function deleteBackward(model: _Model): boolean {
       }
 
       const targetParent = target.parent!;
+      const deletedBranch = target.parentBranch;
       model.position = model.offsetOf(target.leftSibling);
       targetParent.removeChild(target);
+      if (
+        targetParent instanceof BoundedArgumentAtom &&
+        targetParent.hasEmptyBranch('body')
+      ) {
+        targetParent.setChildren([new PlaceholderAtom()], 'body');
+      }
+      const boundedSlots = (targetParent as Atom & {
+        boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+      }).boundedArgumentSlots;
+      if (
+        boundedSlots &&
+        (deletedBranch === 'subscript' || deletedBranch === 'superscript') &&
+        ((deletedBranch === 'subscript' && boundedSlots.subscript) ||
+          (deletedBranch === 'superscript' && boundedSlots.superscript)) &&
+        targetParent.hasEmptyBranch(deletedBranch)
+      ) {
+        targetParent.setChildren([new PlaceholderAtom()], deletedBranch);
+      }
       model.announce('delete', undefined, [target]);
 
       // If deleting the last LaTeX atom leaves an empty LaTeX group, remove it

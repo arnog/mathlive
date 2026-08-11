@@ -553,6 +553,54 @@ test('mathbb with superscript (issue #2867)', async ({ page }) => {
   expect(latex).toBe('\\mathbb{R}^0');
 });
 
+test('text-mode LaTeX commands wait for completion', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  await field.evaluate((mfe: MathfieldElement) => {
+    mfe.value = '';
+    mfe.mode = 'text';
+    mfe.focus();
+  });
+  await field.pressSequentially('\\pi');
+
+  const prefixState = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(prefixState.mode).toBe('latex');
+  // An incomplete LaTeX group is intentionally not part of the public value
+  // yet; the important guarantee is that the field remains in command mode
+  // instead of committing `\\pi` as a symbol.
+  expect(prefixState.latex).toBe('');
+
+  await field.pressSequentially('ecewise{3}');
+  await field.press('Space');
+  expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex')))
+    .toContain('\\begin{cases}');
+});
+
+test('bounded operator arguments remain editable after deletion', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+  for (const command of ['int', 'sum', 'prod']) {
+    await field.evaluate((mfe: MathfieldElement, operator: string) => {
+      mfe.setValue(`\\${operator}{x}{y}`, { format: 'latex' });
+      mfe.position = mfe.lastOffset;
+      mfe.focus();
+    }, command);
+    await field.press('Backspace');
+    await field.press('Backspace');
+
+    const latex = await field.evaluate((mfe: MathfieldElement) => ({
+      latex: mfe.getValue('latex'),
+      expanded: mfe.getValue('latex-expanded'),
+    }));
+    expect(latex.latex).toContain(`\\${command}`);
+    expect(latex.expanded).toContain('\\placeholder{}');
+  }
+});
+
 test('backspace on empty displaylines (issue #2739)', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 

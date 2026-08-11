@@ -1762,6 +1762,7 @@ export class Parser {
     if (
       result instanceof Atom &&
       result.verbatimLatex === undefined &&
+      (info.definitionType !== 'function' || !info.parse) &&
       !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)
     ) {
       // We have to use `joinLatex` to correctly handle the case of

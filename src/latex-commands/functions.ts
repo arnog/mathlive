@@ -13,6 +13,7 @@ import type { LatexValue } from '../public/core-types';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
 import { OperatorAtom } from '../atoms/operator';
+import { BoundedArgumentAtom } from '../atoms/bounded-argument';
 import type { CreateAtomOptions } from 'core/types';
 import type { Argument } from './types';
 
@@ -518,4 +519,69 @@ defineFunction('the', '{:value}', {
   },
   serialize: (atom) =>
     `\\the${serializeLatexValue(atom.args![0] as LatexValue) ?? '\\relax'}`,
+});
+
+/**
+ * Parse the app-friendly bounded operator form `\\int{x}{y}` (and its
+ * `\\sum`/`\\prod` equivalents) without changing the standard bare command.
+ * Braced arguments are deliberately recognized only when the first argument
+ * starts immediately after the command; otherwise `\\int x` remains the
+ * ordinary unbounded integral followed by `x`.
+ */
+function parseBoundedOperator(parser: import('../core/parser').Parser): Argument[] {
+  if (parser.peek() !== '<{>') return [];
+
+  const lower = parser.scanArgument('expression');
+  if (!lower) return [];
+  if (parser.peek() !== '<{>') return [lower];
+
+  const upper = parser.scanArgument('expression');
+  return upper ? [lower, upper] : [lower];
+}
+
+function createBoundedOperator(
+  symbol: string,
+  options: CreateAtomOptions,
+): ExtensibleSymbolAtom {
+  const atom = new ExtensibleSymbolAtom(symbol, {
+    ...options,
+    limits: 'auto',
+    variant: 'main',
+  });
+  // Prevent the parser from preserving `\\int{x}{y}` verbatim; the
+  // structured bounds should be serialized as ordinary LaTeX bounds.
+  atom.verbatimLatex = null as unknown as undefined;
+  const [lower, upper] = options.args ?? [];
+  (atom as ExtensibleSymbolAtom & {
+    boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+  }).boundedArgumentSlots = {
+    subscript: Boolean(lower),
+    superscript: Boolean(upper),
+  };
+  if (lower)
+    atom.setChildren(
+      [new BoundedArgumentAtom(argAtoms(lower), options)],
+      'subscript',
+    );
+  if (upper)
+    atom.setChildren(
+      [new BoundedArgumentAtom(argAtoms(upper), options)],
+      'superscript',
+    );
+  return atom;
+}
+
+// These command definitions intentionally come after the general operator
+// definitions above so they override only the parser for the three commands;
+// bare `\\int`, `\\sum`, and `\\prod` retain their normal rendering.
+defineFunction(['int', 'sum', 'prod'], '', {
+  ifMode: 'math',
+  parse: parseBoundedOperator,
+  createAtom: (options) =>
+    createBoundedOperator(
+      { int: '\u222b', sum: '\u2211', prod: '\u220f' }[
+        options.command!.slice(1)
+      ]!,
+      options,
+    ),
 });
