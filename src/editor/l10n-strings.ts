@@ -24,8 +24,6 @@ export const STRINGS = {
     'keyboard.tooltip.greek': 'Greek Letters',
     'keyboard.tooltip.numeric': 'Numeric',
     'keyboard.tooltip.alphabetic': 'Roman Letters',
-    'keyboard.tooltip.previous rows': 'Previous rows',
-    'keyboard.tooltip.next rows': 'Next rows',
     'keyboard.tooltip.resize': 'Resize virtual keyboard',
     'tooltip.copy to clipboard': 'Copy to Clipboard',
     'tooltip.cut to clipboard': 'Cut to Clipboard',

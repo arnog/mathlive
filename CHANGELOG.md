@@ -1,3 +1,8 @@
+## Unreleased
+
+- Replace virtual-keyboard row paging with readable row scaling and automatically
+  generated condensed companion layouts for custom and built-in keyboards.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories

@@ -332,6 +332,8 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   if (keyboard.normalizedLayouts.length > 1) {
     for (const [i, l] of keyboard.normalizedLayouts.entries()) {
       const layout = l;
+      if (layout.labelClass?.split(/\s+/).includes('MLK__secondary-layout'))
+        continue;
 
       const classes = [i === index ? 'selected' : 'layer-switch'];
       if (layout.tooltip) classes.push('MLK__tooltip');
@@ -582,15 +584,6 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
       ev.stopPropagation();
       beginResize(ev, keyboard);
     });
-  plate
-    .querySelectorAll<HTMLButtonElement>('.MLK__page-button')
-    .forEach((button) =>
-      button.addEventListener('pointerdown', (ev) => {
-        ev.stopPropagation();
-        keyboard.pageRows(Number(button.dataset.pageDelta ?? 0));
-        ev.preventDefault();
-      })
-    );
 
   // The plate is placed on a 'backdrop' which is used to display the keyboard
   // background and account for optional margins
@@ -648,7 +641,13 @@ function makeLayout(
   for (const layer of layout.layers) {
     markup.push(`<div tabindex="-1" class="MLK__layer" id="${layer.id}">`);
 
-    if (keyboard.normalizedLayouts.length > 1 || layout.displayEditToolbar) {
+    const isSecondary = layout.labelClass
+      ?.split(/\s+/)
+      .includes('MLK__secondary-layout');
+    if (
+      (!isSecondary && keyboard.normalizedLayouts.length > 1) ||
+      layout.displayEditToolbar
+    ) {
       markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
       markup.push(makeLayoutsToolbar(keyboard, index));
       // If there are no keycap with editing commands, add an edit toolbar
@@ -685,8 +684,6 @@ function makeLayer(
   if (layer.container) layerMarkup += `<div class='${layer.container}'>`;
 
   if (layer.rows) {
-    layerMarkup += `<div class=MLK__rows-viewport>`;
-    layerMarkup += `<button type="button" class="MLK__page-button MLK__page-up" data-page-delta="-1" data-l10n-tooltip="keyboard.tooltip.previous rows" data-l10n-arial-label="keyboard.tooltip.previous rows"><svg class=svg-glyph aria-hidden="true"><use xlink:href=#svg-angle-up /></svg></button>`;
     layerMarkup += `<div class=MLK__rows>`;
     for (const row of layer.rows) {
       layerMarkup += `<div dir="ltr" class=MLK__row>`;
@@ -727,8 +724,6 @@ function makeLayer(
       layerMarkup += `</div>`;
     }
 
-    layerMarkup += `</div>`;
-    layerMarkup += `<button type="button" class="MLK__page-button MLK__page-down" data-page-delta="1" data-l10n-tooltip="keyboard.tooltip.next rows" data-l10n-arial-label="keyboard.tooltip.next rows"><svg class=svg-glyph aria-hidden="true"><use xlink:href=#svg-angle-down /></svg></button>`;
     layerMarkup += `</div>`;
   } else if (layer.markup) layerMarkup += layer.markup;
 

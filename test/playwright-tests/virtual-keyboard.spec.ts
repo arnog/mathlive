@@ -47,7 +47,7 @@ test('virtual-keyboard-toggle visibility', async ({ page }) => {
   ).toBe(false);
 });
 
-test('virtual keyboard can be resized and page overflowing rows', async ({
+test('virtual keyboard resizes with generated condensed layouts', async ({
   page,
 }) => {
   await page.goto('/dist/playwright-test-page/');
@@ -83,7 +83,20 @@ test('virtual keyboard can be resized and page overflowing rows', async ({
   const heightBeforeDrag = await page
     .locator('.MLK__plate')
     .evaluate((plate) => plate.getBoundingClientRect().height);
-  const pagedRowsBeforeDrag = await page.locator('.is-paged-out').count();
+  const sourceLayouts = await page.evaluate(
+    () =>
+      (window.mathVirtualKeyboard.normalizedLayouts as any[]).filter(
+        (layout) =>
+          !String(layout.labelClass ?? '').includes('MLK__secondary-layout')
+      ).length
+  );
+  const condensedLayouts = await page.evaluate(
+    () =>
+      (window.mathVirtualKeyboard.normalizedLayouts as any[]).filter((layout) =>
+        String(layout.labelClass ?? '').includes('MLK__secondary-layout')
+      ).length
+  );
+  expect(condensedLayouts).toBe(sourceLayouts);
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   expect(
@@ -95,7 +108,7 @@ test('virtual keyboard can be resized and page overflowing rows', async ({
   // keep the resize active until the button is released.
   await page.mouse.move(20, 20);
   await page.waitForTimeout(50);
-  expect(await page.locator('.is-paged-out').count()).toBe(pagedRowsBeforeDrag);
+  expect(await page.locator('.is-paged-out').count()).toBe(0);
   await page.mouse.up();
   await page.waitForTimeout(100);
   const heightAfterDrag = await page
@@ -108,16 +121,10 @@ test('virtual keyboard can be resized and page overflowing rows', async ({
   });
   await page.waitForTimeout(100);
 
-  const visibleRows = page.locator(
-    '.MLK__layer.is-visible .MLK__row:not(.is-paged-out)'
-  );
-  expect(await visibleRows.count()).toBeLessThan(16);
-  await expect(page.locator('.MLK__page-down')).toBeVisible();
-
-  await page.locator('.MLK__page-down').click();
   expect(
-    await page.locator('.MLK__layer.is-visible .MLK__row').first().isVisible()
-  ).toBe(false);
+    await page.locator('.MLK__layer.is-visible .MLK__row').count()
+  ).toBeGreaterThan(0);
+  await expect(page.locator('.MLK__page-down')).toHaveCount(0);
 });
 
 async function virtualKeyboardSample1(page: Page, options?: KeypressOptions) {

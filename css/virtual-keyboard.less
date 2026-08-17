@@ -440,52 +440,6 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   touch-action: none;
 }
 
-.MLK__rows-viewport {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-  width: 100%;
-}
-
-.MLK__rows > .MLK__row.is-paged-out {
-  display: none;
-}
-
-.MLK__page-button {
-  flex: 0 0 32px;
-  width: 100%;
-  max-width: 996px;
-  border: 0;
-  padding: 0;
-  color: var(--_toolbar-text);
-  background: transparent;
-  cursor: pointer;
-  touch-action: none;
-
-  &:hover:not(:disabled) {
-    color: var(--_toolbar-text-active);
-    background: var(--_toolbar-background-hover);
-  }
-
-  &:disabled {
-    visibility: hidden;
-    pointer-events: none;
-    flex-basis: 0;
-    height: 0;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-  }
-}
-
 .MLK__rows > .MLK__row {
   display: flex;
   flex-flow: row;

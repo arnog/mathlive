@@ -2,6 +2,7 @@ import type {
   EditToolbarOptions,
   AlphabeticKeyboardLayout,
   NormalizedVirtualKeyboardLayer,
+  NormalizedVirtualKeyboardLayout,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayout,
   VirtualKeyboardLayoutCore,
@@ -39,6 +40,121 @@ import { Style } from '../public/core-types';
 import { deepActiveElement } from '../ui/events/utils';
 import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
+const SECONDARY_LAYOUT_CLASS = 'MLK__secondary-layout';
+const SECONDARY_LAYOUT_MARKER = '__mathliveSecondaryLayout';
+
+function isSeparatorKey(key: unknown): boolean {
+  return (
+    typeof key === 'object' &&
+    key !== null &&
+    String((key as { class?: string }).class ?? '').includes('separator')
+  );
+}
+
+function keyWidth(key: unknown): number {
+  if (isSeparatorKey(key)) return 0;
+  const width =
+    typeof key === 'object' && key !== null
+      ? Number((key as { width?: number }).width)
+      : 1;
+  return Number.isFinite(width) && width > 0 ? width : 1;
+}
+
+function packedRows(
+  rows: Partial<VirtualKeyboardKeycap>[][]
+): Partial<VirtualKeyboardKeycap>[][] {
+  const sections = rows.map((row) => {
+    const divider = row.findIndex(isSeparatorKey);
+    return divider < 0
+      ? {
+          left: row,
+          right: [] as Partial<VirtualKeyboardKeycap>[],
+          separator: undefined,
+        }
+      : {
+          left: row.slice(0, divider),
+          right: row.slice(divider + 1),
+          separator: row[divider],
+        };
+  });
+  const maxWidth = Math.max(
+    1,
+    ...sections.flatMap((section) => [
+      section.left.reduce((sum, key) => sum + keyWidth(key), 0),
+      section.right.reduce((sum, key) => sum + keyWidth(key), 0),
+    ])
+  );
+  const target = Math.max(4, Math.ceil(maxWidth / 2));
+  const pack = (groups: Partial<VirtualKeyboardKeycap>[][]) => {
+    const result: Partial<VirtualKeyboardKeycap>[][] = [];
+    let current: Partial<VirtualKeyboardKeycap>[] = [];
+    let width = 0;
+    const flush = () => {
+      if (current.length) result.push(current);
+      current = [];
+      width = 0;
+    };
+    groups.forEach((group) => {
+      const groupWidth = group.reduce((sum, key) => sum + keyWidth(key), 0);
+      if (current.length && width + groupWidth > target) flush();
+      current.push(...group.map((key) => ({ ...key })));
+      width += groupWidth;
+    });
+    flush();
+    return result;
+  };
+  const hasDivider = sections.some(
+    (section) => section.separator !== undefined
+  );
+  if (!hasDivider) return pack(sections.map((section) => section.left));
+  const left = pack(
+    sections.map((section) => section.left).filter((row) => row.length)
+  );
+  const right = pack(
+    sections.map((section) => section.right).filter((row) => row.length)
+  );
+  const separator = sections.find(
+    (section) => section.separator !== undefined
+  )?.separator;
+  return Array.from(
+    { length: Math.max(left.length, right.length) },
+    (_, index) => [
+      ...(left[index] ?? []),
+      ...(separator ? [{ ...separator }] : []),
+      ...(right[index] ?? []),
+    ]
+  );
+}
+
+function createSecondaryLayouts(layouts: NormalizedVirtualKeyboardLayout[]): {
+  layouts: NormalizedVirtualKeyboardLayout[];
+  layerMap: Map<string, string>;
+} {
+  const layerMap = new Map<string, string>();
+  const secondary = layouts.map((layout, layoutIndex) => ({
+    ...layout,
+    labelClass: `${layout.labelClass ?? ''} ${SECONDARY_LAYOUT_CLASS}`.trim(),
+    [SECONDARY_LAYOUT_MARKER]: true,
+    displayEditToolbar: false,
+    layers: layout.layers.map((layer, layerIndex) => {
+      const id = `MLK__secondary-${layoutIndex}-${layerIndex}`;
+      if (layer.id) layerMap.set(layer.id, id);
+      return {
+        ...layer,
+        id,
+        rows: layer.rows ? packedRows(layer.rows) : layer.rows,
+      };
+    }),
+  })) as NormalizedVirtualKeyboardLayout[];
+  return { layouts: secondary, layerMap };
+}
+
+function isSecondaryLayout(layout: NormalizedVirtualKeyboardLayout): boolean {
+  return (
+    layout.labelClass?.split(/\s+/).includes(SECONDARY_LAYOUT_CLASS) ?? false
+  );
+}
+
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
   private _element?: HTMLDivElement;
@@ -47,11 +163,6 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private originalContainerBottomPadding: string | null = null;
   private userHeight: number | null = null;
   private userResizing = false;
-  private readonly rowMetricsCache = new WeakMap<
-    HTMLElement,
-    { width: number; gap: number; heights: number[] }
-  >();
-
   private connectedMathfieldWindow: Window | undefined;
   private readonly listeners: {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
@@ -192,7 +303,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       (VirtualKeyboardName | VirtualKeyboardLayout)[]
     >(layouts as (VirtualKeyboardName | VirtualKeyboardLayout)[]);
 
-    this._normalizedLayouts = layouts.map((x) => normalizeLayout(x));
+    const normalized = layouts.map((x) => normalizeLayout(x));
+    const generated = createSecondaryLayouts(normalized);
+    this._secondaryLayerMap = generated.layerMap;
+    this._normalizedLayouts = [...normalized, ...generated.layouts];
   }
 
   private _normalizedLayouts:
@@ -200,6 +314,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         layers: NormalizedVirtualKeyboardLayer[];
       })[]
     | undefined;
+  private _secondaryLayerMap = new Map<string, string>();
   get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
   })[] {
@@ -370,6 +485,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     const maximum = Math.max(minimum, window.innerHeight - 16);
     this.userHeight = Math.min(Math.max(height, minimum), maximum);
     plate.style.height = `${this.userHeight}px`;
+    this.fitCurrentLayer();
     this.adjustBoundingRect();
   }
 
@@ -379,25 +495,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   endUserResize(): void {
     this.userResizing = false;
+    this.fitCurrentLayer();
     this.adjustBoundingRect();
-  }
-
-  pageRows(delta: number): void {
-    const layer = this._element?.querySelector<HTMLElement>(
-      '.MLK__layer.is-visible'
-    );
-    if (!layer) return;
-
-    const pageCount = Number(layer.dataset.pageCount ?? 1);
-    const currentPage = Number(layer.dataset.page ?? 0);
-    const page = Math.min(Math.max(currentPage + delta, 0), pageCount - 1);
-    layer.dataset.page = String(page);
-    this.updatePaging();
   }
 
   adjustBoundingRect(): void {
     if (!this._element) return;
-    if (!this.userResizing) this.updatePaging();
+    if (!this.userResizing) this.fitCurrentLayer();
     // Adjust the keyboard height
     const h = this.boundingRect.height;
     if (this.container === document.body) {
@@ -412,95 +516,83 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     } else this._element.style.setProperty('--_keyboard-height', `${h}px`);
   }
 
-  private updatePaging(): void {
+  /**
+   * Condense the active source rows as one unit. If the source rows would need
+   * to shrink below the readable floor, switch to the generated companion
+   * layout. Companions are created for every rows-based layout and layer in
+   * updateNormalizedLayouts(), so custom layouts receive the same behavior.
+   */
+  private fitCurrentLayer(): void {
     if (!this._element) return;
+    const plate = this._element.querySelector<HTMLElement>('.MLK__plate');
+    const layer = this._element.querySelector<HTMLElement>(
+      '.MLK__layer.is-visible'
+    );
+    const rows = layer?.querySelector<HTMLElement>('.MLK__rows');
+    if (!plate || !layer || !rows || rows.clientHeight <= 0) return;
 
-    for (const layer of this._element.querySelectorAll<HTMLElement>(
-      '.MLK__layer'
-    )) {
-      const viewport = layer.querySelector<HTMLElement>('.MLK__rows-viewport');
-      const rows = layer.querySelectorAll<HTMLElement>(
-        '.MLK__rows > .MLK__row'
-      );
-      const rowContainer = layer.querySelector<HTMLElement>('.MLK__rows');
-      const previous = layer.querySelector<HTMLButtonElement>('.MLK__page-up');
-      const next = layer.querySelector<HTMLButtonElement>('.MLK__page-down');
-      if (!viewport || !rowContainer || !previous || !next || rows.length === 0)
-        continue;
-
-      // Keep the controls mounted while they are unavailable. Disabled
-      // controls collapse to zero height, so they do not reduce the usable
-      // space unless paging is actually needed.
-      previous.hidden = false;
-      next.hidden = false;
-      previous.disabled = true;
-      next.disabled = true;
-      const gap = parseFloat(getComputedStyle(rowContainer).rowGap) || 0;
-      const width = rowContainer.clientWidth;
-      let metrics = this.rowMetricsCache.get(rowContainer);
-      if (
-        !metrics ||
-        metrics.width !== width ||
-        metrics.gap !== gap ||
-        metrics.heights.length !== rows.length
-      ) {
-        // Measure the complete, unpaged layer once. Reusing these measurements
-        // avoids layout reads and visibility churn during every resize event.
-        rows.forEach((row) => row.classList.remove('is-paged-out'));
-        metrics = {
-          width,
-          gap,
-          heights: Array.from(rows, (row) => row.offsetHeight),
-        };
-        this.rowMetricsCache.set(rowContainer, metrics);
+    const available = Math.max(
+      1,
+      plate.clientHeight -
+        (layer.querySelector<HTMLElement>('.MLK__toolbar')?.offsetHeight ?? 0) -
+        8
+    );
+    const natural = rows.scrollHeight;
+    const minimumScale = 0.5;
+    const current = this.currentLayer;
+    const activeLayout = this.normalizedLayouts.find((layout) =>
+      layout.layers.some((item) => item.id === current)
+    );
+    const secondary = activeLayout ? isSecondaryLayout(activeLayout) : false;
+    if (secondary && available >= natural / minimumScale) {
+      const base = [...this._secondaryLayerMap.entries()].find(
+        ([, id]) => id === current
+      )?.[0];
+      if (base) {
+        this.currentLayer = base;
+        return;
       }
-
-      const buildPages = (availableHeight: number): number[][] => {
-        const pages: number[][] = [];
-        let page: number[] = [];
-        let pageHeight = 0;
-
-        metrics!.heights.forEach((rowHeight, index) => {
-          const measuredRowHeight = rowHeight || 1;
-          const rowWithGap = measuredRowHeight + (page.length > 0 ? gap : 0);
-          if (page.length > 0 && pageHeight + rowWithGap > availableHeight) {
-            pages.push(page);
-            page = [];
-            pageHeight = 0;
-          }
-          page.push(index);
-          pageHeight += measuredRowHeight + (page.length > 1 ? gap : 0);
-        });
-        if (page.length > 0) pages.push(page);
-        return pages;
-      };
-
-      let pages = buildPages(Math.max(1, viewport.clientHeight));
-      if (pages.length > 1) {
-        previous.disabled = false;
-        next.disabled = false;
-        pages = buildPages(
-          Math.max(
-            1,
-            viewport.clientHeight - previous.offsetHeight - next.offsetHeight
-          )
-        );
-      }
-
-      const pageCount = Math.max(1, pages.length);
-      const pageIndex = Math.min(
-        Math.max(Number(layer.dataset.page ?? 0), 0),
-        pageCount - 1
-      );
-      layer.dataset.page = String(pageIndex);
-      layer.dataset.pageCount = String(pageCount);
-      const visibleRows = new Set(pages[pageIndex] ?? []);
-      rows.forEach((row, index) =>
-        row.classList.toggle('is-paged-out', !visibleRows.has(index))
-      );
-      previous.disabled = pageIndex === 0;
-      next.disabled = pageIndex === pageCount - 1;
     }
+
+    let scale = Math.min(1, available / Math.max(1, natural));
+    if (scale < minimumScale && !secondary) {
+      const condensed = this._secondaryLayerMap.get(current);
+      if (condensed) {
+        this.currentLayer = condensed;
+        return;
+      }
+      scale = minimumScale;
+    }
+    const firstKey = rows.querySelector<HTMLElement>(
+      '.MLK__keycap, .action, .shift'
+    );
+    const firstGlyph = rows.querySelector<SVGElement>('svg');
+    const computed = getComputedStyle(rows);
+    const keyHeight = firstKey?.getBoundingClientRect().height ?? 40;
+    const keyWidth = firstKey?.getBoundingClientRect().width ?? 40;
+    const gap = parseFloat(computed.rowGap || computed.gap) || 4;
+    const fontSize =
+      parseFloat(firstKey ? getComputedStyle(firstKey).fontSize : '16') || 16;
+    const glyphSize =
+      parseFloat(firstGlyph ? getComputedStyle(firstGlyph).width : '20') || 20;
+    const values: Record<string, number> = {
+      '--keycap-width': Math.max(14, keyWidth * Math.max(minimumScale, scale)),
+      '--keycap-height': Math.max(8, keyHeight * scale),
+      '--keycap-gap': Math.max(2, gap * Math.max(minimumScale, scale)),
+      '--keycap-font-size': Math.max(5, fontSize * scale),
+      '--keycap-small-font-size': Math.max(4, fontSize * scale * 0.8),
+      '--keycap-extra-small-font-size': Math.max(4, (fontSize * scale) / 1.42),
+      '--keycap-glyph-size': Math.max(6, glyphSize * scale),
+      '--keycap-glyph-size-lg': Math.max(8, glyphSize * scale * 1.2),
+      '--keycap-glyph-size-xl': Math.max(10, glyphSize * scale * 2.5),
+    };
+    Object.entries(values).forEach(([property, value]) => {
+      rows.style.setProperty(property, `${value}px`);
+      rows.style.setProperty(
+        property.replace('--keycap-', '--_keycap-'),
+        `${value}px`
+      );
+    });
   }
 
   // adjustBoundingRect(): void {
