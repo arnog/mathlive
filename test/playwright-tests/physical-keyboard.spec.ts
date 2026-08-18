@@ -306,6 +306,40 @@ test('piecewise command creates editable rows', async ({ page }) => {
   );
 });
 
+test('LaTeX commands remain editable inside piecewise placeholders', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  await field.evaluate((mfe: MathfieldElement) => {
+    mfe.setValue(String.raw`\piecewise{2}`, {
+      format: 'latex',
+      selectionMode: 'placeholder',
+    });
+    mfe.focus();
+  });
+
+  await field.pressSequentially(String.raw`\alpha`);
+
+  const pending = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(pending.mode).toBe('latex');
+  expect(pending.latex).toContain('\\begin{cases}');
+  expect(pending.latex).not.toContain('\\alpha');
+
+  await field.press('Space');
+
+  const completed = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(completed.mode).toBe('math');
+  expect(completed.latex).toContain('\\alpha');
+});
+
 test('underscore subscript', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 

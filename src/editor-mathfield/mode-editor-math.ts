@@ -23,6 +23,20 @@ import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import type { AtomJson } from 'core/types';
 
+/**
+ * A row separator inserted as `\\` can be interpreted as the editor's
+ * immediate "insert row" command instead of as part of a larger structured
+ * template. Normalize cases templates to the equivalent `\\cr` token before
+ * parsing so virtual-keyboard insertion is deterministic.
+ */
+function normalizeCasesRowSeparators(latex: string): string {
+  return latex.replace(
+    /\\begin\\{(cases|dcases|rcases)\\}([\\s\\S]*?)\\end\\{\\1\\}/g,
+    (_match, name: string, body: string) =>
+      `\\begin{${name}}${body.replace(/\\\\/g, '\\\\cr')}\\end{${name}}`
+  );
+}
+
 export class MathModeEditor extends ModeEditor {
   constructor() {
     super('math');
@@ -464,6 +478,8 @@ function convertStringToAtoms(
         inlineShortcuts: model.mathfield.options.inlineShortcuts,
       });
     }
+
+    if (typeof s === 'string') s = normalizeCasesRowSeparators(s);
 
     // If the whole string is bracketed by a mode shift command, remove it
     if (options.format === 'latex') [, s] = trimModeShiftCommand(s);
