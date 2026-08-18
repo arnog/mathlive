@@ -1,3 +1,8 @@
+## Unreleased
+
+- Replace virtual-keyboard row paging with readable row scaling and automatically
+  generated condensed companion layouts for custom and built-in keyboards.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories
@@ -73,6 +78,11 @@
   (contributed by @Blibbo)
 
 ### Improvements
+
+- Improved virtual keyboard resizing performance by caching row measurements and
+  deferring row paging changes until the resize gesture ends. Paging controls
+  remain mounted while disabled, avoiding layout churn as the keyboard height
+  changes.
 
 - Added Catalan (`ca`) localization. (contributed by @aaronFortuno)
 

@@ -332,6 +332,8 @@ function makeLayoutsToolbar(keyboard: VirtualKeyboard, index: number): string {
   if (keyboard.normalizedLayouts.length > 1) {
     for (const [i, l] of keyboard.normalizedLayouts.entries()) {
       const layout = l;
+      if (layout.labelClass?.split(/\s+/).includes('MLK__secondary-layout'))
+        continue;
 
       const classes = [i === index ? 'selected' : 'layer-switch'];
       if (layout.tooltip) classes.push('MLK__tooltip');
@@ -515,6 +517,12 @@ const SVG_ICONS = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;
 <symbol id="svg-arrow-right" viewBox="0 0 320 512">
   <path d="M113.3 47.41l183.1 191.1c4.469 4.625 6.688 10.62 6.688 16.59s-2.219 11.97-6.688 16.59l-183.1 191.1c-9.152 9.594-24.34 9.906-33.9 .7187c-9.625-9.125-9.938-24.38-.7187-33.91l168-175.4L78.71 80.6c-9.219-9.5-8.906-24.78 .7187-33.91C88.99 37.5 104.2 37.82 113.3 47.41z"/>
 </symbol>
+<symbol id="svg-angle-up" viewBox="0 0 448 512">
+  <path d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/>
+</symbol>
+<symbol id="svg-angle-down" viewBox="0 0 448 512">
+  <path d="M201.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 306.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/>
+</symbol>
 <symbol id="svg-tab" viewBox="0 0 448 512">
   <path d="M32 217.1c0-8.8 7.2-16 16-16h144v-93.9c0-7.1 8.6-10.7 13.6-5.7l143.5 143.1c6.3 6.3 6.3 16.4 0 22.7L205.6 410.4c-5 5-13.6 1.5-13.6-5.7v-93.9H48c-8.8 0-16-7.2-16-16v-77.7m-32 0v77.7c0 26.5 21.5 48 48 48h112v61.9c0 35.5 43 53.5 68.2 28.3l143.6-143c18.8-18.8 18.8-49.2 0-68L228.2 78.9c-25.1-25.1-68.2-7.3-68.2 28.3v61.9H48c-26.5 0-48 21.6-48 48zM436 64h-8c-6.6 0-12 5.4-12 12v360c0 6.6 5.4 12 12 12h8c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12z"/>
 </symbol>
@@ -566,6 +574,16 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
         .map((x, i) => makeLayout(keyboard, x, i))
         .join('')
   );
+  plate.insertAdjacentHTML(
+    'afterbegin',
+    `<div class="MLK__resize-handle" role="separator" tabindex="0" data-l10n-tooltip="keyboard.tooltip.resize" data-l10n-arial-label="keyboard.tooltip.resize"></div>`
+  );
+  plate
+    .querySelector<HTMLElement>('.MLK__resize-handle')
+    ?.addEventListener('pointerdown', (ev) => {
+      ev.stopPropagation();
+      beginResize(ev, keyboard);
+    });
 
   // The plate is placed on a 'backdrop' which is used to display the keyboard
   // background and account for optional margins
@@ -608,6 +626,7 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   // Restore the last active keyboards, or pick the first one
   keyboard.currentLayer = keyboard.latentLayer;
+  l10nOptions.update(result);
 
   return result;
 }
@@ -622,7 +641,13 @@ function makeLayout(
   for (const layer of layout.layers) {
     markup.push(`<div tabindex="-1" class="MLK__layer" id="${layer.id}">`);
 
-    if (keyboard.normalizedLayouts.length > 1 || layout.displayEditToolbar) {
+    const isSecondary = layout.labelClass
+      ?.split(/\s+/)
+      .includes('MLK__secondary-layout');
+    if (
+      (!isSecondary && keyboard.normalizedLayouts.length > 1) ||
+      layout.displayEditToolbar
+    ) {
       markup.push(`<div class='MLK__toolbar' role='toolbar'>`);
       markup.push(makeLayoutsToolbar(keyboard, index));
       // If there are no keycap with editing commands, add an edit toolbar
@@ -1229,6 +1254,44 @@ function handlePointerDown(ev: PointerEvent) {
     );
   }
 
+  ev.preventDefault();
+}
+
+function beginResize(ev: PointerEvent, keyboard: VirtualKeyboard): void {
+  const startY = ev.clientY;
+  const startHeight = keyboard.plateHeight;
+  const pointerId = ev.pointerId;
+  const captureTarget =
+    ev.currentTarget instanceof HTMLElement ? ev.currentTarget : null;
+  keyboard.beginUserResize();
+  try {
+    captureTarget?.setPointerCapture(pointerId);
+  } catch {
+    // Pointer capture is unavailable in a few embedded/test environments.
+  }
+
+  const move = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== pointerId) return;
+    keyboard.setUserHeight(startHeight + startY - moveEvent.clientY);
+    moveEvent.preventDefault();
+  };
+  const end = (endEvent: PointerEvent) => {
+    if (endEvent.pointerId !== pointerId) return;
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', end);
+    window.removeEventListener('pointercancel', end);
+    try {
+      if (captureTarget?.hasPointerCapture(pointerId))
+        captureTarget.releasePointerCapture(pointerId);
+    } catch {
+      // The pointer may already have been released by the browser.
+    }
+    keyboard.endUserResize();
+  };
+
+  window.addEventListener('pointermove', move, { passive: false });
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
   ev.preventDefault();
 }
 

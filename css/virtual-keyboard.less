@@ -353,6 +353,10 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   user-select: none;
   pointer-events: all;
 
+  display: flex;
+  flex-flow: column;
+  overflow: hidden;
+
   font-family: @system;
   font-size: 16px; /* Size of toolbar labels */
   font-weight: 400;
@@ -380,6 +384,35 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   &.is-visible {
     display: flex;
     flex-flow: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+.MLK__resize-handle {
+  flex: 0 0 8px;
+  width: 100%;
+  cursor: ns-resize;
+  touch-action: none;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    width: 42px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--_border);
+    transform: translateX(-50%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--_accent-color);
+    outline-offset: -2px;
   }
 }
 

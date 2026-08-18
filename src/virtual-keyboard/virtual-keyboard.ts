@@ -2,6 +2,7 @@ import type {
   EditToolbarOptions,
   AlphabeticKeyboardLayout,
   NormalizedVirtualKeyboardLayer,
+  NormalizedVirtualKeyboardLayout,
   VirtualKeyboardKeycap,
   VirtualKeyboardLayout,
   VirtualKeyboardLayoutCore,
@@ -39,13 +40,536 @@ import { Style } from '../public/core-types';
 import { deepActiveElement } from '../ui/events/utils';
 import { _Mathfield } from 'editor-mathfield/mathfield-private';
 
+const SECONDARY_LAYOUT_CLASS = 'MLK__secondary-layout';
+const SECONDARY_LAYOUT_MARKER = '__mathliveSecondaryLayout';
+const MIN_CONDENSED_KEY_SCALE = 0.5;
+const CONDENSED_VIEWPORT_BOTTOM_GUTTER = 8;
+const ACTIVE_SCALE_PROPERTIES = [
+  '--keycap-height',
+  '--keycap-width',
+  '--keycap-gap',
+  '--keycap-font-size',
+  '--keycap-small-font-size',
+  '--keycap-extra-small-font-size',
+  '--keycap-glyph-size',
+  '--keycap-glyph-size-lg',
+  '--keycap-glyph-size-xl',
+  '--keycap-shift-font-size',
+  '--_keycap-height',
+  '--_keycap-width',
+  '--_keycap-gap',
+  '--_keycap-font-size',
+  '--_keycap-small-font-size',
+  '--_keycap-extra-small-font-size',
+  '--_keycap-glyph-size',
+  '--_keycap-glyph-size-lg',
+  '--_keycap-glyph-size-xl',
+  '--_keycap-shift-font-size',
+];
+
+type DomRowStructure = {
+  rows: HTMLElement[];
+  children: HTMLElement[][];
+  rowHeight: number;
+  direction: 'ltr' | 'rtl';
+};
+
+const domRowStructureCache = new WeakMap<HTMLElement, DomRowStructure>();
+
+function readPixels(value: string): number {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function resetActiveRowSizing(rows: HTMLElement): void {
+  ACTIVE_SCALE_PROPERTIES.forEach((property) =>
+    rows.style.removeProperty(property)
+  );
+  rows.style.transform = '';
+  rows.style.transformOrigin = 'top center';
+  rows.style.marginBottom = '0px';
+}
+
+function getDirectRows(rows: HTMLElement): HTMLElement[] {
+  return Array.from(rows.querySelectorAll<HTMLElement>(':scope > .MLK__row'));
+}
+
+function restoreOriginalRows(rows: HTMLElement): DomRowStructure | null {
+  const cached = domRowStructureCache.get(rows);
+  if (!cached) return null;
+  cached.rows.forEach((row, index) =>
+    row.replaceChildren(...(cached.children[index] ?? []))
+  );
+  rows.replaceChildren(...cached.rows);
+  rows.removeAttribute('data-mlk-packed');
+  rows.removeAttribute('data-mlk-packed-width');
+  rows.removeAttribute('data-mlk-packed-row-count');
+  return cached;
+}
+
+function getOriginalRows(rows: HTMLElement): DomRowStructure {
+  const currentRows = getDirectRows(rows);
+  const cached = domRowStructureCache.get(rows);
+  const currentRowsArePacked = currentRows.some((row) =>
+    row.classList.contains('MLK__packed-row')
+  );
+  if (cached && rows.dataset.mlkPacked === '1' && !currentRowsArePacked)
+    domRowStructureCache.delete(rows);
+
+  const refreshed = domRowStructureCache.get(rows);
+  if (
+    refreshed &&
+    currentRows.length === refreshed.rows.length &&
+    currentRows.every((row, index) => row === refreshed.rows[index])
+  )
+    return refreshed;
+
+  const structure: DomRowStructure = {
+    rows: currentRows,
+    children: currentRows.map(
+      (row) => Array.from(row.children) as HTMLElement[]
+    ),
+    rowHeight: Math.max(...currentRows.map((row) => row.offsetHeight), 1),
+    direction:
+      currentRows[0] &&
+      window.getComputedStyle(currentRows[0]).direction === 'rtl'
+        ? 'rtl'
+        : 'ltr',
+  };
+  domRowStructureCache.set(rows, structure);
+  return structure;
+}
+
+type DomKeyboardSections = {
+  left: HTMLElement[][];
+  right: HTMLElement[][];
+  dividerWidth: number;
+};
+
+function getKeyboardSections(
+  structure: DomRowStructure,
+  itemWidths?: Map<HTMLElement, number>
+): DomKeyboardSections | null {
+  const left: HTMLElement[][] = [];
+  const right: HTMLElement[][] = [];
+  let dividerWidth = 0;
+  let hasDivider = false;
+
+  structure.children.forEach((children) => {
+    const dividerIndex = children.findIndex((child) =>
+      child.classList.contains('separator')
+    );
+    if (dividerIndex < 0) {
+      if (children.length > 0) left.push(children);
+      return;
+    }
+    hasDivider = true;
+    const divider = children[dividerIndex];
+    dividerWidth = Math.max(
+      dividerWidth,
+      itemWidths?.get(divider) ??
+        divider.getBoundingClientRect().width ??
+        divider.offsetWidth
+    );
+    const leftRow = children.slice(0, dividerIndex);
+    const rightRow = children.slice(dividerIndex + 1);
+    if (leftRow.length > 0) left.push(leftRow);
+    if (rightRow.length > 0) right.push(rightRow);
+  });
+
+  return hasDivider
+    ? { left, right, dividerWidth: Math.max(1, dividerWidth) }
+    : null;
+}
+
+function getItemsWidth(
+  items: HTMLElement[],
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>
+): number {
+  return items.reduce(
+    (total, item) =>
+      total +
+      (itemWidths?.get(item) ??
+        item.getBoundingClientRect().width ??
+        item.offsetWidth) *
+        widthScale,
+    Math.max(0, items.length - 1) * gap
+  );
+}
+
+function wrapKeyboardItems(
+  items: HTMLElement[],
+  availableWidth: number,
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>
+): HTMLElement[][] {
+  const wrapped: HTMLElement[][] = [];
+  let current: HTMLElement[] = [];
+  let currentWidth = 0;
+  items.forEach((item) => {
+    const itemWidth = Math.max(
+      1,
+      (itemWidths?.get(item) ??
+        item.getBoundingClientRect().width ??
+        item.offsetWidth) * widthScale
+    );
+    const nextWidth = currentWidth + (current.length > 0 ? gap : 0) + itemWidth;
+    if (current.length > 0 && nextWidth > availableWidth) {
+      wrapped.push(current);
+      current = [];
+      currentWidth = 0;
+    }
+    current.push(item);
+    currentWidth += (current.length > 1 ? gap : 0) + itemWidth;
+  });
+  if (current.length > 0) wrapped.push(current);
+  return wrapped;
+}
+
+function splitKeyboardGroup(
+  group: HTMLElement[],
+  availableWidth: number,
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>
+): HTMLElement[][] {
+  const groupWidth = getItemsWidth(group, gap, widthScale, itemWidths);
+  const rowCount = Math.max(
+    2,
+    Math.ceil(groupWidth / Math.max(1, availableWidth))
+  );
+  const rows: HTMLElement[][] = [];
+  let cursor = 0;
+  for (let index = 0; index < rowCount && cursor < group.length; index += 1) {
+    const remainingItems = group.length - cursor;
+    const remainingRows = rowCount - index;
+    const itemCount = Math.max(1, Math.ceil(remainingItems / remainingRows));
+    const candidate = group.slice(cursor, cursor + itemCount);
+    if (
+      getItemsWidth(candidate, gap, widthScale, itemWidths) > availableWidth
+    ) {
+      return wrapKeyboardItems(
+        group,
+        availableWidth,
+        gap,
+        widthScale,
+        itemWidths
+      );
+    }
+    rows.push(candidate);
+    cursor += candidate.length;
+  }
+  return rows;
+}
+
+function wrapKeyboardGroups(
+  groups: HTMLElement[][],
+  availableWidth: number,
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>
+): HTMLElement[][] {
+  const wrapped: HTMLElement[][] = [];
+  let current: HTMLElement[] = [];
+  let currentWidth = 0;
+  const flush = () => {
+    if (current.length > 0) wrapped.push(current);
+    current = [];
+    currentWidth = 0;
+  };
+
+  groups.forEach((group) => {
+    if (group.length === 0) return;
+    const groupWidth = getItemsWidth(group, gap, widthScale, itemWidths);
+    if (groupWidth > availableWidth) {
+      flush();
+      splitKeyboardGroup(
+        group,
+        availableWidth,
+        gap,
+        widthScale,
+        itemWidths
+      ).forEach((items) => wrapped.push(items));
+      return;
+    }
+    const nextWidth =
+      currentWidth + (current.length > 0 ? gap : 0) + groupWidth;
+    if (current.length > 0 && nextWidth > availableWidth) flush();
+    current.push(...group);
+    currentWidth += (current.length > group.length ? gap : 0) + groupWidth;
+  });
+  flush();
+  return wrapped;
+}
+
+function getPackedRowCount(
+  structure: DomRowStructure,
+  availableWidth: number,
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>,
+  sections?: DomKeyboardSections | null
+): number {
+  const keyboardSections =
+    sections ?? getKeyboardSections(structure, itemWidths);
+  if (!keyboardSections) {
+    return Math.max(
+      1,
+      wrapKeyboardGroups(
+        structure.children,
+        availableWidth,
+        gap,
+        widthScale,
+        itemWidths
+      ).length
+    );
+  }
+  const sideWidth = Math.max(
+    1,
+    (availableWidth - keyboardSections.dividerWidth * widthScale) / 2
+  );
+  return Math.max(
+    1,
+    wrapKeyboardGroups(
+      keyboardSections.left,
+      sideWidth,
+      gap,
+      widthScale,
+      itemWidths
+    ).length,
+    wrapKeyboardGroups(
+      keyboardSections.right,
+      sideWidth,
+      gap,
+      widthScale,
+      itemWidths
+    ).length
+  );
+}
+
+function packRowsIntoAvailableWidth(
+  rows: HTMLElement,
+  structure: DomRowStructure,
+  availableWidth: number,
+  gap: number,
+  widthScale: number,
+  itemWidths?: Map<HTMLElement, number>,
+  sections?: DomKeyboardSections | null
+): void {
+  const keyboardSections =
+    sections ?? getKeyboardSections(structure, itemWidths);
+  const packedRows: HTMLElement[] = [];
+  const makeRow = (items: HTMLElement[]) => {
+    const row = document.createElement('div');
+    row.className = 'MLK__row MLK__packed-row';
+    row.style.width = `${Math.max(1, availableWidth)}px`;
+    row.style.maxWidth = '100%';
+    row.style.marginInline = 'auto';
+    row.style.direction = structure.direction;
+    row.append(...items);
+    packedRows.push(row);
+  };
+
+  if (!keyboardSections) {
+    wrapKeyboardGroups(
+      structure.children,
+      availableWidth,
+      gap,
+      widthScale,
+      itemWidths
+    ).forEach(makeRow);
+  } else {
+    const sideWidth = Math.max(
+      1,
+      (availableWidth - keyboardSections.dividerWidth * widthScale) / 2
+    );
+    const leftRows = wrapKeyboardGroups(
+      keyboardSections.left,
+      sideWidth,
+      gap,
+      widthScale,
+      itemWidths
+    );
+    const rightRows = wrapKeyboardGroups(
+      keyboardSections.right,
+      sideWidth,
+      gap,
+      widthScale,
+      itemWidths
+    );
+    const makeSpacer = (width: number) => {
+      const spacer = document.createElement('div');
+      spacer.setAttribute('aria-hidden', 'true');
+      spacer.style.width = `${Math.max(0, width)}px`;
+      spacer.style.flex = `0 0 ${Math.max(0, width)}px`;
+      return spacer;
+    };
+    const makeDivider = () => {
+      const divider = document.createElement('div');
+      divider.className = 'separator w5';
+      divider.setAttribute('aria-hidden', 'true');
+      divider.style.width = `${Math.max(1, keyboardSections.dividerWidth * widthScale)}px`;
+      divider.style.flex = `0 0 ${Math.max(1, keyboardSections.dividerWidth * widthScale)}px`;
+      return divider;
+    };
+    for (
+      let index = 0;
+      index < Math.max(leftRows.length, rightRows.length);
+      index += 1
+    ) {
+      const left = leftRows[index] ?? [];
+      const right = rightRows[index] ?? [];
+      const row = document.createElement('div');
+      row.className = 'MLK__row MLK__packed-row';
+      row.style.width = `${Math.max(1, availableWidth)}px`;
+      row.style.maxWidth = '100%';
+      row.style.marginInline = 'auto';
+      row.style.direction = structure.direction;
+      row.append(
+        ...left,
+        makeSpacer(
+          sideWidth - getItemsWidth(left, gap, widthScale, itemWidths)
+        ),
+        makeDivider(),
+        makeSpacer(
+          sideWidth - getItemsWidth(right, gap, widthScale, itemWidths)
+        ),
+        ...right
+      );
+      packedRows.push(row);
+    }
+  }
+
+  if (packedRows.length >= structure.rows.length) return;
+  rows.replaceChildren(...packedRows);
+  rows.dataset.mlkPacked = '1';
+  rows.dataset.mlkPackedWidth = String(Math.round(availableWidth));
+  rows.dataset.mlkPackedRowCount = String(packedRows.length);
+}
+
+function isSeparatorKey(key: unknown): boolean {
+  return (
+    typeof key === 'object' &&
+    key !== null &&
+    String((key as { class?: string }).class ?? '').includes('separator')
+  );
+}
+
+function keyWidth(key: unknown): number {
+  if (isSeparatorKey(key)) return 0;
+  const width =
+    typeof key === 'object' && key !== null
+      ? Number((key as { width?: number }).width)
+      : 1;
+  return Number.isFinite(width) && width > 0 ? width : 1;
+}
+
+function packedRows(
+  rows: Partial<VirtualKeyboardKeycap>[][]
+): Partial<VirtualKeyboardKeycap>[][] {
+  const sections = rows.map((row) => {
+    const divider = row.findIndex(isSeparatorKey);
+    return divider < 0
+      ? {
+          left: row,
+          right: [] as Partial<VirtualKeyboardKeycap>[],
+          separator: undefined,
+        }
+      : {
+          left: row.slice(0, divider),
+          right: row.slice(divider + 1),
+          separator: row[divider],
+        };
+  });
+  const maxWidth = Math.max(
+    1,
+    ...sections.flatMap((section) => [
+      section.left.reduce((sum, key) => sum + keyWidth(key), 0),
+      section.right.reduce((sum, key) => sum + keyWidth(key), 0),
+    ])
+  );
+  const target = Math.max(4, Math.ceil(maxWidth / 2));
+  const pack = (groups: Partial<VirtualKeyboardKeycap>[][]) => {
+    const result: Partial<VirtualKeyboardKeycap>[][] = [];
+    let current: Partial<VirtualKeyboardKeycap>[] = [];
+    let width = 0;
+    const flush = () => {
+      if (current.length) result.push(current);
+      current = [];
+      width = 0;
+    };
+    groups.forEach((group) => {
+      const groupWidth = group.reduce((sum, key) => sum + keyWidth(key), 0);
+      if (current.length && width + groupWidth > target) flush();
+      current.push(...group.map((key) => ({ ...key })));
+      width += groupWidth;
+    });
+    flush();
+    return result;
+  };
+  const hasDivider = sections.some(
+    (section) => section.separator !== undefined
+  );
+  if (!hasDivider) return pack(sections.map((section) => section.left));
+  const left = pack(
+    sections.map((section) => section.left).filter((row) => row.length)
+  );
+  const right = pack(
+    sections.map((section) => section.right).filter((row) => row.length)
+  );
+  const separator = sections.find(
+    (section) => section.separator !== undefined
+  )?.separator;
+  return Array.from(
+    { length: Math.max(left.length, right.length) },
+    (_, index) => [
+      ...(left[index] ?? []),
+      ...(separator ? [{ ...separator }] : []),
+      ...(right[index] ?? []),
+    ]
+  );
+}
+
+function createSecondaryLayouts(layouts: NormalizedVirtualKeyboardLayout[]): {
+  layouts: NormalizedVirtualKeyboardLayout[];
+  layerMap: Map<string, string>;
+} {
+  const layerMap = new Map<string, string>();
+  const secondary = layouts.map((layout, layoutIndex) => ({
+    ...layout,
+    labelClass: `${layout.labelClass ?? ''} ${SECONDARY_LAYOUT_CLASS}`.trim(),
+    [SECONDARY_LAYOUT_MARKER]: true,
+    displayEditToolbar: false,
+    layers: layout.layers.map((layer, layerIndex) => {
+      const id = `MLK__secondary-${layoutIndex}-${layerIndex}`;
+      if (layer.id) layerMap.set(layer.id, id);
+      return {
+        ...layer,
+        id,
+        rows: layer.rows ? packedRows(layer.rows) : layer.rows,
+      };
+    }),
+  })) as NormalizedVirtualKeyboardLayout[];
+  return { layouts: secondary, layerMap };
+}
+
+function isSecondaryLayout(layout: NormalizedVirtualKeyboardLayout): boolean {
+  return (
+    layout.labelClass?.split(/\s+/).includes(SECONDARY_LAYOUT_CLASS) ?? false
+  );
+}
+
 export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
   private _element?: HTMLDivElement;
   private _rebuilding: boolean;
   private readonly observer: ResizeObserver;
   private originalContainerBottomPadding: string | null = null;
-
+  private userHeight: number | null = null;
+  private userResizing = false;
   private connectedMathfieldWindow: Window | undefined;
   private readonly listeners: {
     [type: string]: Set<EventListenerOrEventListenerObject | null>;
@@ -77,6 +601,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     }
 
     this.render();
+    this.adjustBoundingRect();
   }
 
   /**
@@ -185,7 +710,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       (VirtualKeyboardName | VirtualKeyboardLayout)[]
     >(layouts as (VirtualKeyboardName | VirtualKeyboardLayout)[]);
 
-    this._normalizedLayouts = layouts.map((x) => normalizeLayout(x));
+    const normalized = layouts.map((x) => normalizeLayout(x));
+    const generated = createSecondaryLayouts(normalized);
+    this._secondaryLayerMap = generated.layerMap;
+    this._normalizedLayouts = [...normalized, ...generated.layouts];
   }
 
   private _normalizedLayouts:
@@ -193,6 +721,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         layers: NormalizedVirtualKeyboardLayer[];
       })[]
     | undefined;
+  private _secondaryLayerMap = new Map<string, string>();
   get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
   })[] {
@@ -347,8 +876,39 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     return new DOMRect();
   }
 
+  get plateHeight(): number {
+    return (
+      this._element
+        ?.querySelector<HTMLElement>('.MLK__plate')
+        ?.getBoundingClientRect().height ?? 0
+    );
+  }
+
+  setUserHeight(height: number): void {
+    const plate = this._element?.querySelector<HTMLElement>('.MLK__plate');
+    if (!plate) return;
+
+    const minimum = 96;
+    const maximum = Math.max(minimum, window.innerHeight - 16);
+    this.userHeight = Math.min(Math.max(height, minimum), maximum);
+    plate.style.height = `${this.userHeight}px`;
+    this.fitCurrentLayer();
+    this.adjustBoundingRect();
+  }
+
+  beginUserResize(): void {
+    this.userResizing = true;
+  }
+
+  endUserResize(): void {
+    this.userResizing = false;
+    this.fitCurrentLayer();
+    this.adjustBoundingRect();
+  }
+
   adjustBoundingRect(): void {
     if (!this._element) return;
+    if (!this.userResizing) this.fitCurrentLayer();
     // Adjust the keyboard height
     const h = this.boundingRect.height;
     if (this.container === document.body) {
@@ -361,6 +921,321 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         ? `calc(${this.originalContainerBottomPadding} + ${keyboardHeight}px)`
         : `${keyboardHeight}px`;
     } else this._element.style.setProperty('--_keyboard-height', `${h}px`);
+  }
+
+  /**
+   * Resize the active keyboard as one unit before changing its row structure.
+   * If the source rows cannot fit above the readable floor, switch to the
+   * generated companion layout. Dynamic packing remains a last resort for
+   * layouts that do not have a companion, preserving source-row order and
+   * left/right separator alignment.
+   */
+  private fitCurrentLayer(): void {
+    if (!this._element) return;
+    const plate = this._element.querySelector<HTMLElement>('.MLK__plate');
+    const layer = this._element.querySelector<HTMLElement>(
+      '.MLK__layer.is-visible'
+    );
+    const rows = layer?.querySelector<HTMLElement>('.MLK__rows');
+    if (!plate || !layer || !rows || rows.clientHeight <= 0) return;
+
+    const availableHeight = Math.max(
+      1,
+      plate.clientHeight -
+        (layer.querySelector<HTMLElement>('.MLK__toolbar')?.offsetHeight ?? 0) -
+        CONDENSED_VIEWPORT_BOTTOM_GUTTER
+    );
+    const availableWidth = Math.max(1, rows.clientWidth);
+    const current = this.currentLayer;
+    const activeLayout = this.normalizedLayouts.find((layout) =>
+      layout.layers.some((item) => item.id === current)
+    );
+
+    const signatureParts = [
+      Math.round(availableWidth),
+      Math.round(availableHeight),
+      rows.dataset.mlkPackedWidth ?? '0',
+      rows.dataset.mlkPackedRowCount ?? '0',
+      getDirectRows(rows).length,
+    ];
+    if (rows.dataset.mlkLayoutSignature === signatureParts.join(':')) return;
+
+    const secondary = activeLayout ? isSecondaryLayout(activeLayout) : false;
+    if (secondary) {
+      const baseHeight = Number(plate.dataset.mlkSecondaryBaseHeight ?? '0');
+      const base = [...this._secondaryLayerMap.entries()].find(
+        ([, id]) => id === current
+      )?.[0];
+      if (base && baseHeight > 0 && availableHeight >= baseHeight + 4) {
+        resetActiveRowSizing(rows);
+        plate.removeAttribute('data-mlk-secondary-base-height');
+        this.currentLayer = base;
+        return;
+      }
+
+      resetActiveRowSizing(rows);
+      const computedRows = window.getComputedStyle(rows);
+      const rowElements = getDirectRows(rows);
+      const gap = Math.max(
+        1,
+        readPixels(computedRows.rowGap || computedRows.gap)
+      );
+      const naturalHeight =
+        rowElements.reduce((total, row) => total + row.offsetHeight, 0) +
+        gap * Math.max(0, rowElements.length - 1);
+      const firstKey = rows.querySelector<HTMLElement>(
+        '.MLK__keycap, .action, .shift'
+      );
+      const firstGlyph = rows.querySelector<SVGElement>('svg');
+      const keyGap = Math.max(
+        1,
+        readPixels(computedRows.getPropertyValue('--_keycap-gap')) || gap
+      );
+      const keyWidth = Math.max(
+        1,
+        readPixels(computedRows.getPropertyValue('--_keycap-width')) ||
+          (firstKey?.getBoundingClientRect().width ?? 0) + keyGap
+      );
+      const keyHeight = Math.max(
+        firstKey?.getBoundingClientRect().height ??
+          rowElements[0]?.offsetHeight ??
+          1,
+        1
+      );
+      const fontSize = Math.max(
+        readPixels(
+          firstKey ? window.getComputedStyle(firstKey).fontSize : '16px'
+        ),
+        1
+      );
+      const glyphSize = Math.max(
+        readPixels(
+          firstGlyph ? window.getComputedStyle(firstGlyph).width : '20px'
+        ),
+        1
+      );
+      const applyScale = (nextScale: number) => {
+        const widthScale = Math.max(MIN_CONDENSED_KEY_SCALE, nextScale);
+        const values: Record<string, number> = {
+          '--keycap-width': Math.max(14, keyWidth * widthScale),
+          '--keycap-height': Math.max(8, keyHeight * nextScale),
+          '--keycap-gap': Math.max(2, keyGap * widthScale),
+          '--keycap-font-size': Math.max(5, fontSize * nextScale),
+          '--keycap-small-font-size': Math.max(4, fontSize * nextScale * 0.8),
+          '--keycap-extra-small-font-size': Math.max(
+            4,
+            (fontSize * nextScale) / 1.42
+          ),
+          '--keycap-glyph-size': Math.max(6, glyphSize * nextScale),
+          '--keycap-glyph-size-lg': Math.max(8, glyphSize * nextScale * 1.2),
+          '--keycap-glyph-size-xl': Math.max(10, glyphSize * nextScale * 2.5),
+        };
+        Object.entries(values).forEach(([property, value]) => {
+          rows.style.setProperty(property, `${value}px`);
+          rows.style.setProperty(
+            property.replace('--keycap-', '--_keycap-'),
+            `${value}px`
+          );
+        });
+      };
+      let scale = Math.min(1, availableHeight / Math.max(1, naturalHeight));
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        applyScale(scale);
+        const actualHeight = rows.getBoundingClientRect().height;
+        if (actualHeight <= availableHeight + 1) break;
+        scale *= availableHeight / Math.max(1, actualHeight);
+      }
+      applyScale(scale);
+      rows.dataset.mlkLayoutSignature = [
+        Math.round(availableWidth),
+        Math.round(availableHeight),
+        'secondary',
+        getDirectRows(rows).length,
+      ].join(':');
+      return;
+    }
+
+    const currentRows = getDirectRows(rows);
+    const currentRowsArePacked = currentRows.some((row) =>
+      row.classList.contains('MLK__packed-row')
+    );
+    const isPacked = rows.dataset.mlkPacked === '1' && currentRowsArePacked;
+    if (isPacked) restoreOriginalRows(rows);
+    else if (currentRowsArePacked) restoreOriginalRows(rows);
+
+    const structure = getOriginalRows(rows);
+    if (structure.rows.length === 0) return;
+    resetActiveRowSizing(rows);
+
+    const computedRows = window.getComputedStyle(rows);
+    const gap = readPixels(computedRows.rowGap || computedRows.gap);
+    const rowHeight = Math.max(structure.rowHeight, 1);
+    const originalHeight =
+      rowHeight * structure.rows.length +
+      gap * Math.max(0, structure.rows.length - 1);
+    const firstKey = rows.querySelector<HTMLElement>(
+      '.MLK__keycap, .action, .shift'
+    );
+    const firstGlyph = rows.querySelector<SVGElement>('svg');
+    const keyHeight = Math.max(
+      firstKey?.getBoundingClientRect().height ?? rowHeight,
+      1
+    );
+    const fontSize = Math.max(
+      readPixels(
+        firstKey ? window.getComputedStyle(firstKey).fontSize : '16px'
+      ),
+      1
+    );
+    const glyphSize = Math.max(
+      readPixels(
+        firstGlyph ? window.getComputedStyle(firstGlyph).width : '20px'
+      ),
+      1
+    );
+    const keyGap = Math.max(
+      1,
+      readPixels(computedRows.getPropertyValue('--_keycap-gap')) || gap
+    );
+    const keyWidth = Math.max(
+      1,
+      readPixels(computedRows.getPropertyValue('--_keycap-width')) ||
+        (firstKey?.getBoundingClientRect().width ?? 0) + keyGap
+    );
+    const itemWidths = new Map<HTMLElement, number>();
+    structure.children.flat().forEach((item) => {
+      itemWidths.set(
+        item,
+        Math.max(1, item.getBoundingClientRect().width || item.offsetWidth)
+      );
+    });
+    const sections = getKeyboardSections(structure, itemWidths);
+    const applyScale = (nextScale: number) => {
+      const widthScale = Math.max(MIN_CONDENSED_KEY_SCALE, nextScale);
+      const values: Record<string, number> = {
+        '--keycap-width': Math.max(14, keyWidth * widthScale),
+        '--keycap-height': Math.max(8, keyHeight * nextScale),
+        '--keycap-gap': Math.max(2, keyGap * widthScale),
+        '--keycap-font-size': Math.max(5, fontSize * nextScale),
+        '--keycap-small-font-size': Math.max(4, fontSize * nextScale * 0.8),
+        '--keycap-extra-small-font-size': Math.max(
+          4,
+          (fontSize * nextScale) / 1.42
+        ),
+        '--keycap-glyph-size': Math.max(6, glyphSize * nextScale),
+        '--keycap-glyph-size-lg': Math.max(8, glyphSize * nextScale * 1.2),
+        '--keycap-glyph-size-xl': Math.max(10, glyphSize * nextScale * 2.5),
+      };
+      Object.entries(values).forEach(([property, value]) => {
+        rows.style.setProperty(property, `${value}px`);
+        rows.style.setProperty(
+          property.replace('--keycap-', '--_keycap-'),
+          `${value}px`
+        );
+      });
+    };
+    const fitRenderedRows = (initialScale: number): number => {
+      let nextScale = Math.min(1, initialScale);
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        applyScale(nextScale);
+        const actualHeight = rows.getBoundingClientRect().height;
+        if (actualHeight <= availableHeight + 1) return nextScale;
+        nextScale *= availableHeight / Math.max(1, actualHeight);
+      }
+      applyScale(nextScale);
+      return nextScale;
+    };
+
+    const originalScale = fitRenderedRows(
+      Math.min(1, availableHeight / Math.max(1, originalHeight))
+    );
+    if (
+      originalScale >= MIN_CONDENSED_KEY_SCALE &&
+      rows.getBoundingClientRect().height <= availableHeight + 1
+    ) {
+      plate.removeAttribute('data-mlk-secondary-base-height');
+      rows.dataset.mlkLayoutSignature = [
+        Math.round(availableWidth),
+        Math.round(availableHeight),
+        rows.dataset.mlkPackedWidth ?? '0',
+        rows.dataset.mlkPackedRowCount ?? '0',
+        getDirectRows(rows).length,
+      ].join(':');
+      return;
+    }
+
+    const secondaryLayerId = this._secondaryLayerMap.get(current);
+    if (secondaryLayerId) {
+      plate.dataset.mlkSecondaryBaseHeight = String(
+        Math.ceil(originalHeight * MIN_CONDENSED_KEY_SCALE)
+      );
+      resetActiveRowSizing(rows);
+      this.currentLayer = secondaryLayerId;
+      return;
+    }
+
+    // A custom layout may not have a generated companion. Pack complete
+    // source rows only as a last resort, keeping separator-defined sections
+    // aligned while retaining the original key order.
+    resetActiveRowSizing(rows);
+    const projectedHeight = (nextScale: number) => {
+      const layoutScale = Math.max(MIN_CONDENSED_KEY_SCALE, nextScale);
+      const scaledGap = gap * layoutScale;
+      const rowCount = getPackedRowCount(
+        structure,
+        availableWidth,
+        scaledGap,
+        layoutScale,
+        itemWidths,
+        sections
+      );
+      return (
+        rowCount * rowHeight * nextScale + scaledGap * Math.max(0, rowCount - 1)
+      );
+    };
+    let scale = 1;
+    if (projectedHeight(scale) > availableHeight) {
+      let low = MIN_CONDENSED_KEY_SCALE;
+      let high = 1;
+      scale = MIN_CONDENSED_KEY_SCALE;
+      if (projectedHeight(MIN_CONDENSED_KEY_SCALE) <= availableHeight) {
+        for (let attempt = 0; attempt < 24; attempt += 1) {
+          const candidate = (low + high) / 2;
+          if (projectedHeight(candidate) <= availableHeight) {
+            scale = candidate;
+            low = candidate;
+          } else high = candidate;
+        }
+      }
+    }
+    const layoutScale = Math.max(MIN_CONDENSED_KEY_SCALE, scale);
+    const packedRowCount = getPackedRowCount(
+      structure,
+      availableWidth,
+      gap * layoutScale,
+      layoutScale,
+      itemWidths,
+      sections
+    );
+    if (packedRowCount < structure.rows.length) {
+      packRowsIntoAvailableWidth(
+        rows,
+        structure,
+        availableWidth,
+        gap * layoutScale,
+        layoutScale,
+        itemWidths,
+        sections
+      );
+    }
+    scale = fitRenderedRows(scale);
+    rows.dataset.mlkLayoutSignature = [
+      Math.round(availableWidth),
+      Math.round(availableHeight),
+      rows.dataset.mlkPackedWidth ?? '0',
+      rows.dataset.mlkPackedRowCount ?? '0',
+      getDirectRows(rows).length,
+    ].join(':');
   }
 
   // adjustBoundingRect(): void {
@@ -578,6 +1453,10 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       { capture: true }
     );
     this.container?.appendChild(this.element);
+    if (this.userHeight !== null) {
+      const plate = this.element.querySelector<HTMLElement>('.MLK__plate');
+      if (plate) plate.style.height = `${this.userHeight}px`;
+    }
   }
 
   handleEvent(
