@@ -1,3 +1,4 @@
+import { isTextMode } from '../public/core-types';
 import type { ParseMode, Style, FontSize } from '../public/core-types';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
@@ -547,6 +548,8 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
         this.style.fontShape = style.fontShape;
       if (style.fontSeries && !this.style.fontSeries)
         this.style.fontSeries = style.fontSeries;
+      if (style.textDecoration && !this.style.textDecoration)
+        this.style.textDecoration = style.textDecoration;
       if (style.fontSize && !this.style.fontSize)
         this.style.fontSize = style.fontSize;
       if (style.variant && !this.style.variant)
@@ -1066,7 +1069,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
 
     let classes = options?.classes ?? '';
 
-    if (this.mode === 'text') classes += ' ML__text';
+    if (isTextMode(this.mode)) classes += ' ML__text';
 
     const result =
       typeof value === 'string' || value === undefined
@@ -1249,7 +1252,7 @@ function renderStyleRun(
 }
 
 function isText(atom: Atom): boolean {
-  return atom.mode === 'text';
+  return isTextMode(atom.mode);
 }
 
 function argumentsToJson<T extends any[]>(args: T): any {

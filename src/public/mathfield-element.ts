@@ -1464,7 +1464,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   get mode(): ParseMode {
     return (
       this._mathfield?.model.mode ??
-      (this.defaultMode === 'text' ? 'text' : 'math')
+      (this.defaultMode === 'free-text' || this.defaultMode === 'free-math'
+        ? this.defaultMode
+        : this.defaultMode === 'text'
+          ? 'text'
+          : 'math')
     );
   }
 
@@ -1978,7 +1982,12 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       if (!this.hasAttribute('role')) this.setAttribute('role', 'math');
       if (!this.hasAttribute('aria-label'))
         this.setAttribute('aria-label', 'math input field');
-      this.setAttribute('aria-multiline', 'false');
+      this.setAttribute(
+        'aria-multiline',
+        this.defaultMode === 'free-text' || this.defaultMode === 'free-math'
+          ? 'true'
+          : 'false'
+      );
     }
 
     // NVDA on Firefox seems to require this attribute
@@ -2233,12 +2242,21 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * - `"math"`: equivalent to `\displaystyle` (display math mode)
    * - `"inline-math"`: equivalent to `\inlinestyle` (inline math mode)
    * - `"text"`: text mode
+   * - `"free-text"`: multiline text editing with inline LaTeX
+   * - `"free-math"`: multiline math editing with inline text islands
    * @category Customization
    */
-  get defaultMode(): 'inline-math' | 'math' | 'text' {
+  get defaultMode():
+    | 'inline-math'
+    | 'math'
+    | 'text'
+    | 'free-text'
+    | 'free-math' {
     return this._getOption('defaultMode');
   }
-  set defaultMode(value: 'inline-math' | 'math' | 'text') {
+  set defaultMode(
+    value: 'inline-math' | 'math' | 'text' | 'free-text' | 'free-math'
+  ) {
     this._setOptions({ defaultMode: value });
   }
 

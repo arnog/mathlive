@@ -16,6 +16,7 @@ import type {
 import { canVibrate } from '../ui/utils/capabilities';
 
 import { Atom } from '../core/atom-class';
+import { ArrayAtom } from '../atoms/array';
 import { gFontsState } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
@@ -103,6 +104,16 @@ import '../public/mathfield-element';
 
 import '../virtual-keyboard/virtual-keyboard';
 import '../virtual-keyboard/global';
+import {
+  isFreeLinesRoot,
+  isFreeTextRoot,
+  makeFreeMathRoot,
+  makeFreeTextRoot,
+  parseFreeMath,
+  parseFreeMathValue,
+  parseFreeText,
+  parseFreeTextValue,
+} from './free-text';
 
 import type {
   ParseMode,
@@ -110,6 +121,7 @@ import type {
   NormalizedMacroDictionary,
   LatexSyntaxError,
 } from '../public/core-types';
+import { isMathMode } from '../public/core-types';
 import { makeProxy } from '../virtual-keyboard/mathfield-proxy';
 import type { ContextInterface, PrivateStyle } from '../core/types';
 import {
@@ -288,7 +300,9 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     // Use the content of the element for the initial value of the mathfield
     let elementText = options.value ?? this.element.textContent ?? '';
-    elementText = elementText.trim();
+    const isFreeMode =
+      options.defaultMode === 'free-text' || options.defaultMode === 'free-math';
+    if (!isFreeMode) elementText = elementText.trim();
 
     // The initial input mode (text or math): the mode the next character
     // typed will be interpreted in, which may be different from the mode
@@ -296,9 +310,18 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
     const mode = effectiveMode(this.options);
 
     // Setup the model
-    const body = parseLatex(elementText, { context: this.context });
+    const body = isFreeMode
+      ? []
+      : parseLatex(elementText, {
+          context: this.context,
+          parseMode: undefined,
+        });
     let root: Atom;
-    if (body.length === 1 && body[0].isRoot) root = body[0];
+    if (options.defaultMode === 'free-text')
+      root = parseFreeTextValue(elementText, this.context);
+    else if (options.defaultMode === 'free-math')
+      root = parseFreeMathValue(elementText, this.context);
+    else if (body.length === 1 && body[0].isRoot) root = body[0];
     else root = new Atom({ type: 'root', mode, body });
 
     this.model = new _Model(this, mode, root);
@@ -316,7 +339,7 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
 
     // 1/ The keyboard event capture element.
     markup.push(
-      `<span contenteditable=true role=textbox aria-autocomplete=none aria-multiline=false part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
+      `<span contenteditable=true role=textbox aria-autocomplete=none aria-multiline=${isFreeMode} part=keyboard-sink class=ML__keyboard-sink autocapitalize=off autocomplete=off autocorrect=off spellcheck=false inputmode=none tabindex=0></span>`
     );
 
     // 2/ The field, where the math equation will be displayed
@@ -696,8 +719,19 @@ If you are using Vue, this may be because you are using the runtime-only build o
     const value = style[prop];
 
     if (this.model.selectionIsCollapsed) {
-      const style = computeInsertStyle(this);
-      return style[prop] === value ? 'all' : 'none';
+      const currentStyle = computeInsertStyle(this);
+      if (prop === 'textDecoration' && typeof value === 'string') {
+        const currentDecorations = String(currentStyle[prop] ?? '')
+          .split(' ')
+          .filter(Boolean);
+        const requestedDecorations = value.split(' ').filter(Boolean);
+        return requestedDecorations.every((decoration) =>
+          currentDecorations.includes(decoration)
+        )
+          ? 'all'
+          : 'none';
+      }
+      return currentStyle[prop] === value ? 'all' : 'none';
     }
 
     const atoms = this.model.getAtoms(this.model.selection, {
@@ -707,12 +741,23 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (length === 0) return 'none';
     let count = 0;
 
+    const requestedDecorations =
+      prop === 'textDecoration' && typeof value === 'string'
+        ? value.split(' ').filter(Boolean)
+        : [];
     for (const atom of atoms) {
       if (atom.type === 'first') {
         length -= 1;
         continue;
       }
-      if (atom.style[prop] === value) count += 1;
+      if (
+        prop === 'textDecoration' && requestedDecorations.length > 0
+          ? requestedDecorations.every((decoration) =>
+              String(atom.style[prop] ?? '').split(' ').includes(decoration)
+            )
+          : atom.style[prop] === value
+      )
+        count += 1;
     }
     if (count === 0) return 'none';
     if (count === length) return 'all';
@@ -751,13 +796,59 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   setOptions(config: Partial<_MathfieldOptions>): void {
+    const previousDefaultMode = this.options.defaultMode;
+    const wasFreeLines =
+      previousDefaultMode === 'free-text' || previousDefaultMode === 'free-math';
     this.options = { ...this.options, ...updateOptions(config) };
+    const isFreeLines =
+      this.options.defaultMode === 'free-text' ||
+      this.options.defaultMode === 'free-math';
 
     this._keybindings = undefined;
 
     if (this.options.defaultMode === 'inline-math')
       this.element!.classList.add('ML__is-inline');
     else this.element!.classList.remove('ML__is-inline');
+
+    if (
+      'defaultMode' in config &&
+      (isFreeLines !== wasFreeLines ||
+        previousDefaultMode !== this.options.defaultMode)
+    ) {
+      const previousPosition = this.model.position;
+      if (isFreeLines && !isFreeLinesRoot(this.model.root)) {
+        const body = this.model.root.type === 'root'
+          ? [...(this.model.root.branch('body') ?? [])]
+          : [this.model.root];
+        this.model.root =
+          this.options.defaultMode === 'free-math'
+            ? makeFreeMathRoot([body])
+            : makeFreeTextRoot([body]);
+      } else if (
+        isFreeLines &&
+        isFreeLinesRoot(this.model.root) &&
+        ((this.options.defaultMode === 'free-text' && !isFreeTextRoot(this.model.root)) ||
+          (this.options.defaultMode === 'free-math' &&
+            this.model.root.firstChild?.mode !== 'free-math'))
+      ) {
+        const content = this.model.getValue('latex');
+        this.model.root =
+          this.options.defaultMode === 'free-math'
+            ? parseFreeMathValue(content, this.context)
+            : parseFreeTextValue(content, this.context);
+      } else if (!isFreeLines && isFreeLinesRoot(this.model.root)) {
+        const body = this.model.root.rows.flatMap((row) =>
+          row.flatMap((cell) => cell?.filter((atom) => atom.type !== 'first') ?? [])
+        );
+        this.model.root = new Atom({
+          type: 'root',
+          mode: effectiveMode(this.options),
+          body,
+        });
+      }
+      this.model.position = Math.min(previousPosition, this.model.lastOffset);
+      this.model.mode = effectiveMode(this.options);
+    }
 
     // The mode of the 'first' atom is the mode of the  expression when empty
     let mode = this.options.defaultMode;
@@ -1048,7 +1139,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   }
 
   setValue(value: string, options?: InsertOptions): void {
-    options = options ?? { mode: 'math' };
+    options = options ?? { mode: effectiveMode(this.options) };
     if (options.insertionMode === undefined)
       options.insertionMode = 'replaceAll';
 
@@ -1056,7 +1147,36 @@ If you are using Vue, this may be because you are using the runtime-only build o
       options.format = 'latex';
 
     if (options.mode === undefined || options.mode === 'auto')
-      options.mode = getMode(this.model, this.model.position) ?? 'math';
+      options.mode = getMode(this.model, this.model.position) ?? effectiveMode(this.options);
+
+    if (
+      (this.options.defaultMode === 'free-text' ||
+        this.options.defaultMode === 'free-math') &&
+      (options.mode === 'free-text' ||
+        options.mode === 'free-math' ||
+        options.mode === 'text') &&
+      options.insertionMode === 'replaceAll' &&
+      (options.format === 'latex' || options.format === 'plain-text')
+    ) {
+      if (!this.model.contentWillChange({ data: value, inputType: 'insertText' }))
+        return;
+
+      const freeMath = this.options.defaultMode === 'free-math';
+      this.model.root = freeMath
+        ? options.format === 'plain-text'
+          ? makeFreeMathRoot(parseFreeMath(value, this.context))
+          : parseFreeMathValue(value, this.context)
+        : options.format === 'plain-text'
+          ? makeFreeTextRoot(parseFreeText(value, this.context))
+          : parseFreeTextValue(value, this.context);
+      this.model.position =
+        options.selectionMode === 'before' ? 0 : this.model.lastOffset;
+      this.model.mode = freeMath ? 'free-math' : 'free-text';
+      this.model.contentDidChange({ data: value, inputType: 'insertText' });
+      requestUpdate(this);
+      this.undoManager.snapshot('set-value');
+      return;
+    }
 
     const couldUndo = this.undoManager.canUndo();
     if (ModeEditor.insert(this.model, value, options)) {
@@ -1235,9 +1355,16 @@ If you are using Vue, this may be because you are using the runtime-only build o
    * suffix with the new mode.
    */
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
+    const canEnterLatexFromEmptyFreeText =
+      (this.options.defaultMode === 'free-text' ||
+        this.options.defaultMode === 'free-math') &&
+      (this.model.mode === 'free-text' ||
+        this.model.mode === 'free-math' ||
+        this.model.mode === 'text') &&
+      mode === 'latex';
     if (
       this.model.mode === mode ||
-      !this.hasEditableContent ||
+      (!this.hasEditableContent && !canEnterLatexFromEmptyFreeText) ||
       !this.contentEditable ||
       this.disabled
     )
@@ -1284,7 +1411,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         const insertString = (s: string, options: { select: boolean }) => {
           if (!s) return;
           const atoms =
-            model.mode === 'math'
+            isMathMode(model.mode)
               ? parseLatex(parseMathString(s, { format: 'ascii-math' })[1], {
                   context: this.context,
                 })
@@ -1323,7 +1450,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           const format =
             mode === 'latex'
               ? 'latex'
-              : mode === 'math'
+              : isMathMode(mode)
                 ? 'plain-text'
                 : 'ascii-math';
 
@@ -1434,6 +1561,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
         if ('backgroundColor' in style) delete newStyle.verbatimBackgroundColor;
         this.defaultStyle = { ...newStyle, ...style };
         this.styleBias = 'none';
+        requestUpdate(this);
         return;
       }
 
@@ -1451,6 +1579,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       }
       this.defaultStyle = newStyle;
       this.styleBias = 'none';
+      requestUpdate(this);
       return;
     }
 
@@ -1677,7 +1806,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
       const latexGroup = getLatexGroup(model);
       const pos = model.position;
       const cursor = model.at(pos);
-      const mode = cursor.mode ?? effectiveMode(this.options);
+      const mode =
+        cursor.mode === 'text' && this.options.defaultMode === 'free-text'
+          ? 'free-text'
+          : cursor.mode === 'math' && this.options.defaultMode === 'free-math'
+            ? 'free-math'
+            : (cursor.mode ?? effectiveMode(this.options));
       if (
         latexGroup &&
         (pos < model.offsetOf(latexGroup.firstChild) ||
