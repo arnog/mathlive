@@ -5,6 +5,7 @@ import { toggleKeystrokeCaption } from './keystroke-caption';
 import { requestUpdate } from './render';
 import { isMathMode, ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
+import { isFreeLinesRoot, markFreeTextAnchors } from './free-text';
 
 // Commands that don't change content
 registerCommand({
@@ -89,13 +90,26 @@ registerCommand(
     // e.g. when using a virtual keyboard
     commit: (mathfield: _Mathfield) => {
       const model = mathfield.model;
+      const freeMode =
+        mathfield.options.defaultMode === 'free-math'
+          ? 'free-math'
+          : mathfield.options.defaultMode === 'free-text'
+            ? 'free-text'
+            : undefined;
       if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
         mathfield.host?.dispatchEvent(
           new Event('change', { bubbles: true, composed: true })
         );
         // If we're in a multiline environment, insert a newline
-        if (model.parentEnvironment?.isMultiline)
+        if (model.parentEnvironment?.isMultiline) {
           mathfield.executeCommand('addRowAfter');
+          if (freeMode) {
+            if (isFreeLinesRoot(model.root))
+              markFreeTextAnchors(model.root, freeMode);
+            if (model.mode !== freeMode) mathfield.switchMode(freeMode);
+            if (model.mode !== freeMode) model.mode = freeMode;
+          }
+        }
 
         model.contentDidChange({ inputType: 'insertLineBreak' });
       }
