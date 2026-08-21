@@ -461,6 +461,45 @@ test('free-math uses math atoms while preserving multiline editing', async ({
   );
 });
 
+test('free modes keep compatibility shortcuts for group navigation and commit', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  await field.evaluate((e: MathfieldElement) => {
+    e.setValue(String.raw`\frac{#0}{#1}`, {
+      mode: 'free-text',
+      format: 'latex',
+    });
+    e.executeCommand('moveToMathfieldStart');
+    e.executeCommand('moveToNextPlaceholder');
+  });
+  const positionBefore = await field.evaluate(
+    (e: MathfieldElement) => e.position
+  );
+  await field.press('Control+Tab');
+  const positionAfter = await field.evaluate(
+    (e: MathfieldElement) => e.position
+  );
+  expect(positionAfter).toBeGreaterThan(positionBefore);
+
+  await field.evaluate((e: MathfieldElement) => {
+    e.setValue('', {
+      mode: 'free-text',
+      format: 'plain-text',
+      insertionMode: 'replaceAll',
+    });
+    e.focus();
+  });
+  await field.pressSequentially('first');
+  await field.press('Control+Enter');
+  await field.pressSequentially('second');
+  await expect
+    .poll(() => field.evaluate((e: MathfieldElement) => e.getValue('plain-text')))
+    .toBe('first\nsecond');
+});
+
 test('free-math setValue preserves rows, tabs, math semantics, and outputs', async ({
   page,
 }) => {

@@ -55,6 +55,29 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     command: 'moveToPreviousGroup',
   },
 
+  // Free modes use Tab and Enter for document editing. Keep explicit
+  // compatibility shortcuts for navigating between math groups.
+  {
+    key: 'ctrl+[Tab]',
+    ifMode: 'free-text',
+    command: 'moveToNextGroup',
+  },
+  {
+    key: 'ctrl+shift+[Tab]',
+    ifMode: 'free-text',
+    command: 'moveToPreviousGroup',
+  },
+  {
+    key: 'ctrl+[Tab]',
+    ifMode: 'free-math',
+    command: 'moveToNextGroup',
+  },
+  {
+    key: 'ctrl+shift+[Tab]',
+    ifMode: 'free-math',
+    command: 'moveToPreviousGroup',
+  },
+
   { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
   { key: '[Escape]', ifMode: 'text', command: ['switchMode', 'latex'] },
   {
@@ -195,6 +218,18 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   { key: 'ctrl+[Enter]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Return]', ifMode: 'math', command: 'addRowAfter' },
   { key: 'cmd+[Enter]', ifMode: 'math', command: 'addRowAfter' },
+
+  // In free modes, Enter is the normal line-break key. Ctrl/Cmd+Enter
+  // preserves the explicit commit/row-insertion command for integrations
+  // that need the legacy command behavior.
+  { key: 'ctrl+[Return]', ifMode: 'free-text', command: 'commit' },
+  { key: 'ctrl+[Enter]', ifMode: 'free-text', command: 'commit' },
+  { key: 'cmd+[Return]', ifMode: 'free-text', command: 'commit' },
+  { key: 'cmd+[Enter]', ifMode: 'free-text', command: 'commit' },
+  { key: 'ctrl+[Return]', ifMode: 'free-math', command: 'commit' },
+  { key: 'ctrl+[Enter]', ifMode: 'free-math', command: 'commit' },
+  { key: 'cmd+[Return]', ifMode: 'free-math', command: 'commit' },
+  { key: 'cmd+[Enter]', ifMode: 'free-math', command: 'commit' },
 
   // Excel keybindings:
   // shift+space: select entire row, ctrl+space: select an entire column
