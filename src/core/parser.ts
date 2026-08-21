@@ -156,7 +156,14 @@ export class Parser {
       parent: undefined,
       mathlist: [],
       style: options.style ?? {},
-      parseMode: options.parseMode ?? 'math',
+      // Free-text has the text parser semantics. Free-math has the ordinary
+      // math parser semantics; both distinctions are editor/layout modes.
+      parseMode:
+        options.parseMode === 'free-text'
+          ? 'text'
+          : options.parseMode === 'free-math'
+            ? 'math'
+          : options.parseMode ?? 'math',
       mathstyle: options.mathstyle ?? 'displaystyle',
       tabular: false,
     };

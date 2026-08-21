@@ -3,7 +3,7 @@ import type { _Mathfield } from './mathfield-private';
 import { onInput } from './keyboard-input';
 import { toggleKeystrokeCaption } from './keystroke-caption';
 import { requestUpdate } from './render';
-import { ParseMode } from '../public/core-types';
+import { isMathMode, ParseMode } from '../public/core-types';
 import { updateAutocomplete } from './autocomplete';
 
 // Commands that don't change content
@@ -72,7 +72,7 @@ registerCommand(
     insertDecimalSeparator: (mathfield: _Mathfield) => {
       const model = mathfield.model;
       if (
-        model.mode === 'math' &&
+        isMathMode(model.mode) &&
         globalThis.MathfieldElement.decimalSeparator === ','
       ) {
         const child = model.at(Math.max(model.position, model.anchor));

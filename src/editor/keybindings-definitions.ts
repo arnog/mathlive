@@ -68,6 +68,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['switchMode', 'latex', '', '\\'],
   },
+  {
+    key: '\\',
+    ifMode: 'text',
+    command: ['switchMode', 'latex', '', '\\'],
+  },
   // { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
   {
     key: '[IntlBackslash]',

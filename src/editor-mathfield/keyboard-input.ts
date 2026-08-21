@@ -18,17 +18,20 @@ import { range } from '../editor-model/selection-utils';
 import { complete, removeSuggestion, updateAutocomplete } from './autocomplete';
 import { getLatexGroupBody } from './mode-editor-latex';
 import { getDefinition } from '../latex-commands/definitions-utils';
+import { parseLatex } from '../core/parser';
 import { requestUpdate } from './render';
 import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
 import { showKeystroke } from './keystroke-caption';
 import { ModeEditor } from './mode-editor';
+import { isMathMode } from 'public/core-types';
 import type { ParseMode, Style } from 'public/core-types';
 import type { _Model } from 'editor-model/model-private';
 import { LeftRightAtom } from 'atoms/leftright';
 import { RIGHT_DELIM, LEFT_DELIM } from 'core/delimiters';
 import { mightProducePrintableCharacter } from '../ui/events/utils';
 import { computeInsertStyle } from './styling';
+import { isFreeLinesRoot, markFreeTextAnchors } from './free-text';
 
 /**
  * Handler in response to a keystroke event (or to a virtual keyboard keycap
@@ -63,6 +66,25 @@ export function onKeystroke(
   const { model } = mathfield;
 
   const keystroke = keyboardEventToString(evt);
+
+  // In free-text mode, a backslash is the explicit escape into an editable
+  // LaTeX run. Handle it before smart-mode processing: smart-mode can
+  // otherwise reinterpret the key and change the model to `text` before the
+  // free-text binding below gets a chance to run.
+  if (
+    (mathfield.options.defaultMode === 'free-text' ||
+      mathfield.options.defaultMode === 'free-math') &&
+    keyboardEventToChar(evt) === '\\' &&
+    !evt.ctrlKey &&
+    !evt.metaKey &&
+    !evt.altKey
+  ) {
+    mathfield.switchMode('latex', '', '\\');
+    if (evt.preventDefault) evt.preventDefault();
+    if (evt.stopPropagation) evt.stopPropagation();
+    return false;
+  }
+
   // 1. Update the current keyboard layout based on this event
   if (evt.isTrusted) {
     validateKeyboardLayout(evt);
@@ -120,7 +142,7 @@ export function onKeystroke(
 
   if (mathfield.isSelectionEditable) {
     if (
-      model.mode === 'math' &&
+      isMathMode(model.mode) &&
       (!model.selectionIsPlaceholder || placeholderReplaced)
     ) {
       if (keystroke === '[Backspace]') {
@@ -198,9 +220,22 @@ export function onKeystroke(
       if (shortcut) {
         // If we found a shortcut (e.g. "alpha"),
         // switch to math mode and insert it
-        mathfield.switchMode('math');
-      } else if (smartMode(mathfield, keystroke, evt)) {
-        mathfield.switchMode({ math: 'text', text: 'math' }[model.mode]);
+        mathfield.switchMode(
+          mathfield.options.defaultMode === 'free-math' ? 'free-math' : 'math'
+        );
+      } else if (
+        model.mode !== 'free-math' &&
+        smartMode(mathfield, keystroke, evt)
+      ) {
+        mathfield.switchMode(
+          isMathMode(model.mode)
+            ? mathfield.options.defaultMode === 'free-text'
+              ? 'free-text'
+              : mathfield.options.defaultMode === 'free-math'
+                ? 'free-math'
+                : 'text'
+            : 'math'
+        );
         selector = '';
       }
     }
@@ -212,6 +247,34 @@ export function onKeystroke(
   // Shift+Backquote is a keybinding that inserts "\~"", but "~~" is a
   // shortcut for "\approx" and needs to have priority over Shift+Backquote
   if (!shortcut) {
+    // A physical backslash in free-text always starts an editable LaTeX
+    // group. Keyboard layouts can report this key differently from the
+    // normalized keybinding table, so handle it explicitly here.
+    if (
+      (model.mode === 'free-text' || model.mode === 'free-math') &&
+      keyboardEventToChar(evt) === '\\'
+    ) {
+      mathfield.switchMode('latex', '', '\\');
+      if (evt.preventDefault) evt.preventDefault();
+      if (evt.stopPropagation) evt.stopPropagation();
+      return false;
+    }
+
+    if (
+      (model.mode === 'free-text' || model.mode === 'free-math') &&
+      keystroke === '[Tab]'
+    ) {
+      onInput(mathfield, '\t');
+      if (evt.preventDefault) evt.preventDefault();
+      if (evt.stopPropagation) evt.stopPropagation();
+      // Tab is a literal free-text character here, not a focus-navigation
+      // command. Restore the MathLive keyboard target after insertion so a
+      // trusted physical Tab event cannot leave subsequent typing detached
+      // from the field.
+      mathfield.focus({ preventScroll: true });
+      return false;
+    }
+
     if (!selector) {
       selector = getCommandForKeybinding(
         mathfield.keybindings,
@@ -236,9 +299,50 @@ export function onKeystroke(
           evt.preventDefault();
           evt.stopPropagation();
         } else {
-          // If we're in a multiline environment, insert a newline
-          if (model.parentEnvironment?.isMultiline)
+          // Free-text fields use a lines root, so Return inserts a new line.
+          if (model.parentEnvironment?.isMultiline) {
+            // A new free-text row has its own anchor atom. Capture the style
+            // at the insertion point before splitting the row, then make it
+            // the explicit insertion style for the empty row. Otherwise the
+            // row anchor wins over the toolbar's pending bold/italic/etc.
+            // state and the first character after Enter is unformatted.
+            const freeTextLineStyle =
+              (mathfield.options.defaultMode === 'free-text' ||
+                mathfield.options.defaultMode === 'free-math') &&
+              (model.mode === 'free-text' || model.mode === 'free-math')
+                ? { ...computeInsertStyle(mathfield) }
+                : undefined;
+            const continueListPrefix =
+              mathfield.options.defaultMode === 'free-text' &&
+              model.mode === 'free-text' &&
+              currentLineListPrefix(model);
             mathfield.executeCommand('addRowAfter');
+            if (isFreeLinesRoot(model.root))
+              markFreeTextAnchors(
+                model.root,
+                mathfield.options.defaultMode === 'free-math'
+                  ? 'free-math'
+                  : 'free-text'
+              );
+            if (freeTextLineStyle) {
+              mathfield.defaultStyle = {
+                ...mathfield.defaultStyle,
+                ...freeTextLineStyle,
+              };
+              mathfield.styleBias = 'none';
+            }
+            if (
+              (mathfield.options.defaultMode === 'free-text' ||
+                mathfield.options.defaultMode === 'free-math') &&
+              model.mode !== mathfield.options.defaultMode
+            )
+              mathfield.switchMode(mathfield.options.defaultMode);
+            if (continueListPrefix)
+              ModeEditor.insert(model, continueListPrefix, {
+                mode: 'free-text',
+                selectionMode: 'after',
+              });
+          }
 
           // Dispatch an 'input' event matching the behavior of `<textarea>`
           model.contentDidChange({ inputType: 'insertLineBreak' });
@@ -250,7 +354,21 @@ export function onKeystroke(
     // Handle Space key in LaTeX mode to complete and exit
     if (keystroke === '[Space]' && model.mode === 'latex') {
       // Try to complete the LaTeX command and exit LaTeX mode
+      const latex = getLatexGroupBody(model)
+        .map((x) => x.value)
+        .join('');
+      const resumeFreeText = isInlineFreeTextMath(mathfield, latex);
       if (complete(mathfield, 'accept-all')) {
+        // A free-text field treats a completed LaTeX command as an inline math
+        // run. The parsed atom retains its math semantics, including for large
+        // structures such as \sum and \int, while the insertion point returns
+        // to free-text so ordinary prose can continue after it.
+        if (
+          (mathfield.options.defaultMode === 'free-text' ||
+            mathfield.options.defaultMode === 'free-math') &&
+          (resumeFreeText || !model.selectionIsPlaceholder)
+        )
+          mathfield.switchMode(mathfield.options.defaultMode);
         mathfield.dirty = true;
         mathfield.scrollIntoView();
         if (evt.preventDefault) {
@@ -261,7 +379,7 @@ export function onKeystroke(
       }
     }
 
-    if ((!selector || keystroke === '[Space]') && model.mode === 'math') {
+    if ((!selector || keystroke === '[Space]') && isMathMode(model.mode)) {
       //
       // 5.5 If this is the Space bar and we're just before or right after
       // a text zone, or if `mathModeSpace` is enabled, insert the space
@@ -476,8 +594,15 @@ export function onKeystroke(
 
         // Switch (back) to text mode if the shortcut ended with a space
         if (shortcut!.endsWith(' ')) {
-          mathfield.switchMode('text');
-          ModeEditor.insert(model, ' ', { style, mode: 'text' });
+          const textMode =
+            mathfield.options.defaultMode === 'free-text'
+              ? 'free-text'
+              : mathfield.options.defaultMode === 'free-math'
+                ? 'free-math'
+                : 'text';
+          mathfield.switchMode(textMode);
+          if (textMode !== 'free-math')
+            ModeEditor.insert(model, ' ', { style, mode: textMode });
         }
 
         mathfield.snapshot();
@@ -612,7 +737,7 @@ function formatScientificNotationIfApplicable(mathfield: _Mathfield): boolean {
   const { model } = mathfield;
 
   // Only format in math mode
-  if (model.mode !== 'math') return false;
+  if (!isMathMode(model.mode)) return false;
 
   // Detect scientific notation pattern
   const match = detectScientificNotation(model);
@@ -796,12 +921,12 @@ export function onInput(
         }
       }
     }
-  } else if (model.mode === 'text') {
+  } else if (model.mode === 'text' || model.mode === 'free-text') {
     const style = { ...getSelectionStyle(model), ...mathfield.defaultStyle };
     for (const c of graphemes)
       ModeEditor.insert(model, c, { style, insertionMode: 'replaceSelection' });
     mathfield.snapshot('insert-text');
-  } else if (model.mode === 'math')
+  } else if (isMathMode(model.mode))
     for (const c of graphemes) insertMathModeChar(mathfield, c);
 
   //
@@ -810,6 +935,58 @@ export function onInput(
   //
   mathfield.dirty = true;
   mathfield.scrollIntoView();
+}
+
+function currentLineListPrefix(model: _Model): string | undefined {
+  const environment = model.parentEnvironment;
+  if (!environment) return undefined;
+
+  let atom = model.at(model.position);
+  while (atom.parent && atom.parent !== environment) atom = atom.parent;
+  if (atom.parent !== environment || !Array.isArray(atom.parentBranch))
+    return undefined;
+
+  const [row, column] = atom.parentBranch;
+  const cell = environment.getCell(row, column);
+  if (!cell) return undefined;
+
+  const text = cell
+    .filter((x) => x.type !== 'first' && x.mode === 'text')
+    .map((x) => x.value ?? '')
+    .join('');
+  if (text.startsWith(String.fromCodePoint(0x2022) + ' ')) return '\u2022 ';
+  const numbered = /^(\d+)([.)])\s/.exec(text);
+  if (numbered) return `${Number(numbered[1]) + 1}${numbered[2]} `;
+  return undefined;
+}
+
+/** Keep small inline symbols in prose, but leave the editor in math mode for
+ * structures whose layout is larger than a text character. */
+function isInlineFreeTextMath(mathfield: _Mathfield, latex: string): boolean {
+  const trimmed = latex.trim();
+  if (!trimmed) return true;
+  if (/^\\(?:text(?:bf|it|rm|sf|tt)|underline)\b/.test(trimmed)) return true;
+
+  const atoms = parseLatex(trimmed, {
+    context: mathfield.context,
+    parseMode: 'math',
+  }).filter((atom) => atom.type !== 'first');
+  if (atoms.length === 0) return true;
+
+  return atoms.every(
+    (atom) =>
+      atom.type !== undefined &&
+      [
+        'mord',
+        'mpunct',
+        'mopen',
+        'mclose',
+        'mbin',
+        'mrel',
+        'spacing',
+        'text',
+      ].includes(atom.type)
+  );
 }
 
 function getLeftSiblings(mf: _Mathfield): Atom[] {
@@ -972,7 +1149,7 @@ export function getSelectionStyle(model: _Model): Readonly<Style> {
  */
 function insertSmartFence(model: _Model, key: string, style?: Style): boolean {
   if (!key) return false;
-  if (model.mode !== 'math') return false;
+  if (!isMathMode(model.mode)) return false;
 
   const atom = model.at(model.position);
   const { parent } = atom;

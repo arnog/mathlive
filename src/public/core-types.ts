@@ -40,7 +40,17 @@ export type Token = string;
  *
  */
 /** @internal  */
-export type ParseMode = 'math' | 'text' | 'latex';
+export type ParseMode = 'math' | 'text' | 'free-text' | 'free-math' | 'latex';
+
+/** @internal */
+export function isTextMode(mode: ParseMode | string): boolean {
+  return mode === 'text' || mode === 'free-text';
+}
+
+/** Return true when the editor should interpret ordinary input as math. */
+export function isMathMode(mode: ParseMode | string): boolean {
+  return mode === 'math' || mode === 'free-math';
+}
 
 /**
  * Error codes returned by the `mf.errors` property.
@@ -177,6 +187,13 @@ export type FontFamily = 'none' | 'roman' | 'monospace' | 'sans-serif';
  */
 export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+/** Text decorations supported by a free-text mathfield. */
+export type TextDecoration =
+  | 'none'
+  | 'underline'
+  | 'line-through'
+  | 'underline line-through';
+
 /**
  * Use a `Style` object  literal to modify the visual appearance of a
  * mathfield or a portion of a mathfield.
@@ -208,6 +225,7 @@ export interface Style {
   fontFamily?: FontFamily;
   fontShape?: FontShape;
   fontSeries?: FontSeries;
+  textDecoration?: TextDecoration;
 }
 
 /**

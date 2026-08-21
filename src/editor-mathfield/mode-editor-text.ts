@@ -5,7 +5,9 @@ import type { ContextInterface } from '../core/types';
 import { Atom } from '../core/atom-class';
 import { _Model } from '../editor-model/model-private';
 import { range } from '../editor-model/selection-utils';
+import { addRowAfter } from '../editor-model/array';
 import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
+import { makeFreeTextAtoms } from './free-text';
 
 import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
@@ -45,6 +47,9 @@ export class TextModeEditor extends ModeEditor {
   }
 
   insert(model: _Model, text: string, options: InsertOptions = {}): boolean {
+    if (model.mode === 'free-text')
+      return insertFreeText(model, text, options);
+
     if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
       return false;
     if (!options.insertionMode) options.insertionMode = 'replaceSelection';
@@ -100,6 +105,61 @@ export class TextModeEditor extends ModeEditor {
 
     return true;
   }
+}
+
+function insertFreeText(
+  model: _Model,
+  text: string,
+  options: InsertOptions
+): boolean {
+  if (!model.contentWillChange({ data: text, inputType: 'insertText' }))
+    return false;
+
+  if (!options.insertionMode) options.insertionMode = 'replaceSelection';
+  if (!options.selectionMode) options.selectionMode = 'placeholder';
+
+  const { silenceNotifications } = model;
+  if (options.silenceNotifications) model.silenceNotifications = true;
+  const contentWasChanging = model.silenceNotifications;
+  model.silenceNotifications = true;
+
+  if (
+    options.insertionMode === 'replaceSelection' &&
+    !model.selectionIsCollapsed
+  )
+    model.deleteAtoms(range(model.selection));
+  else if (options.insertionMode === 'replaceAll') {
+    model.deleteAtoms([0, -1]);
+    model.position = 0;
+  } else if (options.insertionMode === 'insertBefore')
+    model.collapseSelection('backward');
+  else if (options.insertionMode === 'insertAfter')
+    model.collapseSelection('forward');
+
+  const start = model.position;
+  const lines = text.split(/\r\n|\n|\r/);
+  let lastNewAtom: Atom | undefined;
+
+  for (let i = 0; i < lines.length; i++) {
+    const atoms = makeFreeTextAtoms(lines[i], options.style);
+    if (atoms.length > 0) {
+      const cursor = model.at(model.position);
+      lastNewAtom = cursor.parent!.addChildrenAfter(atoms, cursor);
+      model.position = model.offsetOf(lastNewAtom);
+    }
+
+    if (i < lines.length - 1) addRowAfter(model);
+  }
+
+  model.silenceNotifications = contentWasChanging;
+
+  if (options.selectionMode === 'before') model.position = start;
+  else if (options.selectionMode === 'item' && lastNewAtom)
+    model.setSelection(start, model.offsetOf(lastNewAtom));
+
+  model.contentDidChange({ data: text, inputType: 'insertText' });
+  model.silenceNotifications = silenceNotifications;
+  return true;
 }
 
 function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
@@ -182,4 +242,5 @@ function escapeTextModeCharacters(s: string): string {
   return s;
 }
 
-new TextModeEditor();
+const textModeEditor = new TextModeEditor();
+ModeEditor._modes['free-text'] = textModeEditor;
