@@ -1,0 +1,599 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Smoke Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" href="data:," />
+  <!-- <script src="https://cdn.jsdelivr.net/npm/mathlive"></script> -->
+  <style>
+    math-field {
+      border: 1px solid var(--editable-border);
+      padding: 5px;
+      margin: 10px 0 10px 0;
+      border-radius: 5px;
+      background: var(--editable);
+      color: var(--on-editable);
+      max-width: 640px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1rem, 1.5vw, 4rem);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Smoke Test</h1>
+    <ul>
+      <li class="current"><a href="../smoke/">Smoke</a></li>
+      <li>
+        <a href="../virtual-keyboard/">Virtual Keyboard</a>
+      </li>
+      <li>
+        <a href="../mathfield-states/">States</a>
+      </li>
+      <li>
+        <a href="../prompts/">Prompts</a>
+      </li>
+    </ul>
+  </header>
+  <main>
+
+    <math-field id="mf" contenteditable="true" tabindex="0">\displaylines{\\ }
+    </math-field>
+
+    <!-- <math-field id="mf" contenteditable="true" tabindex="0">3+\enclose{updiagonalstrike
+      downdiagonalstrike}[padding="20px", 6px solid
+      rgba(205, 0, 11, .4)]{18}+5</math-field> -->
+
+    <!-- <math-field id="mf">\begin{align}\sqrt{a} +
+      1 & b + 234 \\ \sqrt{c} + 1234 & d + 12345\end{align}
+    </math-field> -->
+
+    <!-- <math-field id="mf">a+\begin{matrix}[lc]x+1&2\\4&a+b+c+1234\end{matrix}+\alpha</math-field> -->
+
+
+    <!-- <math-field id="mf">\int^{\frac{x+1}{y+2}}_{\frac{x+1}{y+2}} {\frac{x+1}{y+2}}{</math-field> -->
+
+
+    <!-- <math-field id="mf">\alpha\begin{align}\text{hello world}f(x) &= a+b \\ \gamma
+      & \delta \\ f(x+1)
+      &=\omega+\frac{1}{y}\end{align}</math-field> -->
+
+
+    <!-- <math-field id="mf">\displaylines{x+1\\ \alpha + 123 \\ \beta + 456 \\ \gamma}</math-field> -->
+
+    <!-- <math-field id="mf">x_{a+1}^{b+2}</math-field> -->
+    <!-- <math-field id="mf"
+        >\left(r+s+\right)+\sqrt{x+1}=\frac{ab+cd}{1243+def}</math-field
+      > -->
+
+    <!-- <math-field id="mf"
+        >-=a\phase{abc}\enclose{longdiv}{\frac{1}{12+3+4+5}}\enclose{box}{\sqrt[1234567]{\frac{1}{x+1}}}</math-field
+      > -->
+    <!-- <math-field id="mf"
+        >\phase{abc}\enclose{box}{\sqrt{\frac{1}{x+1}}}\enclose{roundedbox}{\sqrt{\frac{1}{x+1}}}\enclose{circle}{\sqrt{\frac{1}{x+1}}}\enclose{top}{\sqrt{\frac{1}{x+1}}}\enclose{left}{\sqrt{\frac{1}{x+1}}}\enclose{right}{\sqrt{\frac{1}{x+1}}}\enclose{bottom}{\sqrt{\frac{1}{x+1}}}\enclose{horizontalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{verticalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalstrike}{\sqrt{\frac{1}{x+1}}}\enclose{updiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{downdiagonalarrow}{\sqrt{\frac{1}{x+1}}}\enclose{phasorangle}{\sqrt{\frac{1}{x+1}}}\enclose{radical}{\sqrt{\frac{1}{x+1}}}\enclose{longdiv}{\sqrt{\frac{1}{x+1}}}\enclose{actuarial}{\sqrt{\frac{1}{x+1}}}\enclose{madruwb}{\sqrt{\frac{1}{x+1}}}</math-field
+      > -->
+    <!-- <math-field id="mf"
+        >\phase{abc}\phase{\frac{x}{x+1}}\enclose{downdiagonalstrike}{\frac{1}{x+1}}</math-field -->
+    <!-- <math-field id="mf"
+        >\text{Hello
+        World}\int^{x+1}_{x-1}x^2+y^{1+a}_{b+2}+\frac{x+z}{y^{2+n}+2}+\left(a+3+\frac{2}{4}\right)+\sqrt[1+x]{\frac78}+\frac56</math-field
+      > -->
+
+    <div style="height: 1em"></div>
+
+    <h2>Selection</h2>
+    <div class="output" id="selection"></div>
+
+    <h2 style="margin-top: 1em">LaTeX</h2>
+    <div class="output" id="latex"></div>
+
+    <h2 style="margin-top: 1em">Typst</h2>
+    <div class="output" id="typst"></div>
+
+    <h2>MathJSON</h2>
+    <div class="output" style="white-space: nowrap">
+      <div id="math-json"></div>
+      <div id="result"></div>
+      <div id="result-latex"></div>
+    </div>
+
+    <h2>ASCII Math</h2>
+    <div class="output" id="ascii-math"></div>
+
+    <h2>MathML</h2>
+    <div class="output" id="mathml"></div>
+    <div id="mathml-render"></div>
+
+    <div style="height:2em"></div>
+
+    <div class="button-bar">
+      <button id="grow">Grow</button>
+      <button id="shrink">Shrink</button>
+    </div>
+    <div style="height: 800px"></div>
+
+    $$\foo$$
+  </main>
+
+
+  <script type="module">
+    import {
+      renderMathInDocument,
+      renderMathInElement,
+      MathfieldElement,
+      convertLatexToMarkup, setKeyboardLayoutLocale
+    } from "/dist/mathlive.mjs";
+    // } from "https://unpkg.com/mathlive?module";
+    // } from "https://esm.run/mathlive";
+    //    import {
+    //      ComputeEngine,
+    //      version,
+    //    } from "https://esm.run/@cortex-js/compute-engine";
+    import {
+      ComputeEngine,
+      version,
+    } from "https://cdn.jsdelivr.net/npm/@cortex-js/compute-engine@0.30.2/dist/compute-engine.min.esm.js";
+
+    // MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/dist/fonts";
+
+
+    const MAX_LINE_LENGTH = 74;
+
+    renderMathInDocument({
+      renderAccessibleContent: false,
+      asciiMath: null,
+      macros: {
+        "foo": "\\mathtt{FOO}"
+      },
+    });
+
+
+
+
+    // window.mathVirtualKeyboard.layouts = 'minimalist';
+
+
+    // mathVirtualKeyboard.layouts = [
+    //   {
+    //     label: 'minimal',
+    //     tooltip: 'Only the essential',
+    //     layers: [
+    //       {
+    //         style: `
+    //           .digit { background: blue !important; color: white !important }
+    //           .variant_indicator::before { content: '•'; color: #38d; }`,
+    //         rows: [
+    //           [
+    //             // {
+    //             //   latex: 'x',
+    //             //   insert: 'x',
+    //             //   shift: { latex: 'a', insert: 's' },
+    //             // },
+    //             {
+    //               label: 'Aa',
+    //               class: 'if-math-mode',
+    //               command: ['perform-with-feedback', ['switch-mode', 'text']],
+    //             },
+    //             {
+    //               label: '√x',
+    //               class: 'if-text-mode',
+    //               command: ['perform-with-feedback', ['switch-mode', 'math']],
+    //             },
+    //             '-',
+    //             '\\times',
+    //             '\\frac{#@}{#?}',
+    //             '=',
+    //             '.',
+    //             '(',
+    //             ')',
+    //             '\\sqrt{#0}',
+    //             '#@^{#?}',
+    //           ],
+    //           [
+    //             { class: 'variant_indicator', latex: '1' },
+    //             { class: 'digit', latex: '2' },
+    //             { class: 'digit', latex: '3' },
+    //             { class: 'digit', latex: '4' },
+    //             { class: 'digit', latex: '5' },
+    //             { class: 'digit', latex: '6' },
+    //             { class: 'digit', latex: '7' },
+    //             { class: 'digit', latex: '8' },
+    //             { class: 'digit', latex: '9' },
+    //             { class: 'digit', latex: '0' },
+    //           ],
+    //         ],
+    //       },
+    //     ],
+    //   },
+    //   'alphabetic',
+    // ];
+
+
+
+    function setupMathfield(mf) {
+      mf.mathVirtualKeyboardPolicy = 'manual';
+
+      MathfieldElement.fractionNavigationOrder = 'denominator-numerator'
+
+      // Add a mutation observer to ensure we can target the tooltip after it is created
+      const observer = new MutationObserver((mutations, obs) => {
+        const tooltipContents = mf.shadowRoot.querySelectorAll('.ML__tooltip-content');
+        const mathContent = mf.shadowRoot.querySelector('.ML__container .ML__content')
+
+        for (let tooltipContent of tooltipContents) {
+          if (tooltipContent && mathContent) {
+            // Disconnect the observer to prevent infinite loop
+            obs.disconnect();
+
+            mathContent.style.overflow = 'visible';
+            //Style tooltip appearance
+            tooltipContent.style.color = 'rgb(226,227,228)';
+            tooltipContent.style.border = '4px solid #555'
+            tooltipContent.style.maxWidth = '10000px'
+            tooltipContent.style.padding = '15px 15px 15px 15px'
+            tooltipContent.style.borderRadius = '18px'
+            tooltipContent.style.backgroundColor = 'rgb(43,43,43)'
+            tooltipContent.style.fontSize = '1.1rem'
+            tooltipContent.style.lineHeight = '0.2rem'
+
+            // Center the tooltip relative to the trigger and move it down
+            tooltipContent.style.position = 'absolute';
+            tooltipContent.style.left = '50%';
+            tooltipContent.style.top = '0%'
+            tooltipContent.style.transform = 'scale(1) translate(-50%,3em)';
+            tooltipContent.style.zIndex = '1000';
+
+            // Add the triangle if it doesn't already exist
+            if (!tooltipContent.querySelector('.triangle')) {
+              const triangle = document.createElement('div');
+              triangle.className = 'triangle';
+              triangle.style.position = 'absolute';
+              triangle.style.top = '-15px'; // Adjust to position the triangle
+              triangle.style.left = '50%';
+              triangle.style.transform = 'translateX(-50%)';
+              triangle.style.borderLeft = '10px solid transparent';
+              triangle.style.borderRight = '10px solid transparent';
+              triangle.style.borderBottom = '15px solid #555'; // Match the background color of the tooltip
+              tooltipContent.appendChild(triangle);
+            }
+
+            // Reconnect the observer
+            obs.observe(mf.shadowRoot, { childList: true, subtree: true });
+          }
+        }
+      });
+
+      // Start observing the shadow DOM for changes
+      observer.observe(mf.shadowRoot, { childList: true, subtree: true });
+
+    }
+
+
+
+    mf.addEventListener('mount', () => {
+      // MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive/dist/fonts";
+
+      mf.macros = {
+        ...mf.macros,
+        atomic: { args: 1, def: '\\class{my-class}{#1}', captureSelection: true },
+      };
+
+
+      setupMathfield(mf);
+      mf.onInlineShortcut = (mf, shortcut) => {
+        if (shortcut === 'tonh')
+          return ('\\operatorname{tonh}(#@)');
+        if (shortcut === 'ton')
+          return ('\\operatorname{ton}(#@)');
+
+        return "";
+      };
+
+      // First time update
+      updateContent(mf);
+      mf.addEventListener("input", (ev) => {
+        updateContent(mf)
+      });
+
+
+      mf.addEventListener("selection-change", (ev) => {
+        const selection = mf.selection;
+        document.getElementById("selection").innerHTML =
+          `${label("value     ")}"${escapeHtml(
+            mf.getValue(selection, "latex")
+          )}"<br>` +
+          // `${label('MathJson  ')}"${escapeHtml(
+          //   mf.getValue(selection, 'math-json')
+          // )}"<br>` +
+          label("start     ") +
+          selection.ranges[0][0] +
+          "<br>" +
+          label("end       ") +
+          selection.ranges[0][1] +
+          "<br>" +
+          label("position  ") +
+          mf.position +
+          "<br>" +
+          label("direction ") +
+          '"' +
+          selection.direction +
+          '"<br>' +
+          label("mode      ") +
+          mf.mode +
+          '<br>' +
+          label("style     ")
+        mf.queryStyle({ color: "red" });
+        // mf.queryStyle({ variant: "double-struck" });
+      });
+    });
+
+
+    document.getElementById("grow").addEventListener("click", (evt) => {
+      console.log(evt);
+      console.time("grow");
+      for (let i = 0; i < 200; i++) {
+        const mf = new MathfieldElement();
+        mf.value = '\\frac{\\sqrt{2}}{2}';
+        document.body.appendChild(mf);
+      }
+      document.querySelectorAll("math-field").forEach((x) => {
+        setupMathfield(x);
+      });
+      console.timeLog("grow");
+    });
+
+    document.getElementById("shrink").addEventListener("click", () => {
+      document.querySelectorAll("math-field").forEach((x) => x.remove());
+    });
+
+
+    //
+    // Handler called when the mathfield content has changed
+    //
+    function updateContent(mf) {
+
+      const latex = mf.getValue("latex-expanded");
+      try {
+        setHtml("latex", mf.getValue("latex-expanded"));
+        setHtml("typst", mf.getValue("typst"));
+        setHtml("ascii-math", mf.getValue("ascii-math"));
+        setHtml("mathml", mf.getValue("math-ml"));
+        document.getElementById("mathml-render").innerHTML =
+          `<math>${mf.getValue("math-ml")}</math>`;
+        // setHtml('math-json', ce.parse(mf.value));
+
+        const expr = mf.expression;
+        if (expr) {
+          setHtml("math-json", exprToString(expr));
+          const result = expr.evaluate().latex ?? "";
+          document.getElementById("result").innerText = result;
+          document.getElementById("result-latex").innerText = `$$${result}$$`;
+          renderMathInElement("result-latex");
+        }
+      } catch (e) {
+        console.error("Error converting", e.toString());
+      }
+    }
+
+
+    function makeVirtualKeyboard(customKeys = []) {
+      const extraSpecificity = `.ML__keyboard .minimalist-backdrop`;
+
+      return {
+        label: "",
+        layers: [
+          {
+            style: `
+              .ML__keyboard {
+                --keyboard-zindex: 2000;
+
+              }
+              .minimalist-backdrop {
+                display: flex;
+                justify-content: center;
+              }
+              ${extraSpecificity} .minimalist-container {
+                --keycap-height: 45px;
+                --keycap-max-width: 53px;
+                --keycap-font-size: 20px;
+                --keycap-small-font-size: 12px;
+                --keyboard-background: #f2f2f2;
+                --keycap-background-hover: #ffffff;
+
+                --keycap-secondary-background: #e5e5e5;
+                --keycap-secondary-background-hover: #c4c4c4;
+
+                --placeholder-opacity: 1;
+
+                padding: 15px;
+
+                background: var(--keyboard-background);
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                border: none;
+                box-shadow: 0px 0px 40px 0px #00000033;
+              }
+
+              @container (max-width: 744px) {
+                ${extraSpecificity} .minimalist-container {
+                  padding: 4px;
+                }
+
+                ${extraSpecificity} .MLK__rows {
+                  --keycap-gap: 5px;
+                  --keycap-height: 45px;
+                }
+              }
+
+              ${extraSpecificity} .minimalist-container .action {
+                box-shadow: 0px 1px 0px #b5b5b5;
+                color: var(--keyboard-text);
+                border: none;
+              }
+
+              ${extraSpecificity} .minimalist-container .action.is-pressed {
+                transform-origin: bottom center;
+                transform: scale(1.4, 1.4);
+                background-color: var(--keycap-secondary-background-hover);
+                color: var(--keyboard-text);
+              }
+
+              ${extraSpecificity} .minimalist-container .action.is-active {
+                background-color: var(--keycap-secondary-background-hover);
+                color: var(--keyboard-text);
+              }
+
+              ${extraSpecificity} .minimalist-container .MLK__keycap:not(.ghost) {
+                box-shadow: 0px 1px 0px #b5b5b5;
+                color: var(--keyboard-text);
+                border: none;
+              }
+
+              ${extraSpecificity} .minimalist-container .MLK__keycap.is-pressed {
+                transform-origin: bottom center;
+                transform: scale(1.4, 1.4);
+                background-color: var(--keycap-background-hover);
+                color: var(--keyboard-text);
+              }
+
+              ${extraSpecificity} .minimalist-container .MLK__keycap.is-active {
+                background-color: var(--keycap-background-hover);
+                color: var(--keyboard-text);
+              }
+
+              ${extraSpecificity} .MLK__rows {
+                overflow-x: unset;
+              }
+
+              ${extraSpecificity} .MLK__rows .MLK__row {
+                justify-content: flex-start;
+              }
+
+              ${extraSpecificity} .if-can-undo, ${extraSpecificity} .if-can-redo {
+                opacity: 0.4;
+              }
+
+              .ML__keyboard.can-undo .if-can-undo, .ML__keyboard.can-redo .if-can-redo {
+                opacity: 1;
+              }
+            `,
+            backdrop: "minimalist-backdrop",
+            container: "minimalist-container",
+            rows: [
+              customKeys,
+              customKeys.length > 0 ? ["[hr]"] : [],
+              [
+                "+",
+                "-",
+                "\\times",
+                {
+                  insert: "\\frac{#@}{#0}",
+                  latex: "\\frac{#?}{#?}",
+                  class: "small",
+                },
+                "=",
+                "[.]",
+                "(",
+                ")",
+                { latex: "\\sqrt{#0}", class: "small" },
+                { insert: "#@^{#?}", class: "small", latex: "#?^{#?}" },
+              ],
+              ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+              ["[hr]"],
+              [
+                { label: "[undo]" },
+                "[redo]",
+                "[separator]",
+                "[separator]",
+                "[separator]",
+                { label: "[separator]", width: 1.5 },
+                "[left]",
+                "[right]",
+                { label: "[backspace]", class: "action hide-shift" },
+              ],
+            ],
+          },
+        ],
+      };
+    }
+
+    function exprToStringRecursive(expr, start) {
+      let indent = " ".repeat(start);
+      if (Array.isArray(expr)) {
+        const elements = expr.map((x) => exprToStringRecursive(x, start + 2));
+        let result = `[${elements.join(", ")}]`;
+        if (start + result.length < MAX_LINE_LENGTH) return result;
+        return `[\n${indent}  ${elements.join(`,\n${indent}  `)}\n${indent}]`;
+      }
+      if (expr === null) return "null";
+      if (typeof expr === "object") {
+        const elements = {};
+        Object.keys(expr).forEach(
+          (x) => (elements[x] = exprToStringRecursive(expr[x], start + 2))
+        );
+        let result = `{${Object.keys(expr)
+          .map((key) => `"${key}": ${elements[key]}`)
+          .join("; ")}}`;
+        if (start + result.length < MAX_LINE_LENGTH) return result;
+        result = `\n${indent}{${Object.keys(expr)
+          .map((key) => {
+            return `"${key}": ${elements[key]}`;
+          })
+          .join("; ")}}`;
+        if (start + result.length < MAX_LINE_LENGTH) return result;
+        return (
+          `\n${indent}{\n` +
+          Object.keys(expr)
+            .map((key) => {
+              return `${indent}  "${key}": ${elements[key]}`;
+            })
+            .join(`;\n${indent}`) +
+          "\n" +
+          indent +
+          "}"
+        );
+      }
+      return JSON.stringify(expr, null, 2);
+    }
+
+    function exprToString(expr) {
+      return exprToStringRecursive(expr.json, 0);
+    }
+
+    function setHtml(id, text) {
+      document.getElementById(id).innerHTML = escapeHtml(text);
+    }
+
+    function label(s) {
+      return `<span class='label'>${s}</span>`;
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(
+        /[&<>"'`= /\u200b]/g,
+        (s) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+            "/": "&#x2F;",
+            "`": "&#x60;",
+            "=": "&#x3D;",
+            "\u200b": "&amp;#zws;",
+          })[s] ?? s
+      );
+    }
+
+  </script>
+</body>
+
+
+</html>

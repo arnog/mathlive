@@ -6,9 +6,11 @@ import type {
   FontSize,
   ParseMode,
   Style,
+  TextDecoration,
   Variant,
   VariantStyle,
 } from '../public/core-types';
+import { isTextMode } from '../public/core-types';
 import { getDefinition } from '../latex-commands/definitions-utils';
 import { joinLatex, latexCommand } from './tokenizer';
 import type { TokenDefinition } from 'latex-commands/types';
@@ -63,6 +65,7 @@ export abstract class Mode {
       fontFamily?: string;
       fontShape?: FontShape;
       fontSeries?: FontSeries;
+      textDecoration?: TextDecoration;
     }
   ): FontName | null {
     return Mode._registry[mode].getFont(box, style);
@@ -88,6 +91,7 @@ export abstract class Mode {
       fontFamily?: string;
       fontShape?: FontShape;
       fontSeries?: FontSeries;
+      textDecoration?: TextDecoration;
       fontSize?: FontSize | 'auto';
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
     }
@@ -203,7 +207,7 @@ function emitColorRun(run: readonly Atom[], options: ToLatexOptions): string[] {
       const style = colorRun[0].style;
       const body = Mode._registry[colorRun[0].mode].serialize(colorRun, {
         ...options,
-        defaultMode: mode === 'text' ? 'text' : 'math',
+        defaultMode: isTextMode(mode) ? 'text' : 'math',
       });
       if (
         !options.skipStyles &&

@@ -22,6 +22,7 @@ import {
 import { _Mathfield } from './mathfield-private';
 import { ModeEditor } from './mode-editor';
 import type { AtomJson } from 'core/types';
+import { TextAtom } from '../atoms/text';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -167,6 +168,12 @@ export class MathModeEditor extends ModeEditor {
   }
 
   insert(model: _Model, input: string, options: InsertOptions): boolean {
+    if (
+      model.mode === 'free-math' &&
+      (input.includes('\n') || input.includes('\r') || input.includes('\t'))
+    )
+      return insertFreeMath(this, model, input, options);
+
     const data =
       typeof input === 'string'
         ? input
@@ -758,3 +765,53 @@ function isImplicitArg(atom: Atom): boolean {
 }
 
 new MathModeEditor();
+ModeEditor._modes['free-math'] = ModeEditor._modes['math'];
+
+function insertFreeMath(
+  editor: MathModeEditor,
+  model: _Model,
+  input: string,
+  options: InsertOptions
+): boolean {
+  const lines = input.split(/\r\n|\n|\r/);
+  let changed = false;
+
+  if (options.insertionMode === 'replaceSelection' && !model.selectionIsCollapsed)
+    model.deleteAtoms(range(model.selection));
+  else if (options.insertionMode === 'replaceAll') {
+    model.deleteAtoms();
+    model.position = 0;
+  }
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const segments = lines[lineIndex].split('\t');
+    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
+      if (segmentIndex > 0) {
+        const cursor = model.at(model.position);
+        const tab = new TextAtom('\t', '\t', options.style ?? {});
+        cursor.parent!.addChildrenAfter([tab], cursor);
+        model.position = model.offsetOf(tab);
+        model.mode = 'free-math';
+        changed = true;
+      }
+
+      const segment = segments[segmentIndex];
+      if (segment) {
+        editor.insert(model, segment, {
+          ...options,
+          insertionMode: 'insertAfter',
+          selectionMode: 'after',
+        });
+        changed = true;
+      }
+    }
+
+    if (lineIndex < lines.length - 1) {
+      model.mathfield.executeCommand('addRowAfter');
+      changed = true;
+    }
+  }
+
+  model.mode = 'free-math';
+  return changed;
+}

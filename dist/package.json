@@ -1,0 +1,77 @@
+{
+  "name": "mathlive",
+  "version": "0.110.0",
+  "description": "A web component for math input",
+  "license": "MIT",
+  "author": "Arno Gourdol <arno@arno.org>",
+  "funding": {
+    "type": "individual",
+    "url": "https://paypal.me/arnogourdol"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arnog/mathlive.git"
+  },
+  "bugs": "https://github.com/arnog/mathlive/issues/",
+  "keywords": [
+    "math",
+    "editor",
+    "javascript",
+    "math-editing",
+    "cortex",
+    "compute engine",
+    "virtual keyboard",
+    "math keyboard",
+    "latex",
+    "tex",
+    "mathjax",
+    "katex",
+    "mathquill"
+  ],
+  "main": "./mathlive.min.js",
+  "module": "./mathlive.min.mjs",
+  "types": "./types/mathlive.d.ts",
+  "exports": {
+    "./vue": "./vue-mathlive.mjs",
+    "./fonts.css": "./mathlive-fonts.css",
+    "./static.css": "./mathlive-static.css",
+    ".": {
+      "browser": {
+        "production": {
+          "types": "./types/mathlive.d.ts",
+          "import": "./mathlive.min.mjs",
+          "require": "./mathlive.min.js"
+        },
+        "development": {
+          "types": "./types/mathlive.d.ts",
+          "import": "./mathlive.mjs",
+          "require": "./mathlive.js"
+        }
+      },
+      "node": {
+        "types": "./types/mathlive-ssr.d.ts",
+        "import": "./mathlive-ssr.min.mjs"
+      },
+      "default": {
+        "types": "./types/mathlive.d.ts",
+        "import": "./mathlive.min.mjs",
+        "require": "./mathlive.min.js"
+      }
+    },
+    "./ssr": {
+      "types": "./types/mathlive-ssr.d.ts",
+      "import": "./mathlive-ssr.min.mjs"
+    }
+  },
+  "dependencies": {
+    "@cortex-js/compute-engine": "0.58.0"
+  },
+  "files": [
+    "./*.js",
+    "./*.mjs",
+    "./*.css",
+    "./fonts/",
+    "./sounds/",
+    "./types/"
+  ]
+}

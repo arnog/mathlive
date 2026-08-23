@@ -312,7 +312,7 @@ export type EditingOptions = {
 };
 
 export type LayoutOptions = {
-  defaultMode: 'inline-math' | 'math' | 'text';
+  defaultMode: 'inline-math' | 'math' | 'text' | 'free-text' | 'free-math';
 
   macros: MacroDictionary;
 

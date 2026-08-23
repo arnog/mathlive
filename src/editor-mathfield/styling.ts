@@ -9,7 +9,9 @@ import type {
   FontFamily,
   Variant,
   VariantStyle,
+  TextDecoration,
 } from '../public/core-types';
+import { isMathMode, isTextMode } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 import { Offset } from 'mathlive';
 import { Atom } from 'core/atom';
@@ -124,6 +126,9 @@ export function validateStyle(
   if (typeof style.fontShape === 'string')
     result.fontShape = style.fontShape.toLowerCase() as FontShape;
 
+  if (typeof style.textDecoration === 'string')
+    result.textDecoration = style.textDecoration as TextDecoration;
+
   if (result.fontShape) {
     result.fontShape =
       {
@@ -196,14 +201,14 @@ export function defaultInsertStyleHook(
   if (bias === 'none') return mathfield.defaultStyle;
 
   // In text mode, we inherit the style of the sibling atom
-  if (model.mode === 'text') {
+  if (isTextMode(model.mode)) {
     return (
       model.at(bias === 'right' ? info.after : info.before)?.style ??
       mathfield.defaultStyle
     );
   }
 
-  if (model.mode === 'math') {
+  if (isMathMode(model.mode)) {
     const atom = model.at(bias === 'right' ? info.after : info.before);
     if (!atom) return { variant: 'normal', ...mathfield.defaultStyle };
     // Merge inherited style with defaultStyle, where defaultStyle takes precedence

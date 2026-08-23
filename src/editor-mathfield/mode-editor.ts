@@ -5,6 +5,7 @@ import { range } from '../editor-model/selection-utils';
 import { MODE_SHIFT_COMMANDS } from '../formats/parse-math-string';
 import type { InsertOptions, OutputFormat, Range } from '../public/core-types';
 import { _Mathfield } from './mathfield-private';
+import { isFreeLinesRoot } from './free-text';
 
 const CLIPBOARD_LATEX_BEGIN = '$$';
 const CLIPBOARD_LATEX_END = '$$';
@@ -91,6 +92,17 @@ export class ModeEditor {
     const exportRange: Range = model.selectionIsCollapsed
       ? [0, model.lastOffset]
       : range(model.selection);
+
+    if (
+      (mathfield.options.defaultMode === 'free-text' ||
+        mathfield.options.defaultMode === 'free-math') &&
+      isFreeLinesRoot(model.root) &&
+      exportRange[0] === 0 &&
+      exportRange[1] === model.lastOffset
+    ) {
+      ev.clipboardData.setData('text/plain', model.getValue('plain-text'));
+      return;
+    }
 
     let atoms = model.getAtoms(exportRange);
     if (atoms.every((x) => x.mode === 'text' || !x.mode)) {
