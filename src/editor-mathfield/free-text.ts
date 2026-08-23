@@ -1,7 +1,7 @@
 import { ArrayAtom } from '../atoms/array';
 import { TextAtom } from '../atoms/text';
 import { splitGraphemes } from '../core/grapheme-splitter';
-import { parseLatex } from '../core/parser';
+import { FREE_TEXT_TAB_MARKER, parseLatex } from '../core/parser';
 import { getDefinition } from '../latex-commands/definitions-utils';
 import type { Atom } from '../core/atom-class';
 import type { ContextInterface } from '../core/types';
@@ -10,8 +10,6 @@ import type { Style } from '../public/core-types';
 // TeX parsing normally treats a tab as collapsible whitespace. Keep a
 // private marker through the parser when rehydrating a serialized free-text
 // lines root, then restore it to a real text atom.
-const FREE_TEXT_TAB_MARKER = '\uE000';
-
 /** Create the root used by the free-text editor. */
 export function makeFreeTextRoot(
   lines: readonly (readonly Atom[])[]
