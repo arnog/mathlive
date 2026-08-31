@@ -396,6 +396,8 @@ abstract class MathStaticElement extends HTMLElement {
       if (!this._mathMLContainer) {
         this._mathMLContainer = document.createElement('div');
         this._mathMLContainer.style.position = 'absolute';
+        this._mathMLContainer.style.webkitUserSelect = 'none';
+        this._mathMLContainer.style.userSelect = 'none';
         this._mathMLContainer.style.width = '1px';
         this._mathMLContainer.style.height = '1px';
         this._mathMLContainer.style.overflow = 'hidden';
