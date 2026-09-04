@@ -702,10 +702,21 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
       member: (model, options) => {
         const md = [];
 
-        if (this.options.getValue('useHTMLAnchors') && model.anchor) {
-          const id = fullAnchor(model);
-          md.push(`<a id="${id}" name="${id}"></a>`);
-        }
+        // The anchor typedoc will use when it resolves a `{@link}` to this
+        // member. It must come from `router.getAnchor()`: that is the scheme
+        // the generated links use, so any other id can never match. @custom
+        //
+        // It is attached to the *heading*, as Docusaurus' explicit heading id
+        // (`{#anchor}`), not as an `<a id>`. Docusaurus only collects anchors
+        // from Heading components, so a raw HTML anchor would satisfy the
+        // browser but still be reported by `onBrokenAnchors` — and we would
+        // lose the check. See useCustomAnchors in typedoc.json.
+        const anchor =
+          this.options.getValue('useCustomAnchors') &&
+          !this.router.hasOwnDocument(model) &&
+          this.router.hasUrl(model)
+            ? this.router.getAnchor(model)
+            : undefined;
 
         let hasCard = false;
 
@@ -745,7 +756,12 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
             md.push(`<MemberCard>`);
           }
 
-          md.push(heading(options.headingLevel, memberName));
+          md.push(
+            heading(
+              options.headingLevel,
+              anchor ? `${memberName} {#${anchor}}` : memberName
+            )
+          );
         }
 
         const getMember = (reflection) => {
@@ -1484,15 +1500,6 @@ function printStackTrace(s) {
   console.log(s + '\n' + err.stack.split('\n').slice(2).join('\n'));
 }
 
-function fullAnchor(model) {
-  const parent = model.parent?.anchor;
-  if (!parent) return model.anchor;
-
-  if (['__call', '__type'].includes(model.parent.name)) {
-    return `${fullAnchor(model.parent.parent)}_${model.anchor}`;
-  }
-  return `${model.parent.anchor}_${model.anchor}`;
-}
 
 function horizontalRule() {
   return '\n\n***\n\n';

@@ -60,7 +60,11 @@
     "./plugins/grok-theme/index.mjs"
   ],
   "theme": "grok-theme",
-  "useHTMLAnchors": true,
+  // Emit each member's anchor as a Docusaurus explicit heading id
+  // (`## Name {#anchor}`) rather than an `<a id>`: Docusaurus only
+  // collects anchors from headings, so an HTML anchor works in the
+  // browser but is still reported by `onBrokenAnchors`.
+  "useCustomAnchors": true,
   "hidePageHeader": true,
   "hidePageTitle": true,
   "hideBreadcrumbs": true,
