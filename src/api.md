@@ -221,24 +221,6 @@ Return an array of LaTeX syntax errors, if any.
 
 <MemberCard>
 
-##### MathfieldElement.expression {#expression}
-
-```ts
-get expression(): any
-set expression(mathJson: any): void
-```
-
-If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
-
-To load the Compute Engine library, use:
-```js
-import 'https://esm.run/@cortex-js/compute-engine';
-```
-
-</MemberCard>
-
-<MemberCard>
-
 ##### MathfieldElement.value {#value}
 
 ```ts
@@ -269,12 +251,7 @@ Return a textual representation of the content of the mathfield.
 
 [`OutputFormat`](#outputformat)
 
-The format of the result. If using `math-json`
-the Compute Engine library must be loaded, for example with:
-
-```js
-import "https://esm.run/@cortex-js/compute-engine";
-```
+The format of the result.
 
 **Default:** `"latex"`
 
@@ -1622,7 +1599,7 @@ Consider using this option if you are displaying untrusted content. Read more ab
 ##### MathfieldElement.version {#version}
 
 ```ts
-static version: string = '{{SDK_VERSION}}';
+static version: string = '0.110.0';
 ```
 
 </MemberCard>
@@ -1684,8 +1661,8 @@ set readOnly(value: boolean): void
 ##### MathfieldElement.computeEngine {#computeengine}
 
 ```ts
-get static computeEngine(): ComputeEngine
-set static computeEngine(value: ComputeEngine): void
+get static computeEngine(): any
+set static computeEngine(value: any): void
 ```
 
 A custom compute engine instance. If none is provided, a default one is
@@ -2519,7 +2496,6 @@ type OutputFormat =
   | "latex-unstyled"
   | "latex-without-placeholders"
   | "typst"
-  | "math-json"
   | "math-ml"
   | "plain-text"
   | "spoken"
@@ -2535,19 +2511,12 @@ type OutputFormat =
 | `"latex-expanded"`    | All macros are recursively expanded to their definition. |
 | `"latex-unstyled"`    | Styling (background color, color) is ignored |
 | `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
-| `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
 | `"plain-text"`        | A plain text rendering of the content. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
 | `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized highlighting (read aloud). |
-
-  To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
-
-```js
-import "https://esm.run/@cortex-js/compute-engine";
-```
   *
 
 </MemberCard>
@@ -6362,7 +6331,7 @@ convertMathJsonToLatex(["Add", 1, 2]);
 
 ##### json
 
-[`Expression`](#expression-1)
+[`Expression`](#expression)
 
 </MemberCard>
 
@@ -6390,14 +6359,10 @@ Check if a string of LaTeX is valid and return an array of syntax errors.
 
 <MemberCard>
 
-### Expression {#expression-1}
+### Expression {#expression}
 
 ```ts
-type Expression = 
-  | number
-  | string
-  | {}
-  | [Expression, ...Expression[]];
+type Expression = number | string | {} | [Expression, ...Expression[]];
 ```
 
 </MemberCard>
@@ -6876,7 +6841,7 @@ const version: {
 };
 ```
 
-Current version: `{{SDK_VERSION}}`
+Current version: `0.110.0`
 
 The version string of the SDK using the [semver](https://semver.org/) convention:
 

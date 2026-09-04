@@ -1,5 +1,24 @@
 ## [Unreleased]
 
+### Breaking Changes
+
+- The `@cortex-js/compute-engine` package is no longer a dependency of
+  MathLive. The Compute Engine was never bundled with MathLive; it was only
+  used for its TypeScript types. If your application loads the Compute Engine
+  (for example with `import "https://esm.run/@cortex-js/compute-engine"`),
+  MathLive continues to pick it up from the global scope and
+  `MathfieldElement.computeEngine` still works, but it is now typed as `any`.
+  Applications that need the types should add the package to their own
+  dependencies.
+- The `mathfield.expression` getter and setter have been removed. Use
+  `MathfieldElement.computeEngine.parse(mf.getValue())` to obtain a boxed
+  expression, and `mf.setValue(expr.latex)` (or `mf.setValue(expr)`, which
+  still accepts a MathJSON object) to set one.
+- The `"math-json"` output format has been removed from `getValue()`. Use
+  `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
+- The **Evaluate**, **Simplify** and **Solve** items have been removed from the
+  default context menu.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories

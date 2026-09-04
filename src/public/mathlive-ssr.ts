@@ -12,10 +12,6 @@ import { Atom } from '../core/atom-class';
 
 import '../latex-commands/definitions';
 
-import type {
-  ComputeEngine,
-  SemiBoxedExpression,
-} from '@cortex-js/compute-engine';
 import { toMathML } from '../formats/atom-to-math-ml';
 import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
@@ -215,7 +211,7 @@ export function convertLatexToSpeakableText(latex: string): string {
   return atomToSpeakableText(atoms);
 }
 
-let gComputeEngine: ComputeEngine;
+let gComputeEngine: any;
 
 /**
  * Convert a MathJSON expression to a LaTeX string.
@@ -242,7 +238,7 @@ export function convertMathJsonToLatex(json: Expression): string {
       );
     }
   }
-  return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
+  return gComputeEngine?.box(json).latex ?? '';
 }
 
 /** Convert a LaTeX string to a string of AsciiMath.

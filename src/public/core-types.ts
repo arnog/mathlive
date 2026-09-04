@@ -499,19 +499,12 @@ export declare type Expression =
 | `"latex-expanded"`    | All macros are recursively expanded to their definition. |
 | `"latex-unstyled"`    | Styling (background color, color) is ignored |
 | `"latex-without-placeholders"`    | Replace `\placeholder` commands with their body |
-| `"math-json"`         | A MathJSON abstract syntax tree, as an object literal formated as a JSON string. Note: you must import the CortexJS Compute Engine to obtain a result. |
 | `"math-ml"`           | A string of MathML markup. |
 | `"plain-text"`        | A plain text rendering of the content. |
 | `"spoken"`            | Spoken text rendering, using the default format defined in config, which could be either text or SSML markup. |
 | `"spoken-text"`       | A plain spoken text rendering of the content. |
 | `"spoken-ssml"`       | A SSML (Speech Synthesis Markup Language) version of the content, which can be used with some text-to-speech engines such as AWS. |
 | `"spoken-ssml-with-highlighting"`| Like `"spoken-ssml"` but with additional annotations necessary for synchronized highlighting (read aloud). |
-
-   To use the`"math-json"` format the Compute Engine library must be loaded. Use for example:
-
-```js
-import "https://esm.run/@cortex-js/compute-engine";
-```
    * @category Mathfield
    */
 export type OutputFormat =
@@ -521,7 +514,6 @@ export type OutputFormat =
   | 'latex-unstyled'
   | 'latex-without-placeholders'
   | 'typst'
-  | 'math-json'
   | 'math-ml'
   | 'plain-text'
   | 'spoken'

@@ -1,5 +1,3 @@
-import type { BoxedExpression } from '@cortex-js/compute-engine';
-
 import type {
   ContentChangeOptions,
   Keybinding,
@@ -1067,17 +1065,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if (!couldUndo) this.undoManager.reset();
       this.undoManager.snapshot('set-value');
     }
-  }
-
-  get expression(): Readonly<BoxedExpression> | null {
-    const ce = globalThis.MathfieldElement.computeEngine;
-    if (!ce) {
-      console.error(
-        `MathLive {{SDK_VERSION}}:  no compute engine available. Make sure the Compute Engine library is loaded.`
-      );
-      return null;
-    }
-    return ce.box(ce.parse(this.model.getValue('latex-unstyled')));
   }
 
   /** Make sure the caret is visible within the matfield.

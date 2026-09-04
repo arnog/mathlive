@@ -438,9 +438,9 @@ function convertStringToAtoms(
   let format: OutputFormat | undefined = undefined;
   let result: readonly Atom[] = [];
 
-  if (typeof s !== 'string' || options.format === 'math-json') {
+  if (typeof s !== 'string') {
     const ce = globalThis.MathfieldElement.computeEngine;
-    if (!ce) return ['math-json', []];
+    if (!ce) return ['latex', []];
 
     [format, s] = ['latex', ce.box(s as Expression).latex as string];
     result = parseLatex(s, { context: model.mathfield.context });

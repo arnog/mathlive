@@ -43,8 +43,6 @@ import {
 import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
-import type { ComputeEngine } from '@cortex-js/compute-engine';
-
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
@@ -1086,7 +1084,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * A custom compute engine instance. If none is provided, a default one is
    * used. If `null` is specified, no compute engine is used.
    */
-  static get computeEngine(): ComputeEngine | null {
+  static get computeEngine(): any | null {
     if (this._computeEngine === undefined) {
       const globalComputeEngine =
         window[Symbol.for('io.cortexjs.compute-engine')];
@@ -1115,7 +1113,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
     return this._computeEngine ?? null;
   }
-  static set computeEngine(value: ComputeEngine | null) {
+  static set computeEngine(value: any | null) {
     this._computeEngine = value;
   }
 
@@ -1129,7 +1127,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  private static _computeEngine: ComputeEngine | null;
+  private static _computeEngine: any | null;
 
   /** @internal */
   private static _isFunction: (command: string) => boolean = (command) => {
@@ -1475,47 +1473,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
-   *
-   * To load the Compute Engine library, use:
-   * ```js
-import 'https://esm.run/@cortex-js/compute-engine';
-```
-   *
-   * @category Accessing and changing the content
-   */
-  get expression(): any | null {
-    if (!this._mathfield) return undefined;
-    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-      return null;
-    }
-    return this._mathfield.expression;
-  }
-
-  set expression(mathJson: Expression | any) {
-    if (!this._mathfield) return;
-    const latex = MathfieldElement.computeEngine?.box(mathJson).latex ?? null;
-    if (latex !== null) this._mathfield.setValue(latex);
-
-    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-    }
-  }
-
-  /**
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
@@ -1720,13 +1677,7 @@ import 'https://esm.run/@cortex-js/compute-engine';
   /**
    * Return a textual representation of the content of the mathfield.
    *
-   * @param format - The format of the result. If using `math-json`
-   * the Compute Engine library must be loaded, for example with:
-   *
-   * ```js
-import "https://esm.run/@cortex-js/compute-engine";
-```
-   *
+   * @param format - The format of the result.
    *
    * **Default:** `"latex"`
    *

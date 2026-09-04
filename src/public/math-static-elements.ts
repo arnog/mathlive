@@ -15,7 +15,7 @@ import {
   convertLatexToMathMl,
 } from './mathlive-ssr';
 import type { LayoutOptions } from './options';
-import type { Expression } from '@cortex-js/compute-engine';
+import type { Expression } from './core-types';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { loadFonts } from '../core/fonts';
 
