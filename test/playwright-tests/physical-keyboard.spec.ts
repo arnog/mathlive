@@ -294,16 +294,51 @@ test('test inline shortcuts', async ({ page }) => {
 test('piecewise command creates editable rows', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
-  await page.locator('#mf-1').pressSequentially(String.raw`\piecewise{2}`);
-  await page.locator('#mf-1').press('ArrowRight');
+  const field = page.locator('#mf-1');
+  await field.pressSequentially(String.raw`\piecewise{2}`);
 
   expect(
-    await page
-      .locator('#mf-1')
-      .evaluate((e: MathfieldElement) => e.getValue('latex-expanded'))
+    await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex-expanded'),
+    }))
+  ).toEqual({
+    mode: 'math',
+    latex: String.raw`\begin{cases}\placeholder{} & \placeholder{}\\ \placeholder{} & \placeholder{}\end{cases}`,
+  });
+
+  await field.press('ArrowRight');
+
+  expect(
+    await field.evaluate((e: MathfieldElement) => e.getValue('latex-expanded'))
   ).toBe(
     String.raw`\begin{cases}\placeholder{} & \placeholder{}\\ \placeholder{} & \placeholder{}\end{cases}`
   );
+});
+
+test('bounded operator shortcuts complete after their final argument', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  for (const [command, expected] of [
+    ['int', String.raw`\int_{x}^{y}`],
+    ['sum', String.raw`\sum_{x}^{y}`],
+    ['prod', String.raw`\prod_{x}^{y}`],
+  ] as const) {
+    await field.evaluate((e: MathfieldElement) => {
+      e.value = '';
+      e.focus();
+    });
+    await field.pressSequentially(`\\${command}{x}{y}`);
+    expect(
+      await field.evaluate((e: MathfieldElement) => ({
+        mode: e.mode,
+        latex: e.getValue('latex-expanded'),
+      }))
+    ).toEqual({ mode: 'math', latex: expected });
+  }
 });
 
 test('LaTeX commands remain editable inside piecewise placeholders', async ({

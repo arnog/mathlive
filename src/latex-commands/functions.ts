@@ -574,7 +574,7 @@ function createBoundedOperator(
 // These command definitions intentionally come after the general operator
 // definitions above so they override only the parser for the three commands;
 // bare `\\int`, `\\sum`, and `\\prod` retain their normal rendering.
-defineFunction(['int', 'sum', 'prod'], '', {
+defineFunction(['int', 'sum', 'prod'], '{lower:expression}{upper:expression}', {
   ifMode: 'math',
   parse: parseBoundedOperator,
   createAtom: (options) =>
