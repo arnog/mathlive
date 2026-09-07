@@ -1,15 +1,12 @@
-/**
+/* 0.110.0 *//**
  * Server-side rendering exports.
  *
  * These functions do not require a DOM environment and can
  * be used from a server-side environment.
  *
  */
-import '../core/math-environment';
-import '../latex-commands/definitions';
 import { Expression } from './core-types';
 import type { LatexSyntaxError, ParseMode } from './core-types';
-import '../core/modes';
 import { LayoutOptions } from './options';
 /**
  * Convert a LaTeX string to a string of HTML markup.

@@ -152,13 +152,17 @@ export function complete(
   );
 
   const latex = body.map((x) => x.value).join('');
+  const originMode = latexGroup.originMode;
 
   const newPos = latexGroup.leftSibling;
   latexGroup.parent!.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
   mathfield.switchMode(options?.mode ?? 'math');
 
-  if (completion === 'reject') return true;
+  if (completion === 'reject') {
+    if (originMode) mathfield.switchMode(originMode);
+    return true;
+  }
 
   const style = { ...computeInsertStyle(mathfield) };
   // If we're inserting a non-alphanumeric character, reset the variant
@@ -176,6 +180,11 @@ export function complete(
 
   mathfield.snapshot();
   mathfield.model.announce('replacement');
-  mathfield.switchMode('math');
+  if (
+    (originMode === 'text' || originMode === 'free-text') &&
+    !mathfield.model.selectionIsPlaceholder
+  )
+    mathfield.switchMode(originMode);
+  else mathfield.switchMode('math');
   return true;
 }

@@ -1435,7 +1435,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           latex: string,
           options: { select: boolean }
         ) => {
-          const atom = new LatexGroupAtom(latex);
+          const atom = new LatexGroupAtom(latex, previousMode);
           cursor.parent!.addChildAfter(atom, cursor);
           if (options.select) {
             model.setSelection(

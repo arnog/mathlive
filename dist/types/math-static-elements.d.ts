@@ -1,4 +1,4 @@
-/**
+/* 0.110.0 *//**
  * Static rendering web components for MathLive.
  *
  * These components provide lightweight rendering of mathematical expressions

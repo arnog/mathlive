@@ -1,4 +1,4 @@
-/**
+/* 0.110.0 *//**
  *
  * Importing this package in a web page will make the `<math-field>` custom
  * element available. Use it as a drop-in replacement for `<textarea>` or
@@ -27,7 +27,7 @@
  *
  *
  * @packageDocumentation Mathfield API Reference
- * @version {{SDK_VERSION}}
+ * @version 0.110.0
  *
  */
 import type { VirtualKeyboardInterface } from './virtual-keyboard';

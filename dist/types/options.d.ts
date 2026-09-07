@@ -1,4 +1,4 @@
-import type { Mathfield, InsertStyleHook } from './mathfield';
+/* 0.110.0 */import type { Mathfield, InsertStyleHook } from './mathfield';
 import type { Selector } from './commands';
 import type { ParseMode, MacroDictionary, Registers, Range } from './core-types';
 /**

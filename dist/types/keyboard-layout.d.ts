@@ -1,4 +1,4 @@
-import type { KeyboardLayoutName } from './options';
+/* 0.110.0 */import type { KeyboardLayoutName } from './options';
 /**
  * Change the current physical keyboard layout.
  *

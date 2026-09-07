@@ -1,4 +1,4 @@
-import type { Selector } from './commands';
+/* 0.110.0 */import type { Selector } from './commands';
 import type { ApplyStyleOptions, InsertOptions, Offset, OutputFormat, Style, Range, Selection } from './core-types';
 /** @category Styles */
 export type InsertStyleHook = (sender: Mathfield, at: Offset, info: {

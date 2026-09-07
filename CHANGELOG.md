@@ -19,6 +19,11 @@
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 
+- Added a `\math{}` command for explicit math runs in text content, and made
+  completed bounded and unbounded LaTeX entries return to prose in `text` and
+  `free-text` mathfields. Nested commands such as `\math{\forall}` can now be
+  entered directly.
+
 - Added experimental `free-math` multiline mathfield mode alongside `free-text`, preserving rows, empty lines, tabs, clipboard plain text, and public output formats when values are round-tripped.
 
 ## 0.110.0 _2026-06-08_

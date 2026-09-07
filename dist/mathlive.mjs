@@ -1322,10 +1322,6 @@ var STRINGS = {
     "menu.decoration": "Decoration",
     "menu.color": "Color",
     "menu.background-color": "Background",
-    "menu.evaluate": "Evaluate",
-    "menu.simplify": "Simplify",
-    "menu.solve": "Solve",
-    "menu.solve-for": "Solve for %@",
     "menu.cut": "Cut",
     "menu.copy": "Copy",
     "menu.copy-as-latex": "Copy as LaTeX",
@@ -1392,10 +1388,6 @@ var STRINGS = {
     "menu.decoration": "\u0632\u062E\u0631\u0641\u0629",
     "menu.color": "\u0644\u0648\u0646",
     "menu.background-color": "\u0627\u0644\u062E\u0644\u0641\u064A\u0629",
-    "menu.evaluate": "\u062A\u0642\u064A\u064A\u0645",
-    "menu.simplify": "\u062A\u0628\u0633\u064A\u0637",
-    "menu.solve": "\u062D\u0644",
-    "menu.solve-for": "\u062D\u0644 \u0644\u0640 %@",
     "menu.cut": "\u0642\u0635",
     "menu.copy": "\u0646\u0633\u062E",
     "menu.copy-as-latex": "\u0646\u0633\u062E \u0643\u0640 LaTeX",
@@ -1459,10 +1451,6 @@ var STRINGS = {
     "menu.decoration": "Dekoration",
     "menu.color": "Farbe",
     "menu.background-color": "Hintergrund",
-    "menu.evaluate": "Auswerten",
-    "menu.simplify": "Vereinfachen",
-    "menu.solve": "L\xF6sen",
-    "menu.solve-for": "L\xF6sen f\xFCr %@",
     "menu.cut": "Ausschneiden",
     "menu.copy": "Kopieren",
     "menu.copy-as-latex": "Als LaTeX kopieren",
@@ -1526,10 +1514,6 @@ var STRINGS = {
     "menu.decoration": "\u0394\u03B9\u03B1\u03BA\u03CC\u03C3\u03BC\u03B7\u03C3\u03B7",
     "menu.color": "\u03A7\u03C1\u03CE\u03BC\u03B1",
     "menu.background-color": "\u03A7\u03C1\u03CE\u03BC\u03B1 \u03C6\u03CC\u03BD\u03C4\u03BF\u03C5",
-    "menu.evaluate": "\u0391\u03BE\u03B9\u03BF\u03BB\u03CC\u03B3\u03B7\u03C3\u03B7",
-    "menu.simplify": "\u0391\u03C0\u03BB\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7",
-    "menu.solve": "\u039B\u03CD\u03C3\u03B7",
-    "menu.solve-for": "\u039B\u03CD\u03C3\u03B7 \u03B3\u03B9\u03B1 %@",
     "menu.cut": "\u0391\u03C0\u03BF\u03BA\u03BF\u03C0\u03AE",
     "menu.copy": "\u0391\u03BD\u03C4\u03B9\u03B3\u03C1\u03B1\u03C6\u03AE",
     "menu.copy-as-latex": "\u0391\u03BD\u03C4\u03B9\u03B3\u03C1\u03B1\u03C6\u03AE \u03C9\u03C2 LaTeX",
@@ -1593,10 +1577,6 @@ var STRINGS = {
     "menu.decoration": "Decoraci\xF3n",
     "menu.color": "Color",
     "menu.background-color": "Fondo",
-    "menu.evaluate": "Evaluar",
-    "menu.simplify": "Simplificar",
-    "menu.solve": "Resolver",
-    "menu.solve-for": "Resolver para %@",
     "menu.cut": "Cortar",
     "menu.copy": "Copiar",
     "menu.copy-as-latex": "Copiar como LaTeX",
@@ -1661,10 +1641,6 @@ var STRINGS = {
     "menu.decoration": "D\xE9coration",
     "menu.color": "Couleur",
     "menu.background-color": "Arri\xE8re-plan",
-    "menu.evaluate": "\xC9valuer",
-    "menu.simplify": "Simplifier",
-    "menu.solve": "R\xE9soudre",
-    "menu.solve-for": "R\xE9soudre pour %@",
     "menu.cut": "Couper",
     "menu.copy": "Copier",
     "menu.copy-as-latex": "Copier en LaTeX",
@@ -1728,10 +1704,6 @@ var STRINGS = {
     "menu.decoration": "\u05E7\u05D9\u05E9\u05D5\u05D8",
     "menu.color": "\u05E6\u05D1\u05E2",
     "menu.background-color": "\u05E8\u05E7\u05E2",
-    "menu.evaluate": "\u05D7\u05E9\u05D1",
-    "menu.simplify": "\u05E4\u05E9\u05D8",
-    "menu.solve": "\u05E4\u05EA\u05D5\u05E8",
-    "menu.solve-for": "\u05E4\u05EA\u05D5\u05E8 \u05E2\u05D1\u05D5\u05E8 %@",
     "menu.cut": "\u05D2\u05D6\u05D5\u05E8",
     "menu.copy": "\u05D4\u05E2\u05EA\u05E7",
     "menu.copy-as-latex": "\u05D4\u05E2\u05EA\u05E7 \u05DB\u05BELaTeX",
@@ -1827,10 +1799,6 @@ var STRINGS = {
     "menu.decoration": "Decorazione",
     "menu.color": "Colore",
     "menu.background-color": "Sfondo",
-    "menu.evaluate": "Valuta",
-    "menu.simplify": "Semplifica",
-    "menu.solve": "Risolvi",
-    "menu.solve-for": "Risolvi per %@",
     "menu.cut": "Taglia",
     "menu.copy": "Copia",
     "menu.copy-as-latex": "Copia come LaTeX",
@@ -1894,10 +1862,6 @@ var STRINGS = {
     "menu.decoration": "\u88C5\u98FE",
     "menu.color": "\u8272",
     "menu.background-color": "\u80CC\u666F",
-    "menu.evaluate": "\u8A55\u4FA1",
-    "menu.simplify": "\u7C21\u7565\u5316",
-    "menu.solve": "\u89E3\u304F",
-    "menu.solve-for": "%@ \u3092\u89E3\u304F",
     "menu.cut": "\u5207\u308A\u53D6\u308A",
     "menu.copy": "\u30B3\u30D4\u30FC",
     "menu.copy-as-latex": "LaTeX\u3068\u3057\u3066\u30B3\u30D4\u30FC",
@@ -1963,10 +1927,6 @@ var STRINGS = {
     "menu.decoration": "\uC7A5\uC2DD",
     "menu.color": "\uC0C9\uC0C1",
     "menu.background-color": "\uBC30\uACBD",
-    "menu.evaluate": "\uD3C9\uAC00",
-    "menu.simplify": "\uAC04\uC18C\uD654",
-    "menu.solve": "\uD574\uACB0",
-    "menu.solve-for": "%@\uC5D0 \uB300\uD574 \uD574\uACB0",
     "menu.cut": "\uC798\uB77C\uB0B4\uAE30",
     "menu.copy": "\uBCF5\uC0AC",
     "menu.copy-as-latex": "LaTeX\uB85C \uBCF5\uC0AC",
@@ -2062,10 +2022,6 @@ var STRINGS = {
     "menu.decoration": "Dekoracja",
     "menu.color": "Kolor",
     "menu.background-color": "T\u0142o",
-    "menu.evaluate": "Oblicz",
-    "menu.simplify": "Upro\u015B\u0107",
-    "menu.solve": "Rozwi\u0105\u017C",
-    "menu.solve-for": "Rozwi\u0105\u017C dla %@",
     "menu.cut": "Wytnij",
     "menu.copy": "Kopiuj",
     "menu.copy-as-latex": "Kopiuj jako LaTeX",
@@ -2129,10 +2085,6 @@ var STRINGS = {
     "menu.decoration": "Decora\xE7\xE3o",
     "menu.color": "Cor",
     "menu.background-color": "Cor de Fundo",
-    "menu.evaluate": "Avaliar",
-    "menu.simplify": "Simplificar",
-    "menu.solve": "Resolver",
-    "menu.solve-for": "Resolver para %@",
     "menu.cut": "Recortar",
     "menu.copy": "Copiar",
     "menu.copy-as-latex": "Copiar como LaTeX",
@@ -2228,10 +2180,6 @@ var STRINGS = {
     "menu.decoration": "\u041E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u043D\u044F",
     "menu.color": "\u041A\u043E\u043B\u0456\u0440",
     "menu.background-color": "\u0424\u043E\u043D",
-    "menu.evaluate": "\u041E\u0431\u0447\u0438\u0441\u043B\u0438\u0442\u0438",
-    "menu.simplify": "\u0421\u043F\u0440\u043E\u0441\u0442\u0438\u0442\u0438",
-    "menu.solve": "\u0420\u043E\u0437\u0432\u2019\u044F\u0437\u0430\u0442\u0438",
-    "menu.solve-for": "\u0420\u043E\u0437\u0432\u2019\u044F\u0437\u0430\u0442\u0438 \u0434\u043B\u044F %@",
     "menu.cut": "\u0412\u0438\u0440\u0456\u0437\u0430\u0442\u0438",
     "menu.copy": "\u041A\u043E\u043F\u0456\u044E\u0432\u0430\u0442\u0438",
     "menu.copy-as-latex": "\u041A\u043E\u043F\u0456\u044E\u0432\u0430\u0442\u0438 \u044F\u043A LaTeX",
@@ -2295,10 +2243,6 @@ var STRINGS = {
     "menu.decoration": "\u88C5\u9970",
     "menu.color": "\u989C\u8272",
     "menu.background-color": "\u80CC\u666F",
-    "menu.evaluate": "\u8BA1\u7B97",
-    "menu.simplify": "\u7B80\u5316",
-    "menu.solve": "\u6C42\u89E3",
-    "menu.solve-for": "\u6C42\u89E3 %@",
     "menu.cut": "\u526A\u5207",
     "menu.copy": "\u590D\u5236",
     "menu.copy-as-latex": "\u590D\u5236\u4E3A LaTeX",
@@ -2362,10 +2306,6 @@ var STRINGS = {
     "menu.decoration": "\u88DD\u98FE",
     "menu.color": "\u984F\u8272",
     "menu.background-color": "\u80CC\u666F",
-    "menu.evaluate": "\u8A08\u7B97",
-    "menu.simplify": "\u7C21\u5316",
-    "menu.solve": "\u6C42\u89E3",
-    "menu.solve-for": "\u6C42\u89E3 %@",
     "menu.cut": "\u526A\u4E0B",
     "menu.copy": "\u8907\u88FD",
     "menu.copy-as-latex": "\u8907\u88FD\u70BA LaTeX",
@@ -20929,10 +20869,11 @@ var LatexAtom = class _LatexAtom extends Atom {
   }
 };
 var LatexGroupAtom = class _LatexGroupAtom extends Atom {
-  constructor(latex = "") {
+  constructor(latex = "", originMode) {
     super({ type: "latexgroup", mode: "latex" });
     this.body = [...latex].map((c) => new LatexAtom(c));
     this.skipBoundary = true;
+    this.originMode = originMode;
   }
   static fromJson(_json) {
     return new _LatexGroupAtom();
@@ -21698,7 +21639,7 @@ function fromJson(json) {
         "root",
         "space"
       ].includes(type),
-      `MathLive {{SDK_VERSION}}: an unexpected atom type "${type}" was encountered. Add new atom constructors to \`fromJson()\` in "atom.ts"`
+      `MathLive 0.110.0: an unexpected atom type "${type}" was encountered. Add new atom constructors to \`fromJson()\` in "atom.ts"`
     );
     result = Atom.fromJson(json);
   }
@@ -23391,6 +23332,9 @@ defineFunction("mbox", "{:text}", {
 defineFunction("text", "{:text}", {
   ifMode: "math",
   applyMode: "text"
+});
+defineFunction("math", "{:math}", {
+  applyMode: "math"
 });
 defineFunction(["class", "htmlClass"], "{name:string}{content:auto*}", {
   createAtom: (options) => new Atom(__spreadProps(__spreadValues({}, options), { type: "mord", body: argAtoms(options.args[1]) })),
@@ -26140,11 +26084,15 @@ function complete(mathfield, completion = "accept", options) {
     (x) => !x.isSuggestion
   );
   const latex = body.map((x) => x.value).join("");
+  const originMode = latexGroup.originMode;
   const newPos = latexGroup.leftSibling;
   latexGroup.parent.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
   mathfield.switchMode((_a3 = options == null ? void 0 : options.mode) != null ? _a3 : "math");
-  if (completion === "reject") return true;
+  if (completion === "reject") {
+    if (originMode) mathfield.switchMode(originMode);
+    return true;
+  }
   const style = __spreadValues({}, computeInsertStyle(mathfield));
   if (!/^[a-zA-Z0-9]$/.test(latex) && mathfield.styleBias !== "none") {
     style.variant = "normal";
@@ -26158,7 +26106,9 @@ function complete(mathfield, completion = "accept", options) {
   });
   mathfield.snapshot();
   mathfield.model.announce("replacement");
-  mathfield.switchMode("math");
+  if ((originMode === "text" || originMode === "free-text") && !mathfield.model.selectionIsPlaceholder)
+    mathfield.switchMode(originMode);
+  else mathfield.switchMode("math");
   return true;
 }
 
@@ -26482,7 +26432,7 @@ async function loadFonts() {
       return;
     } catch (error) {
       console.error(
-        `MathLive {{SDK_VERSION}}: The math fonts could not be loaded from "${fontsFolder}"`,
+        `MathLive 0.110.0: The math fonts could not be loaded from "${fontsFolder}"`,
         { cause: error }
       );
       document.body.classList.add("ML__fonts-did-not-load");
@@ -28330,7 +28280,7 @@ function normalizeLayout(layout) {
   if (typeof layout === "string") {
     console.assert(
       LAYOUTS[layout] !== void 0,
-      `MathLive {{SDK_VERSION}}: unknown keyboard layout "${layout}"`
+      `MathLive 0.110.0: unknown keyboard layout "${layout}"`
     );
     return normalizeLayout(LAYOUTS[layout]);
   }
@@ -28338,7 +28288,7 @@ function normalizeLayout(layout) {
   if ("rows" in layout && Array.isArray(layout.rows)) {
     console.assert(
       !("layers" in layout || "markup" in layout),
-      `MathLive {{SDK_VERSION}}: when providing a "rows" property, "layers" and "markup" are ignored`
+      `MathLive 0.110.0: when providing a "rows" property, "layers" and "markup" are ignored`
     );
     const _a3 = layout, { rows } = _a3, partialLayout = __objRest(_a3, ["rows"]);
     result = __spreadProps(__spreadValues({}, partialLayout), {
@@ -28354,7 +28304,7 @@ function normalizeLayout(layout) {
     if ("layers" in layout) result.layers = normalizeLayer(layout.layers);
     else {
       console.error(
-        `MathLive {{SDK_VERSION}}: provide either a "rows", "markup" or "layers" property`
+        `MathLive 0.110.0: provide either a "rows", "markup" or "layers" property`
       );
     }
   }
@@ -29866,7 +29816,7 @@ function update(updates) {
           updates.defaultMode
         )) {
           console.error(
-            `MathLive {{SDK_VERSION}}:  valid values for defaultMode are "text", "free-text", "free-math", "math" or "inline-math"`
+            `MathLive 0.110.0:  valid values for defaultMode are "text", "free-text", "free-math", "math" or "inline-math"`
           );
           result.defaultMode = "math";
         } else result.defaultMode = updates.defaultMode;
@@ -31898,7 +31848,7 @@ function onKeystroke(mathfield, evt) {
   var _a3, _b3, _c2, _d2;
   const { model } = mathfield;
   const keystroke = keyboardEventToString(evt);
-  if ((mathfield.options.defaultMode === "free-text" || mathfield.options.defaultMode === "free-math") && keyboardEventToChar(evt) === "\\" && !evt.ctrlKey && !evt.metaKey && !evt.altKey) {
+  if ((mathfield.options.defaultMode === "free-text" || mathfield.options.defaultMode === "free-math") && model.mode !== "latex" && keyboardEventToChar(evt) === "\\" && !evt.ctrlKey && !evt.metaKey && !evt.altKey) {
     mathfield.switchMode("latex", "", "\\");
     if (evt.preventDefault) evt.preventDefault();
     if (evt.stopPropagation) evt.stopPropagation();
@@ -32040,10 +31990,10 @@ function onKeystroke(mathfield, evt) {
       return success;
     }
     if (keystroke === "[Space]" && model.mode === "latex") {
-      const latex = getLatexGroupBody(model).map((x) => x.value).join("");
-      const resumeFreeText = isInlineFreeTextMath(mathfield, latex);
+      const latex = getLatexGroupBody(model).filter((atom) => !atom.isSuggestion).map((atom) => atom.value).join("");
+      if (unclosedBraceDepth(latex) > 0) return true;
       if (complete(mathfield, "accept-all")) {
-        if ((mathfield.options.defaultMode === "free-text" || mathfield.options.defaultMode === "free-math") && (resumeFreeText || !model.selectionIsPlaceholder))
+        if (mathfield.options.defaultMode === "free-math" && !model.selectionIsPlaceholder)
           mathfield.switchMode(mathfield.options.defaultMode);
         mathfield.dirty = true;
         mathfield.scrollIntoView();
@@ -32348,6 +32298,16 @@ function onInput(mathfield, text, options) {
   mathfield.dirty = true;
   mathfield.scrollIntoView();
 }
+function unclosedBraceDepth(latex) {
+  let depth = 0;
+  for (let i = 0; i < latex.length; i++) {
+    if (latex[i] === "\\" && (latex[i + 1] === "{" || latex[i + 1] === "}")) {
+      i++;
+    } else if (latex[i] === "{") depth++;
+    else if (latex[i] === "}") depth = Math.max(0, depth - 1);
+  }
+  return depth;
+}
 function currentLineListPrefix(model) {
   const environment = model.parentEnvironment;
   if (!environment) return void 0;
@@ -32366,28 +32326,6 @@ function currentLineListPrefix(model) {
   const numbered = /^(\d+)([.)])\s/.exec(text);
   if (numbered) return `${Number(numbered[1]) + 1}${numbered[2]} `;
   return void 0;
-}
-function isInlineFreeTextMath(mathfield, latex) {
-  const trimmed = latex.trim();
-  if (!trimmed) return true;
-  if (/^\\(?:text(?:bf|it|rm|sf|tt)|underline)\b/.test(trimmed)) return true;
-  const atoms = parseLatex(trimmed, {
-    context: mathfield.context,
-    parseMode: "math"
-  }).filter((atom) => atom.type !== "first");
-  if (atoms.length === 0) return true;
-  return atoms.every(
-    (atom) => atom.type !== void 0 && [
-      "mord",
-      "mpunct",
-      "mopen",
-      "mclose",
-      "mbin",
-      "mrel",
-      "spacing",
-      "text"
-    ].includes(atom.type)
-  );
 }
 function getLeftSiblings(mf) {
   const model = mf.model;
@@ -33678,9 +33616,9 @@ function convertStringToAtoms(model, s, args, options) {
   var _a3;
   let format = void 0;
   let result = [];
-  if (typeof s !== "string" || options.format === "math-json") {
+  if (typeof s !== "string") {
     const ce = globalThis.MathfieldElement.computeEngine;
-    if (!ce) return ["math-json", []];
+    if (!ce) return ["latex", []];
     [format, s] = ["latex", ce.box(s).latex];
     result = parseLatex(s, { context: model.mathfield.context });
   } else if (typeof s === "string" && options.format === "ascii-math") {
@@ -36889,7 +36827,7 @@ function atomToSpeakableText(atoms) {
         result2 = SRE.toSpeech(mathML);
       } catch (e) {
         console.error(
-          `MathLive {{SDK_VERSION}}: \`SRE.toSpeech()\` runtime error`,
+          `MathLive 0.110.0: \`SRE.toSpeech()\` runtime error`,
           e
         );
       }
@@ -37368,7 +37306,7 @@ function convertMathJsonToLatex(json) {
     if (ComputeEngineCtor) gComputeEngine = new ComputeEngineCtor();
     else {
       console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
+        `MathLive 0.110.0: The CortexJS Compute Engine library is not available.
         
         Load the library, for example with:
         
@@ -38053,103 +37991,6 @@ function getDefaultMenuItems(mf) {
       type: "divider"
     },
     {
-      label: () => localize("menu.evaluate"),
-      id: "ce-evaluate",
-      visible: () => mf.isSelectionEditable && globalThis.MathfieldElement.computeEngine !== null,
-      onMenuSelect: () => {
-        const latex = evaluate(mf);
-        if (!latex) {
-          mf.model.announce("plonk");
-          return;
-        }
-        if (mf.model.selectionIsCollapsed) {
-          mf.model.position = mf.model.lastOffset;
-          mf.insert(`=${latex}`, {
-            insertionMode: "insertAfter",
-            selectionMode: "item"
-          });
-        } else {
-          mf.insert(latex, {
-            insertionMode: "replaceSelection",
-            selectionMode: "item"
-          });
-        }
-      }
-    },
-    {
-      label: () => localize("menu.simplify"),
-      id: "ce-simplify",
-      visible: () => mf.isSelectionEditable && globalThis.MathfieldElement.computeEngine !== null,
-      onMenuSelect: () => {
-        var _a3, _b3;
-        if (mf.model.selectionIsCollapsed) {
-          const result = (_a3 = mf.expression) == null ? void 0 : _a3.simplify();
-          mf.model.position = mf.model.lastOffset;
-          if (!result) {
-            mf.model.announce("plonk");
-            return;
-          }
-          mf.insert(`=${result.latex}`, {
-            insertionMode: "insertAfter",
-            selectionMode: "item"
-          });
-        } else {
-          const result = (_b3 = globalThis.MathfieldElement.computeEngine) == null ? void 0 : _b3.parse(mf.getValue(mf.model.selection)).simplify();
-          if (!result) {
-            mf.model.announce("plonk");
-            return;
-          }
-          mf.insert(result.latex, {
-            insertionMode: "replaceSelection",
-            selectionMode: "item"
-          });
-        }
-      }
-    },
-    {
-      label: () => {
-        var _a3;
-        const ce = globalThis.MathfieldElement.computeEngine;
-        if (ce === null) return "";
-        const unknown = (_a3 = mf.expression) == null ? void 0 : _a3.unknowns[0];
-        if (unknown) {
-          const latex = ce.box(unknown).latex;
-          return localize("menu.solve-for", convertLatexToMarkup(latex));
-        }
-        return localize("menu.solve");
-      },
-      id: "ce-solve",
-      visible: () => {
-        var _a3;
-        return mf.isSelectionEditable && globalThis.MathfieldElement.computeEngine !== null && ((_a3 = mf.expression) == null ? void 0 : _a3.unknowns.length) === 1 && mf.expression.unknowns[0] !== "Nothing";
-      },
-      onMenuSelect: () => {
-        const expr = mf.expression;
-        const unknown = expr == null ? void 0 : expr.unknowns[0];
-        const solutions = expr.solve(unknown);
-        const results = Array.isArray(solutions) ? solutions.map(
-          (x) => {
-            var _a3;
-            return (_a3 = x.simplify().latex) != null ? _a3 : "";
-          }
-        ) : null;
-        if (!results) {
-          mf.model.announce("plonk");
-          return;
-        }
-        mf.insert(
-          `${unknown}=${results.length === 1 ? results[0] : "\\left\\lbrace" + (results == null ? void 0 : results.join(", ")) + "\\right\\rbrace"}`,
-          {
-            insertionMode: "replaceAll",
-            selectionMode: "item"
-          }
-        );
-      }
-    },
-    {
-      type: "divider"
-    },
-    {
       label: () => localize("menu.cut"),
       id: "cut",
       onMenuSelect: () => mf.executeCommand("cutToClipboard"),
@@ -38244,24 +38085,6 @@ function performSetEnvironment(mf, env) {
   mf.flushInlineShortcutBuffer();
   setEnvironment(mf.model, env);
   requestUpdate(mf);
-}
-function evaluate(mf) {
-  var _a3, _b3;
-  let expr;
-  if (mf.model.selectionIsCollapsed) {
-    expr = (_a3 = globalThis.MathfieldElement.computeEngine) == null ? void 0 : _a3.parse(mf.getValue(), {
-      canonical: false
-    });
-  } else {
-    expr = (_b3 = globalThis.MathfieldElement.computeEngine) == null ? void 0 : _b3.parse(
-      mf.getValue(mf.model.selection),
-      { canonical: false }
-    );
-  }
-  if (!expr) return "";
-  let result = expr.evaluate();
-  if (result.isSame(expr)) result = expr.N();
-  return result.latex;
 }
 function variantMenuItem(mf, variant, command, tooltip) {
   return {
@@ -39298,13 +39121,12 @@ var _Model = class {
     if (format === "typst") return atomToTypst(atom);
     if (format === "plain-text") return atomToAsciiMath(atom, { plain: true });
     if (format === "ascii-math") return atomToAsciiMath(atom);
-    console.error(`MathLive {{SDK_VERSION}}: Unexpected format "${format}`);
+    console.error(`MathLive 0.110.0: Unexpected format "${format}`);
     return "";
   }
   getValue(arg1, arg2, arg3) {
     if (arg1 === void 0) return this.atomToString(this.root, "latex");
-    if (typeof arg1 === "string" && arg1 !== "math-json")
-      return this.atomToString(this.root, arg1);
+    if (typeof arg1 === "string") return this.atomToString(this.root, arg1);
     let ranges;
     let format;
     if (isOffset(arg1) && isOffset(arg2)) {
@@ -39318,26 +39140,9 @@ var _Model = class {
       format = arg2;
     } else {
       ranges = [this.normalizeRange([0, -1])];
-      format = arg1;
+      format = "latex";
     }
     format != null ? format : format = "latex";
-    if (format === "math-json") {
-      if (!globalThis.MathfieldElement.computeEngine) {
-        if (!window[Symbol.for("io.cortexjs.compute-engine")]) {
-          console.error(
-            'The CortexJS Compute Engine library is not available.\nLoad the library, for example with:\nimport "https://esm.run/@cortex-js/compute-engine"'
-          );
-        }
-        return '["Error", "compute-engine-not-available"]';
-      }
-      const latex = this.getValue({ ranges }, "latex-unstyled");
-      try {
-        const expr = globalThis.MathfieldElement.computeEngine.parse(latex);
-        return JSON.stringify(expr.json);
-      } catch (e) {
-        return JSON.stringify(["Error", `'${e.toString()}'`]);
-      }
-    }
     if (format.startsWith("latex")) {
       const options = {
         expandMacro: format === "latex-expanded",
@@ -39756,7 +39561,7 @@ var _Mathfield = class __Mathfield {
     );
     if (!this.element.children) {
       console.error(
-        `%cMathLive {{SDK_VERSION}}: Something went wrong and the mathfield could not be created.%c
+        `%cMathLive 0.110.0: Something went wrong and the mathfield could not be created.%c
 If you are using Vue, this may be because you are using the runtime-only build of Vue. Make sure to include \`runtimeCompiler: true\` in your Vue configuration. There may a warning from Vue in the log above.`,
         "color:red;font-family:system-ui;font-size:1.2rem;font-weight:bold",
         "color:inherit;font-family:system-ui;font-size:inherit;font-weight:inherit"
@@ -40038,7 +39843,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this._keybindings = keybindings;
       if (errors.length > 0) {
         console.error(
-          `MathLive {{SDK_VERSION}}: Invalid keybindings for current keyboard layout`,
+          `MathLive 0.110.0: Invalid keybindings for current keyboard layout`,
           errors
         );
       }
@@ -40303,16 +40108,6 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.undoManager.snapshot("set-value");
     }
   }
-  get expression() {
-    const ce = globalThis.MathfieldElement.computeEngine;
-    if (!ce) {
-      console.error(
-        `MathLive {{SDK_VERSION}}:  no compute engine available. Make sure the Compute Engine library is loaded.`
-      );
-      return null;
-    }
-    return ce.box(ce.parse(this.model.getValue("latex-unstyled")));
-  }
   /** Make sure the caret is visible within the matfield.
    * If using mathfield element, make sure the mathfield element is visible in
    * the page
@@ -40466,7 +40261,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
           contentChanged = true;
         };
         const insertLatexGroup = (latex, options) => {
-          const atom = new LatexGroupAtom(latex);
+          const atom = new LatexGroupAtom(latex, previousMode);
           cursor.parent.addChildAfter(atom, cursor);
           if (options.select) {
             model.setSelection(
@@ -40608,7 +40403,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     );
     console.assert(
       prompt !== void 0,
-      `MathLive {{SDK_VERSION}}:  no prompts with matching ID found`
+      `MathLive 0.110.0:  no prompts with matching ID found`
     );
     return prompt;
   }
@@ -40635,7 +40430,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     if (value !== void 0) {
       const prompt = this.getPrompt(id);
       if (!prompt) {
-        console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
+        console.error(`MathLive 0.110.0: unknown prompt ${id}`);
         return;
       }
       const branchRange = this.model.getBranchRange(
@@ -40654,7 +40449,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   setPromptState(id, state, locked) {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
+      console.error(`MathLive 0.110.0: unknown prompt ${id}`);
       return;
     }
     if (state === "undefined") prompt.correctness = void 0;
@@ -40668,7 +40463,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   getPromptState(id) {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
+      console.error(`MathLive 0.110.0: unknown prompt ${id}`);
       return [void 0, true];
     }
     return [prompt.correctness, prompt.locked];
@@ -40676,7 +40471,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
   getPromptRange(id) {
     const prompt = this.getPrompt(id);
     if (!prompt) {
-      console.error(`MathLive {{SDK_VERSION}}: unknown prompt ${id}`);
+      console.error(`MathLive 0.110.0: unknown prompt ${id}`);
       return [0, 0];
     }
     return this.model.getBranchRange(this.model.offsetOf(prompt), "body");
@@ -41105,7 +40900,7 @@ function defaultSpeakHook(text) {
   } else if (mfe.speechEngine === "amazon") {
     if (!("AWS" in window)) {
       console.error(
-        `MathLive {{SDK_VERSION}}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
+        `MathLive 0.110.0: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
       );
     } else {
       const polly = new globalThis.AWS.Polly({ apiVersion: "2016-06-10" });
@@ -41133,7 +40928,7 @@ function defaultSpeakHook(text) {
       polly.synthesizeSpeech(parameters, (err, data) => {
         if (err) {
           console.trace(
-            `MathLive {{SDK_VERSION}}: \`polly.synthesizeSpeech()\` error: ${err}`
+            `MathLive 0.110.0: \`polly.synthesizeSpeech()\` error: ${err}`
           );
         } else if (data == null ? void 0 : data.AudioStream) {
           const uInt8Array = new Uint8Array(data.AudioStream);
@@ -41146,7 +40941,7 @@ function defaultSpeakHook(text) {
     }
   } else if (mfe.speechEngine === "google") {
     console.error(
-      `MathLive {{SDK_VERSION}}: The Google speech engine is not supported yet. Please come again.`
+      `MathLive 0.110.0: The Google speech engine is not supported yet. Please come again.`
     );
   }
 }
@@ -41182,7 +40977,7 @@ function defaultReadAloudHook(element, text) {
   if (!isBrowser()) return;
   if (globalThis.MathfieldElement.speechEngine !== "amazon") {
     console.error(
-      `MathLive {{SDK_VERSION}}: Use Amazon TTS Engine for synchronized highlighting`
+      `MathLive 0.110.0: Use Amazon TTS Engine for synchronized highlighting`
     );
     if (typeof globalThis.MathfieldElement.speakHook === "function")
       globalThis.MathfieldElement.speakHook(text);
@@ -41190,7 +40985,7 @@ function defaultReadAloudHook(element, text) {
   }
   if (!globalThis.AWS) {
     console.error(
-      `MathLive {{SDK_VERSION}}: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
+      `MathLive 0.110.0: AWS SDK not loaded. See https://www.npmjs.com/package/aws-sdk`
     );
     return;
   }
@@ -41208,7 +41003,7 @@ function defaultReadAloudHook(element, text) {
   polly.synthesizeSpeech(parameters, (err, data) => {
     if (err) {
       console.trace(
-        `MathLive {{SDK_VERSION}}: \`polly.synthesizeSpeech()\` error: ${err}`
+        `MathLive 0.110.0: \`polly.synthesizeSpeech()\` error: ${err}`
       );
       return;
     }
@@ -41229,7 +41024,7 @@ function defaultReadAloudHook(element, text) {
     polly.synthesizeSpeech(parameters, (err2, data2) => {
       if (err2) {
         console.trace(
-          `MathLive {{SDK_VERSION}}: \`polly.synthesizeSpeech("${text}") error:${err2}`
+          `MathLive 0.110.0: \`polly.synthesizeSpeech("${text}") error:${err2}`
         );
         return;
       }
@@ -41295,7 +41090,7 @@ function defaultReadAloudHook(element, text) {
 // src/public/mathfield-element.ts
 if (!isBrowser()) {
   console.error(
-    `MathLive {{SDK_VERSION}}: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a \`useEffect()\` call.`
+    `MathLive 0.110.0: this version of the MathLive library is for use in the browser. A subset of the API is available on the server side in the "mathlive-ssr" library. If using server side rendering (with React for example) you may want to do a dynamic import of the MathLive library inside a \`useEffect()\` call.`
   );
 }
 var gDeferredState = /* @__PURE__ */ new WeakMap();
@@ -41399,7 +41194,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
       }
       if (warnings.length > 0) {
         console.group(
-          `%cMathLive {{SDK_VERSION}}: %cInvalid Options`,
+          `%cMathLive 0.110.0: %cInvalid Options`,
           "color:#12b; font-size: 1.1rem",
           "color:#db1111; font-size: 1.1rem"
         );
@@ -41814,7 +41609,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
     this._decimalSeparator = value;
     if (this._computeEngine) {
       console.warn(
-        `MathLive {{SDK_VERSION}}: setting MathfieldElement.decimalSeparator after the Compute Engine has been created has no effect on the engine. Reassign MathfieldElement.computeEngine with a freshly configured instance to apply the new separator.`
+        `MathLive 0.110.0: setting MathfieldElement.decimalSeparator after the Compute Engine has been created has no effect on the engine. Reassign MathfieldElement.computeEngine with a freshly configured instance to apply the new separator.`
       );
     }
   }
@@ -42066,45 +41861,6 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
     (_a3 = this._mathfield) == null ? void 0 : _a3.switchMode(value);
   }
   /**
-     * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
-     *
-     * To load the Compute Engine library, use:
-     * ```js
-  import 'https://esm.run/@cortex-js/compute-engine';
-  ```
-     *
-     * @category Accessing and changing the content
-     */
-  get expression() {
-    if (!this._mathfield) return void 0;
-    if (!window[Symbol.for("io.cortexjs.compute-engine")]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-      return null;
-    }
-    return this._mathfield.expression;
-  }
-  set expression(mathJson) {
-    var _a3, _b3;
-    if (!this._mathfield) return;
-    const latex = (_b3 = (_a3 = _MathfieldElement.computeEngine) == null ? void 0 : _a3.box(mathJson).latex) != null ? _b3 : null;
-    if (latex !== null) this._mathfield.setValue(latex);
-    if (!window[Symbol.for("io.cortexjs.compute-engine")]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-    }
-  }
-  /**
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
@@ -42122,7 +41878,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
   }
   getOptions(keys) {
     console.warn(
-      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
+      `%cMathLive 0.110.0: %cDeprecated Usage%c
       \`mf.getOptions()\` is deprecated. Read the property directly on the mathfield instead.
       See mathfield/changelog/ for details.`,
       "color:#12b; font-size: 1.1rem",
@@ -42166,7 +41922,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
    */
   getOption(key) {
     console.warn(
-      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage%c
+      `%cMathLive 0.110.0: %cDeprecated Usage%c
       \`mf.getOption()\` is deprecated. Read the property directly on the mathfield instead.
       See mathfield/changelog/ for details.`,
       "color:#12b; font-size: 1.1rem",
@@ -42204,7 +41960,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
    */
   setOptions(options) {
     console.group(
-      `%cMathLive {{SDK_VERSION}}: %cDeprecated Usage`,
+      `%cMathLive 0.110.0: %cDeprecated Usage`,
       "color:#12b; font-size: 1.1rem",
       "color:#db1111; font-size: 1.1rem"
     );
@@ -43274,7 +43030,7 @@ var _MathfieldElement = class _MathfieldElement extends HTMLElement {
     return (_b3 = (_a3 = this._mathfield) == null ? void 0 : _a3.model.lastOffset) != null ? _b3 : -1;
   }
 };
-_MathfieldElement.version = "{{SDK_VERSION}}";
+_MathfieldElement.version = "0.110.0";
 _MathfieldElement.openUrl = (href) => {
   if (!href) return;
   const url = new URL(href);
@@ -43388,7 +43144,7 @@ var _a2, _b2, _c, _d;
 if (isBrowser() && !((_a2 = window.customElements) == null ? void 0 : _a2.get("math-field"))) {
   (_c = window[_b2 = Symbol.for("io.cortexjs.mathlive")]) != null ? _c : window[_b2] = {};
   const global = window[Symbol.for("io.cortexjs.mathlive")];
-  global.version = "{{SDK_VERSION}}";
+  global.version = "0.110.0";
   globalThis.MathfieldElement = MathfieldElement;
   (_d = window.customElements) == null ? void 0 : _d.define("math-field", MathfieldElement);
 }
@@ -43813,7 +43569,7 @@ function createMathMLNode(latex, options) {
     span.innerHTML = globalThis.MathfieldElement.createHTML(html);
   } catch (error) {
     console.error(
-      `MathLive {{SDK_VERSION}}:  Could not convert "${latex}"' to MathML with ${error}`
+      `MathLive 0.110.0:  Could not convert "${latex}"' to MathML with ${error}`
     );
     span.textContent = latex;
   }
@@ -44120,7 +43876,7 @@ function renderMathInElement(element, options) {
   _renderMathInElement(el, optionsPrivate);
 }
 var version = {
-  mathlive: "{{SDK_VERSION}}"
+  mathlive: "0.110.0"
 };
 export {
   MathDivElement,
@@ -44144,3 +43900,4 @@ export {
   validateLatex2 as validateLatex,
   version
 };
+//# sourceMappingURL=mathlive.mjs.map

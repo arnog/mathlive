@@ -1,4 +1,4 @@
-import type { Selector } from './commands';
+/* 0.110.0 */import type { Selector } from './commands';
 import type { ParseMode, Style } from './core-types';
 import type { OriginValidator } from './options';
 /**

@@ -1,4 +1,4 @@
-import type { Keys } from './types-utils';
+/* 0.110.0 */import type { Keys } from './types-utils';
 import type { InsertOptions, ParseMode, Style, TabularEnvironment } from './core-types';
 import type { Mathfield, Model } from './mathfield';
 /**

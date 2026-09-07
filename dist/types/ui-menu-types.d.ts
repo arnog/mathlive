@@ -1,4 +1,4 @@
-import type { KeyboardModifiers } from './ui-events-types';
+/* 0.110.0 */import type { KeyboardModifiers } from './ui-events-types';
 /**
  * The type of a menu item:
  * - `command`: a command that can be selected and executed

@@ -63,9 +63,6 @@
       "import": "./mathlive-ssr.min.mjs"
     }
   },
-  "dependencies": {
-    "@cortex-js/compute-engine": "0.58.0"
-  },
   "files": [
     "./*.js",
     "./*.mjs",

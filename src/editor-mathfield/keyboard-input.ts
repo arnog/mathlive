@@ -18,7 +18,6 @@ import { range } from '../editor-model/selection-utils';
 import { complete, removeSuggestion, updateAutocomplete } from './autocomplete';
 import { getLatexGroupBody } from './mode-editor-latex';
 import { getDefinition } from '../latex-commands/definitions-utils';
-import { parseLatex } from '../core/parser';
 import { requestUpdate } from './render';
 import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
@@ -74,6 +73,7 @@ export function onKeystroke(
   if (
     (mathfield.options.defaultMode === 'free-text' ||
       mathfield.options.defaultMode === 'free-math') &&
+    model.mode !== 'latex' &&
     keyboardEventToChar(evt) === '\\' &&
     !evt.ctrlKey &&
     !evt.metaKey &&
@@ -353,20 +353,23 @@ export function onKeystroke(
 
     // Handle Space key in LaTeX mode to complete and exit
     if (keystroke === '[Space]' && model.mode === 'latex') {
-      // Try to complete the LaTeX command and exit LaTeX mode
       const latex = getLatexGroupBody(model)
-        .map((x) => x.value)
+        .filter((atom) => !atom.isSuggestion)
+        .map((atom) => atom.value)
         .join('');
-      const resumeFreeText = isInlineFreeTextMath(mathfield, latex);
+      // A space within an open argument terminates the nested command but not
+      // the outer bounded entry. Let the regular input path add it to the raw
+      // LaTeX group; the matching closing brace will complete the expression.
+      if (unclosedBraceDepth(latex) > 0) return true;
+
+      // Try to complete the LaTeX command and exit LaTeX mode
       if (complete(mathfield, 'accept-all')) {
-        // A free-text field treats a completed LaTeX command as an inline math
-        // run. The parsed atom retains its math semantics, including for large
-        // structures such as \sum and \int, while the insertion point returns
-        // to free-text so ordinary prose can continue after it.
+        // free-math is a multiline math mode, so return to it after completion.
+        // Prose modes are restored centrally by complete() using the transient
+        // LaTeX group's origin mode.
         if (
-          (mathfield.options.defaultMode === 'free-text' ||
-            mathfield.options.defaultMode === 'free-math') &&
-          (resumeFreeText || !model.selectionIsPlaceholder)
+          mathfield.options.defaultMode === 'free-math' &&
+          !model.selectionIsPlaceholder
         )
           mathfield.switchMode(mathfield.options.defaultMode);
         mathfield.dirty = true;
@@ -937,6 +940,17 @@ export function onInput(
   mathfield.scrollIntoView();
 }
 
+function unclosedBraceDepth(latex: string): number {
+  let depth = 0;
+  for (let i = 0; i < latex.length; i++) {
+    if (latex[i] === '\\' && (latex[i + 1] === '{' || latex[i + 1] === '}')) {
+      i++;
+    } else if (latex[i] === '{') depth++;
+    else if (latex[i] === '}') depth = Math.max(0, depth - 1);
+  }
+  return depth;
+}
+
 function currentLineListPrefix(model: _Model): string | undefined {
   const environment = model.parentEnvironment;
   if (!environment) return undefined;
@@ -958,35 +972,6 @@ function currentLineListPrefix(model: _Model): string | undefined {
   const numbered = /^(\d+)([.)])\s/.exec(text);
   if (numbered) return `${Number(numbered[1]) + 1}${numbered[2]} `;
   return undefined;
-}
-
-/** Keep small inline symbols in prose, but leave the editor in math mode for
- * structures whose layout is larger than a text character. */
-function isInlineFreeTextMath(mathfield: _Mathfield, latex: string): boolean {
-  const trimmed = latex.trim();
-  if (!trimmed) return true;
-  if (/^\\(?:text(?:bf|it|rm|sf|tt)|underline)\b/.test(trimmed)) return true;
-
-  const atoms = parseLatex(trimmed, {
-    context: mathfield.context,
-    parseMode: 'math',
-  }).filter((atom) => atom.type !== 'first');
-  if (atoms.length === 0) return true;
-
-  return atoms.every(
-    (atom) =>
-      atom.type !== undefined &&
-      [
-        'mord',
-        'mpunct',
-        'mopen',
-        'mclose',
-        'mbin',
-        'mrel',
-        'spacing',
-        'text',
-      ].includes(atom.type)
-  );
 }
 
 function getLeftSiblings(mf: _Mathfield): Atom[] {

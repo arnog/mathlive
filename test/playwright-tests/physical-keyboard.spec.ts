@@ -424,6 +424,72 @@ test('free-text keeps large mathematical structures as math islands', async ({
   }
 });
 
+for (const [selector, proseMode] of [
+  ['#mf-text', 'text'],
+  ['#mf-free-text', 'free-text'],
+] as const) {
+  test(`${proseMode} resumes prose after unbounded and bounded LaTeX`, async ({
+    page,
+  }) => {
+    await page.goto('/dist/playwright-test-page/');
+    const field = page.locator(selector);
+
+    await field.pressSequentially('Before ');
+    await field.pressSequentially(String.raw`\alpha`);
+    await field.press('Space');
+    expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+      proseMode
+    );
+    await field.pressSequentially(' after alpha. ');
+
+    await field.pressSequentially(String.raw`\frac{3}{2}`);
+    expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+      proseMode
+    );
+    await field.pressSequentially(' after fraction.');
+
+    const values = await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex'),
+    }));
+    expect(values.mode).toBe(proseMode);
+    expect(values.latex).toContain(String.raw`\alpha`);
+    expect(values.latex).toContain(String.raw`\frac32`);
+    expect(values.latex).toContain('after alpha.');
+    expect(values.latex).toContain('after fraction.');
+  });
+}
+
+test('math command accepts nested LaTeX and returns to prose', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  await field.pressSequentially('Before ');
+  await field.pressSequentially(
+    String.raw`\math{\forall x \land \frac{1}{2}}`
+  );
+  expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+    'free-text'
+  );
+  await field.pressSequentially(' after');
+
+  const values = await field.evaluate((e: MathfieldElement) => ({
+    mode: e.mode,
+    latex: e.getValue('latex'),
+    plainText: e.getValue('plain-text'),
+    errors: e.shadowRoot?.querySelectorAll('.ML__error').length ?? 0,
+  }));
+  expect(values.mode).toBe('free-text');
+  expect(values.latex).toContain(String.raw`\forall x`);
+  expect(values.latex).toContain(String.raw`\land`);
+  expect(values.latex).toContain(String.raw`\frac12`);
+  expect(values.plainText).toContain('Before');
+  expect(values.plainText).toContain('after');
+  expect(values.errors).toBe(0);
+});
+
 test('free-math uses math atoms while preserving multiline editing', async ({
   page,
 }) => {
