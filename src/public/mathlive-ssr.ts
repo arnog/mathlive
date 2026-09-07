@@ -102,7 +102,7 @@ export function convertLatexToMarkup(
   let mathstyle: 'displaystyle' | 'textstyle' = 'displaystyle';
   if (defaultMode === 'inline-math') mathstyle = 'textstyle';
   else if (defaultMode === 'math') mathstyle = 'displaystyle';
-  else if (defaultMode === 'text') {
+  else if (defaultMode === 'text' || defaultMode === 'free-text') {
     mathstyle = 'textstyle';
     parseMode = 'text';
   }

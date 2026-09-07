@@ -41,6 +41,11 @@ import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 import { codePointToLatex } from './unicode';
 import { isArray } from '../common/types';
 
+// Used by the free-text parser to carry literal tab characters through TeX
+// tokenization. A private-use marker is needed because TeX normally folds
+// tabs and spaces into the same whitespace token.
+export const FREE_TEXT_TAB_MARKER = '\uE000';
+
 //
 // - Literal (character token): a letter, digit or punctuation
 // - Token: a space `<space>`, a literal, name, group or mode shift
@@ -156,7 +161,14 @@ export class Parser {
       parent: undefined,
       mathlist: [],
       style: options.style ?? {},
-      parseMode: options.parseMode ?? 'math',
+      // Free-text has the text parser semantics. Free-math has the ordinary
+      // math parser semantics; both distinctions are editor/layout modes.
+      parseMode:
+        options.parseMode === 'free-text'
+          ? 'text'
+          : options.parseMode === 'free-math'
+            ? 'math'
+          : options.parseMode ?? 'math',
       mathstyle: options.mathstyle ?? 'displaystyle',
       tabular: false,
     };
@@ -1318,6 +1330,9 @@ export class Parser {
     // Is it a literal?
     //
     if (isLiteral(token)) {
+      if (token === FREE_TEXT_TAB_MARKER) {
+        return [new TextAtom(token, '\t', this.style)];
+      }
       const result = Mode.createAtom(this.parseMode, token, { ...this.style });
       return result ? [result] : null;
     }

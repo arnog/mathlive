@@ -9,6 +9,7 @@ import { OverunderAtom } from 'atoms/overunder';
 import { GenfracAtom } from 'atoms/genfrac';
 import { AccentAtom } from 'atoms/accent';
 import { LatexValue } from 'public/core-types';
+import { isTextMode } from '../public/core-types';
 
 type MathMLStream = {
   atoms: Atom[];
@@ -258,13 +259,31 @@ function parseSubsup(base: string, stream: MathMLStream, options): boolean {
 
 function scanText(stream: MathMLStream, final: number, options) {
   final = final ?? stream.atoms.length;
+  const savedIndex = stream.index;
+  while (
+    stream.index < final &&
+    stream.atoms[stream.index].type === 'first'
+  )
+    stream.index += 1;
+  if (stream.index >= final) {
+    stream.index = savedIndex;
+    return false;
+  }
   const initial = stream.index;
   let mathML = '';
 
   let superscript = indexOfSuperscriptInNumber(stream);
   if (superscript >= 0 && superscript < final) final = superscript;
 
-  while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
+  const textStyle = stream.atoms[stream.index].style;
+  while (
+    stream.index < final &&
+    isTextMode(stream.atoms[stream.index].mode) &&
+    stream.atoms[stream.index].style.fontSeries === textStyle.fontSeries &&
+    stream.atoms[stream.index].style.fontShape === textStyle.fontShape &&
+    stream.atoms[stream.index].style.textDecoration ===
+      textStyle.textDecoration
+  ) {
     mathML += stream.atoms[stream.index].value
       ? stream.atoms[stream.index].value
       : ' ';
@@ -272,10 +291,20 @@ function scanText(stream: MathMLStream, final: number, options) {
   }
 
   if (mathML.length > 0) {
-    mathML = `<mtext ${makeID(
-      stream.atoms[initial].id,
-      options
-    )}>${xmlEscape(mathML)}</mtext>`;
+    let attributes = makeID(stream.atoms[initial].id, options);
+    const { fontSeries, fontShape, textDecoration } = textStyle;
+    const mathvariant =
+      fontSeries === 'b' && fontShape === 'it'
+        ? 'bold-italic'
+        : fontSeries === 'b'
+          ? 'bold'
+          : fontShape === 'it'
+            ? 'italic'
+            : '';
+    if (mathvariant) attributes += ` mathvariant="${mathvariant}"`;
+    if (textDecoration && textDecoration !== 'none')
+      attributes += ` style="text-decoration:${textDecoration}"`;
+    mathML = `<mtext${attributes}>${xmlEscape(mathML)}</mtext>`;
 
     if (superscript < 0 && isSuperscriptAtom(stream)) {
       superscript = stream.index;
@@ -609,8 +638,9 @@ function toString(atoms) {
  *
  */
 function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
-  if (atom.mode === 'text')
-    return `<mi${makeID(atom.id, options)}>${xmlEscape(atom.value)}</mi>`;
+  if ((atom as any).type === 'first') return '';
+  if (isTextMode(atom.mode))
+    return `<mtext${makeID(atom.id, options)}>${xmlEscape(atom.value)}</mtext>`;
 
   // For named SVG atoms, map to a Unicode char
   const SVG_CODE_POINTS = {

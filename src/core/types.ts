@@ -216,7 +216,7 @@ export type ToLatexOptions = {
 
   // Don't emit unnecessary style shift commands: you can assume we're in
   // this default mode.
-  defaultMode: 'text' | 'math' | 'inline-math';
+  defaultMode: 'text' | 'free-text' | 'free-math' | 'math' | 'inline-math';
 };
 
 // IMPORTANT: when adding a new atom type, add its constructor to `toJson()`

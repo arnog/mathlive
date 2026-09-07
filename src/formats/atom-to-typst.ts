@@ -5,6 +5,18 @@ import { GenfracAtom } from '../atoms/genfrac';
 import { LeftRightAtom } from '../atoms/leftright';
 import { ArrayAtom } from '../atoms/array';
 import { Style } from '../public/core-types';
+import { isTextMode } from '../public/core-types';
+
+function typstTextRun(text: string, style: Style): string {
+  let result = `"${text.replace(/"/g, '\\"')}"`;
+  if (style.fontSeries === 'b') result = `#strong[${result}]`;
+  if (style.fontShape === 'it') result = `#emph[${result}]`;
+  if (style.textDecoration?.includes('underline'))
+    result = `#underline[${result}]`;
+  if (style.textDecoration?.includes('line-through'))
+    result = `#strike[${result}]`;
+  return result;
+}
 
 const IDENTIFIERS = {
   '\\ne': '!=',
@@ -237,18 +249,37 @@ export function atomToTypst(atom: Atom | readonly Atom[] | undefined): string {
   if (isArray<Atom>(atom)) {
     if (atom.length === 0) return '';
 
+    let first = 0;
+    while (atom[first]?.type === 'first') first += 1;
+    if (first > 0) return atomToTypst(atom.slice(first));
+
     if (atom[0].mode === 'latex')
       return atom.map((x) => atomToTypst(x)).join('');
 
-    if (atom[0].mode === 'text') {
+    if (isTextMode(atom[0].mode)) {
       // Text mode... put it in (ASCII) quotes
       let i = 0;
-      let text = '';
-      while (atom[i]?.mode === 'text') {
-        text += atom[i].body ? atomToTypst(atom[i].body) : atom[i].value;
-        i++;
+      const runs: string[] = [];
+      while (
+        atom[i]?.type !== 'first' &&
+        isTextMode(atom[i]?.mode ?? '')
+      ) {
+        const style = atom[i].style;
+        const start = i;
+        let text = '';
+        while (
+          isTextMode(atom[i]?.mode ?? '') &&
+          atom[i]?.style.fontSeries === style.fontSeries &&
+          atom[i]?.style.fontShape === style.fontShape &&
+          atom[i]?.style.textDecoration === style.textDecoration
+        ) {
+          text += atom[i].body ? atomToTypst(atom[i].body) : atom[i].value ?? '';
+          i += 1;
+        }
+        if (i === start) i += 1;
+        runs.push(typstTextRun(text, style));
       }
-      return ` "${text}" ${atomToTypst(atom.slice(i))}`;
+      return ` ${runs.join('')} ${atomToTypst(atom.slice(i))}`;
     }
 
     let i = 0;
@@ -264,7 +295,7 @@ export function atomToTypst(atom: Atom | readonly Atom[] | undefined): string {
     return joinAsciiMath(result);
   }
 
-  if (atom.mode === 'text') return `"${atom.value}"`;
+  if (isTextMode(atom.mode)) return typstTextRun(atom.value ?? '', atom.style);
 
   let result = '';
   const { command } = atom;
