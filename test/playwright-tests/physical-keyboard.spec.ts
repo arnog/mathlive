@@ -291,6 +291,90 @@ test('test inline shortcuts', async ({ page }) => {
   ).toBe(String.raw`\pm\nabla\cdot\alpha+\tan x-20\ge40`);
 });
 
+test('piecewise command creates editable rows', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  const field = page.locator('#mf-1');
+  await field.pressSequentially(String.raw`\piecewise{2}`);
+
+  expect(
+    await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex-expanded'),
+    }))
+  ).toEqual({
+    mode: 'math',
+    latex: String.raw`\begin{cases}\placeholder{} & \placeholder{}\\ \placeholder{} & \placeholder{}\end{cases}`,
+  });
+
+  await field.press('ArrowRight');
+
+  expect(
+    await field.evaluate((e: MathfieldElement) => e.getValue('latex-expanded'))
+  ).toBe(
+    String.raw`\begin{cases}\placeholder{} & \placeholder{}\\ \placeholder{} & \placeholder{}\end{cases}`
+  );
+});
+
+test('bounded operator shortcuts complete after their final argument', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  for (const [command, expected] of [
+    ['int', String.raw`\int_{x}^{y}`],
+    ['sum', String.raw`\sum_{x}^{y}`],
+    ['prod', String.raw`\prod_{x}^{y}`],
+  ] as const) {
+    await field.evaluate((e: MathfieldElement) => {
+      e.value = '';
+      e.focus();
+    });
+    await field.pressSequentially(`\\${command}{x}{y}`);
+    expect(
+      await field.evaluate((e: MathfieldElement) => ({
+        mode: e.mode,
+        latex: e.getValue('latex-expanded'),
+      }))
+    ).toEqual({ mode: 'math', latex: expected });
+  }
+});
+
+test('LaTeX commands remain editable inside piecewise placeholders', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  await field.evaluate((mfe: MathfieldElement) => {
+    mfe.setValue(String.raw`\piecewise{2}`, {
+      format: 'latex',
+      selectionMode: 'placeholder',
+    });
+    mfe.focus();
+  });
+
+  await field.pressSequentially(String.raw`\alpha`);
+
+  const pending = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(pending.mode).toBe('latex');
+  expect(pending.latex).toContain('\\begin{cases}');
+  expect(pending.latex).not.toContain('\\alpha');
+
+  await field.press('Space');
+
+  const completed = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(completed.mode).toBe('math');
+  expect(completed.latex).toContain('\\alpha');
+});
+
 test('underscore subscript', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
@@ -536,6 +620,88 @@ test('mathbb with superscript (issue #2867)', async ({ page }) => {
 
   // Should serialize as \mathbb{R}^0, not \mathbb{R^0}
   expect(latex).toBe('\\mathbb{R}^0');
+});
+
+test('text-mode LaTeX commands wait for completion', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  await field.evaluate((mfe: MathfieldElement) => {
+    mfe.value = '';
+    mfe.mode = 'text';
+    mfe.focus();
+  });
+  await field.pressSequentially('\\pi');
+
+  const prefixState = await field.evaluate((mfe: MathfieldElement) => ({
+    mode: mfe.mode,
+    latex: mfe.getValue('latex'),
+  }));
+  expect(prefixState.mode).toBe('latex');
+  // An incomplete LaTeX group is intentionally not part of the public value
+  // yet; the important guarantee is that the field remains in command mode
+  // instead of committing `\\pi` as a symbol.
+  expect(prefixState.latex).toBe('');
+
+  await field.pressSequentially('ecewise{3}');
+  await field.press('Space');
+  expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex')))
+    .toContain('\\begin{cases}');
+});
+
+test('bounded operator arguments remain editable after deletion', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+  for (const command of ['int', 'sum', 'prod']) {
+    await field.evaluate((mfe: MathfieldElement, operator: string) => {
+      mfe.setValue(`\\${operator}{x}{y}`, { format: 'latex' });
+      mfe.position = mfe.lastOffset;
+      mfe.focus();
+    }, command);
+    await field.press('Backspace');
+    await field.press('Backspace');
+
+    const latex = await field.evaluate((mfe: MathfieldElement) => ({
+      latex: mfe.getValue('latex'),
+      expanded: mfe.getValue('latex-expanded'),
+    }));
+    expect(latex.latex).toContain(`\\${command}`);
+    expect(latex.expanded).toContain('\\placeholder{}');
+  }
+});
+
+test('bounded operators delete body, bounds, then the operator', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-1');
+
+  for (const command of ['int', 'sum', 'prod']) {
+    await field.evaluate((mfe: MathfieldElement, operator: string) => {
+      mfe.setValue(`\\${operator}{x}{y}z`, { format: 'latex' });
+      mfe.position = mfe.lastOffset;
+      mfe.focus();
+    }, command);
+
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{x}^{y}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{\\placeholder{}}^{y}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe(
+      `\\${command}_{\\placeholder{}}^{\\placeholder{}}`,
+    );
+
+    await field.press('Backspace');
+    await field.press('Backspace');
+    expect(await field.evaluate((mfe: MathfieldElement) => mfe.getValue('latex'))).toBe('');
+  }
 });
 
 test('backspace on empty displaylines (issue #2739)', async ({ page }) => {
