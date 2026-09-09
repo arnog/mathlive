@@ -1,4 +1,5 @@
 import { joinLatex, latexCommand } from '../core/tokenizer';
+import { _MathEnvironment } from '../core/math-environment';
 
 import { Atom } from '../core/atom-class';
 import { ExtensibleSymbolAtom } from '../atoms/extensible-symbol';
@@ -199,11 +200,15 @@ defineFunction(
     serialize: (atom, options) => {
       const numer = atom.aboveToLatex(options);
       const denom = atom.belowToLatex(options);
-      // Special case serialization when numer and denom are digits
-      if (/^[0-9]$/.test(numer) && /^[0-9]$/.test(denom))
-        // We used to serialize as `\frac{3}{4}` as \frac34, but
-        // some people got confused by this, so we now serialize it as `\frac{3}{4}`.
-        // See a discussion on this topic here: https://tex.stackexchange.com/questions/82329/how-bad-for-tex-is-omitting-braces-even-if-the-result-is-the-same
+      // Special case serialization when numer and denom are digits:
+      // serialize `\frac{3}{4}` as `\frac34`, unless compact serialization
+      // has been turned off (some people find the compact form confusing).
+      // See a discussion on this topic here: https://tex.stackexchange.com/questions/82329/how-bad-for-tex-is-omitting-braces-even-if-the-result-is-the-same
+      if (
+        _MathEnvironment.compactSerialization &&
+        /^[0-9]$/.test(numer) &&
+        /^[0-9]$/.test(denom)
+      )
         return `${atom.command}${numer}${denom}`;
 
       return latexCommand(atom.command, numer, denom);

@@ -3,6 +3,8 @@
  */
 export const _MathEnvironment: {
   fractionNavigationOrder: 'denominator-numerator' | 'numerator-denominator';
+  compactSerialization: boolean;
 } = {
   fractionNavigationOrder: 'numerator-denominator',
+  compactSerialization: true,
 };

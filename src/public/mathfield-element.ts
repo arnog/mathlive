@@ -1081,6 +1081,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
+   * When `true` (the default), single-digit arguments are serialized in a
+   * compact form, without braces: `\frac12`, `\sqrt2`, `x^2`.
+   *
+   * When `false`, arguments are always serialized with explicit braces:
+   * `\frac{1}{2}`, `\sqrt{2}`, `x^{2}`.
+   *
+   * The compact form is valid LaTeX, but can be hard to read when a digit
+   * follows: `\frac123` is one half followed by 3, not 1/23.
+   *
+   * **Default**: `true`
+   * @category Customization
+   */
+  static get compactSerialization(): boolean {
+    return _MathEnvironment.compactSerialization;
+  }
+  static set compactSerialization(value: boolean) {
+    _MathEnvironment.compactSerialization = Boolean(value);
+  }
+
+  /**
    * A custom compute engine instance. If none is provided, a default one is
    * used. If `null` is specified, no compute engine is used.
    */

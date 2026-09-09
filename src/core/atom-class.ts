@@ -5,6 +5,7 @@ import { boxType, Box } from './box';
 import { makeLimitsStack, VBox } from './v-box';
 import { joinLatex, latexCommand } from './tokenizer';
 import { Mode } from './modes-utils';
+import { _MathEnvironment } from './math-environment';
 import { getDefinition } from '../latex-commands/definitions-utils';
 
 import { Context } from './context';
@@ -391,7 +392,8 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
       else if (sub.length === 1) {
         // Using the short form without braces is a stylistic choice
         // In general, LaTeX recommends the use of braces
-        if (/^[0-9]$/.test(sub)) result += `_${sub}`;
+        if (_MathEnvironment.compactSerialization && /^[0-9]$/.test(sub))
+          result += `_${sub}`;
         else result += `_{${sub}}`;
       } else result += `_{${sub}}`;
     }
@@ -404,7 +406,8 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
         else if (sup === '\u2033') result += '^\\doubleprime ';
         // Using the short form without braces is a stylistic choice
         // In general, LaTeX recommends the use of braces
-        else if (/^[0-9]$/.test(sup)) result += `^${sup}`;
+        else if (_MathEnvironment.compactSerialization && /^[0-9]$/.test(sup))
+          result += `^${sup}`;
         else result += `^{${sup}}`;
       } else result += `^{${sup}}`;
     }

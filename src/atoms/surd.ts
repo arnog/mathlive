@@ -8,6 +8,7 @@ import { Context } from '../core/context';
 
 import { makeCustomSizedDelim } from '../core/delimiters';
 import { latexCommand } from '../core/tokenizer';
+import { _MathEnvironment } from '../core/math-environment';
 import { getDefinition } from '../latex-commands/definitions-utils';
 import type { CreateAtomOptions, AtomJson, ToLatexOptions } from 'core/types';
 
@@ -55,7 +56,11 @@ export class SurdAtom extends Atom {
     if (this.above && !this.hasEmptyBranch('above'))
       return latexCommand(`${command}[${this.aboveToLatex(options)}]`, body);
 
-    if (/^[0-9]$/.test(body)) return `${command}${body}`;
+    // Special case serialization when the radicand is a single digit:
+    // serialize `\sqrt{2}` as `\sqrt2`, unless compact serialization has
+    // been turned off (some people find the compact form confusing).
+    if (_MathEnvironment.compactSerialization && /^[0-9]$/.test(body))
+      return `${command}${body}`;
 
     return latexCommand(command, body);
   }
