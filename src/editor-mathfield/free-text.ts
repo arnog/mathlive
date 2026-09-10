@@ -53,6 +53,13 @@ export function markFreeTextAnchors(
   root: ArrayAtom,
   mode: 'free-text' | 'free-math' = 'free-text'
 ): ArrayAtom {
+  root.classes = root.classes.filter(
+    (className) =>
+      className !== 'ML__free-text-root' && className !== 'ML__free-math-root'
+  );
+  root.classes.push(
+    mode === 'free-text' ? 'ML__free-text-root' : 'ML__free-math-root'
+  );
   for (const row of root.rows)
     for (const cell of row)
       if (cell?.[0]?.type === 'first') cell[0].mode = mode;

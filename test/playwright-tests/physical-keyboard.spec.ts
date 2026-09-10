@@ -318,6 +318,52 @@ test('free-text mode preserves lines and inline math', async ({ page }) => {
   expect(values.ariaMultiline).toBe('true');
 });
 
+test('free-text follows the host direction while math islands stay LTR', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  const layout = await field.evaluate(async (e: MathfieldElement) => {
+    e.dir = 'rtl';
+    e.style.display = 'block';
+    e.style.width = '600px';
+    e.setValue('\u05d0\u05d1\u05d2\u05d3\u05d4\n\u05d0\u05d1 $x+1$', {
+      mode: 'free-text',
+      format: 'plain-text',
+    });
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+
+    const content = e.shadowRoot?.querySelector('[part="content"]');
+    const root = e.shadowRoot?.querySelector('.ML__free-text-root');
+    const row = root?.querySelector('.col-align-l > .ML__vlist-t');
+    const math = root?.querySelector('.ML__mathit');
+    if (!content || !root || !row || !math)
+      throw new Error('Expected rendered free-text direction markers');
+
+    const contentRect = content.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    return {
+      value: e.getValue('plain-text'),
+      contentDirection: getComputedStyle(content).direction,
+      contentJustify: getComputedStyle(content).justifyContent,
+      rowTextAlign: getComputedStyle(row).textAlign,
+      mathDirection: getComputedStyle(math).direction,
+      leftGap: rootRect.left - contentRect.left,
+      rightGap: contentRect.right - rootRect.right,
+    };
+  });
+
+  expect(layout.value).toBe('\u05d0\u05d1\u05d2\u05d3\u05d4\n\u05d0\u05d1 x+1');
+  expect(layout.contentDirection).toBe('rtl');
+  expect(layout.contentJustify).toBe('flex-start');
+  expect(layout.rowTextAlign).toBe('right');
+  expect(layout.mathDirection).toBe('ltr');
+  expect(layout.rightGap).toBeLessThan(layout.leftGap);
+});
+
 test('free-text preserves empty lines, tabs, bullets, styles, and outputs', async ({
   page,
 }) => {

@@ -199,6 +199,22 @@
   }
 }
 
+// Free-text is a text editor whose lines happen to use MathLive's multiline
+// array model. Keep the editor at the host's logical start rather than using
+// the centered formula presentation. In RTL fields flex-start is the right
+// edge, while the nested formula renderer remains LTR for math islands.
+.ML__content:has(.ML__free-text-root) {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+:host([dir='rtl'])
+  .ML__free-text-root
+  .col-align-l
+  > .ML__vlist-t {
+  text-align: right;
+}
+
 /* Container for the virtual keyboard toggle and menu toggle buttons */
 .ML__toggles {
   display: flex;

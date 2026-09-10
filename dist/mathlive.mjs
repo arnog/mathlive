@@ -15173,6 +15173,12 @@ function makeFreeLinesRoot(lines, mode) {
 }
 function markFreeTextAnchors(root, mode = "free-text") {
   var _a3;
+  root.classes = root.classes.filter(
+    (className) => className !== "ML__free-text-root" && className !== "ML__free-math-root"
+  );
+  root.classes.push(
+    mode === "free-text" ? "ML__free-text-root" : "ML__free-math-root"
+  );
   for (const row of root.rows)
     for (const cell of row)
       if (((_a3 = cell == null ? void 0 : cell[0]) == null ? void 0 : _a3.type) === "first") cell[0].mode = mode;
@@ -16318,6 +16324,13 @@ var mathfield_default = `@keyframes ML__caret-blink {
 }
 .ML__content .ML__frac-line {
   box-shadow: var(--text-shadow);
+}
+.ML__content:has(.ML__free-text-root) {
+  justify-content: flex-start;
+  text-align: start;
+}
+:host([dir='rtl']) .ML__free-text-root .col-align-l > .ML__vlist-t {
+  text-align: right;
 }
 /* Container for the virtual keyboard toggle and menu toggle buttons */
 .ML__toggles {
@@ -44144,3 +44157,4 @@ export {
   validateLatex2 as validateLatex,
   version
 };
+//# sourceMappingURL=mathlive.mjs.map

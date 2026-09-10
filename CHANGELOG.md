@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - Added experimental `free-math` multiline mathfield mode alongside `free-text`, preserving rows, empty lines, tabs, clipboard plain text, and public output formats when values are round-tripped.
+- Fixed `free-text` fields to follow the host's logical text direction, including right-aligned multiline rows for RTL prose while embedded math remains LTR.
 
 ## 0.110.0 _2026-06-08_
 

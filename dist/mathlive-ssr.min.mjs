@@ -195,3 +195,4 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`};function L0(t){if(ro[t])
         Load the library, for example with:
         
         import "https://esm.run/@cortex-js/compute-engine"`)}return(r=Kr==null?void 0:Kr.box(t).latex)!=null?r:""}function _2(t,e="math"){return j(new p({type:"root",body:lt(t,{parseMode:e})}))}function C2(t){return Sl(t,{format:"ascii-math"})[1]}export{C2 as convertAsciiMathToLatex,_2 as convertLatexToAsciiMath,S2 as convertLatexToMarkup,M2 as convertLatexToMathMl,A2 as convertLatexToSpeakableText,k2 as convertMathJsonToLatex,w2 as validateLatex};
+//# sourceMappingURL=mathlive-ssr.min.mjs.map
