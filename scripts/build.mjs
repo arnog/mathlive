@@ -43,7 +43,6 @@ const BUILD_OPTIONS = {
   sourceRoot: '../src',
   sourcesContent: false,
   target: ['es2017'],
-  external: ['@cortex-js/compute-engine'],
 };
 
 // Build and serve the library

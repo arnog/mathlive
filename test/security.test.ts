@@ -1,4 +1,7 @@
-import { convertLatexToMarkup } from '../src/public/mathlive-ssr';
+import {
+  convertLatexToMarkup,
+  convertLatexToMathMl,
+} from '../src/public/mathlive-ssr';
 
 //
 // Validate that unsecure content is blocked
@@ -38,6 +41,41 @@ test('Unsecure Content', () => {
       '\\href{\t\t\tj\ta\tv\ta\ts\tc\tr\ti\tp\tt:alert(1)}{x}'
     )
   ).toThrow();
+});
+
+//
+// Text-content reflection must be escaped in both HTML and MathML output.
+// (\text{}, \mbox{} accept arbitrary characters in their body.)
+//
+test('Text content escaping (XSS)', () => {
+  const payload = '<img src=x onerror=alert(1)>';
+
+  for (const cmd of ['\\text', '\\mbox']) {
+    // HTML output: the body is rendered, with markup characters escaped.
+    const html = convertLatexToMarkup(`${cmd}{${payload}}`);
+    expect(html).not.toContain('<img');
+    expect(html).toContain('&lt;img');
+    expect(html).toContain('&gt;');
+
+    // MathML output: must never emit a raw tag.
+    const mathml = convertLatexToMathMl(`${cmd}{${payload}}`);
+    expect(mathml).not.toContain('<img');
+  }
+
+  // \text is serialized to MathML; confirm its body is escaped there too.
+  expect(convertLatexToMathMl(`\\text{${payload}}`)).toContain('&lt;img');
+
+  // A literal ampersand is escaped (and not double-escaped).
+  expect(convertLatexToMarkup('\\text{a&b}')).toContain('a&amp;b');
+  expect(convertLatexToMarkup('\\text{a&b}')).not.toContain('&amp;amp;');
+  expect(convertLatexToMathMl('\\text{a&b}')).toContain('a&amp;b');
+
+  // Literal `<`/`>` delimiters (e.g. \left< … \right>) are escaped in MathML.
+  const delim = convertLatexToMathMl('\\left<x\\right>');
+  expect(delim).not.toContain('<mo><');
+  expect(delim).not.toContain('<mo>>');
+  expect(delim).toContain('&lt;');
+  expect(delim).toContain('&gt;');
 });
 
 //

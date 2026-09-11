@@ -1,3 +1,77 @@
+## [Unreleased]
+
+### Breaking Changes
+
+- The `@cortex-js/compute-engine` package is no longer a dependency of
+  MathLive. The Compute Engine was never bundled with MathLive; it was only
+  used for its TypeScript types. If your application loads the Compute Engine
+  (for example with `import "https://esm.run/@cortex-js/compute-engine"`),
+  MathLive continues to pick it up from the global scope and
+  `MathfieldElement.computeEngine` still works, but it is now typed as `any`.
+  Applications that need the types should add the package to their own
+  dependencies.
+- The `mathfield.expression` getter and setter have been removed. Use
+  `MathfieldElement.computeEngine.parse(mf.getValue())` to obtain a boxed
+  expression, and `mf.setValue(expr.latex)` (or `mf.setValue(expr)`, which
+  still accepts a MathJSON object) to set one.
+- The `"math-json"` output format has been removed from `getValue()`. Use
+  `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
+- The **Evaluate**, **Simplify** and **Solve** items have been removed from the
+  default context menu.
+
+## 0.110.0 _2026-06-08_
+
+### Security Advisories
+
+- **#3028** Fixed a cross-site scripting (XSS) vulnerability in the rendering of
+  text-mode content. The body of `\text{}`, `\mbox{}` and similar commands
+  accepts arbitrary characters, which were reflected **unescaped** into both the
+  HTML markup (`convertLatexToMarkup()`, the editor, and the `<math-span>` /
+  `<math-div>` static elements) and the MathML output
+  (`convertLatexToMathMl()`). Input such as
+  `\text{<img src=x onerror=alert(1)>}` could therefore execute arbitrary
+  JavaScript when the output was inserted into the DOM. Text content and
+  delimiters are now HTML-escaped in both output paths. Applications that render
+  untrusted LaTeX should upgrade.
+
+### Resolved Issues
+
+- **#2949** Fixed the layout of fill-in-the-blank prompts that contain content.
+  The prompt's outline box now correctly encloses and aligns with its content,
+  including tall content such as fractions, with improved vertical alignment.
+  This regression was introduced by the fix for **#2515**; note that **#2515**
+  (placeholders inside accent commands such as `\vec{}` cannot be filled)
+  remains unresolved and is tracked separately. (contributed by
+  @Scienthousiaste)
+
+- **#2963** Fixed font style (variant) changes being ignored for the first
+  character of an expression (or block). Applying a font style such as Roman
+  Upright to the first character now serializes correctly (e.g. `\mathrm{H}`
+  instead of a bare `H`), matching what is displayed in the mathfield.
+  (contributed by @psiservices-uwidmark)
+
+- **#2964** Fixed duplicate atoms accumulating when `setValue()` is called
+  repeatedly with incomplete LaTeX (such as `\sum_{`). Partially-formed atoms
+  that contain no content are now included when collecting atoms in a range, so
+  they are cleared on each sync instead of accumulating across update cycles.
+  (contributed by @Meinzzzz)
+
+- **#3030** Fixed TypeScript 6 compilation errors (TS2882) in the published type
+  declarations. The generated `.d.ts` files no longer contain bare side-effect
+  imports (such as `import '../core/modes'`) that referenced modules not
+  included in the package, which TypeScript 6 flags by default via
+  `noUncheckedSideEffectImports`.
+
+### Improvements
+
+- **#3032** `validateLatex()` now accepts an optional `options` argument with a
+  `macros` dictionary, so custom macros are recognized during validation instead
+  of being reported as unknown commands. (contributed by @Wigny)
+
+- **#3009** The types for static math elements are now exported from the package
+  entry point (`math-static-elements`), making them available to TypeScript
+  consumers. (contributed by @tsuji-riya)
+
 ## 0.109.2 _2026-04-28_
 
 ### Resolved Issues
@@ -14,10 +88,10 @@
   doubled empty space that appeared below the keyboard on devices with bottom
   safe areas. (contributed by @Blibbo)
 
-- Fixed a stacking issue in the color picker where the background of
-  neighboring color swatches could paint over the border of the active swatch.
-  The focused color now has an explicit `z-index` to keep it above its
-  neighbors. (contributed by @Blibbo)
+- Fixed a stacking issue in the color picker where the background of neighboring
+  color swatches could paint over the border of the active swatch. The focused
+  color now has an explicit `z-index` to keep it above its neighbors.
+  (contributed by @Blibbo)
 
 ### Improvements
 

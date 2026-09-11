@@ -12,10 +12,6 @@ import { Atom } from '../core/atom-class';
 
 import '../latex-commands/definitions';
 
-import type {
-  ComputeEngine,
-  SemiBoxedExpression,
-} from '@cortex-js/compute-engine';
 import { toMathML } from '../formats/atom-to-math-ml';
 import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
@@ -151,10 +147,19 @@ export function convertLatexToMarkup(
 /**
  * Check if a string of LaTeX is valid and return an array of syntax errors.
  *
+ * @param options.macros Custom macro definitions to recognize during validation.
  * @category Conversion
  */
-export function validateLatex(s: string): LatexSyntaxError[] {
-  return validateLatexInternal(s, { context: getDefaultContext() });
+export function validateLatex(
+  s: string,
+  options?: Pick<LayoutOptions, 'macros'>
+): LatexSyntaxError[] {
+  const context = { ...getDefaultContext() };
+  if (options?.macros) {
+    const macros = normalizeMacroDictionary(options.macros);
+    context.getMacro = (token) => getMacroDefinition(token, macros);
+  }
+  return validateLatexInternal(s, { context });
 }
 
 /**
@@ -206,7 +211,7 @@ export function convertLatexToSpeakableText(latex: string): string {
   return atomToSpeakableText(atoms);
 }
 
-let gComputeEngine: ComputeEngine;
+let gComputeEngine: any;
 
 /**
  * Convert a MathJSON expression to a LaTeX string.
@@ -233,7 +238,7 @@ export function convertMathJsonToLatex(json: Expression): string {
       );
     }
   }
-  return gComputeEngine?.box(json as SemiBoxedExpression).latex ?? '';
+  return gComputeEngine?.box(json).latex ?? '';
 }
 
 /** Convert a LaTeX string to a string of AsciiMath.

@@ -483,11 +483,11 @@ test('keyboard cut and paste', async ({ page, browserName }) => {
   const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 
   // On macOS, Cmd+A doesn't trigger select-all in Playwright's bundled
-  // Chromium/Firefox (both spoof a Win32 user agent). Use Ctrl+A instead;
-  // it works in Playwright on Mac and is the standard select-all on other
-  // platforms. Cmd+A works correctly in real Chrome/Edge/Firefox on Mac.
+  // Chromium. Use Ctrl+A instead; it works in Playwright on Mac and is the
+  // standard select-all on other platforms. Cmd+A works correctly in real
+  // Chrome/Edge on Mac and in Playwright's bundled Firefox.
   const selectAllCommand =
-    modifierKey === 'Meta' && (browserName === 'chromium' || browserName === 'firefox')
+    modifierKey === 'Meta' && browserName === 'chromium'
       ? 'Control+a'
       : `${modifierKey}+a`;
 

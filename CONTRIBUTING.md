@@ -214,6 +214,41 @@ The code base attempts to follow these general guidelines:
   valid. However, public APIs should check the validity of parameters, and
   behave reasonably when they aren't.
 
+## Links in Doc Comments
+
+Doc comments on exported declarations are published as `src/api.md` by
+`npm run doc`, and mathlive.io renders that file at `/mathfield/api/`. Typedoc
+rewrites links on the way out, and four rewrites turn a reasonable-looking
+comment into a dead or silently wrong link. Docusaurus reports the dead ones;
+nothing reports the wrong ones.
+
+- **Use `{@link}` for symbols, markdown for URLs.** `{@link}` resolves a symbol
+  name and nothing else. Given a path it fails quietly in the output:
+  `{@link mathfield/guides/speech/ | Guide: Speech}` is published as the literal
+  text `mathfield/guides/speech/ \| Guide: Speech`, not a link. Typedoc does
+  warn (`Failed to resolve link to ...`), so read the warnings from `npm run
+  doc`.
+- **Never put a `#fragment` on a site-absolute link.** Typedoc strips the path
+  and keeps the fragment, so
+  `[CSS variables](/mathfield/guides/customizing/#css-variables)` is published
+  as `[CSS variables](#css-variables)` — a same-page link to a heading that does
+  not exist. A path with no fragment survives untouched, and so does a full URL.
+  Write `[the customizing guide](/mathfield/guides/customizing/)` or
+  `[CSS variables](https://mathlive.io/mathfield/guides/customizing/#css-variables)`.
+- **Link to a type, not to a property of one.** A type alias is rendered as a
+  single code block, so its properties get no heading of their own and there is
+  nothing for a link to land on. Link to the type and name the property in the
+  prose.
+- **Avoid reusing a name across exported symbols.** Anchors are the lowercased
+  member name, disambiguated by document order: a second `Style` becomes
+  `#style-1`. Links inside `api.md` are generated in the same pass and stay
+  consistent, but the numbering shifts whenever a same-named export is added,
+  removed or renamed — so anything outside the file that points at a numbered
+  anchor breaks silently. Distinct names give stable, readable anchors.
+
+`docs/mathfield/api.md` in the cortexjs.io repo is generated from this file and
+is overwritten by every build. Fix a bad link here, not there.
+
 ## Bundling
 
 The TypeScript code is compiled to JavaScript by the `tsc` compiler. When doing

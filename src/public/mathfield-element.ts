@@ -43,8 +43,6 @@ import {
 import { reloadFonts, loadFonts } from '../core/fonts';
 import { defaultSpeakHook } from '../editor/speech';
 import { defaultReadAloudHook } from '../editor/speech-read-aloud';
-import type { ComputeEngine } from '@cortex-js/compute-engine';
-
 import { l10n } from '../core/l10n';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { Scrim } from '../ui/utils/scrim';
@@ -386,18 +384,18 @@ const DEPRECATED_OPTIONS = {
  * document.body.style.setProperty("--hue", "10");
  * ```
  *
- * Read more about the [CSS variables](/mathfield/guides/customizing/#css-variables) available for customization.
+ * Read more about the [CSS variables](https://mathlive.io/mathfield/guides/customizing/#css-variables) available for customization.
  *
  * You can customize the appearance and zindex of the virtual keyboard panel
  * with some CSS variables associated with a selector that applies to the
  * virtual keyboard panel container.
  *
- * Read more about [customizing the virtual keyboard appearance](/mathfield/guides/virtual-keyboards/#custom-appearance)
+ * Read more about [customizing the virtual keyboard appearance](https://mathlive.io/mathfield/guides/virtual-keyboard/#custom-appearance)
  *
  * #### MathfieldElement CSS Parts
  *
  * In addition to the CSS variables, the mathfield exposes [CSS
- * parts that can be used to style the mathfield](/mathfield/guides/customizing/#mathfield-parts).
+ * parts that can be used to style the mathfield](https://mathlive.io/mathfield/guides/customizing/#mathfield-parts).
  *
  * For example, to hide the menu button:
  *
@@ -1086,26 +1084,36 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * A custom compute engine instance. If none is provided, a default one is
    * used. If `null` is specified, no compute engine is used.
    */
-  static get computeEngine(): ComputeEngine | null {
+  static get computeEngine(): any | null {
     if (this._computeEngine === undefined) {
-      const ComputeEngineCtor =
-        window[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
+      const globalComputeEngine =
+        window[Symbol.for('io.cortexjs.compute-engine')];
+      const ComputeEngineCtor = globalComputeEngine?.ComputeEngine;
 
       if (!ComputeEngineCtor) return null;
 
       this._computeEngine = new ComputeEngineCtor();
 
       if (this._computeEngine && this.decimalSeparator === ',') {
-        // Compute Engine 0.55 removed the public decimalSeparator setter; the
-        // value now lives on the engine's LatexSyntax instance and is only
-        // reachable via its (private) _options field.
-        const opts = (this._computeEngine.latexSyntax as any)?._options;
-        if (opts) opts.decimalSeparator = '{,}';
+        // Setting the decimal separator uses the public `latexOptions` API,
+        // introduced in Compute Engine 0.58. Older engines (which may be
+        // loaded from a CDN) have no public way to set it, so if the loaded
+        // engine is older than expected we leave the separator at its default
+        // rather than reach into private internals.
+        const [major, minor] = String(globalComputeEngine?.version ?? '')
+          .split('.')
+          .map((x) => parseInt(x, 10));
+        if (major > 0 || (major === 0 && minor >= 58)) {
+          this._computeEngine.latexOptions = {
+            ...this._computeEngine.latexOptions,
+            decimalSeparator: '{,}',
+          };
+        }
       }
     }
     return this._computeEngine ?? null;
   }
-  static set computeEngine(value: ComputeEngine | null) {
+  static set computeEngine(value: any | null) {
     this._computeEngine = value;
   }
 
@@ -1119,7 +1127,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /** @internal */
-  private static _computeEngine: ComputeEngine | null;
+  private static _computeEngine: any | null;
 
   /** @internal */
   private static _isFunction: (command: string) => boolean = (command) => {
@@ -1465,47 +1473,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * If the Compute Engine library is available, return a boxed MathJSON expression representing the value of the mathfield.
-   *
-   * To load the Compute Engine library, use:
-   * ```js
-import 'https://esm.run/@cortex-js/compute-engine';
-```
-   *
-   * @category Accessing and changing the content
-   */
-  get expression(): any | null {
-    if (!this._mathfield) return undefined;
-    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-      return null;
-    }
-    return this._mathfield.expression;
-  }
-
-  set expression(mathJson: Expression | any) {
-    if (!this._mathfield) return;
-    const latex = MathfieldElement.computeEngine?.box(mathJson).latex ?? null;
-    if (latex !== null) this._mathfield.setValue(latex);
-
-    if (!window[Symbol.for('io.cortexjs.compute-engine')]) {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-    }
-  }
-
-  /**
    * Return an array of LaTeX syntax errors, if any.
    * @category Accessing and changing the content
    */
@@ -1710,13 +1677,7 @@ import 'https://esm.run/@cortex-js/compute-engine';
   /**
    * Return a textual representation of the content of the mathfield.
    *
-   * @param format - The format of the result. If using `math-json`
-   * the Compute Engine library must be loaded, for example with:
-   *
-   * ```js
-import "https://esm.run/@cortex-js/compute-engine";
-```
-   *
+   * @param format - The format of the result.
    *
    * **Default:** `"latex"`
    *

@@ -161,6 +161,23 @@ describe('MATHRM SERIALIZATION (issue #2818)', () => {
   });
 });
 
+describe('VALIDATE LATEX WITH MACROS', () => {
+  test('custom macro is not flagged as unknown', () => {
+    const errors = validateLatex('\\plimsoll', { macros: { plimsoll: '⦵' } });
+    expect(errors).toHaveLength(0);
+  });
+
+  test('unknown command is still flagged without macros', () => {
+    const errors = validateLatex('\\unknowncmd');
+    expect(errors).toStrictEqual([expect.objectContaining({ code: 'unknown-command' })]);
+  });
+
+  test('unknown command is still flagged even with unrelated macros', () => {
+    const errors = validateLatex('\\unknowncmd', { macros: { plimsoll: '⦵' } });
+    expect(errors).toStrictEqual([expect.objectContaining({ code: 'unknown-command' })]);
+  });
+});
+
 describe('REST* ARGUMENT COMMANDS (issue #2570)', () => {
   // Commands with {:rest*} deferred arguments should handle braced arguments
   test.each([

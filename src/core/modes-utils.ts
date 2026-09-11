@@ -134,7 +134,7 @@ export function variantString(atom: Atom): string {
   if (!style) return '';
 
   let result = style.variant;
-  if (result === undefined) return 'normal';
+  if (result === undefined) result = 'normal';
 
   if (
     ![

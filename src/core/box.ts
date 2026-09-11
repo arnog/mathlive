@@ -353,7 +353,7 @@ export class Box implements BoxInterface {
    */
 
   toMarkup(): string {
-    let body = this.value ?? '';
+    let body = this.value ? escapeText(this.value) : '';
 
     //
     // 1. Render the children
@@ -758,6 +758,19 @@ function horizontalLayout(box: Box, fontName: FontName): void {
 
     box.maxFontSize = maxFontSize;
   }
+}
+
+/**
+ * Escape text destined for HTML *element content* (between tags).
+ * The body of a box is interpolated into a `<span>` as content (never an
+ * attribute), so escaping `&`, `<` and `>` is sufficient to prevent the raw
+ * characters of `\text{}`, `\mbox{}`, etc. from being interpreted as markup.
+ */
+function escapeText(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function sanitizeAttributeName(attribute: string): string {

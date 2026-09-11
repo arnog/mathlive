@@ -130,6 +130,15 @@ if [ "$BUILD" = "production" ]; then
     # Substitute in the api.md file
     sedi "s/{{SDK_VERSION}}/$SDK_VERSION/" ./src/api.md
 
+    # Remove side-effect-only imports from the declaration files. They have no
+    # meaning in a .d.ts but reference modules that aren't published in the
+    # package (e.g. `../core/modes`) and the compute-engine CDN URL, which trips
+    # TypeScript 6's `noUncheckedSideEffectImports` (issue #3030). The pattern
+    # matches lines where `import` is directly followed by a quote (a bare
+    # side-effect import); `import {...} from`, `import type ... from` and
+    # `import * as ... from` start with a letter/`{`/`*` and are kept.
+    find ./dist -type f -name '*.d.ts' -exec bash -c 'sedi "/^import [^A-Za-z_{*]/d" {}' \;
+
 
     find ./dist -type f -name '*.css' -exec bash -c 'sedi "1s/^/\/\* $SDK_VERSION \*\//" {}' \;
     find ./dist -type f \( -name '*.mjs' -o -name '*.js' \) -exec bash -c 'sedi s/{{SDK_VERSION}}/$SDK_VERSION/g {}' \;

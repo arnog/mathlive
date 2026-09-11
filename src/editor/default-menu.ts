@@ -564,112 +564,6 @@ export function getDefaultMenuItems(mf: _Mathfield): MenuItem[] {
       type: 'divider',
     },
     {
-      label: () => localize('menu.evaluate')!,
-      id: 'ce-evaluate',
-      visible: () =>
-        mf.isSelectionEditable &&
-        globalThis.MathfieldElement.computeEngine !== null,
-      onMenuSelect: () => {
-        const latex = evaluate(mf);
-        if (!latex) {
-          mf.model.announce('plonk');
-          return;
-        }
-        if (mf.model.selectionIsCollapsed) {
-          mf.model.position = mf.model.lastOffset;
-          mf.insert(`=${latex}`, {
-            insertionMode: 'insertAfter',
-            selectionMode: 'item',
-          });
-        } else {
-          mf.insert(latex, {
-            insertionMode: 'replaceSelection',
-            selectionMode: 'item',
-          });
-        }
-      },
-    },
-    {
-      label: () => localize('menu.simplify')!,
-      id: 'ce-simplify',
-      visible: () =>
-        mf.isSelectionEditable &&
-        globalThis.MathfieldElement.computeEngine !== null,
-      onMenuSelect: () => {
-        if (mf.model.selectionIsCollapsed) {
-          const result = mf.expression?.simplify();
-          mf.model.position = mf.model.lastOffset;
-          if (!result) {
-            mf.model.announce('plonk');
-            return;
-          }
-          mf.insert(`=${result.latex}`, {
-            insertionMode: 'insertAfter',
-            selectionMode: 'item',
-          });
-        } else {
-          const result = globalThis.MathfieldElement.computeEngine
-            ?.parse(mf.getValue(mf.model.selection))
-            .simplify();
-          if (!result) {
-            mf.model.announce('plonk');
-            return;
-          }
-          mf.insert(result.latex, {
-            insertionMode: 'replaceSelection',
-            selectionMode: 'item',
-          });
-        }
-      },
-    },
-    {
-      label: () => {
-        const ce = globalThis.MathfieldElement.computeEngine;
-        if (ce === null) return '';
-
-        const unknown = mf.expression?.unknowns[0];
-        if (unknown) {
-          const latex = ce.box(unknown).latex;
-          return localize('menu.solve-for', convertLatexToMarkup(latex))!;
-        }
-        return localize('menu.solve')!;
-      },
-      id: 'ce-solve',
-      visible: () =>
-        mf.isSelectionEditable &&
-        globalThis.MathfieldElement.computeEngine !== null &&
-        mf.expression?.unknowns.length === 1 &&
-        mf.expression.unknowns[0] !== 'Nothing',
-      onMenuSelect: () => {
-        const expr = mf.expression!;
-        const unknown = expr?.unknowns[0];
-        const solutions = expr.solve(unknown);
-        const results = Array.isArray(solutions)
-          ? solutions.map(
-              (x) => (x as unknown as typeof expr).simplify().latex ?? ''
-            )
-          : null;
-        if (!results) {
-          mf.model.announce('plonk');
-          return;
-        }
-        mf.insert(
-          `${unknown}=${
-            results.length === 1
-              ? results[0]
-              : '\\left\\lbrace' + results?.join(', ') + '\\right\\rbrace'
-          }`,
-          {
-            insertionMode: 'replaceAll',
-            selectionMode: 'item',
-          }
-        );
-      },
-    },
-    {
-      type: 'divider',
-    },
-    {
       label: () => localize('menu.cut')!,
       id: 'cut',
       onMenuSelect: () => mf.executeCommand('cutToClipboard'),
@@ -770,26 +664,6 @@ function performSetEnvironment(mf: _Mathfield, env: TabularEnvironment): void {
   mf.flushInlineShortcutBuffer();
   setEnvironment(mf.model, env);
   requestUpdate(mf);
-}
-
-function evaluate(mf: _Mathfield): string {
-  let expr: any;
-  if (mf.model.selectionIsCollapsed) {
-    expr = globalThis.MathfieldElement.computeEngine?.parse(mf.getValue(), {
-      canonical: false,
-    });
-  } else {
-    expr = globalThis.MathfieldElement.computeEngine?.parse(
-      mf.getValue(mf.model.selection),
-      { canonical: false }
-    );
-  }
-  if (!expr) return '';
-  let result = expr.evaluate();
-  // eslint-disable-next-line new-cap
-  if (result.isSame(expr)) result = expr.N();
-
-  return result.latex;
 }
 
 function variantMenuItem(
