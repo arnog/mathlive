@@ -579,6 +579,12 @@ defineFunction('text', '{:text}', {
   applyMode: 'text',
 });
 
+// The text-mode counterpart of \text{}: parse its body as mathematics while
+// leaving the surrounding content in its original prose mode.
+defineFunction('math', '{:math}', {
+  applyMode: 'math',
+});
+
 /* Assign a class to the element.`class` is a MathJax extension, `htmlClass`
    is a KaTeX extension. */
 defineFunction(['class', 'htmlClass'], '{name:string}{content:auto*}', {

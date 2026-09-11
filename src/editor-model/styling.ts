@@ -2,7 +2,7 @@ import { Atom } from '../core/atom';
 import type { _Model } from './model-private';
 import { isArray } from '../common/types';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
-import type { Style, VariantStyle, Range } from '../public/core-types';
+import type { Style, TextDecoration, VariantStyle, Range } from '../public/core-types';
 import { PrivateStyle } from '../core/types';
 
 export function applyStyleToUnstyledAtoms(
@@ -82,6 +82,35 @@ export function applyStyle(
     if (style.fontSize && everyStyle('fontSize', style.fontSize)) {
       // If the selection already has this size, reset it to default size
       style.fontSize = DEFAULT_FONT_SIZE;
+    }
+
+    if (style.textDecoration && style.textDecoration !== 'none') {
+      const requestedDecorations = style.textDecoration.split(' ');
+      const allHaveDecoration = atoms.every((atom) =>
+        requestedDecorations.every((decoration) =>
+          (atom.style.textDecoration ?? '').includes(decoration)
+        )
+      );
+      for (const atom of atoms) {
+        const currentDecorations = new Set(
+          (atom.style.textDecoration ?? '').split(' ').filter(Boolean)
+        );
+        if (allHaveDecoration) {
+          requestedDecorations.forEach((decoration) =>
+            currentDecorations.delete(decoration)
+          );
+        } else {
+          requestedDecorations.forEach((decoration) =>
+            currentDecorations.add(decoration)
+          );
+        }
+        atom.applyStyle({
+          ...style,
+          textDecoration: (Array.from(currentDecorations).join(' ') ||
+            'none') as TextDecoration,
+        });
+      }
+      delete style.textDecoration;
     }
 
     if (style.variant && everyStyle('variant', style.variant)) {

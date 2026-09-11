@@ -528,7 +528,8 @@ export class Box implements BoxInterface {
     //
     // 5. Add markup for the caret
     //
-    if (this.caret === 'text') result += '<span class="ML__text-caret"></span>';
+    if (this.caret === 'text' || this.caret === 'free-text')
+      result += '<span class="ML__text-caret"></span>';
     else if (this.caret === 'math') result += '<span class="ML__caret"></span>';
 
     return result;

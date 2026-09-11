@@ -73,6 +73,117 @@ type ArrayRow = {
   pos: number;
 };
 
+function freeTextRowDirection(atoms: readonly Atom[]): 'auto' | 'ltr' {
+  let hasMath = false;
+  for (const atom of atoms) {
+    const bidiClass = freeTextBidiClass(atom);
+    if (bidiClass === 'rtl' || bidiClass === 'ltr') return 'auto';
+    if (bidiClass === 'math') hasMath = true;
+  }
+  return hasMath ? 'ltr' : 'auto';
+}
+
+type FreeTextBidiClass = 'rtl' | 'ltr' | 'neutral' | 'math';
+
+function freeTextBidiClass(atom: Atom): FreeTextBidiClass {
+  if (!isTextMode(atom.mode)) return 'math';
+  if (!atom.value || atom.type === 'first') return 'neutral';
+  // JavaScript does not expose Unicode Bidi_Class as a regular-expression
+  // property. Cover the RTL script blocks supported by the editor, then treat
+  // remaining letters and numbers as LTR strong content.
+  if (/[\u0590-\u08ff\ufb1d-\ufdff\ufe70-\ufeff]/u.test(atom.value))
+    return 'rtl';
+  if (/[\p{Letter}\p{Number}]/u.test(atom.value)) return 'ltr';
+  return 'neutral';
+}
+
+function renderFreeTextAtoms(
+  context: Context,
+  atoms: readonly Atom[]
+): Box[] {
+  const runs: { atoms: Atom[]; isText: boolean }[] = [];
+  for (const atom of atoms) {
+    const atomIsText = atom.type === 'first' || isTextMode(atom.mode);
+    const current = runs[runs.length - 1];
+    if (current?.isText !== atomIsText)
+      runs.push({ atoms: [atom], isText: atomIsText });
+    else current.atoms.push(atom);
+  }
+
+  return runs.flatMap((run) => {
+    const box = Atom.createBox(context, run.atoms, { type: 'ignore' });
+    if (!box) return [];
+    if (run.isText) return [box];
+    return [
+      new Box(box, {
+        classes: 'ML__free-text-math-island',
+        attributes: { dir: 'ltr' },
+      }),
+    ];
+  });
+}
+
+function makeFreeTextCellBox(
+  context: Context,
+  atoms: readonly Atom[]
+): Box | null {
+  const boxes: Box[] = [];
+  let index = 0;
+  while (index < atoms.length) {
+    if (freeTextBidiClass(atoms[index]) === 'rtl') {
+      let end = index + 1;
+      while (end < atoms.length && freeTextBidiClass(atoms[end]) === 'rtl')
+        end++;
+      boxes.push(...renderFreeTextAtoms(context, atoms.slice(index, end)));
+      index = end;
+      continue;
+    }
+
+    let end = index + 1;
+    while (end < atoms.length && freeTextBidiClass(atoms[end]) !== 'rtl') end++;
+    const region = atoms.slice(index, end);
+    const hasMath = region.some((atom) => freeTextBidiClass(atom) === 'math');
+    if (!hasMath) boxes.push(...renderFreeTextAtoms(context, region));
+    else {
+      // Native bidi keeps text-only runs in WhatsApp-style logical order. A
+      // formula needs a wider isolate: include adjacent LTR/neutral content up
+      // to the next strong RTL character so "formula then English" does not
+      // visually reverse into "English then formula" in an RTL paragraph.
+      let islandStart = 0;
+      let islandEnd = region.length;
+      while (
+        islandStart < islandEnd &&
+        freeTextBidiClass(region[islandStart]) === 'neutral'
+      )
+        islandStart++;
+      while (
+        islandEnd > islandStart &&
+        freeTextBidiClass(region[islandEnd - 1]) === 'neutral'
+      )
+        islandEnd--;
+
+      boxes.push(
+        ...renderFreeTextAtoms(context, region.slice(0, islandStart))
+      );
+      const island = renderFreeTextAtoms(
+        context,
+        region.slice(islandStart, islandEnd)
+      );
+      if (island.length > 0)
+        boxes.push(
+          new Box(island, {
+            classes: 'ML__free-text-ltr-island',
+            attributes: { dir: 'ltr' },
+          })
+        );
+      boxes.push(...renderFreeTextAtoms(context, region.slice(islandEnd)));
+    }
+    index = end;
+  }
+  if (boxes.length === 0) return null;
+  return new Box(boxes, { type: 'ignore' });
+}
+
 /**
  * Normalize cells:
  * - ensure the array of cells is dense (not sparse)

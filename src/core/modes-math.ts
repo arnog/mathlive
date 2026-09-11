@@ -14,6 +14,7 @@ import type {
   Variant,
   VariantStyle,
 } from '../public/core-types';
+import { isTextMode } from '../public/core-types';
 import { mathVariantToUnicode } from './unicode';
 import type { TokenDefinition } from 'latex-commands/types';
 import type { FontName, ToLatexOptions } from './types';
@@ -115,6 +116,7 @@ const LETTER_SHAPE_MODIFIER = {
 export class MathMode extends Mode {
   constructor() {
     super('math');
+    Mode._registry['free-math'] = this;
   }
 
   createAtom(command: string, info: TokenDefinition, style?: Style): Atom {
@@ -165,7 +167,7 @@ export class MathMode extends Mode {
 
   serialize(run: Atom[], options: ToLatexOptions): string[] {
     const result = emitBoldRun(run, { ...options, defaultMode: 'math' });
-    if (result.length === 0 || options.defaultMode !== 'text') return result;
+    if (result.length === 0 || !isTextMode(options.defaultMode)) return result;
     return ['$ ', ...result, ' $'];
   }
 

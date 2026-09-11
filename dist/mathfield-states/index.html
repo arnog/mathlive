@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mathfield States</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="../style.css" />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_AMS-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Caligraphic-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Caligraphic-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Fraktur-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Fraktur-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-BoldItalic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Main-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Math-BoldItalic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Math-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Bold.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Italic.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_SansSerif-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Script-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size1-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size2-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size3-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Size4-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../fonts/KaTeX_Typewriter-Regular.woff2"
+      as="font"
+      crossorigin
+    />
+    <link rel="stylesheet" href="../mathlive-fonts.css" />
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        visibility: hidden;
+      }
+      body.ready {
+        visibility: visible;
+      }
+
+      main {
+        width: 820px;
+      }
+
+      h2 {
+        width: 100%;
+        border-top: 3px solid #ddd;
+        padding-top: 1em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      table tbody {
+        display: flex;
+        flex-direction: column;
+      }
+
+      table tr {
+        display: flex;
+      }
+
+      table td {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        border-top: 1px solid #eee;
+      }
+
+      table td {
+        display: flex;
+        flex: 1 1 auto;
+        gap: 1em;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+      }
+
+      table td:first-child {
+        display: table-cell;
+        background: #f0f0f0;
+        font-weight: 600;
+        max-width: 260px;
+        padding-top: 1em;
+        padding-bottom: 1em;
+      }
+      table td:nth-child(2) {
+        max-width: 320px;
+        border-right: 1px solid #eee;
+      }
+      table td:nth-child(3) {
+        max-width: 160px;
+      }
+
+      td aside {
+        display: block;
+        font-weight: 400;
+        font-size: 0.8rem;
+        padding-top: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Mathfield States</h1>
+      <ul>
+        <li><a href="../smoke/">Smoke</a></li>
+        <li>
+          <a href="../virtual-keyboard/">Virtual Keyboard</a>
+        </li>
+        <li class="current">
+          <a href="../mathfield-states/">States</a>
+        </li>
+        <li>
+          <a href="../prompts/">Prompts</a>
+        </li>
+      </ul>
+    </header>
+    <main>
+      <div>
+        <table>
+          <tr>
+            <td>
+              <kbd>readonly</kbd>
+              <aside>
+                Placeholders are editable.<br />Without placeholders mathfield
+                is still focusable.
+              </aside>
+            </td>
+            <td>
+              <math-field id="mf-2" readonly
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
+              >
+              <math-field readonly>\sqrt{\frac{1}{x+1}}+x</math-field>
+            </td>
+            <td><textarea readonly>x=3/4</textarea></td>
+          </tr>
+
+          <tr>
+            <td>
+              <kbd>read-only</kbd>
+              <aside>Different spelling but same as <kbd>readonly</kbd></aside>
+            </td>
+            <td>
+              <math-field read-only
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
+              >
+              <math-field read-only>\sqrt{\frac{1}{x+1}}+x</math-field>
+            </td>
+            <td></td>
+          </tr>
+
+          <tr>
+            <td>
+              <kbd>disabled</kbd>
+              <aside>
+                Not focusable<br />Content is selectable.<br />Mathfield appears
+                greyed out.
+              </aside>
+            </td>
+            <td>
+              <math-field id="mf-4" disabled
+                >\sqrt{\frac{1}{x+1}}+\placeholder[id2]{}</math-field
+              >
+            </td>
+            <td><textarea disabled>x=3/4</textarea></td>
+          </tr>
+
+          <tr>
+            <td>
+              <kbd>contenteditable=false</kbd>
+              <aside>
+                Focusable.<br />Content cannot be changed, including
+                placeholders.<br />
+                Textarea is still editable when <kbd>contenteditable</kbd> is
+                false (as per spec)
+              </aside>
+            </td>
+            <td>
+              <math-field id="mf-5" contenteditable="false"
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
+              >
+            </td>
+            <td><textarea contenteditable="false">x=3/4</textarea></td>
+          </tr>
+
+          <tr>
+            <td>
+              <kbd>contenteditable=false</kbd><br />&amp;<br /><kbd
+                >user-select: none</kbd
+              >
+              <aside>Content is not editable or selectable</aside>
+            </td>
+            <td>
+              <math-field
+                id="mf-6"
+                contenteditable="false"
+                style="user-select: none; -webkit-user-select: none"
+                >\sqrt{\frac{1}{x+\placeholder[id1]{}}}+\placeholder[id2]{x}</math-field
+              >
+            </td>
+            <td>
+              <textarea
+                contenteditable="false"
+                style="user-select: none; -webkit-user-select: none"
+              >
+x=3/4</textarea
+              >
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Inline</h2>
+      <p>
+        The solution is <math-field id="mf-1">x=\frac{3}{4}</math-field> or
+        <textarea>x=3/4</textarea>.
+      </p>
+    </main>
+
+    <script type="module">
+      import { MathfieldElement } from '/dist/mathlive.mjs';
+
+      document.querySelectorAll('math-field, textarea').forEach((x) => {
+        x.addEventListener('beforeinput', logEvent);
+        x.addEventListener('input', logEvent);
+        x.addEventListener('keypress', logEvent);
+        x.addEventListener('keydown', logEvent);
+        x.addEventListener('keyup', logEvent);
+        x.addEventListener('click', logEvent);
+        x.addEventListener('focus', logEvent);
+        x.addEventListener('focusin', logEvent);
+        x.addEventListener('focusout', logEvent);
+        x.addEventListener('move-out', logEvent);
+        x.addEventListener('focus-in', logEvent);
+        x.addEventListener('focusout', logEvent);
+        x.addEventListener('blur', logEvent);
+      });
+
+      function logEvent(evt) {
+        const stackTraceFrames = String(new Error().stack)
+          .replace(/^Error.*\n/, '')
+          .split('\n')
+          .map((x) => x.replace(/\(.*\)/, ''));
+        stackTraceFrames.shift();
+
+        console.log(evt.type, (evt.target?.id || evt.target?.tagName) ?? evt);
+        if (stackTraceFrames.length > 0)
+          console.log(stackTraceFrames.join('\n'));
+        // console.log(evt);
+      }
+
+      await customElements.whenDefined('math-field');
+      document.body.classList.add('ready');
+    </script>
+  </body>
+</html>

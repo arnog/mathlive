@@ -1,0 +1,796 @@
+@font-face {
+  font-family: 'KaTeX_AMS';
+  src: url('./fonts/KaTeX_AMS-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Caligraphic';
+  src: url('./fonts/KaTeX_Caligraphic-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Caligraphic';
+  src: url('./fonts/KaTeX_Caligraphic-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Fraktur';
+  src: url('./fonts/KaTeX_Fraktur-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Fraktur';
+  src: url('./fonts/KaTeX_Fraktur-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Main';
+  src: url('./fonts/KaTeX_Main-BoldItalic.woff2') format('woff2');
+  font-weight: bold;
+  font-style: italic;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Main';
+  src: url('./fonts/KaTeX_Main-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Main';
+  src: url('./fonts/KaTeX_Main-Italic.woff2') format('woff2');
+  font-weight: normal;
+  font-style: italic;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Main';
+  src: url('./fonts/KaTeX_Main-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Math';
+  src: url('./fonts/KaTeX_Math-BoldItalic.woff2') format('woff2');
+  font-weight: bold;
+  font-style: italic;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Math';
+  src: url('./fonts/KaTeX_Math-Italic.woff2') format('woff2');
+  font-weight: normal;
+  font-style: italic;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_SansSerif';
+  src: url('./fonts/KaTeX_SansSerif-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_SansSerif';
+  src: url('./fonts/KaTeX_SansSerif-Italic.woff2') format('woff2');
+  font-weight: normal;
+  font-style: italic;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_SansSerif';
+  src: url('./fonts/KaTeX_SansSerif-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Script';
+  src: url('./fonts/KaTeX_Script-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Size1';
+  src: url('./fonts/KaTeX_Size1-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Size2';
+  src: url('./fonts/KaTeX_Size2-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Size3';
+  src: url('./fonts/KaTeX_Size3-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Size4';
+  src: url('./fonts/KaTeX_Size4-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+@font-face {
+  font-family: 'KaTeX_Typewriter';
+  src: url('./fonts/KaTeX_Typewriter-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: 'swap';
+}
+:root {
+  --ML__static-fonts: true;
+}
+.ML__container {
+  min-height: auto !important;
+  --_hue: var(--hue, 212);
+  --_placeholder-color: var(--placeholder-color, hsl(var(--_hue), 40%, 49%));
+  --_placeholder-opacity: var(--placeholder-opacity, 0.4);
+  --_text-font-family: var(--text-font-family, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif);
+}
+.ML__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.ML__is-inline {
+  display: inline-block;
+}
+.ML__base {
+  visibility: inherit;
+  display: inline-block;
+  position: relative;
+  cursor: text;
+  padding: 0;
+  margin: 0;
+  box-sizing: content-box;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  font-weight: inherit;
+  font-family: inherit;
+  font-style: inherit;
+  text-decoration: none;
+  width: min-content;
+}
+.ML__strut,
+.ML__strut--bottom {
+  display: inline-block;
+  min-height: 0.5em;
+}
+.ML__small-delim {
+  font-family: KaTeX_Main;
+}
+/* Text mode */
+.ML__text {
+  font-family: var(--_text-font-family);
+  white-space: pre;
+}
+.ML__text.ML__underline {
+  text-decoration: underline;
+}
+.ML__text.ML__line-through {
+  text-decoration: line-through;
+}
+/* Use cmr for 'math upright' */
+.ML__cmr {
+  font-family: KaTeX_Main;
+  font-style: normal;
+}
+.ML__mathit {
+  font-family: KaTeX_Math;
+  /* The KaTeX_Math font is italic by default, so the font-style below is only 
+     useful when a fallback font is used
+  */
+  font-style: italic;
+}
+.ML__mathbf {
+  font-family: KaTeX_Main;
+  font-weight: bold;
+}
+/* Lowercase greek symbols should stick to math font when \mathbf is applied 
+   to match TeX idiosyncratic behavior */
+.lcGreek.ML__mathbf {
+  font-family: KaTeX_Math;
+}
+.ML__mathbfit {
+  font-family: KaTeX_Math;
+  font-weight: bold;
+  font-style: italic;
+}
+.ML__ams {
+  font-family: KaTeX_AMS;
+}
+/* Blackboard */
+.ML__bb {
+  font-family: KaTeX_AMS;
+}
+.ML__cal {
+  font-family: KaTeX_Caligraphic;
+}
+.ML__frak {
+  font-family: KaTeX_Fraktur;
+}
+.ML__tt {
+  font-family: KaTeX_Typewriter;
+}
+.ML__script {
+  font-family: KaTeX_Script;
+}
+.ML__sans {
+  font-family: KaTeX_SansSerif;
+}
+.ML__series_ul {
+  font-weight: 100;
+}
+.ML__series_el {
+  font-weight: 100;
+}
+.ML__series_l {
+  font-weight: 200;
+}
+.ML__series_sl {
+  font-weight: 300;
+}
+.ML__series_sb {
+  font-weight: 500;
+}
+.ML__bold {
+  font-weight: 700;
+}
+.ML__series_eb {
+  font-weight: 800;
+}
+.ML__series_ub {
+  font-weight: 900;
+}
+.ML__series_uc {
+  font-stretch: ultra-condensed;
+}
+.ML__series_ec {
+  font-stretch: extra-condensed;
+}
+.ML__series_c {
+  font-stretch: condensed;
+}
+.ML__series_sc {
+  font-stretch: semi-condensed;
+}
+.ML__series_sx {
+  font-stretch: semi-expanded;
+}
+.ML__series_x {
+  font-stretch: expanded;
+}
+.ML__series_ex {
+  font-stretch: extra-expanded;
+}
+.ML__series_ux {
+  font-stretch: ultra-expanded;
+}
+.ML__it {
+  font-style: italic;
+}
+.ML__shape_ol {
+  -webkit-text-stroke: 1px black;
+  text-stroke: 1px black;
+  color: transparent;
+}
+.ML__shape_sc {
+  font-variant: small-caps;
+}
+.ML__shape_sl {
+  font-style: oblique;
+}
+/* First level emphasis */
+.ML__emph {
+  color: #bc2612;
+}
+/* Second level emphasis */
+.ML__emph .ML__emph {
+  color: #0c7f99;
+}
+.ML__highlight {
+  color: #007cb2;
+  background: #edd1b0;
+}
+.ML__center {
+  text-align: center;
+}
+.ML__left {
+  text-align: left;
+}
+.ML__right {
+  text-align: right;
+}
+.ML__label_padding {
+  padding: 0 0.5em;
+}
+.ML__frac-line {
+  width: 100%;
+  min-height: 1px;
+}
+.ML__frac-line:after {
+  content: '';
+  display: block;
+  margin-top: max(-1px, -0.04em);
+  min-height: max(1px, 0.04em);
+  /* Ensure the line is visible when printing even if "turn off background images" is on*/
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  /* There's a bug since Chrome 62 where 
+      sub-pixel border lines don't draw at some zoom 
+      levels (110%, 90%). 
+      Setting the min-height used to work around it, but that workaround
+      broke in Chrome 84 or so.
+      Setting the background (and the min-height) seems to work for now.
+      */
+  background: currentColor;
+  box-sizing: content-box;
+  /* Vuetify sets the box-sizing to inherit 
+            causes the fraction line to not draw at all sizes (see #26) */
+  /* On some versions of Firefox on Windows, the line fails to 
+            draw at some zoom levels, but setting the transform triggers
+            the hardware accelerated path, which works */
+  transform: translate(0, 0);
+  forced-color-adjust: preserve-parent-color;
+}
+@media (forced-colors: active) {
+  .ML__frac-line {
+    min-height: 0px;
+  }
+}
+.ML__sqrt {
+  display: inline-block;
+}
+.ML__sqrt-sign {
+  display: inline-block;
+  position: relative;
+}
+.ML__sqrt-line {
+  display: inline-block;
+  height: max(1px, 0.04em);
+  width: 100%;
+}
+.ML__sqrt-line:before {
+  content: '';
+  display: block;
+  margin-top: min(-1px, -0.04em);
+  min-height: max(1px, 0.04em);
+  /* Ensure the line is visible when printing even if "turn off background images" is on*/
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  background: currentColor;
+  /* On some versions of Firefox on Windows, the line fails to 
+            draw at some zoom levels, but setting the transform triggers
+            the hardware accelerated path, which works */
+  transform: translate(0, 0);
+  forced-color-adjust: preserve-parent-color;
+}
+@media (forced-colors: active) {
+  .ML__sqrt-line:after {
+    background: white !important;
+  }
+}
+.ML__sqrt-line:after {
+  border-bottom-width: 1px;
+  content: ' ';
+  display: block;
+  margin-top: -0.1em;
+}
+.ML__sqrt-index {
+  margin-left: 0.27777778em;
+  margin-right: -0.55555556em;
+}
+.ML__delim-size1 {
+  font-family: KaTeX_Size1;
+}
+.ML__delim-size2 {
+  font-family: KaTeX_Size2;
+}
+.ML__delim-size3 {
+  font-family: KaTeX_Size3;
+}
+.ML__delim-size4 {
+  font-family: KaTeX_Size4;
+}
+.ML__delim-mult .delim-size1 > span {
+  font-family: KaTeX_Size1;
+}
+.ML__delim-mult .delim-size4 > span {
+  font-family: KaTeX_Size4;
+}
+.ML__accent-body {
+  font-family: KaTeX_Main;
+}
+.ML__accent-combining-char {
+  position: relative;
+  left: 0.24em;
+}
+/** The markup for a LaTeX formula, either in an editable mathfield or 
+    in a static display.
+*/
+.ML__latex {
+  display: inline-block;
+  direction: ltr;
+  text-align: left;
+  text-indent: 0;
+  text-rendering: auto;
+  font-family: inherit;
+  font-style: normal;
+  font-size-adjust: none;
+  font-stretch: normal;
+  font-variant-caps: normal;
+  letter-spacing: normal;
+  line-height: 1.2;
+  word-wrap: normal;
+  word-spacing: normal;
+  white-space: nowrap;
+  text-shadow: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: min-content;
+  forced-color-adjust: preserve-parent-color;
+}
+.ML__latex .style-wrap {
+  position: relative;
+}
+.ML__latex .ML__mfrac {
+  display: inline-block;
+}
+.ML__latex .ML__left-right {
+  display: inline-block;
+}
+.ML__latex .ML__vlist-t {
+  display: inline-table;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.ML__latex .ML__vlist-r {
+  display: table-row;
+}
+.ML__latex .ML__vlist {
+  display: table-cell;
+  vertical-align: bottom;
+  position: relative;
+}
+.ML__latex .ML__vlist > span {
+  display: block;
+  height: 0;
+  position: relative;
+}
+.ML__latex .ML__vlist > span > span {
+  display: inline-block;
+}
+.ML__latex .ML__vlist > span > .ML__pstrut {
+  overflow: hidden;
+  width: 0;
+}
+.ML__latex .ML__vlist-t2 {
+  margin-right: -2px;
+}
+.ML__latex .ML__vlist-s {
+  display: table-cell;
+  vertical-align: bottom;
+  font-size: 1px;
+  width: 2px;
+  min-width: 2px;
+}
+.ML__latex .ML__msubsup {
+  text-align: left;
+}
+.ML__latex .ML__negativethinspace {
+  display: inline-block;
+  margin-left: -0.16667em;
+  height: 0.71em;
+}
+.ML__latex .ML__thinspace {
+  display: inline-block;
+  width: 0.16667em;
+  height: 0.71em;
+}
+.ML__latex .ML__mediumspace {
+  display: inline-block;
+  width: 0.22222em;
+  height: 0.71em;
+}
+.ML__latex .ML__thickspace {
+  display: inline-block;
+  width: 0.27778em;
+  height: 0.71em;
+}
+.ML__latex .ML__enspace {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.71em;
+}
+.ML__latex .ML__quad {
+  display: inline-block;
+  width: 1em;
+  height: 0.71em;
+}
+.ML__latex .ML__qquad {
+  display: inline-block;
+  width: 2em;
+  height: 0.71em;
+}
+.ML__latex .ML__llap,
+.ML__latex .ML__rlap {
+  width: 0;
+  position: relative;
+  display: inline-block;
+}
+.ML__latex .ML__llap > .ML__inner,
+.ML__latex .ML__rlap > .ML__inner {
+  position: absolute;
+}
+.ML__latex .ML__llap > .ML__fix,
+.ML__latex .ML__rlap > .ML__fix {
+  display: inline-block;
+}
+.ML__latex .ML__llap > .ML__inner {
+  right: 0;
+}
+.ML__latex .ML__rlap > .ML__inner {
+  left: 0;
+}
+.ML__latex .ML__rule {
+  display: inline-block;
+  border: solid 0;
+  position: relative;
+  box-sizing: border-box;
+}
+.ML__latex .overline .overline-line,
+.ML__latex .underline .underline-line {
+  width: 100%;
+}
+.ML__latex .overline .overline-line:before,
+.ML__latex .underline .underline-line:before {
+  content: '';
+  border-bottom-style: solid;
+  border-bottom-width: max(1px, 0.04em);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  display: block;
+}
+.ML__latex .overline .overline-line:after,
+.ML__latex .underline .underline-line:after {
+  border-bottom-style: solid;
+  border-bottom-width: max(1px, 0.04em);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  content: '';
+  display: block;
+  margin-top: -1px;
+}
+.ML__latex .ML__stretchy {
+  display: block;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  overflow: hidden;
+}
+.ML__latex .ML__stretchy:before,
+.ML__latex .ML__stretchy:after {
+  content: '';
+}
+.ML__latex .ML__stretchy svg {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: inherit;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-rule: nonzero;
+  fill-opacity: 1;
+  stroke-width: 1;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 4;
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+  stroke-opacity: 1;
+}
+.ML__latex .slice-1-of-2 {
+  display: inline-flex;
+  position: absolute;
+  left: 0;
+  width: 50.2%;
+  overflow: hidden;
+}
+.ML__latex .slice-2-of-2 {
+  display: inline-flex;
+  position: absolute;
+  right: 0;
+  width: 50.2%;
+  overflow: hidden;
+}
+.ML__latex .slice-1-of-3 {
+  display: inline-flex;
+  position: absolute;
+  left: 0;
+  width: 25.1%;
+  overflow: hidden;
+}
+.ML__latex .slice-2-of-3 {
+  display: inline-flex;
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  overflow: hidden;
+}
+.ML__latex .slice-3-of-3 {
+  display: inline-flex;
+  position: absolute;
+  right: 0;
+  width: 25.1%;
+  overflow: hidden;
+}
+.ML__latex .slice-1-of-1 {
+  display: inline-flex;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  overflow: hidden;
+}
+.ML__latex .ML__nulldelimiter {
+  display: inline-block;
+}
+.ML__latex .ML__op-group {
+  display: inline-block;
+}
+.ML__latex .ML__op-symbol {
+  position: relative;
+}
+.ML__latex .ML__op-symbol.ML__small-op {
+  font-family: KaTeX_Size1;
+}
+.ML__latex .ML__op-symbol.ML__large-op {
+  font-family: KaTeX_Size2;
+}
+.ML__latex:has(.ML__center_environment),
+.ML__latex:has(.ML__multiline_environment),
+.ML__latex:has(.ML__align_environment),
+.ML__latex:has(.ML__eqnarray_environment),
+.ML__latex:has(.ML__gather_environment) {
+  width: 100%;
+}
+.ML__latex .ML__multiline_environment {
+  display: inline-flex;
+  width: 100%;
+}
+.ML__latex .ML__center_environment {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+}
+.ML__latex .ML__align_environment,
+.ML__latex .ML__eqnarray_environment,
+.ML__latex .ML__gather_environment {
+  display: inline-block;
+}
+.ML__latex .ML__mtable .ML__vertical-separator {
+  display: inline-block;
+  min-width: 1px;
+  box-sizing: border-box;
+}
+.ML__latex .ML__mtable .ML__arraycolsep {
+  display: inline-block;
+}
+.ML__latex .ML__mtable .col-align-m > .ML__vlist-t {
+  text-align: center;
+}
+.ML__latex .ML__mtable .col-align-c > .ML__vlist-t {
+  text-align: center;
+}
+.ML__latex .ML__mtable .col-align-l > .ML__vlist-t {
+  text-align: left;
+}
+.ML__latex .ML__mtable .col-align-r > .ML__vlist-t {
+  text-align: right;
+}
+[data-href] {
+  cursor: pointer;
+}
+.ML__error {
+  display: inline-block;
+  background-image: radial-gradient(ellipse at center, hsl(341, 100%, 40%), rgba(0, 0, 0, 0) 70%);
+  background-color: hsla(341, 100%, 40%, 0.1);
+  background-repeat: repeat-x;
+  background-size: 3px 3px;
+  padding-bottom: 3px;
+  background-position: 0 100%;
+}
+.ML__error > .ML__error {
+  background: transparent;
+  padding: 0;
+}
+.ML__placeholder {
+  color: var(--_placeholder-color);
+  opacity: var(--_placeholder-opacity);
+  padding-left: 0.4ex;
+  padding-right: 0.4ex;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+.ML__notation {
+  position: absolute;
+  box-sizing: border-box;
+  line-height: 0;
+}
+/* This class is used to implement the `\mathtip` and `\texttip` commands
+   For UI elements, see `[data-ML__tooltip]`
+*/
+.ML__tooltip-container {
+  position: relative;
+  transform: scale(0);
+}
+.ML__tooltip-container .ML__tooltip-content {
+  position: fixed;
+  display: inline-table;
+  visibility: hidden;
+  z-index: 2;
+  width: max-content;
+  max-width: 400px;
+  padding: 12px 12px;
+  border: var(--_tooltip-border);
+  border-radius: var(--_tooltip-border-radius);
+  background: var(--_tooltip-background-color);
+  --_selection-color: var(--_tooltip-color);
+  color: var(--_tooltip-color);
+  box-shadow: var(--_tooltip-box-shadow);
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 1, 1);
+}
+.ML__tooltip-container .ML__tooltip-content .ML__text {
+  white-space: normal;
+}
+.ML__tooltip-container .ML__tooltip-content .ML__base {
+  display: contents;
+}
+.ML__tooltip-container:hover .ML__tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  font-size: 0.75em;
+  transform: scale(1) translate(0, 3em);
+}
+.ML__bg {
+  background-color: transparent !important;
+}
+.ML__bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: -1;
+  box-sizing: border-box;
+}

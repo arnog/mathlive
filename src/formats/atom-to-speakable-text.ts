@@ -7,6 +7,7 @@ import { osPlatform } from '../ui/utils/capabilities';
 import { ArrayAtom } from '../atoms/array';
 import { getMacros } from '../latex-commands/definitions-utils';
 import { PromptAtom } from '../atoms/prompt';
+import { isTextMode } from '../public/core-types';
 
 declare global {
   interface Window {
@@ -216,7 +217,7 @@ function atomsToSpeakableFragment(
   for (let i = 0; i < atom.length; i++) {
     if (atom[i].type === 'first') continue;
 
-    if (atom[i].mode !== 'text') isInTextRun = false;
+    if (!isTextMode(atom[i].mode)) isInTextRun = false;
 
     if (
       i < atom.length - 2 &&
@@ -227,7 +228,7 @@ function atomsToSpeakableFragment(
       result += ' of ';
       result += emph(atomToSpeakableFragment(mode, atom[i + 1]));
       i += 2;
-    } else if (atom[i].mode === 'text') {
+    } else if (isTextMode(atom[i].mode)) {
       if (isInTextRun) result += atom[i].value ?? ' ';
       else {
         isInTextRun = true;
@@ -277,7 +278,7 @@ function atomToSpeakableFragment(
   if (atom.id && mode === 'math')
     result += '<mark name="' + atom.id.toString() + '"/>';
 
-  if (atom.mode === 'text') return result + atom.value;
+  if (isTextMode(atom.mode)) return result + atom.value;
 
   let numer = '';
   let denom = '';
@@ -361,7 +362,15 @@ function atomToSpeakableFragment(
       const array = (atom as ArrayAtom).rows;
       const environment = (atom as ArrayAtom).environmentName;
 
-      if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {
+      if (environment === 'lines') {
+        for (let i = 0; i < array.length; i++) {
+          if (i > 0) result += ' line break ';
+          const line = array[i]
+            .map((cell) => atomToSpeakableFragment('text', cell))
+            .join('');
+          result += line || ' blank ';
+        }
+      } else if (Object.keys(ENVIRONMENTS_NAMES).includes(environment)) {
         result += ` begin ${ENVIRONMENTS_NAMES[environment]} `;
         for (let i = 0; i < array.length; i++) {
           if (i > 0) result += ',';

@@ -68,12 +68,12 @@ export function update(
 
       case 'defaultMode':
         if (
-          !['text', 'math', 'inline-math'].includes(
+          !['text', 'free-text', 'free-math', 'math', 'inline-math'].includes(
             updates.defaultMode as string
           )
         ) {
           console.error(
-            `MathLive {{SDK_VERSION}}:  valid values for defaultMode are "text", "math" or "inline-math"`
+            `MathLive {{SDK_VERSION}}:  valid values for defaultMode are "text", "free-text", "free-math", "math" or "inline-math"`
           );
           result.defaultMode = 'math';
         } else result.defaultMode = updates.defaultMode!;
@@ -207,7 +207,9 @@ export function getDefault(): Required<_MathfieldOptions> {
   };
 }
 
-export function effectiveMode(options: MathfieldOptions): 'math' | 'text' {
+export function effectiveMode(
+  options: MathfieldOptions
+): 'math' | 'text' | 'free-text' | 'free-math' {
   if (options.defaultMode === 'inline-math') return 'math';
   return options.defaultMode;
 }

@@ -2,6 +2,7 @@ import { isArray } from '../common/types';
 
 import type { Selector } from '../public/commands';
 import type { Keybinding } from '../public/options';
+import { isTextMode } from '../public/core-types';
 import type { ParseMode } from '../public/core-types';
 import type { KeyboardLayout } from './keyboard-layouts/types';
 
@@ -64,7 +65,12 @@ export function getCommandForKeybinding(
       keybindings[i].key === keystroke ||
       keybindings[i].key === altKeystroke
     ) {
-      if (!keybindings[i].ifMode || keybindings[i].ifMode === mode)
+      if (
+        !keybindings[i].ifMode ||
+        keybindings[i].ifMode === mode ||
+        (keybindings[i].ifMode === 'text' && isTextMode(mode)) ||
+        (keybindings[i].ifMode === 'math' && mode === 'free-math')
+      )
         return keybindings[i].command as Selector | [Selector, ...any[]];
     }
   }

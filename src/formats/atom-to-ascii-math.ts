@@ -5,6 +5,7 @@ import { GenfracAtom } from '../atoms/genfrac';
 import { LeftRightAtom } from '../atoms/leftright';
 import { ArrayAtom } from '../atoms/array';
 import { Style } from '../public/core-types';
+import { isTextMode } from '../public/core-types';
 
 const IDENTIFIERS = {
   '\\ne': '≠',
@@ -180,14 +181,21 @@ export function atomToAsciiMath(
   if (isArray<Atom>(atom)) {
     if (atom.length === 0) return '';
 
+    let first = 0;
+    while (atom[first]?.type === 'first') first += 1;
+    if (first > 0) return atomToAsciiMath(atom.slice(first), options);
+
     if (atom[0].mode === 'latex')
       return atom.map((x) => atomToAsciiMath(x)).join('');
 
-    if (atom[0].mode === 'text') {
+    if (isTextMode(atom[0].mode)) {
       // Text mode... put it in (ASCII) quotes
       let i = 0;
       let text = '';
-      while (atom[i]?.mode === 'text') {
+      while (
+        atom[i]?.type !== 'first' &&
+        isTextMode(atom[i]?.mode ?? '')
+      ) {
         text += atom[i].body
           ? atomToAsciiMath(atom[i].body, options)
           : atom[i].value;
@@ -210,7 +218,7 @@ export function atomToAsciiMath(
     return joinAsciiMath(result);
   }
 
-  if (atom.mode === 'text')
+  if (isTextMode(atom.mode))
     return options?.plain ? atom.value : `"${atom.value}"`;
 
   let result = '';
@@ -392,7 +400,14 @@ export function atomToAsciiMath(
         const lines = (atom as ArrayAtom).rows!;
         result = lines
           .map((line) =>
-            line.map((cell) => atomToAsciiMath(cell, options)).join('')
+            line
+              .map((cell) =>
+                atomToAsciiMath(
+                  (cell ?? []).filter((child) => child.type !== 'first'),
+                  options
+                )
+              )
+              .join('')
           )
           .join('\n');
       } else {

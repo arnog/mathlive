@@ -2,6 +2,7 @@ import { Atom } from '../core/atom-class';
 import { Box } from '../core/box';
 import { Context } from '../core/context';
 import type { AtomJson, ToLatexOptions } from 'core/types';
+import type { ParseMode } from '../public/core-types';
 
 /**
  * Atom for raw latex character, while in LaTeX editing mode
@@ -52,10 +53,14 @@ export class LatexAtom extends Atom {
  * All the children of a LatexGroupAtom are LatexAtom.
  */
 export class LatexGroupAtom extends Atom {
-  constructor(latex = '') {
+  /** The editing mode to restore after this LaTeX entry is completed. */
+  originMode?: ParseMode;
+
+  constructor(latex = '', originMode?: ParseMode) {
     super({ type: 'latexgroup', mode: 'latex' });
     this.body = [...latex].map((c) => new LatexAtom(c));
     this.skipBoundary = true;
+    this.originMode = originMode;
   }
 
   static fromJson(_json: AtomJson): LatexGroupAtom {

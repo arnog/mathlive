@@ -6,6 +6,7 @@ import { Atom } from '../core/atom-class';
 import { LeftRightAtom } from '../atoms/leftright';
 import { joinLatex } from '../core/tokenizer';
 import { mightProducePrintableCharacter } from '../ui/events/utils';
+import { isTextMode } from '../public/core-types';
 
 /**
  * Convert the atoms before the anchor to 'text' mode
@@ -184,7 +185,7 @@ export function smartMode(
   const c = keyboardEventToChar(evt);
   if (!model.selectionIsCollapsed) {
     // There is a selection
-    if (mathfield.model.mode === 'text') {
+    if (isTextMode(mathfield.model.mode)) {
       // If the character is '/' or '_' or '^', switch to 'math'
       if (/[/_^]/.test(c)) return true;
     }
@@ -193,7 +194,7 @@ export function smartMode(
   }
 
   const context = getTextBeforePosition(model) + c;
-  if (mathfield.model.mode === 'text') {
+  if (isTextMode(mathfield.model.mode)) {
     // We're in text mode. Should we switch to math?
     if (keystroke === 'Esc' || /[/\\]/.test(c)) {
       // If this is a command for a fraction,

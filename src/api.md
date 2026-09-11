@@ -493,14 +493,16 @@ and background values, and are recommended:
 ##### MathfieldElement.defaultMode {#defaultmode}
 
 ```ts
-get defaultMode(): "text" | "math" | "inline-math"
-set defaultMode(value: "text" | "math" | "inline-math"): void
+get defaultMode(): "text" | "free-text" | "free-math" | "math" | "inline-math"
+set defaultMode(value: "text" | "free-text" | "free-math" | "math" | "inline-math"): void
 ```
 
 The mode of the element when it is empty:
 - `"math"`: equivalent to `\displaystyle` (display math mode)
 - `"inline-math"`: equivalent to `\inlinestyle` (inline math mode)
 - `"text"`: text mode
+- `"free-text"`: multiline text editing with inline LaTeX
+- `"free-math"`: multiline math editing with inline text islands
 
 </MemberCard>
 
@@ -6760,7 +6762,7 @@ colorMap: (name) => string | undefined;
 ##### LayoutOptions.defaultMode {#defaultmode-1}
 
 ```ts
-defaultMode: "inline-math" | "math" | "text";
+defaultMode: "inline-math" | "math" | "text" | "free-text" | "free-math";
 ```
 
 </MemberCard>

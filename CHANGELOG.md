@@ -19,6 +19,14 @@
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 
+- Added a `\math{}` command for explicit math runs in text content, and made
+  completed bounded and unbounded LaTeX entries return to prose in `text` and
+  `free-text` mathfields. Nested commands such as `\math{\forall}` can now be
+  entered directly.
+
+- Added experimental `free-math` multiline mathfield mode alongside `free-text`, preserving rows, empty lines, tabs, clipboard plain text, and public output formats when values are round-tripped.
+- Fixed `free-text` fields to resolve direction independently for every line, keep mixed Hebrew/Latin prose in Unicode bidi order, group formulas with adjacent Latin text in logical LTR islands, return completed LaTeX commands to prose before inserting a non-LaTeX character, and render the visual caret beside the logical insertion point instead of pinning it to the RTL edge.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories

@@ -3,7 +3,12 @@ import { TextAtom } from '../atoms/text';
 import type { Atom } from './atom';
 import type { Box } from './box';
 import { Mode, getPropertyRuns } from './modes-utils';
-import type { FontSeries, FontShape, Style } from '../public/core-types';
+import type {
+  FontSeries,
+  FontShape,
+  Style,
+  TextDecoration,
+} from '../public/core-types';
 import { joinLatex, latexCommand } from './tokenizer';
 import type { TokenDefinition } from '../latex-commands/types';
 import type { ToLatexOptions, FontName } from './types';
@@ -73,6 +78,24 @@ function emitSizeTextRun(run: Atom[], options: ToLatexOptions): string[] {
   });
 }
 
+function emitTextDecorationTextRun(
+  run: readonly Atom[],
+  options: ToLatexOptions,
+  needsWrap: boolean
+): string[] {
+  return getPropertyRuns(run, 'textDecoration').map((x: Atom[]) => {
+    const body = emitFontFamilyTextRun(x, options, needsWrap);
+    const decoration = x[0].style.textDecoration;
+    if (!decoration || decoration === 'none') return joinLatex(body);
+
+    let result = joinLatex(body);
+    if (decoration.includes('underline')) result = `\\underline{${result}}`;
+    if (decoration.includes('line-through'))
+      result = `\\enclose{horizontalstrike}{${result}}`;
+    return result;
+  });
+}
+
 function emitFontFamilyTextRun(
   run: Atom[],
   options: ToLatexOptions,
@@ -114,6 +137,9 @@ const TEXT_FONT_CLASS: Record<string, string> = {
 export class TextMode extends Mode {
   constructor() {
     super('text');
+    // Free-text uses the text atom/parser implementation, but is a distinct
+    // editing mode at the MathLive API level.
+    Mode._registry['free-text'] = this;
   }
 
   createAtom(
@@ -133,13 +159,10 @@ export class TextMode extends Mode {
   }
 
   serialize(run: Atom[], options: ToLatexOptions): string[] {
-    return emitFontFamilyTextRun(
+    return emitTextDecorationTextRun(
       run,
-      {
-        ...options,
-        defaultMode: 'text',
-      },
-      options.defaultMode !== 'text'
+      { ...options, defaultMode: 'text' },
+      options.defaultMode !== 'text' && options.defaultMode !== 'free-text'
     );
   }
 
@@ -152,6 +175,7 @@ export class TextMode extends Mode {
       fontFamily?: string;
       fontShape?: FontShape;
       fontSeries?: FontSeries;
+      textDecoration?: TextDecoration;
     }
   ): FontName | null {
     const { fontFamily } = style;
@@ -204,6 +228,13 @@ export class TextMode extends Mode {
             ux: 'ML__series_ux',
           }[m[2] ?? ''] ?? '';
       }
+    }
+
+    if (style.textDecoration && style.textDecoration !== 'none') {
+      if (style.textDecoration.includes('underline'))
+        box.classes += ' ML__underline';
+      if (style.textDecoration.includes('line-through'))
+        box.classes += ' ML__line-through';
     }
 
     // Always use the metrics of 'Main-Regular' in text mode

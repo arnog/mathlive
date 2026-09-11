@@ -105,6 +105,20 @@ describe('ARGUMENTS', () => {
   );
 });
 
+describe('MATH MODE IN TEXT', () => {
+  test('math parses its body as math and leaves surrounding prose as text', () => {
+    const atoms = parseLatex('before \\math{\\forall x} after', {
+      parseMode: 'text',
+    });
+
+    expect(atoms.find((atom) => atom.command === '\\forall')?.mode).toBe(
+      'math'
+    );
+    expect(atoms[0].mode).toBe('text');
+    expect(atoms[atoms.length - 1].mode).toBe('text');
+  });
+});
+
 describe('INFIX COMMANDS', () => {
   test.each([
     ['a\\over b', '\\frac{a}{b}'],

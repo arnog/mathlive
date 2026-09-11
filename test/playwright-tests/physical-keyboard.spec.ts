@@ -290,6 +290,551 @@ test('test inline shortcuts', async ({ page }) => {
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
   ).toBe(String.raw`\pm\nabla\cdot\alpha+\tan x-20\ge40`);
 });
+test('free-text mode preserves lines and inline math', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  await field.pressSequentially('First line');
+  await field.press('Enter');
+  await field.pressSequentially('Value: ');
+  await field.pressSequentially(String.raw`\alpha`);
+  await field.press('Space');
+  await field.pressSequentially(' second line');
+
+  const values = await field.evaluate((e: MathfieldElement) => ({
+    mode: e.mode,
+    latex: e.getValue('latex'),
+    plainText: e.getValue('plain-text'),
+    ariaMultiline: e.shadowRoot
+      ?.querySelector('[part="keyboard-sink"]')
+      ?.getAttribute('aria-multiline'),
+  }));
+
+  expect(values.mode).toBe('free-text');
+  expect(values.latex).toContain(String.raw`\displaylines{`);
+  expect(values.latex).toContain(String.raw`\alpha`);
+  expect(values.plainText).toContain('First line\nValue: ');
+  expect(values.plainText).toContain(' second line');
+  expect(values.ariaMultiline).toBe('true');
+});
+
+test('free-text resolves each line direction and isolates math runs', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  const layout = await field.evaluate(async (e: MathfieldElement) => {
+    e.dir = 'rtl';
+    e.style.display = 'block';
+    e.style.width = '600px';
+    e.setValue('\u05d0\u05d1 asdf \u05d2\u05d3\nEnglish line\n$x+1$', {
+      mode: 'free-text',
+      format: 'plain-text',
+    });
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+
+    const content = e.shadowRoot?.querySelector('[part="content"]');
+    const root = e.shadowRoot?.querySelector('.ML__free-text-root');
+    const lines = [
+      ...(root?.querySelectorAll<HTMLElement>('.ML__free-text-line') ?? []),
+    ];
+    const math = root?.querySelector<HTMLElement>('.ML__free-text-math-island');
+    if (!content || !root || lines.length !== 3 || !math)
+      throw new Error('Expected rendered free-text direction markers');
+
+    const contentRect = content.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    return {
+      value: e.getValue('plain-text'),
+      contentDirection: getComputedStyle(content).direction,
+      contentJustify: getComputedStyle(content).justifyContent,
+      lineAttributes: lines.map((line) => line.getAttribute('dir')),
+      lineDirections: lines.map((line) => getComputedStyle(line).direction),
+      lineTextAlignments: lines.map((line) => getComputedStyle(line).textAlign),
+      mathDirection: getComputedStyle(math).direction,
+      mathBidi: getComputedStyle(math).unicodeBidi,
+      leftGap: rootRect.left - contentRect.left,
+      rightGap: contentRect.right - rootRect.right,
+    };
+  });
+
+  expect(layout.value).toBe(
+    '\u05d0\u05d1 asdf \u05d2\u05d3\nEnglish line\nx+1'
+  );
+  expect(layout.contentDirection).toBe('rtl');
+  expect(layout.contentJustify).toBe('flex-start');
+  expect(layout.lineAttributes).toEqual(['auto', 'auto', 'ltr']);
+  expect(layout.lineDirections).toEqual(['rtl', 'ltr', 'ltr']);
+  expect(layout.lineTextAlignments).toEqual(['start', 'start', 'start']);
+  expect(layout.mathDirection).toBe('ltr');
+  expect(layout.mathBidi).toBe('isolate');
+  expect(layout.rightGap).toBeLessThan(layout.leftGap);
+});
+
+test('free-text keeps the visual caret with mixed RTL and LTR input', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+  await field.evaluate((e: MathfieldElement) => {
+    e.dir = 'rtl';
+    e.setValue('', { mode: 'free-text' });
+    e.focus();
+  });
+
+  await field.pressSequentially('\u05d0\u05d1 asdf \u05d2\u05d3');
+  await expect
+    .poll(() =>
+      field.evaluate((e: MathfieldElement) => e.getValue('plain-text'))
+    )
+    .toBe('\u05d0\u05d1 asdf \u05d2\u05d3');
+
+  const caret = await field.evaluate((e: MathfieldElement) => {
+    const line = e.shadowRoot?.querySelector<HTMLElement>(
+      '.ML__free-text-line'
+    );
+    const marker = e.shadowRoot?.querySelector<HTMLElement>('.ML__text-caret');
+    const textNodes = [
+      ...(line?.querySelectorAll<HTMLElement>('.ML__text') ?? []),
+    ];
+    if (!line || !marker || textNodes.length === 0)
+      throw new Error('Expected a mixed-direction line and visible text caret');
+    const markerRect = marker.getBoundingClientRect();
+    const textLeft = Math.min(
+      ...textNodes.map((node) => node.getBoundingClientRect().left)
+    );
+    return {
+      lineDirection: getComputedStyle(line).direction,
+      lineAttribute: line.getAttribute('dir'),
+      caretLeft: markerRect.left,
+      textLeft,
+    };
+  });
+
+  expect(caret.lineAttribute).toBe('auto');
+  expect(caret.lineDirection).toBe('rtl');
+  expect(caret.caretLeft).toBeLessThanOrEqual(caret.textLeft + 2);
+
+  await field.press('Enter');
+  await field.pressSequentially('\\alpha');
+  await expect
+    .poll(() => field.evaluate((e: MathfieldElement) => e.mode))
+    .toBe('latex');
+  const latexLine = await field.evaluate((e: MathfieldElement) => {
+    const lines = [
+      ...(e.shadowRoot?.querySelectorAll<HTMLElement>('.ML__free-text-line') ??
+        []),
+    ];
+    const line = lines.at(-1);
+    const math = line?.querySelector<HTMLElement>('.ML__free-text-math-island');
+    return {
+      attribute: line?.getAttribute('dir'),
+      direction: line ? getComputedStyle(line).direction : null,
+      mathDirection: math ? getComputedStyle(math).direction : null,
+    };
+  });
+  expect(latexLine).toEqual({
+    attribute: 'ltr',
+    direction: 'ltr',
+    mathDirection: 'ltr',
+  });
+});
+
+test('free-text preserves formula and Latin order inside RTL prose', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+  await field.evaluate((e: MathfieldElement) => {
+    e.dir = 'rtl';
+    e.setValue('', { mode: 'free-text' });
+    e.focus();
+  });
+
+  await field.pressSequentially('\u05d0\u05d1 ');
+  await field.pressSequentially(String.raw`\int`);
+  await field.press('Space');
+  await field.pressSequentially('asdf ');
+  await field.pressSequentially('\u05d2\u05d3');
+
+  const layout = await field.evaluate((e: MathfieldElement) => {
+    const line = e.shadowRoot?.querySelector<HTMLElement>(
+      '.ML__free-text-line'
+    );
+    const island = line?.querySelector<HTMLElement>(
+      '.ML__free-text-ltr-island'
+    );
+    const math = island?.querySelector<HTMLElement>(
+      '.ML__free-text-math-island'
+    );
+    if (!line || !island || !math)
+      throw new Error('Expected a formula and Latin text in one LTR island');
+    const latinRects: DOMRect[] = [];
+    const walker = document.createTreeWalker(island, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!/[A-Za-z]/u.test(node.textContent ?? '')) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      latinRects.push(range.getBoundingClientRect());
+    }
+    if (latinRects.length === 0)
+      throw new Error('Expected Latin text inside the LTR island');
+    return {
+      plainText: e.getValue('plain-text'),
+      latex: e.getValue('latex'),
+      mode: e.mode,
+      islandDirection: getComputedStyle(island).direction,
+      mathRight: math.getBoundingClientRect().right,
+      latinLeft: Math.min(...latinRects.map((rect) => rect.left)),
+      islandText: island.textContent,
+    };
+  });
+
+  expect(layout.plainText).toContain('\u05d0\u05d1');
+  expect(layout.plainText).toContain('asdf');
+  expect(layout.plainText).toContain('\u05d2\u05d3');
+  expect(layout.latex).toContain(String.raw`\int`);
+  expect(layout.mode).toBe('free-text');
+  expect(layout.islandDirection).toBe('ltr');
+  expect(layout.islandText).toContain('asdf');
+  expect(layout.mathRight).toBeLessThanOrEqual(layout.latinLeft + 2);
+});
+
+test('free-text commits complete LaTeX before direct Hebrew input', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  for (const command of ['\\alpha', '\\sum', '\\int', '\\prod']) {
+    await field.evaluate((e: MathfieldElement) => {
+      e.setValue('', { mode: 'free-text' });
+      e.focus();
+    });
+    await field.pressSequentially(command);
+    expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+      'latex'
+    );
+    await field.pressSequentially('\u05d0');
+    const values = await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex'),
+      plainText: e.getValue('plain-text'),
+      latexGroups:
+        e.shadowRoot?.querySelectorAll('.ML__latex-group').length ?? 0,
+      errors: e.shadowRoot?.querySelectorAll('.ML__error').length ?? 0,
+    }));
+    expect(values.mode).toBe('free-text');
+    expect(values.latex).toContain(command);
+    expect(values.plainText).toContain('\u05d0');
+    expect(values.latexGroups).toBe(0);
+    expect(values.errors).toBe(0);
+  }
+
+  await field.evaluate((e: MathfieldElement) => {
+    e.setValue('', { mode: 'free-text' });
+    e.focus();
+  });
+  await field.pressSequentially(String.raw`\frac`);
+  await field.pressSequentially('\u05d0');
+  expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe('latex');
+});
+
+test('free-text preserves empty lines, tabs, bullets, styles, and outputs', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  const values = await field.evaluate((e: MathfieldElement) => {
+    const bullet = String.fromCodePoint(0x2022);
+    e.setValue(`first\n\n\t${bullet} item\n`, { mode: 'free-text' });
+    e.selection = { ranges: [[0, 5]] };
+    e.applyStyle({
+      fontSeries: 'b',
+      fontShape: 'it',
+      textDecoration: 'underline line-through',
+    });
+    e.selection = e.lastOffset;
+
+    return {
+      plain: e.getValue('plain-text'),
+      latex: e.getValue('latex'),
+      typst: e.getValue('typst'),
+      mathml: e.getValue('math-ml'),
+      spoken: e.getValue('spoken-text'),
+      json: (e as any)._mathfield.model.root.toJson(),
+    };
+  });
+
+  expect(values.plain).toBe(
+    `first\n\n\t${String.fromCodePoint(0x2022)} item\n`
+  );
+  expect(values.latex).toContain(String.raw`\displaylines{`);
+  expect(values.latex).toContain(String.raw`\textbf{\textit{first}}`);
+  expect(values.typst).toContain('#strong');
+  expect(values.typst).toContain('#underline');
+  expect(values.mathml).toContain('<mtable');
+  expect(values.mathml.match(/<mtr>/g)?.length).toBe(4);
+  expect(values.spoken).toContain('line break');
+  expect(values.json.environmentName).toBe('lines');
+  expect(values.json.array.length).toBe(4);
+
+  const roundTrip = await field.evaluate((e: MathfieldElement, serialized) => {
+    e.setValue(serialized, { mode: 'free-text', format: 'latex' });
+    return {
+      plain: e.getValue('plain-text'),
+      rows: (e as any)._mathfield.model.root.toJson().array.length,
+      mode: e.mode,
+    };
+  }, values.latex);
+  expect(roundTrip).toEqual({
+    plain: values.plain,
+    rows: 4,
+    mode: 'free-text',
+  });
+});
+
+test('free-text clipboard exports plain text', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== 'chromium',
+    'ClipboardEvent construction differs by browser'
+  );
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  const clipboard = await field.evaluate((e: MathfieldElement) => {
+    e.setValue('first\n\n\t? item\n', {
+      mode: 'free-text',
+      format: 'plain-text',
+    });
+    const data = new DataTransfer();
+    e.shadowRoot
+      ?.querySelector('[part="keyboard-sink"]')
+      ?.dispatchEvent(new ClipboardEvent('copy', { clipboardData: data }));
+    return {
+      plain: e.getValue('plain-text'),
+      copied: data.getData('text/plain'),
+    };
+  });
+
+  expect(clipboard.copied).toBe(clipboard.plain);
+});
+
+test('free-text keeps large mathematical structures as math islands', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  for (const command of ['\\alpha', '\\sum', '\\int']) {
+    await field.evaluate((e: MathfieldElement) => {
+      e.setValue('', { mode: 'free-text' });
+      e.focus();
+    });
+    await field.pressSequentially(command);
+    await field.press('Space');
+    const values = await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex'),
+    }));
+    expect(values.mode).toBe('free-text');
+    expect(values.latex).toContain(command);
+  }
+});
+
+for (const [selector, proseMode] of [
+  ['#mf-text', 'text'],
+  ['#mf-free-text', 'free-text'],
+] as const) {
+  test(`${proseMode} resumes prose after unbounded and bounded LaTeX`, async ({
+    page,
+  }) => {
+    await page.goto('/dist/playwright-test-page/');
+    const field = page.locator(selector);
+
+    await field.pressSequentially('Before ');
+    await field.pressSequentially(String.raw`\alpha`);
+    await field.press('Space');
+    expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+      proseMode
+    );
+    await field.pressSequentially(' after alpha. ');
+
+    await field.pressSequentially(String.raw`\frac{3}{2}`);
+    expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+      proseMode
+    );
+    await field.pressSequentially(' after fraction.');
+
+    const values = await field.evaluate((e: MathfieldElement) => ({
+      mode: e.mode,
+      latex: e.getValue('latex'),
+    }));
+    expect(values.mode).toBe(proseMode);
+    expect(values.latex).toContain(String.raw`\alpha`);
+    expect(values.latex).toContain(String.raw`\frac32`);
+    expect(values.latex).toContain('after alpha.');
+    expect(values.latex).toContain('after fraction.');
+  });
+}
+
+test('math command accepts nested LaTeX and returns to prose', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  await field.pressSequentially('Before ');
+  await field.pressSequentially(
+    String.raw`\math{\forall x \land \frac{1}{2}}`
+  );
+  expect(await field.evaluate((e: MathfieldElement) => e.mode)).toBe(
+    'free-text'
+  );
+  await field.pressSequentially(' after');
+
+  const values = await field.evaluate((e: MathfieldElement) => ({
+    mode: e.mode,
+    latex: e.getValue('latex'),
+    plainText: e.getValue('plain-text'),
+    errors: e.shadowRoot?.querySelectorAll('.ML__error').length ?? 0,
+  }));
+  expect(values.mode).toBe('free-text');
+  expect(values.latex).toContain(String.raw`\forall x`);
+  expect(values.latex).toContain(String.raw`\land`);
+  expect(values.latex).toContain(String.raw`\frac12`);
+  expect(values.plainText).toContain('Before');
+  expect(values.plainText).toContain('after');
+  expect(values.errors).toBe(0);
+});
+
+test('free-math uses math atoms while preserving multiline editing', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-math');
+
+  await field.pressSequentially('x y');
+  await field.press('Tab');
+  await field.pressSequentially('z');
+  await field.press('Enter');
+  await field.pressSequentially(String.raw`\alpha`);
+  await field.press('Space');
+  await field.pressSequentially('q');
+
+  const values = await field.evaluate((e: MathfieldElement) => ({
+    mode: e.mode,
+    latex: e.getValue('latex'),
+    plainText: e.getValue('plain-text'),
+    ariaMultiline: e.shadowRoot
+      ?.querySelector('[part="keyboard-sink"]')
+      ?.getAttribute('aria-multiline'),
+    mathClasses: Array.from(
+      e.shadowRoot?.querySelectorAll('.ML__mathit, .ML__text') ?? []
+    ).map((x) => x.className),
+  }));
+
+  expect(values.mode).toBe('free-math');
+  expect(values.latex).toContain(String.raw`\displaylines{`);
+  expect(values.latex).toContain(String.raw`\alpha`);
+  expect(values.latex).toContain('\t');
+  expect(values.plainText).toContain('\n');
+  expect(values.ariaMultiline).toBe('true');
+  expect(values.mathClasses.some((x) => String(x).includes('ML__mathit'))).toBe(
+    true
+  );
+});
+
+test('free modes keep compatibility shortcuts for group navigation and commit', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+
+  await field.evaluate((e: MathfieldElement) => {
+    e.setValue(String.raw`\frac{#0}{#1}`, {
+      mode: 'free-text',
+      format: 'latex',
+    });
+    e.executeCommand('moveToMathfieldStart');
+    e.executeCommand('moveToNextPlaceholder');
+  });
+  const positionBefore = await field.evaluate(
+    (e: MathfieldElement) => e.position
+  );
+  await field.press('Control+Tab');
+  const positionAfter = await field.evaluate(
+    (e: MathfieldElement) => e.position
+  );
+  expect(positionAfter).toBeGreaterThan(positionBefore);
+
+  await field.evaluate((e: MathfieldElement) => {
+    e.setValue('', {
+      mode: 'free-text',
+      format: 'plain-text',
+      insertionMode: 'replaceAll',
+    });
+    e.focus();
+  });
+  await field.pressSequentially('first');
+  await field.press('Control+Enter');
+  await field.pressSequentially('second');
+  await expect
+    .poll(() => field.evaluate((e: MathfieldElement) => e.getValue('plain-text')))
+    .toBe('first\nsecond');
+});
+
+test('free-math setValue preserves rows, tabs, math semantics, and outputs', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-math');
+
+  const values = await field.evaluate((e: MathfieldElement) => {
+    e.setValue('x y\n\n\tz', { mode: 'free-math', format: 'plain-text' });
+    return {
+      mode: e.mode,
+      plain: e.getValue('plain-text'),
+      latex: e.getValue('latex'),
+      typst: e.getValue('typst'),
+      mathml: e.getValue('math-ml'),
+      spoken: e.getValue('spoken-text'),
+      json: (e as any)._mathfield.model.root.toJson(),
+    };
+  });
+
+  expect(values.mode).toBe('free-math');
+  expect(values.plain).toBe('x y\n\n\tz');
+  expect(values.latex).toContain(String.raw`\displaylines{`);
+  expect(values.latex).toContain('\t');
+  expect(values.typst).toContain('\t');
+  expect(values.mathml).toContain('<mtable');
+  expect(values.mathml.match(/<mtr>/g)?.length).toBe(3);
+  expect(values.spoken).toContain('line break');
+  expect(values.json.environmentName).toBe('lines');
+  expect(values.json.array.length).toBe(3);
+
+  const roundTrip = await field.evaluate((e: MathfieldElement, serialized) => {
+    e.setValue(serialized, { mode: 'free-math', format: 'latex' });
+    return {
+      mode: e.mode,
+      plain: e.getValue('plain-text'),
+      rows: (e as any)._mathfield.model.root.toJson().array.length,
+    };
+  }, values.latex);
+  expect(roundTrip).toEqual({
+    mode: 'free-math',
+    plain: values.plain,
+    rows: 3,
+  });
+});
 
 test('underscore subscript', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
