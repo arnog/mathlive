@@ -9885,7 +9885,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
         const classes = (_a3 = child.classes) != null ? _a3 : [];
         const childWrap = new Box([pstrut, box], {
           classes: classes.join(" "),
-          style: child.style
+          style: child.style,
+          attributes: child.attributes
         });
         box.setStyle("height", box.height + box.depth, "em");
         box.setStyle("display", "inline-block");
@@ -12763,6 +12764,37 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
   }
 
   // src/atoms/array.ts
+  function freeTextRowDirection(atoms) {
+    for (const atom of atoms) {
+      if (atom.type === "first") continue;
+      if (!isTextMode(atom.mode)) return "ltr";
+      if (atom.value && !/^\s+$/u.test(atom.value)) return "auto";
+    }
+    return "auto";
+  }
+  function makeFreeTextCellBox(context, atoms) {
+    const runs = [];
+    for (const atom of atoms) {
+      const atomIsText = atom.type === "first" || isTextMode(atom.mode);
+      const current = runs[runs.length - 1];
+      if ((current == null ? void 0 : current.isText) !== atomIsText)
+        runs.push({ atoms: [atom], isText: atomIsText });
+      else current.atoms.push(atom);
+    }
+    const boxes = runs.flatMap((run) => {
+      const box = Atom.createBox(context, run.atoms, { type: "ignore" });
+      if (!box) return [];
+      if (run.isText) return [box];
+      return [
+        new Box(box, {
+          classes: "ML__free-text-math-island",
+          attributes: { dir: "ltr" }
+        })
+      ];
+    });
+    if (boxes.length === 0) return null;
+    return new Box(boxes, { type: "ignore" });
+  }
   function normalizeCells(atom, cells, options) {
     let maxColCount = 0;
     for (const colSpec of options.columns)
@@ -13002,7 +13034,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
       return [...result, ...super.children];
     }
     render(context) {
-      var _a3, _b3, _c2, _d2, _e, _f;
+      var _a3, _b3, _c2, _d2, _e, _f, _g, _h;
       const innerContext = new Context(
         { parent: context, mathstyle: this.mathstyleName },
         this.style
@@ -13024,6 +13056,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
       const arstrutDepth = 0.3 * arrayskip;
       let totalHeight = 0;
       const body = [];
+      const isFreeText = this.classes.includes("ML__free-text-root");
       let nc = 0;
       const nr = this._rows.length;
       for (let r = 0; r < nr; ++r) {
@@ -13035,17 +13068,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
         );
         let height = arstrutHeight / cellContext.scalingFactor;
         let depth = arstrutDepth / cellContext.scalingFactor;
-        const outrow = { cells: [], height: 0, depth: 0, pos: 0 };
+        const outrow = {
+          cells: [],
+          directions: isFreeText ? [] : void 0,
+          height: 0,
+          depth: 0,
+          pos: 0
+        };
         for (const element of inrow) {
           const elt = this.isMultiline && element && isEmptyMultilineCell(element) ? makeEmptyLineAnchor(element, cellContext, {
             height: arstrutHeight / cellContext.scalingFactor,
             depth: arstrutDepth / cellContext.scalingFactor
-          }) : (_c2 = Atom.createBox(cellContext, element, { type: "ignore" })) != null ? _c2 : new Box(null, { type: "ignore" });
+          }) : (_c2 = isFreeText ? makeFreeTextCellBox(cellContext, element != null ? element : []) : Atom.createBox(cellContext, element, { type: "ignore" })) != null ? _c2 : new Box(null, { type: "ignore" });
           depth = Math.max(depth, elt.depth);
           height = Math.max(height, elt.height);
           outrow.cells.push(elt);
+          (_d2 = outrow.directions) == null ? void 0 : _d2.push(freeTextRowDirection(element != null ? element : []));
         }
-        let gap = (_d2 = convertDimensionToEm(this.rowGaps[r])) != null ? _d2 : 0;
+        let gap = (_e = convertDimensionToEm(this.rowGaps[r])) != null ? _e : 0;
         if (gap > 0) {
           gap += arstrutDepth;
           depth = Math.max(depth, gap);
@@ -13069,7 +13109,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
           if (element) {
             element.depth = row.depth;
             element.height = row.height;
-            stack.push({ box: element, shift: row.pos - offset });
+            const direction = (_f = row.directions) == null ? void 0 : _f[colIndex];
+            stack.push({
+              box: element,
+              shift: row.pos - offset,
+              classes: direction ? ["ML__free-text-line"] : void 0,
+              attributes: direction ? { dir: direction } : void 0
+            });
           }
         }
         if (stack.length > 0)
@@ -13158,7 +13204,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
               context,
               makeLeftRightDelim(
                 "open",
-                (_e = this.leftDelim) != null ? _e : ".",
+                (_g = this.leftDelim) != null ? _g : ".",
                 innerHeight,
                 innerDepth,
                 innerContext,
@@ -13170,7 +13216,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
               context,
               makeLeftRightDelim(
                 "close",
-                (_f = this.rightDelim) != null ? _f : ".",
+                (_h = this.rightDelim) != null ? _h : ".",
                 innerHeight,
                 innerDepth,
                 innerContext,
@@ -16371,8 +16417,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`
   justify-content: flex-start;
   text-align: start;
 }
-:host([dir='rtl']) .ML__free-text-root .col-align-l > .ML__vlist-t {
-  text-align: right;
+:host([dir='rtl']) .ML__free-text-root {
+  direction: rtl;
+}
+:host([dir='ltr']) .ML__free-text-root {
+  direction: ltr;
+}
+.ML__free-text-root .col-align-l > .ML__vlist-t {
+  text-align: start;
+}
+.ML__free-text-line {
+  text-align: start;
+}
+.ML__free-text-line[dir='auto'] {
+  unicode-bidi: plaintext;
+}
+.ML__free-text-math-island {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 /* Container for the virtual keyboard toggle and menu toggle buttons */
 .ML__toggles {

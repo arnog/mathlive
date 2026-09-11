@@ -318,7 +318,7 @@ test('free-text mode preserves lines and inline math', async ({ page }) => {
   expect(values.ariaMultiline).toBe('true');
 });
 
-test('free-text follows the host direction while math islands stay LTR', async ({
+test('free-text resolves each line direction and isolates math runs', async ({
   page,
 }) => {
   await page.goto('/dist/playwright-test-page/');
@@ -328,7 +328,7 @@ test('free-text follows the host direction while math islands stay LTR', async (
     e.dir = 'rtl';
     e.style.display = 'block';
     e.style.width = '600px';
-    e.setValue('\u05d0\u05d1\u05d2\u05d3\u05d4\n\u05d0\u05d1 $x+1$', {
+    e.setValue('\u05d0\u05d1 asdf \u05d2\u05d3\nEnglish line\n$x+1$', {
       mode: 'free-text',
       format: 'plain-text',
     });
@@ -338,9 +338,11 @@ test('free-text follows the host direction while math islands stay LTR', async (
 
     const content = e.shadowRoot?.querySelector('[part="content"]');
     const root = e.shadowRoot?.querySelector('.ML__free-text-root');
-    const row = root?.querySelector('.col-align-l > .ML__vlist-t');
-    const math = root?.querySelector('.ML__mathit');
-    if (!content || !root || !row || !math)
+    const lines = [
+      ...(root?.querySelectorAll<HTMLElement>('.ML__free-text-line') ?? []),
+    ];
+    const math = root?.querySelector<HTMLElement>('.ML__free-text-math-island');
+    if (!content || !root || lines.length !== 3 || !math)
       throw new Error('Expected rendered free-text direction markers');
 
     const contentRect = content.getBoundingClientRect();
@@ -349,19 +351,96 @@ test('free-text follows the host direction while math islands stay LTR', async (
       value: e.getValue('plain-text'),
       contentDirection: getComputedStyle(content).direction,
       contentJustify: getComputedStyle(content).justifyContent,
-      rowTextAlign: getComputedStyle(row).textAlign,
+      lineAttributes: lines.map((line) => line.getAttribute('dir')),
+      lineDirections: lines.map((line) => getComputedStyle(line).direction),
+      lineTextAlignments: lines.map((line) => getComputedStyle(line).textAlign),
       mathDirection: getComputedStyle(math).direction,
+      mathBidi: getComputedStyle(math).unicodeBidi,
       leftGap: rootRect.left - contentRect.left,
       rightGap: contentRect.right - rootRect.right,
     };
   });
 
-  expect(layout.value).toBe('\u05d0\u05d1\u05d2\u05d3\u05d4\n\u05d0\u05d1 x+1');
+  expect(layout.value).toBe(
+    '\u05d0\u05d1 asdf \u05d2\u05d3\nEnglish line\nx+1'
+  );
   expect(layout.contentDirection).toBe('rtl');
   expect(layout.contentJustify).toBe('flex-start');
-  expect(layout.rowTextAlign).toBe('right');
+  expect(layout.lineAttributes).toEqual(['auto', 'auto', 'ltr']);
+  expect(layout.lineDirections).toEqual(['rtl', 'ltr', 'ltr']);
+  expect(layout.lineTextAlignments).toEqual(['start', 'start', 'start']);
   expect(layout.mathDirection).toBe('ltr');
+  expect(layout.mathBidi).toBe('isolate');
   expect(layout.rightGap).toBeLessThan(layout.leftGap);
+});
+
+test('free-text keeps the visual caret with mixed RTL and LTR input', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+  const field = page.locator('#mf-free-text');
+  await field.evaluate((e: MathfieldElement) => {
+    e.dir = 'rtl';
+    e.setValue('', { mode: 'free-text' });
+    e.focus();
+  });
+
+  await field.pressSequentially('\u05d0\u05d1 asdf \u05d2\u05d3');
+  await expect
+    .poll(() =>
+      field.evaluate((e: MathfieldElement) => e.getValue('plain-text'))
+    )
+    .toBe('\u05d0\u05d1 asdf \u05d2\u05d3');
+
+  const caret = await field.evaluate((e: MathfieldElement) => {
+    const line = e.shadowRoot?.querySelector<HTMLElement>(
+      '.ML__free-text-line'
+    );
+    const marker = e.shadowRoot?.querySelector<HTMLElement>('.ML__text-caret');
+    const textNodes = [
+      ...(line?.querySelectorAll<HTMLElement>('.ML__text') ?? []),
+    ];
+    if (!line || !marker || textNodes.length === 0)
+      throw new Error('Expected a mixed-direction line and visible text caret');
+    const markerRect = marker.getBoundingClientRect();
+    const textLeft = Math.min(
+      ...textNodes.map((node) => node.getBoundingClientRect().left)
+    );
+    return {
+      lineDirection: getComputedStyle(line).direction,
+      lineAttribute: line.getAttribute('dir'),
+      caretLeft: markerRect.left,
+      textLeft,
+    };
+  });
+
+  expect(caret.lineAttribute).toBe('auto');
+  expect(caret.lineDirection).toBe('rtl');
+  expect(caret.caretLeft).toBeLessThanOrEqual(caret.textLeft + 2);
+
+  await field.press('Enter');
+  await field.pressSequentially('\\alpha');
+  await expect
+    .poll(() => field.evaluate((e: MathfieldElement) => e.mode))
+    .toBe('latex');
+  const latexLine = await field.evaluate((e: MathfieldElement) => {
+    const lines = [
+      ...(e.shadowRoot?.querySelectorAll<HTMLElement>('.ML__free-text-line') ??
+        []),
+    ];
+    const line = lines.at(-1);
+    const math = line?.querySelector<HTMLElement>('.ML__free-text-math-island');
+    return {
+      attribute: line?.getAttribute('dir'),
+      direction: line ? getComputedStyle(line).direction : null,
+      mathDirection: math ? getComputedStyle(math).direction : null,
+    };
+  });
+  expect(latexLine).toEqual({
+    attribute: 'ltr',
+    direction: 'ltr',
+    mathDirection: 'ltr',
+  });
 });
 
 test('free-text preserves empty lines, tabs, bullets, styles, and outputs', async ({
@@ -542,7 +621,9 @@ test('free modes keep compatibility shortcuts for group navigation and commit', 
   await field.press('Control+Enter');
   await field.pressSequentially('second');
   await expect
-    .poll(() => field.evaluate((e: MathfieldElement) => e.getValue('plain-text')))
+    .poll(() =>
+      field.evaluate((e: MathfieldElement) => e.getValue('plain-text'))
+    )
     .toBe('first\nsecond');
 });
 
@@ -1019,7 +1100,9 @@ test('issue #2733: inline shortcut buffer should flush when field becomes empty'
   expect(latex).toBe('x');
 });
 
-test('backspace should not trap caret in empty latex group', async ({ page }) => {
+test('backspace should not trap caret in empty latex group', async ({
+  page,
+}) => {
   await page.goto('/dist/playwright-test-page/');
 
   await page.locator('#mf-1').pressSequentially('a\\');
@@ -1069,7 +1152,9 @@ test('fraction after parenthesized expression', async ({ page }) => {
   expect(latex).toBeTruthy();
 });
 
-test('fraction after parenthesized expression then ctrl+a delete retype', async ({ page }) => {
+test('fraction after parenthesized expression then ctrl+a delete retype', async ({
+  page,
+}) => {
   // Regression test for issue #2974: after building a fraction via the
   // keyboard sequence 5 ) Home ( End /, then Ctrl+A/Delete, typing should
   // still work (no orphaned parent references in the model)
@@ -1110,7 +1195,9 @@ test('fraction after parenthesized expression then ctrl+a delete retype', async 
   expect(latex).toBe('42');
 });
 
-test('fraction after parenthesized expression then more input', async ({ page }) => {
+test('fraction after parenthesized expression then more input', async ({
+  page,
+}) => {
   // Core regression test for issue #2974: fraction insertion should work
   await page.goto('/dist/playwright-test-page/');
 
@@ -1169,7 +1256,9 @@ test('fraction after complex parenthesized expression', async ({ page }) => {
   expect(final).not.toBe('');
 });
 
-test('select and wrap in parens then delete should not empty field (#2974)', async ({ page }) => {
+test('select and wrap in parens then delete should not empty field (#2974)', async ({
+  page,
+}) => {
   // Regression: typing 1, selecting it, typing ( to wrap in parens,
   // then pressing Delete should not make the mathfield empty/uninteractable
   await page.goto('/dist/playwright-test-page/');
@@ -1199,7 +1288,6 @@ test('select and wrap in parens then delete should not empty field (#2974)', asy
   const finalLatex = await mf.evaluate((mfe: MathfieldElement) => mfe.value);
   expect(finalLatex).toBe('2');
 });
-
 
 async function tab(page) {
   await page.keyboard.press('Tab');

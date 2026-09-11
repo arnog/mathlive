@@ -208,11 +208,29 @@
   text-align: start;
 }
 
-:host([dir='rtl'])
-  .ML__free-text-root
-  .col-align-l
-  > .ML__vlist-t {
-  text-align: right;
+:host([dir='rtl']) .ML__free-text-root {
+  direction: rtl;
+}
+
+:host([dir='ltr']) .ML__free-text-root {
+  direction: ltr;
+}
+
+.ML__free-text-root .col-align-l > .ML__vlist-t {
+  text-align: start;
+}
+
+.ML__free-text-line {
+  text-align: start;
+}
+
+.ML__free-text-line[dir='auto'] {
+  unicode-bidi: plaintext;
+}
+
+.ML__free-text-math-island {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 /* Container for the virtual keyboard toggle and menu toggle buttons */

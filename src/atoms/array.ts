@@ -4,6 +4,7 @@ import type {
   Environment,
   ParseMode,
 } from '../public/core-types';
+import { isTextMode } from '../public/core-types';
 
 import { Atom, isCellBranch, isNamedBranch } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -68,10 +69,48 @@ export type ArrayAtomConstructorOptions = {
 
 type ArrayRow = {
   cells: Box[];
+  directions?: ('auto' | 'ltr')[];
   height: number;
   depth: number;
   pos: number;
 };
+
+function freeTextRowDirection(atoms: readonly Atom[]): 'auto' | 'ltr' {
+  for (const atom of atoms) {
+    if (atom.type === 'first') continue;
+    if (!isTextMode(atom.mode)) return 'ltr';
+    if (atom.value && !/^\s+$/u.test(atom.value)) return 'auto';
+  }
+  return 'auto';
+}
+
+function makeFreeTextCellBox(
+  context: Context,
+  atoms: readonly Atom[]
+): Box | null {
+  const runs: { atoms: Atom[]; isText: boolean }[] = [];
+  for (const atom of atoms) {
+    const atomIsText = atom.type === 'first' || isTextMode(atom.mode);
+    const current = runs[runs.length - 1];
+    if (current?.isText !== atomIsText)
+      runs.push({ atoms: [atom], isText: atomIsText });
+    else current.atoms.push(atom);
+  }
+
+  const boxes = runs.flatMap((run) => {
+    const box = Atom.createBox(context, run.atoms, { type: 'ignore' });
+    if (!box) return [];
+    if (run.isText) return [box];
+    return [
+      new Box(box, {
+        classes: 'ML__free-text-math-island',
+        attributes: { dir: 'ltr' },
+      }),
+    ];
+  });
+  if (boxes.length === 0) return null;
+  return new Box(boxes, { type: 'ignore' });
+}
 
 /**
  * Normalize cells:
@@ -469,6 +508,7 @@ export class ArrayAtom extends Atom {
     const arstrutDepth = 0.3 * arrayskip; // \@arstrutbox in lttab.dtx
     let totalHeight = 0;
     const body: ArrayRow[] = [];
+    const isFreeText = this.classes.includes('ML__free-text-root');
     let nc = 0;
     const nr = this._rows.length;
     for (let r = 0; r < nr; ++r) {
@@ -483,7 +523,13 @@ export class ArrayAtom extends Atom {
       );
       let height = arstrutHeight / cellContext.scalingFactor; // \@array adds an \@arstrut
       let depth = arstrutDepth / cellContext.scalingFactor; // To each row (via the template)
-      const outrow: ArrayRow = { cells: [], height: 0, depth: 0, pos: 0 };
+      const outrow: ArrayRow = {
+        cells: [],
+        directions: isFreeText ? [] : undefined,
+        height: 0,
+        depth: 0,
+        pos: 0,
+      };
       for (const element of inrow) {
         const elt =
           this.isMultiline && element && isEmptyMultilineCell(element)
@@ -491,11 +537,14 @@ export class ArrayAtom extends Atom {
                 height: arstrutHeight / cellContext.scalingFactor,
                 depth: arstrutDepth / cellContext.scalingFactor,
               })
-            : (Atom.createBox(cellContext, element, { type: 'ignore' }) ??
+            : ((isFreeText
+                ? makeFreeTextCellBox(cellContext, element ?? [])
+                : Atom.createBox(cellContext, element, { type: 'ignore' })) ??
               new Box(null, { type: 'ignore' }));
         depth = Math.max(depth, elt.depth);
         height = Math.max(height, elt.height);
         outrow.cells.push(elt);
+        outrow.directions?.push(freeTextRowDirection(element ?? []));
       }
 
       let gap: number = convertDimensionToEm(this.rowGaps[r]) ?? 0;
@@ -541,7 +590,13 @@ export class ArrayAtom extends Atom {
           element.depth = row.depth;
           element.height = row.height;
 
-          stack.push({ box: element, shift: row.pos - offset });
+          const direction = row.directions?.[colIndex];
+          stack.push({
+            box: element,
+            shift: row.pos - offset,
+            classes: direction ? ['ML__free-text-line'] : undefined,
+            attributes: direction ? { dir: direction } : undefined,
+          });
         }
       }
 

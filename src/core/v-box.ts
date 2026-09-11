@@ -9,6 +9,7 @@ type VBoxElement = {
   marginRight?: number;
   classes?: string[];
   style?: Style;
+  attributes?: Record<string, string>;
 };
 
 export type VBoxElementAndShift = VBoxElement & { shift: number };
@@ -160,6 +161,7 @@ function makeRows(
       const childWrap = new Box([pstrut, box], {
         classes: classes.join(' '),
         style: child.style,
+        attributes: child.attributes,
       });
       box.setStyle('height', box.height + box.depth, 'em');
       box.setStyle('display', 'inline-block');
