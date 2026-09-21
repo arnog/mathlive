@@ -40,9 +40,17 @@ export abstract class Mode {
 
     if (options.skipStyles ?? false) {
       const body: string[] = [];
-      for (const run of getModeRuns(atoms)) {
+      const runs = getModeRuns(atoms);
+      const mixed = runs.length > 1;
+      for (const run of runs) {
         const mode = Mode._registry[run[0].mode];
-        body.push(...mode.serialize(run, options));
+        body.push(
+          ...mode.serialize(run, {
+            ...options,
+            defaultMode:
+              options.defaultMode === 'text' && !mixed ? 'text' : 'math',
+          })
+        );
       }
       return joinLatex(body);
     }
@@ -194,16 +202,24 @@ function emitColorRun(run: readonly Atom[], options: ToLatexOptions): string[] {
   const parentColor = parent?.style.color;
 
   const result: string[] = [];
+
+  // A text run has to be marked with \text{} when it shares the document with
+  // maths, even if the field's default mode is text. Without the wrapper the
+  // words are indistinguishable from a sequence of variables, so reading the
+  // value back parses them as maths and their spaces are dropped.
+  const modeRuns = getModeRuns(run);
+  const mixed = modeRuns.length > 1;
+
   // Since `\textcolor{}` applies to both text and math mode, wrap mode first, then
   // textcolor
-  for (const modeRun of getModeRuns(run)) {
-    const mode = options.defaultMode;
+  for (const modeRun of modeRuns) {
+    const mode = options.defaultMode === 'text' && !mixed ? 'text' : 'math';
 
     for (const colorRun of getPropertyRuns(modeRun, 'color')) {
       const style = colorRun[0].style;
       const body = Mode._registry[colorRun[0].mode].serialize(colorRun, {
         ...options,
-        defaultMode: mode === 'text' ? 'text' : 'math',
+        defaultMode: mode,
       });
       if (
         !options.skipStyles &&

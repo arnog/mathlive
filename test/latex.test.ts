@@ -195,3 +195,29 @@ describe('REST* ARGUMENT COMMANDS (issue #2570)', () => {
     expect(markupAndError(x)).toMatchSnapshot();
   });
 });
+
+describe('TEXT MODE SERIALIZATION OF MIXED CONTENT', () => {
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'text' });
+    return Atom.serialize(atoms, { defaultMode: 'text' });
+  }
+
+  // A text run that shares the document with maths has to be marked with
+  // \text{}. Serialized bare, the words are indistinguishable from a run of
+  // variables as soon as the value leaves the mathfield: passed to
+  // convertLatexToMarkup(), "Hello" renders as four italic letters and its
+  // spaces are dropped.
+  test.each([
+    ['Hello $x^2$ world', '\\text{Hello }x^2\\text{ world}'],
+    ['Hello $x$', '\\text{Hello }x'],
+    ['$x^2$ alone', 'x^2\\text{ alone}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+  });
+
+  // Words on their own still need no wrapper: with nothing to tell them apart
+  // from, the whole document is text.
+  test('words alone are left unwrapped', () => {
+    expect(serialize('just words here')).toBe('just words here');
+  });
+});
