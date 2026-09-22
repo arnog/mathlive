@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### New Features
+
+- **#598** Added a `wrap` option (and matching `wrap` attribute) to break a
+  formula too long to fit the width of its container over multiple lines. It is
+  off by default. Following TeX conventions, a line can be broken after a binary
+  operator or a relation at the top level of the formula, but not inside a
+  fraction, a radical or a delimited group. The option is also supported by
+  `convertLatexToMarkup()` and `renderMathInDocument()`.
+
 ### Breaking Changes
 
 - The `@cortex-js/compute-engine` package is no longer a dependency of

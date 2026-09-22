@@ -120,6 +120,7 @@ remains at its initial value.
 | `min-font-scale` | `mf.minFontScale` |
 | `max-matrix-cols` | `mf.maxMatrixCols` |
 | `popover-policy` | `mf.popoverPolicy` |
+| `wrap` | `mf.wrap` |
 | `math-mode-space` | `mf.mathModeSpace` |
 | `read-only` | `mf.readOnly` |
 | `remove-extraneous-parentheses` | `mf.removeExtraneousParentheses` |
@@ -777,6 +778,23 @@ point).
 
 When `false`, the navigation out of the superscript must always be done
 manually.
+
+</MemberCard>
+
+<MemberCard>
+
+##### MathfieldElement.wrap {#wrap}
+
+```ts
+get wrap(): boolean
+set wrap(value: boolean): void
+```
+
+When `true`, a formula too long to fit the width of the mathfield is
+broken over multiple lines. A line can be broken after a binary operator
+or a relation at the top level of the formula, following TeX conventions.
+
+**Default**: `false`
 
 </MemberCard>
 
@@ -6814,6 +6832,22 @@ registers: Registers;
 ```
 
 LaTeX global registers override.
+
+</MemberCard>
+
+<MemberCard>
+
+##### LayoutOptions.wrap {#wrap-1}
+
+```ts
+wrap: boolean;
+```
+
+When `true`, long formulas are broken over multiple lines to fit the
+width of the container. A line can be broken after a binary operator or
+a relation at the top level of the formula, following TeX conventions.
+
+**Default**: `false`
 
 </MemberCard>
 

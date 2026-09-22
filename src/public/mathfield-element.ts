@@ -451,6 +451,7 @@ const DEPRECATED_OPTIONS = {
  * | `min-font-scale` | `mf.minFontScale` |
  * | `max-matrix-cols` | `mf.maxMatrixCols` |
  * | `popover-policy` | `mf.popoverPolicy` |
+ * | `wrap` | `mf.wrap` |
  * | `math-mode-space` | `mf.mathModeSpace` |
  * | `read-only` | `mf.readOnly` |
  * | `remove-extraneous-parentheses` | `mf.removeExtraneousParentheses` |
@@ -528,6 +529,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'min-font-scale': 'number',
       'max-matrix-cols': 'number',
       'popover-policy': 'string',
+      'wrap': 'boolean',
 
       'math-mode-space': 'string',
       'read-only': 'boolean',
@@ -2422,6 +2424,22 @@ mf.macros = {
   }
 
   /**
+   * When `true`, a formula too long to fit the width of the mathfield is
+   * broken over multiple lines. A line can be broken after a binary operator
+   * or a relation at the top level of the formula, following TeX conventions.
+   *
+   * **Default**: `false`
+   *
+   * @category Customization
+   */
+  get wrap(): boolean {
+    return this._getOption('wrap');
+  }
+  set wrap(value: boolean) {
+    this._setOptions({ wrap: value });
+  }
+
+  /**
    * When `true`, during text input the field will switch automatically between
    * 'math' and 'text' mode depending on what is typed and the context of the
    * formula. If necessary, what was previously typed will be 'fixed' to
@@ -2918,7 +2936,7 @@ function toCamelCase(s: string): string {
 function getOptionsFromAttributes(
   mfe: MathfieldElement
 ): Partial<MathfieldOptions> {
-  const result: Partial<MathfieldOptions> = { readOnly: false };
+  const result: Partial<MathfieldOptions> = { readOnly: false, wrap: false };
   const attribs = MathfieldElement.optionsAttributes;
   Object.keys(attribs).forEach((x) => {
     if (mfe.hasAttribute(x)) {

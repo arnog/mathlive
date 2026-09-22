@@ -705,6 +705,23 @@
   }
 }
 
+/* The `wrap` option: a line can be broken between two `ML__nobreak`
+   segments, but not inside one (see `core/line-break.ts`) */
+.ML__latex.ML__wrap {
+  // Use the available width, rather than the width of the formula
+  width: auto;
+
+  .ML__base {
+    width: auto;
+    white-space: normal;
+  }
+
+  .ML__nobreak {
+    display: inline-block;
+    white-space: nowrap;
+  }
+}
+
 // For \href command
 [data-href] {
   cursor: pointer;

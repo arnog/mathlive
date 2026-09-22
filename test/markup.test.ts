@@ -469,6 +469,43 @@ describe('EXTENSIONS', function () {
   });
 });
 
+describe('WRAP', () => {
+  const segments = (markup: string) => markup.split('ML__nobreak').length - 1;
+
+  test('no break opportunity by default', () => {
+    expect(convertLatexToMarkup('x+y=z')).not.toContain('ML__nobreak');
+  });
+
+  test('breaks after a binary operator and a relation', () => {
+    // "x +", "y =", "z"
+    expect(segments(convertLatexToMarkup('x+y=z', { wrap: true }))).toBe(3);
+  });
+
+  test('does not break inside a fraction or a delimited group', () => {
+    // "\frac{a+b}{c} +", "\left(d+e\right)"
+    expect(
+      segments(
+        convertLatexToMarkup('\\frac{a+b}{c}+\\left(d+e\\right)', {
+          wrap: true,
+        })
+      )
+    ).toBe(2);
+  });
+
+  test('does not break after a unary operator', () => {
+    expect(convertLatexToMarkup('-x', { wrap: true })).not.toContain(
+      'ML__nobreak'
+    );
+  });
+
+  test('does not change the markup of a formula without a break point', () => {
+    const markup = convertLatexToMarkup('\\frac{a+b}{c}', { wrap: true });
+    expect(markup.replace(' ML__wrap', '')).toBe(
+      convertLatexToMarkup('\\frac{a+b}{c}')
+    );
+  });
+});
+
 // // \cos(|x| + |y|)
 
 // // \cos (|\frac {x}{5}|+|\frac {y}{5}|)

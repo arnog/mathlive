@@ -14,6 +14,7 @@ import { gFontsState } from '../core/fonts';
 import { Context } from '../core/context';
 import { Atom } from '../core/atom-class';
 import { applyInterBoxSpacing } from '../core/inter-box-spacing';
+import { applyLineBreaks } from '../core/line-break';
 import { convertLatexToMarkup } from '../public/mathlive';
 import { hashCode } from '../common/hash-code';
 import { ModeEditor } from './mode-editor';
@@ -80,10 +81,17 @@ function makeBox(
   //
   // 3. Construct struts around the boxes
   //
-  const wrapper = makeStruts(applyInterBoxSpacing(base, context), {
-    classes: mathfield.hasEditablePrompts
-      ? 'ML__latex ML__prompting'
-      : 'ML__latex',
+  let content = applyInterBoxSpacing(base, context);
+
+  const classes = ['ML__latex'];
+  if (mathfield.hasEditablePrompts) classes.push('ML__prompting');
+  if (mathfield.options.wrap) {
+    content = applyLineBreaks(content);
+    classes.push('ML__wrap');
+  }
+
+  const wrapper = makeStruts(content, {
+    classes: classes.join(' '),
     attributes: {
       // Sometimes Google Translate kicks in an attempts to 'translate' math
       // This doesn't work very well, so turn off translate
