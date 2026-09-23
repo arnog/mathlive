@@ -963,6 +963,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
+    // A mathfield can be removed from the DOM while it has the focus without
+    // ever getting a blur event (Firefox and WebKit do not blur an element
+    // when it is removed). Don't leave a reference to the disposed mathfield
+    // in the global tracker (#2973).
+    if (_Mathfield._globallyFocusedMathfield === this)
+      _Mathfield._globallyFocusedMathfield = undefined;
+
     l10n.unsubscribe(this._l10Subscription);
 
     this.keyboardDelegate.dispose();
@@ -1737,10 +1744,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // If another mathfield is globally tracked as focused, blur it first.
     // This handles cases where browsers don't fire blur events reliably
     // (e.g., rapid focus() calls on multiple mathfields in Chromium).
+    // Skip it if it has been disposed: its model is gone (#2973).
     const previouslyFocusedMathfield = _Mathfield._globallyFocusedMathfield;
     if (
       previouslyFocusedMathfield &&
       previouslyFocusedMathfield !== this &&
+      isValidMathfield(previouslyFocusedMathfield) &&
       !previouslyFocusedMathfield.disabled &&
       previouslyFocusedMathfield.hasFocus()
     ) {
