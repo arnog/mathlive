@@ -491,6 +491,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // Give the focusable keyboard sink (role=textbox) the host's
     // accessible name: IDREFs can't cross the shadow boundary.
     this.updateAccessibleName();
+    this.updateAccessibleReadOnly();
 
     // Request notification for when the window is resized, the device
     // switched from portrait to landscape or the document is scrolled
@@ -600,6 +601,22 @@ If you are using Vue, this may be because you are using the runtime-only build o
   /** Copy the host's accessible name to the keyboard sink */
   updateAccessibleName(): void {
     this.keyboardDelegate?.setAriaLabel(hostAccessibleName(this.host));
+  }
+
+  /**
+   * Set `aria-readonly` on the keyboard sink (the focusable `role=textbox`).
+   *
+   * The state is not set on the `<math-field>` host: the host has the `group`
+   * role, which does not support `aria-readonly`, and the element that has
+   * the focus is the keyboard sink.
+   *
+   * A read-only mathfield that has editable prompts accepts input in those
+   * prompts, so it is not reported as read-only.
+   */
+  updateAccessibleReadOnly(): void {
+    this.keyboardDelegate?.setAriaReadOnly(
+      this.readOnly && !this.hasEditablePrompts
+    );
   }
 
   get disabled(): boolean {
@@ -778,6 +795,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if (this.hasFocus() && window.mathVirtualKeyboard.visible)
         this.executeCommand('hideVirtualKeyboard');
     }
+    if ('readOnly' in config) this.updateAccessibleReadOnly();
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -1772,6 +1790,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // The name may come from a `<label>` or `aria-labelledby` target whose
     // text changed since the last update
     this.updateAccessibleName();
+    // Editable prompts may have been added or removed since the last update
+    this.updateAccessibleReadOnly();
 
     // Update the global tracker to point to this mathfield
     _Mathfield._globallyFocusedMathfield = this;

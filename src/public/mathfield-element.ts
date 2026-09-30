@@ -2199,18 +2199,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       // The canonical spelling is "readonly" (no dash. It's a global attribute
       // name and follows HTML attribute conventions)
       this.setAttribute('readonly', '');
-      if (isElementInternalsSupported()) this._internals.ariaReadOnly = 'true';
-      else this.setAttribute('aria-readonly', 'true');
-
-      this.setAttribute('aria-readonly', 'true');
     } else {
-      if (isElementInternalsSupported()) this._internals.ariaReadOnly = 'false';
-      else this.removeAttribute('aria-readonly');
-
       this.removeAttribute('readonly');
       this.removeAttribute('read-only');
     }
 
+    // `aria-readonly` is not set on this element: its role is `group`, which
+    // does not support `aria-readonly`. When the `readOnly` option changes,
+    // the mathfield sets `aria-readonly` on the keyboard sink, the focusable
+    // `role=textbox` element in the shadow DOM (see
+    // `updateAccessibleReadOnly()` in
+    // `src/editor-mathfield/mathfield-private.ts`).
     this._setOptions({ readOnly: isReadonly });
   }
 

@@ -79,6 +79,70 @@ test('keyboard sink is named by the host title', async ({ page }) => {
   await expect(sink(page, 'a11y-10')).toHaveAccessibleName('Your answer');
 });
 
+// The read-only state is on the keyboard sink and not on the host: the host
+// has the `group` role, which does not support `aria-readonly`.
+test('keyboard sink is read-only when the mathfield is read-only', async ({
+  page,
+}) => {
+  await addMarkup(
+    page,
+    '<math-field id="a11y-13" read-only>x</math-field>' +
+      '<math-field id="a11y-14" readonly>x</math-field>' +
+      '<math-field id="a11y-15">x</math-field>'
+  );
+  for (const id of ['a11y-13', 'a11y-14']) {
+    await expect(sink(page, id)).toHaveAttribute('aria-readonly', 'true');
+    await expect(page.locator(`#${id}`)).not.toHaveAttribute('aria-readonly');
+  }
+  await expect(sink(page, 'a11y-15')).not.toHaveAttribute('aria-readonly');
+});
+
+test('keyboard sink read-only state follows the mathfield', async ({
+  page,
+}) => {
+  await addMarkup(page, '<math-field id="a11y-16">x</math-field>');
+  const mf = page.locator('#a11y-16');
+
+  // The `readOnly` property
+  await mf.evaluate((mf: any) => (mf.readOnly = true));
+  await expect(sink(page, 'a11y-16')).toHaveAttribute('aria-readonly', 'true');
+  await mf.evaluate((mf: any) => (mf.readOnly = false));
+  await expect(sink(page, 'a11y-16')).not.toHaveAttribute('aria-readonly');
+
+  // The `readonly` property
+  await mf.evaluate((mf: any) => (mf.readonly = true));
+  await expect(sink(page, 'a11y-16')).toHaveAttribute('aria-readonly', 'true');
+  await expect(mf).not.toHaveAttribute('aria-readonly');
+  await mf.evaluate((mf: any) => (mf.readonly = false));
+  await expect(sink(page, 'a11y-16')).not.toHaveAttribute('aria-readonly');
+
+  // The `readonly` attribute
+  await mf.evaluate((mf) => mf.setAttribute('readonly', ''));
+  await expect(sink(page, 'a11y-16')).toHaveAttribute('aria-readonly', 'true');
+  await mf.evaluate((mf) => mf.removeAttribute('readonly'));
+  await expect(sink(page, 'a11y-16')).not.toHaveAttribute('aria-readonly');
+});
+
+test('keyboard sink is not read-only when the mathfield has editable prompts', async ({
+  page,
+}) => {
+  // A read-only mathfield with editable prompts accepts input in the prompts
+  await addMarkup(
+    page,
+    '<math-field id="a11y-17" readonly>x=\\placeholder[answer]{}</math-field>' +
+      '<math-field id="a11y-18" readonly>x</math-field>'
+  );
+  await expect(sink(page, 'a11y-17')).not.toHaveAttribute('aria-readonly');
+
+  // Prompts added after the mathfield was created are detected on focus
+  await expect(sink(page, 'a11y-18')).toHaveAttribute('aria-readonly', 'true');
+  await page.locator('#a11y-18').evaluate((mf: any) => {
+    mf.value = 'y=\\placeholder[answer]{}';
+    mf.focus();
+  });
+  await expect(sink(page, 'a11y-18')).not.toHaveAttribute('aria-readonly');
+});
+
 test('keyboard sink has a default name', async ({ page }) => {
   await expect(sink(page, 'mf-1')).toHaveAccessibleName('math input field');
 });

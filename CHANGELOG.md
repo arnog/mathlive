@@ -55,6 +55,15 @@
   Previously the textbox had no name, or had only the spoken form of its
   content, and axe reported `aria-input-field-name`. (contributed by
   @rztaylor)
+- **Accessibility** The `aria-readonly` state of a read-only mathfield is now
+  set on the focusable element of the mathfield (the keyboard sink,
+  `role="textbox"`) and no longer on the `<math-field>` element, whose `group`
+  role does not support it. The state is now set when the `readonly`
+  attribute or the `readOnly` property is used: previously it was set only by
+  the `readonly` property, and it was not removed when the mathfield became
+  editable again. A read-only mathfield with editable prompts is not reported
+  as read-only. Chromium does not report `aria-readonly` for this element,
+  because the element is `contenteditable`.
 
 ## 0.110.0 _2026-06-08_
 
