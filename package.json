@@ -168,5 +168,9 @@
     "mathjax",
     "katex",
     "mathquill"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
+  }
 }
