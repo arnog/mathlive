@@ -19,6 +19,19 @@
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 
+### Issues Resolved
+
+- **Accessibility** The focusable element of a mathfield (the keyboard sink,
+  `role="textbox"`) now has an accessible name. It is copied from the
+  `<math-field>` element's `aria-labelledby`, `aria-label`, associated
+  `<label>` or `title`, and defaults to "math input field". Previously the
+  textbox had no name, or had only the spoken form of its content, and axe
+  reported `aria-input-field-name`.
+- **Accessibility** The `<math-field>` element now has the `group` role instead
+  of `math`. The `math` role has presentational children, but a mathfield
+  contains a focusable textbox and buttons, and axe reported
+  `nested-interactive`.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories

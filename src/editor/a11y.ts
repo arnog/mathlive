@@ -19,6 +19,63 @@ function speakableText(
   return atomToSpeakableText(arg1);
 }
 
+const DEFAULT_ACCESSIBLE_NAME = 'math input field';
+
+/** Text of `node`, skipping anything inside `exclude` (e.g. the mathfield
+ * itself when it is wrapped in its `<label>`). */
+function textExcluding(node: Node, exclude: Node): string {
+  if (node === exclude) return '';
+  if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? '';
+  let result = '';
+  for (const child of Array.from(node.childNodes))
+    result += textExcluding(child, exclude);
+  return result;
+}
+
+/**
+ * The accessible name the author gave the `<math-field>` host, following
+ * the precedence of the accessible name computation: `aria-labelledby`,
+ * `aria-label`, an associated `<label>`, `title`. Falls back to a generic
+ * name so the keyboard sink (the focusable `role=textbox` in the shadow
+ * DOM) always has one. IDREFs can't cross the shadow boundary, so the
+ * name has to be copied rather than referenced.
+ */
+export function hostAccessibleName(host: HTMLElement | undefined): string {
+  if (!host) return DEFAULT_ACCESSIBLE_NAME;
+  const root = host.getRootNode() as Document | ShadowRoot;
+  const normalize = (s: string | null | undefined) =>
+    (s ?? '').replace(/\s+/g, ' ').trim();
+
+  const labelledBy = host.getAttribute('aria-labelledby');
+  if (labelledBy && typeof root.getElementById === 'function') {
+    const text = normalize(
+      labelledBy
+        .split(/\s+/)
+        .map((id) => root.getElementById(id))
+        .map((el) => (el ? textExcluding(el, host) : ''))
+        .join(' ')
+    );
+    if (text) return text;
+  }
+
+  const ariaLabel = normalize(host.getAttribute('aria-label'));
+  if (ariaLabel) return ariaLabel;
+
+  const labels: Element[] = [];
+  if (host.id && typeof root.querySelectorAll === 'function') {
+    for (const label of Array.from(root.querySelectorAll('label[for]')))
+      if (label.getAttribute('for') === host.id) labels.push(label);
+  }
+  const wrappingLabel = host.parentElement?.closest('label');
+  if (wrappingLabel) labels.push(wrappingLabel);
+  const labelText = normalize(
+    labels.map((label) => textExcluding(label, host)).join(' ')
+  );
+  if (labelText) return labelText;
+
+  return normalize(host.getAttribute('title')) || DEFAULT_ACCESSIBLE_NAME;
+}
+
 /**
  * Given an atom, describe the relationship between the atom
  * and its siblings and their parent.
@@ -126,8 +183,11 @@ export function defaultAnnounceHook(
     //         '</math>'
     // );
 
-    const label = speakableText(mathfield.model.root);
-    mathfield.keyboardDelegate.setAriaLabel(label);
+    const spoken = speakableText(mathfield.model.root).trim();
+    const name = hostAccessibleName(mathfield.host);
+    mathfield.keyboardDelegate.setAriaLabel(
+      spoken ? `${name}: ${spoken}` : name
+    );
 
     /** * FIX -- testing hack for setting braille ***/
     // mathfield.accessibleMathML.focus();
