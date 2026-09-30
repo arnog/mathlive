@@ -385,8 +385,11 @@ export class _Model implements Model {
     const first = minPos === 0 ? 0 : minPos + 1;
     const last = maxPos;
 
-    // If this is the entire selection, return the root
-    if (!options.includeChildren && first === 1 && last === this.lastOffset)
+    // If this is the entire selection, return the root.
+    // The test is on the positions, not on `first`: a range that starts at
+    // position 0 gives `first === 0` (see the special case above), so a test on
+    // `first === 1` would never be true.
+    if (!options.includeChildren && minPos === 0 && maxPos === this.lastOffset)
       return [this.root];
 
     let result: Atom[] = [];
