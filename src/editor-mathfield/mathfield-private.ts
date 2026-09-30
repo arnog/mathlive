@@ -1819,7 +1819,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     // Record which element has the focus now. The timer below compares it
     // with the element that has the focus when the timer fires.
-    const activeElementOnFocus = deepActiveElement();
+    const activeElementOnFocus = deepActiveElement() as unknown as Node | null;
 
     setTimeout(() => {
       if (!isValidMathfield(this)) return;
