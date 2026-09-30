@@ -75,6 +75,10 @@ describe('FRACTIONS', function () {
     '\\tbinom{n}{k}',
     'n \\choose k',
     '\\pdiff{f(x)}{x}',
+    '\\genfrac{}{}{}{}{a}{b}',
+    '\\genfrac{(}{)}{0pt}{}{n}{k}',
+    '\\genfrac{[}{]}{2pt}{0}{a}{b}',
+    '\\genfrac{\\lbrace}{.}{}{3}{a}{b}',
   ])('%#/ %s renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
   });

@@ -1498,6 +1498,11 @@ export class Parser {
     else if (type === 'balanced-string') result = this.scanBalancedString();
     else if (type === 'colspec') result = this.scanColspec();
     else if (type === 'value') result = this.scanValue();
+    else if (type === 'delim') {
+      // A braced delimiter, for example the `{(}` in `\genfrac{(}{)}...`.
+      // An empty group, `{}`, is a null delimiter.
+      result = this.peek() === '<}>' ? '.' : (this.scanDelim() ?? '.');
+    }
 
     this.skipUntilToken('<}>');
 

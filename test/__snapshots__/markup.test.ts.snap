@@ -703,6 +703,34 @@ exports[`FRACTIONS 8/ \\pdiff{f(x)}{x} renders correctly 1`] = `
 ]
 `;
 
+exports[`FRACTIONS 9/ \\genfrac{}{}{}{}{a}{b} renders correctly 1`] = `
+[
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.94em"></span><span class="ML__strut--bottom" style="height:1.62em;vertical-align:-0.68em"></span><span class="ML__base"><span class="ML__mfrac"><span class="ML__nulldelimiter ML__open" style="width:0.12em"></span><span class="ML__vlist-t ML__vlist-t2"><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.94em"><span class="ML__center" style="top:-2.31em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.7em;display:inline-block"><span class="ML__mathit">b</span></span></span><span style="top:-3.23em"><span class="ML__pstrut" style="height:3em"></span><span class="ML__frac-line" style="height:0.04em;display:inline-block"></span></span><span class="ML__center" style="top:-3.5em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.44em;display:inline-block"><span class="ML__mathit">a</span></span></span></span><span class="ML__vlist-s">​</span></span><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.69em"></span></span></span><span class="ML__nulldelimiter ML__close" style="width:0.12em"></span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`FRACTIONS 10/ \\genfrac{(}{)}{0pt}{}{n}{k} renders correctly 1`] = `
+[
+  "<span class="ML__latex"><span class="ML__strut" style="height:1.45em"></span><span class="ML__strut--bottom" style="height:2.41em;vertical-align:-0.95em"></span><span class="ML__base"><span class="ML__mfrac"><span class="ML__delim-size3">(</span><span class="ML__vlist-t ML__vlist-t2"><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.94em"><span class="ML__center" style="top:-3.5em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.44em;display:inline-block"><span class="ML__mathit">n</span></span></span><span class="ML__center" style="top:-2.31em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.7em;display:inline-block"><span class="ML__mathit" style="margin-right:0.04em">k</span></span></span></span><span class="ML__vlist-s">​</span></span><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.69em"></span></span></span><span class="ML__delim-size3">)</span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`FRACTIONS 11/ \\genfrac{[}{]}{2pt}{0}{a}{b} renders correctly 1`] = `
+[
+  "<span class="ML__latex"><span class="ML__strut" style="height:1.45em"></span><span class="ML__strut--bottom" style="height:2.6em;vertical-align:-1.14em"></span><span class="ML__base"><span class="ML__mfrac"><span class="ML__delim-size3">[</span><span class="ML__vlist-t ML__vlist-t2"><span class="ML__vlist-r"><span class="ML__vlist" style="height:1.39em"><span class="ML__center" style="top:-1.85em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.7em;display:inline-block"><span class="ML__mathit">b</span></span></span><span style="top:-3.15em"><span class="ML__pstrut" style="height:3em"></span><span class="ML__frac-line" style="--frac-line-thickness:0.2em;--frac-line-margin:0;height:0.2em;display:inline-block"></span></span><span class="ML__center" style="top:-3.95em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.44em;display:inline-block"><span class="ML__mathit">a</span></span></span></span><span class="ML__vlist-s">​</span></span><span class="ML__vlist-r"><span class="ML__vlist" style="height:1.15em"></span></span></span><span class="ML__delim-size3">]</span></span></span></span>",
+  "no-error",
+]
+`;
+
+exports[`FRACTIONS 12/ \\genfrac{\\lbrace}{.}{}{3}{a}{b} renders correctly 1`] = `
+[
+  "<span class="ML__latex"><span class="ML__strut" style="height:1.15em"></span><span class="ML__strut--bottom" style="height:1.81em;vertical-align:-0.65em"></span><span class="ML__base"><span class="ML__mfrac"><span class="ML__delim-size2">{</span><span class="ML__vlist-t ML__vlist-t2" style="font-size: 50%"><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.94em"><span class="ML__center" style="top:-2.46em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.7em;display:inline-block"><span class="ML__mathit">b</span></span></span><span style="top:-3.22em"><span class="ML__pstrut" style="height:3em"></span><span class="ML__frac-line" style="height:0.05em;display:inline-block"></span></span><span class="ML__center" style="top:-3.5em"><span class="ML__pstrut" style="height:3em"></span><span style="height:0.44em;display:inline-block"><span class="ML__mathit">a</span></span></span></span><span class="ML__vlist-s">​</span></span><span class="ML__vlist-r"><span class="ML__vlist" style="height:0.54em"></span></span></span><span class="ML__nulldelimiter ML__close" style="width:0.12em"></span></span></span></span>",
+  "no-error",
+]
+`;
+
 exports[`LEFT/RIGHT Delimiters ( ) 1`] = `
 [
   "<span class="ML__latex"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="ML__left-right" style="margin-top:-0.08333em;height:0.72777em"><span class="ML__small-delim ML__open">(</span><span class="ML__mathit">x</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">+</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">1</span><span class="ML__small-delim ML__close">)</span></span></span></span>",

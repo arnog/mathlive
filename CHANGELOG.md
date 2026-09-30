@@ -37,6 +37,14 @@
   are pressed, like the other keys, on devices that support vibration. Set
   `MathfieldElement.keypressVibration` to `false` to turn this off.
   (contributed by @IsaacOscar)
+- **#3048** Added support for the `\genfrac` command from the `amsmath`
+  package:
+  `\genfrac{left-delim}{right-delim}{thickness}{mathstyle}{numerator}{denominator}`.
+  An empty delimiter is a null delimiter. An empty thickness uses the default
+  thickness, and a thickness of `0pt` gives no fraction bar. The mathstyle is
+  empty (use the current mathstyle) or one of `0` (display), `1` (text), `2`
+  (script) or `3` (scriptscript). For example, `\genfrac{(}{)}{0pt}{}{n}{k}`
+  is the same as `\binom{n}{k}`.
 
 ### Resolved Issues
 

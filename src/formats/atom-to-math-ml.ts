@@ -1,5 +1,6 @@
 import { Atom } from '../core/atom-class';
 import { mathVariantToUnicode } from '../core/unicode';
+import { serializeLatexValue } from '../core/registers-utils';
 import { MacroAtom } from '../atoms/macro';
 import { LeftRightAtom } from '../atoms/leftright';
 import { ArrayAtom } from 'atoms/array';
@@ -807,7 +808,10 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
       }
 
       if (genfracAtom.hasBarLine) {
-        result += '<mfrac>';
+        const thickness = genfracAtom.barThickness;
+        if (thickness && 'dimension' in thickness)
+          result += `<mfrac linethickness="${serializeLatexValue(thickness)}">`;
+        else result += '<mfrac>';
         result += toMathML(atom.above, options) || '<mi>&nbsp;</mi>';
         result += toMathML(atom.below, options) || '<mi>&nbsp;</mi>';
         result += '</mfrac>';
