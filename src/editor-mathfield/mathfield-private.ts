@@ -16,6 +16,7 @@ import type {
 import { canVibrate } from '../ui/utils/capabilities';
 
 import { Atom } from '../core/atom-class';
+import { hostAccessibleName } from '../editor/a11y';
 import { gFontsState } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
@@ -487,6 +488,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.element,
       this
     );
+    // Give the focusable keyboard sink (role=textbox) the host's
+    // accessible name: IDREFs can't cross the shadow boundary.
+    this.updateAccessibleName();
 
     // Request notification for when the window is resized, the device
     // switched from portrait to landscape or the document is scrolled
@@ -591,6 +595,11 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   get readOnly(): boolean {
     return this.options.readOnly ?? false;
+  }
+
+  /** Copy the host's accessible name to the keyboard sink */
+  updateAccessibleName(): void {
+    this.keyboardDelegate?.setAriaLabel(hostAccessibleName(this.host));
   }
 
   get disabled(): boolean {
@@ -1759,6 +1768,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     this.focusBlurInProgress = true;
     this.blurred = false;
+
+    // The name may come from a `<label>` or `aria-labelledby` target whose
+    // text changed since the last update
+    this.updateAccessibleName();
 
     // Update the global tracker to point to this mathfield
     _Mathfield._globallyFocusedMathfield = this;

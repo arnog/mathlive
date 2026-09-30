@@ -18,6 +18,12 @@
   `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
+- **#3081** **Accessibility** The `<math-field>` element now has the `group`
+  role instead of `math`. The `math` role has presentational children, but a
+  mathfield contains a focusable textbox and buttons, and axe reported
+  `nested-interactive`. Code that finds a mathfield by its role, for example
+  `getByRole('math')` in a test, must use `group`, or `textbox` for the
+  focusable element. (contributed by @rztaylor)
 
 ### Improvements
 
@@ -39,6 +45,13 @@
   were dropped, so the rows `a=b` and `c=d` were copied as `a=bc=d`.
   `mf.getValue(0, -1)` had the same problem and is also fixed. This regression
   was introduced in 0.108.0. (contributed by @ubarkai)
+- **#3081** **Accessibility** The focusable element of a mathfield (the
+  keyboard sink, `role="textbox"`) now has an accessible name. It is copied
+  from the `<math-field>` element's `aria-labelledby`, `aria-label`,
+  associated `<label>` or `title`, and defaults to "math input field".
+  Previously the textbox had no name, or had only the spoken form of its
+  content, and axe reported `aria-input-field-name`. (contributed by
+  @rztaylor)
 
 ## 0.110.0 _2026-06-08_
 
