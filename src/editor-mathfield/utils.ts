@@ -207,7 +207,7 @@ export function getRangeBoundingRect(mf: _Mathfield, range: Range): Rect {
 
 /*
  * Return an array of bounds for the specified range, at most
- * one rect per branch.
+ * one rect per branch (and per line, if the content wraps).
  */
 function getRangeBounds(
   mathfield: _Mathfield,
@@ -215,7 +215,7 @@ function getRangeBounds(
   options?: { excludeAtomsWithBackground?: boolean }
 ): Rect[] {
   // The key of the map is a 'branchId', i.e. "atom id + branch"
-  const rects = new Map<string, Rect>();
+  const rects = new Map<string, Rect[]>();
 
   // Logic to accommodate mathfield hosted in an isotropically
   // scale-transformed element.
@@ -245,19 +245,20 @@ function getRangeBounds(
     );
     if (bounds) {
       const id = branchId(atom);
-      if (rects.has(id)) {
-        const r = rects.get(id)!;
-        rects.set(id, {
-          left: Math.min(r.left, bounds.left),
-          right: Math.max(r.right, bounds.right),
-          top: Math.min(r.top, bounds.top),
-          bottom: Math.max(r.bottom, bounds.bottom),
-        });
-      } else rects.set(id, bounds);
+      const lines = rects.get(id) ?? [];
+      const r = mathfield.options.wrap
+        ? lines.find((x) => bounds.top < x.bottom && bounds.bottom > x.top)
+        : lines[0];
+      if (r) {
+        r.left = Math.min(r.left, bounds.left);
+        r.right = Math.max(r.right, bounds.right);
+        r.top = Math.min(r.top, bounds.top);
+        r.bottom = Math.max(r.bottom, bounds.bottom);
+      } else rects.set(id, [...lines, bounds]);
     }
   }
 
-  return [...rects.values()];
+  return [...rects.values()].flat();
 }
 
 export function getSelectionBounds(

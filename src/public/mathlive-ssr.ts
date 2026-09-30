@@ -15,6 +15,7 @@ import '../latex-commands/definitions';
 import { toMathML } from '../formats/atom-to-math-ml';
 import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
+import { applyLineBreaks } from '../core/line-break';
 import { parseLatex } from '../core/parser';
 import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { Expression } from './core-types';
@@ -132,10 +133,14 @@ export function convertLatexToMarkup(
   //
   coalesce(applyInterBoxSpacing(box, effectiveContext));
 
+  if (options?.wrap) applyLineBreaks(box);
+
   //
   // 4. Wrap the expression with struts
   //
-  const struts = makeStruts(box, { classes: 'ML__latex' });
+  const struts = makeStruts(box, {
+    classes: options?.wrap ? 'ML__latex ML__wrap' : 'ML__latex',
+  });
 
   //
   // 5. Generate markup

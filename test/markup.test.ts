@@ -469,6 +469,39 @@ describe('EXTENSIONS', function () {
   });
 });
 
+describe('WRAP', () => {
+  const segments = (latex: string) =>
+    convertLatexToMarkup(latex, { wrap: true }).split('ML__nobreak').length - 1;
+
+  test('no segments by default', () => {
+    expect(convertLatexToMarkup('x+y=z')).not.toContain('ML__nobreak');
+  });
+
+  test('breaks after a binary operator and a relation', () => {
+    // "x +", "y =", "z"
+    expect(segments('x+y=z')).toBe(3);
+  });
+
+  test('does not break inside a fraction or a delimited group', () => {
+    // "\frac{a+b}{c} +", "\left(d+e\right)"
+    expect(segments('\\frac{a+b}{c}+\\left(d+e\\right)')).toBe(2);
+  });
+
+  test('does not break a formula without a break point', () => {
+    expect(segments('\\frac{1}{2}\\sqrt{2}\\sqrt{3}')).toBe(1);
+    expect(segments('-x')).toBe(1);
+  });
+
+  test('breaks inside a color run', () => {
+    // "x +", "y +", "z"
+    const markup = convertLatexToMarkup('x+\\textcolor{red}{y+z}', {
+      wrap: true,
+    });
+    expect(markup.split('ML__nobreak').length - 1).toBe(3);
+    expect(markup).toContain('color:');
+  });
+});
+
 // // \cos(|x| + |y|)
 
 // // \cos (|\frac {x}{5}|+|\frac {y}{5}|)

@@ -498,7 +498,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
         this.resizeObserverStarted = false;
         return;
       }
-      this.updateToggleLayout();
+      // Note: `render()` calls `updateToggleLayout()`. Mutating the DOM here
+      // would resize the mathfield from inside the resize observer callback.
       requestUpdate(this);
     });
     this.resizeObserverStarted = true;
@@ -786,6 +787,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       'letterShapeStyle' in config ||
       'minFontScale' in config ||
       'maxMatrixCols' in config ||
+      'wrap' in config ||
       'readOnly' in config ||
       'contentPlaceholder' in config ||
       'placeholderSymbol' in config
