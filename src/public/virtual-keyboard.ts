@@ -60,6 +60,7 @@ export interface VirtualKeyboardKeycap {
    *    define the label.
    * - `shift`: a shift key
    * - `small`: display the label in a smaller size
+   * - `compact`: scale a structured label to fit inside the keycap
    * - `action`: an “action” keycap (for arrows, return, etc…)
    * - `separator w5`: a half-width blank used as a separator. Other widths
    *    include `w15` (1.5 width), `w20` (double width) and `w50` (five-wide,

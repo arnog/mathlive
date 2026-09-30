@@ -2,6 +2,7 @@ import type { Dimension, Environment } from '../public/core-types';
 
 import { Atom } from '../core/atom-class';
 import { ArrayAtom, ColumnFormat } from '../atoms/array';
+import { PlaceholderAtom } from '../atoms/placeholder';
 
 import {
   defineFunction,
@@ -226,6 +227,47 @@ defineTabularEnvironment(
 //   \def\arraystretch{1.2}%
 //   \array{@{}l@{\quad}l@{}}%
 defineTabularEnvironment(['cases', 'dcases', 'rcases'], '', makeEnvironment);
+
+/**
+ * Insert a piecewise function with a specified number of editable rows.
+ *
+ * `\piecewise{n}` is an input convenience command. It creates the same
+ * native array structure as `\begin{cases}...\end{cases}`, with two
+ * placeholders in each row (the expression and its condition).
+ */
+const MAX_PIECEWISE_ROWS = 100;
+
+defineFunction('piecewise', '{count:string}', {
+  parse: (parser: Parser) => {
+    const count = parser.scanArgument('string')?.trim() ?? '';
+    if (count.length === 0) {
+      parser.onError({ code: 'missing-argument', arg: '\\piecewise' });
+      return ['1'];
+    }
+
+    if (!/^[1-9]\d*$/.test(count) || Number(count) > MAX_PIECEWISE_ROWS) {
+      parser.onError({ code: 'unexpected-token', arg: count });
+      return ['1'];
+    }
+
+    return [count];
+  },
+  createAtom: (options) => {
+    const count = Number.parseInt(options.args?.[0] as string, 10);
+    const rows =
+      Number.isInteger(count) && count > 0
+        ? Math.min(count, MAX_PIECEWISE_ROWS)
+        : 1;
+
+    return makeEnvironment(
+      'cases',
+      Array.from({ length: rows }, () => [
+        [new PlaceholderAtom()],
+        [new PlaceholderAtom()],
+      ])
+    );
+  },
+});
 
 // This is a text mode environment
 /*

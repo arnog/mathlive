@@ -8,6 +8,34 @@ import { MathfieldElement } from 'public/mathfield-element';
 import type { Branch } from 'core/types';
 import type { Range } from 'public/core-types';
 import { ArrayAtom } from 'atoms/array';
+import { PlaceholderAtom } from 'atoms/placeholder';
+import { BoundedArgumentAtom } from 'atoms/bounded-argument';
+
+function isEmptyBoundedOperator(atom: Atom | undefined): atom is Atom {
+  if (!atom || atom.type !== 'extensible-symbol') return false;
+
+  const boundedSlots = (atom as Atom & {
+    boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+  }).boundedArgumentSlots;
+  const isEmptySlot = (branch: 'subscript' | 'superscript') => {
+    const children = atom.branch(branch);
+    if (!children || children.length !== 2) return false;
+    const argument = children[1];
+    return (
+      argument instanceof PlaceholderAtom ||
+      (argument instanceof BoundedArgumentAtom &&
+        argument.body?.length === 2 &&
+        argument.body[1] instanceof PlaceholderAtom)
+    );
+  };
+
+  return Boolean(
+    boundedSlots?.subscript &&
+      boundedSlots.superscript &&
+      isEmptySlot('subscript') &&
+      isEmptySlot('superscript'),
+  );
+}
 
 // import {
 //     arrayFirstCellByRow,
@@ -301,6 +329,20 @@ function onDelete(
 
     // Check if branch is empty and handle removal before navigation
     if (branch && atom.hasEmptyBranch(branch)) {
+      const boundedSlots = (atom as Atom & {
+        boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+      }).boundedArgumentSlots;
+      if (
+        boundedSlots &&
+        ((branch === 'subscript' && boundedSlots.subscript) ||
+          (branch === 'superscript' && boundedSlots.superscript))
+      ) {
+        // Keep a visible editable slot for the bounded-command form after
+        // its last character is deleted.
+        atom.setChildren([new PlaceholderAtom()], branch);
+        model.position = model.offsetOf(atom.firstChild);
+        return true;
+      }
       atom.removeBranch(branch);
       if (atom.type === 'subsup' && !atom.subscript && !atom.superscript) {
         // We've removed the last branch of a subsup
@@ -403,6 +445,22 @@ export function deleteBackward(model: _Model): boolean {
       if (target && onDelete(model, 'backward', target)) return;
 
       if (target?.isFirstSibling) {
+        // A bounded command keeps placeholder branches after its contents are
+        // deleted. Once navigation has reached the leading sentinel, the
+        // next Backspace should remove that now-empty operator instead of
+        // being mistaken for a no-op at the start of the containing branch.
+        const next = target.rightSibling;
+        if (isEmptyBoundedOperator(next)) {
+          const parent = next.parent;
+          if (parent) {
+            const position = model.offsetOf(next.leftSibling);
+            parent.removeChild(next);
+            model.position = position;
+            model.announce('delete', undefined, [next]);
+            return;
+          }
+        }
+
         if (onDelete(model, 'backward', target.parent!, target.parentBranch))
           return;
 
@@ -416,8 +474,27 @@ export function deleteBackward(model: _Model): boolean {
       }
 
       const targetParent = target.parent!;
+      const deletedBranch = target.parentBranch;
       model.position = model.offsetOf(target.leftSibling);
       targetParent.removeChild(target);
+      if (
+        targetParent instanceof BoundedArgumentAtom &&
+        targetParent.hasEmptyBranch('body')
+      ) {
+        targetParent.setChildren([new PlaceholderAtom()], 'body');
+      }
+      const boundedSlots = (targetParent as Atom & {
+        boundedArgumentSlots?: { subscript?: boolean; superscript?: boolean };
+      }).boundedArgumentSlots;
+      if (
+        boundedSlots &&
+        (deletedBranch === 'subscript' || deletedBranch === 'superscript') &&
+        ((deletedBranch === 'subscript' && boundedSlots.subscript) ||
+          (deletedBranch === 'superscript' && boundedSlots.superscript)) &&
+        targetParent.hasEmptyBranch(deletedBranch)
+      ) {
+        targetParent.setChildren([new PlaceholderAtom()], deletedBranch);
+      }
       model.announce('delete', undefined, [target]);
 
       // If deleting the last LaTeX atom leaves an empty LaTeX group, remove it
