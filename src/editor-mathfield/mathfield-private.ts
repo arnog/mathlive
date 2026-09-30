@@ -120,7 +120,10 @@ import {
 } from 'editor/environment-popover';
 import { Menu } from 'ui/menu/menu';
 import { onContextMenu } from 'ui/menu/context-menu';
-import { keyboardModifiersFromEvent } from '../ui/events/utils';
+import {
+  deepActiveElement,
+  keyboardModifiersFromEvent,
+} from '../ui/events/utils';
 import { getDefaultMenuItems } from 'editor/default-menu';
 import type { ModelState } from 'editor-model/types';
 import { _Model } from 'editor-model/model-private';
@@ -1814,8 +1817,41 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     render(this, { interactive: true });
 
+    // Record which element has the focus now. The timer below compares it
+    // with the element that has the focus when the timer fires.
+    const activeElementOnFocus = deepActiveElement();
+
     setTimeout(() => {
       if (!isValidMathfield(this)) return;
+
+      // Until this timer fires, `focusBlurInProgress` is true, and `onBlur()`
+      // ignores all blur events. If the focus moved away from this mathfield
+      // during that time, the blur was ignored. The focus moved away if:
+      // - another mathfield called `onFocus()` after this one, or
+      // - the focus moved to an element outside this mathfield.
+      // In that case, do not focus the keyboard sink: that would take the
+      // focus back from the other element, and the keystrokes typed there
+      // would be inserted in this mathfield. Do the blur that was ignored
+      // instead. Do not dispatch the `blur` event: if the keyboard sink had
+      // the focus, the host already received the native `blur` event, and if
+      // it did not have the focus, no `focus` event was dispatched.
+      // `deepActiveElement()` returns the focused element inside the shadow
+      // root (for example the keyboard sink or a toggle button), and
+      // `Node.contains()` does not cross the shadow boundary, so check both
+      // the host and its shadow root.
+      const activeElement = deepActiveElement() as unknown as Node | null;
+      const isInsideThisMathfield =
+        this.element?.contains(activeElement) ||
+        this.element?.shadowRoot?.contains(activeElement);
+      if (
+        _Mathfield._globallyFocusedMathfield !== this ||
+        (activeElement !== activeElementOnFocus && !isInsideThisMathfield)
+      ) {
+        this.focusBlurInProgress = false;
+        this.programmaticFocusInProgress = false;
+        this.onBlur({ dispatchEvents: false });
+        return;
+      }
 
       // Only suppress events when responding to a DOM focus event to avoid
       // double-dispatching (fixes #2665). When focus() is called

@@ -180,6 +180,26 @@ test('backslash to enter, enter to exit latex mode', async ({ page }) => {
   ).toBe('\\backslash lozenge');
 });
 
+test('focus moved away right after focusing a mathfield is kept', async ({
+  page,
+}) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  // A mathfield focuses its keyboard sink after a short delay. If the focus
+  // moves to another element before that delay ends, the mathfield must not
+  // take the focus back.
+  await page.evaluate(() => {
+    (document.getElementById('mf-1') as MathfieldElement).focus();
+    document.getElementById('ta-2')!.focus();
+  });
+  await page.waitForTimeout(200);
+
+  expect(await page.evaluate(() => document.activeElement?.id)).toBe('ta-2');
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.hasFocus())
+  ).toBe(false);
+});
+
 test('Select all/type to replace selection', async ({ page, browserName }) => {
   const modifierKey = /Mac|iPod|iPhone|iPad/.test(
     await page.evaluate(() => navigator.platform)

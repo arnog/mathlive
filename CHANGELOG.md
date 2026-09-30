@@ -48,6 +48,13 @@
 
 ### Resolved Issues
 
+- **#2966** The keyboard navigation now visits the subscript before the
+  superscript. After inserting `\int_{#?}^{#?}` or `\sum_{#?}^{#?}`, the lower
+  bound is now selected first, and the **Tab** key moves from the lower bound to
+  the upper bound. Previously the upper bound was selected first. This matches
+  the order of the bounds in the MathJSON output. The change applies to all
+  atoms with scripts: for example, in `x_i^2` the right arrow key now moves
+  from `x` into the subscript `i` before the superscript `2`.
 - **#2973** Fixed a `TypeError` ("this.mathfield is undefined") when a
   mathfield was focused after another mathfield had been removed from the DOM
   while it had the focus. This happened in Firefox and Safari, which do not
@@ -82,6 +89,11 @@
 - The hidden MathML content of the `<math-span>` and `<math-div>` elements is
   now wrapped in a `<math>` element. Without it, the browser did not parse the
   content as MathML.
+- A mathfield no longer takes the focus back when the focus moves to another
+  element in the 60 ms after the mathfield received it. For example,
+  `mf.focus()` followed at once by `textarea.focus()` left the focus in the
+  mathfield, and keystrokes typed in a second mathfield right after the first
+  one was focused were inserted in the first one.
 
 ## 0.110.0 _2026-06-08_
 
