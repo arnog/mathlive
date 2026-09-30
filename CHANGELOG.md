@@ -19,6 +19,27 @@
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 
+### Improvements
+
+- **#3045** Improved the Japanese localization: corrected several translations
+  and added the missing strings for the cut and paste tooltips. (contributed by
+  @314systems)
+- **#3046** The alphabetic keys of the virtual keyboard now vibrate when they
+  are pressed, like the other keys, on devices that support vibration. Set
+  `MathfieldElement.keypressVibration` to `false` to turn this off.
+  (contributed by @IsaacOscar)
+
+### Resolved Issues
+
+- **#2973** Fixed a `TypeError` ("this.mathfield is undefined") when a
+  mathfield was focused after another mathfield had been removed from the DOM
+  while it had the focus. This happened in Firefox and Safari, which do not
+  blur an element when it is removed. (contributed by @dor-sr)
+- **#3075** Fixed the copy of a multiline mathfield: the row separators (`\\`)
+  were dropped, so the rows `a=b` and `c=d` were copied as `a=bc=d`.
+  `mf.getValue(0, -1)` had the same problem and is also fixed. This regression
+  was introduced in 0.108.0. (contributed by @ubarkai)
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories
