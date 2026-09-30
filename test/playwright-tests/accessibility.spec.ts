@@ -71,6 +71,14 @@ test('keyboard sink is named by a <label>', async ({ page }) => {
   await expect(sink(page, 'a11y-6')).toHaveAccessibleName('Question 2');
 });
 
+test('keyboard sink is named by the host title', async ({ page }) => {
+  await addMarkup(
+    page,
+    '<math-field id="a11y-10" title="Your answer"></math-field>'
+  );
+  await expect(sink(page, 'a11y-10')).toHaveAccessibleName('Your answer');
+});
+
 test('keyboard sink has a default name', async ({ page }) => {
   await expect(sink(page, 'mf-1')).toHaveAccessibleName('math input field');
 });
@@ -87,34 +95,64 @@ test('keyboard sink name includes the content after a focus', async ({
   await expect(sink(page, 'a11y-7')).toHaveAccessibleName(/^Your answer: \S/);
 });
 
+// The host role and name are set with ElementInternals, which can't be read
+// from the DOM: read the platform accessibility tree with the Chrome
+// DevTools Protocol (Chromium only).
+async function hostAXNode(
+  page: Page,
+  selector: string
+): Promise<{ role?: string; name?: string }> {
+  const cdp = await page.context().newCDPSession(page);
+  const { root } = await cdp.send('DOM.getDocument', { depth: 0 });
+  const { nodeId } = await cdp.send('DOM.querySelector', {
+    nodeId: root.nodeId,
+    selector,
+  });
+  const { nodes } = await cdp.send('Accessibility.getPartialAXTree', {
+    nodeId,
+    fetchRelatives: false,
+  });
+  return { role: nodes[0].role?.value, name: nodes[0].name?.value };
+}
+
 test('host role does not have presentational children', async ({
   page,
   browserName,
 }) => {
   // The mathfield contains focusable controls (the keyboard sink), so its
   // role must not be one whose children are presentational, such as `math`.
-  // The host role is set with ElementInternals, so read the platform
-  // accessibility tree (Chromium only).
   test.skip(browserName !== 'chromium', 'Uses the Chrome DevTools Protocol');
   await addMarkup(
     page,
     '<math-field id="a11y-8" aria-label="Your answer"></math-field>'
   );
   await expect(sink(page, 'a11y-8')).toHaveAccessibleName('Your answer');
-  const cdp = await page.context().newCDPSession(page);
-  const { root } = await cdp.send('DOM.getDocument', { depth: 0 });
-  const { nodeId } = await cdp.send('DOM.querySelector', {
-    nodeId: root.nodeId,
-    selector: '#a11y-8',
-  });
-  const { nodes } = await cdp.send('Accessibility.getPartialAXTree', {
-    nodeId,
-    fetchRelatives: false,
-  });
-  const role = nodes[0].role?.value;
-  expect(role).not.toBe('math');
-  expect(role).toBe('group');
-  expect(nodes[0].name?.value).toBe('Your answer');
+  const host = await hostAXNode(page, '#a11y-8');
+  expect(host.role).not.toBe('math');
+  expect(host.role).toBe('group');
+  expect(host.name).toBe('Your answer');
+});
+
+test('host and keyboard sink have the same name', async ({
+  page,
+  browserName,
+}) => {
+  // The host has no default `aria-label`: a default would take precedence
+  // over a `<label>`, and the host would be named "math input field" while
+  // the keyboard sink is named by the `<label>`.
+  test.skip(browserName !== 'chromium', 'Uses the Chrome DevTools Protocol');
+  await addMarkup(
+    page,
+    '<label for="a11y-11">Question 1</label><math-field id="a11y-11"></math-field>' +
+      '<math-field id="a11y-12"></math-field>'
+  );
+  await expect(sink(page, 'a11y-11')).toHaveAccessibleName('Question 1');
+  expect((await hostAXNode(page, '#a11y-11')).name).toBe('Question 1');
+
+  // Without an author-supplied name, the host is an unnamed group and only
+  // the keyboard sink has the default name.
+  await expect(sink(page, 'a11y-12')).toHaveAccessibleName('math input field');
+  expect((await hostAXNode(page, '#a11y-12')).name ?? '').toBe('');
 });
 
 test('Tab moves into and out of a labelled mathfield', async ({ page }) => {

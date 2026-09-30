@@ -23,7 +23,10 @@
   mathfield contains a focusable textbox and buttons, and axe reported
   `nested-interactive`. Code that finds a mathfield by its role, for example
   `getByRole('math')` in a test, must use `group`, or `textbox` for the
-  focusable element. (contributed by @rztaylor)
+  focusable element. The `<math-field>` element also no longer has a default
+  `aria-label` of "math input field": that default is now on the focusable
+  textbox, and the element takes its name from its `aria-label`,
+  `aria-labelledby`, `<label>` or `title`. (contributed by @rztaylor)
 
 ### Improvements
 
