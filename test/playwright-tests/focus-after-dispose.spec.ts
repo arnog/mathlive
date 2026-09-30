@@ -108,3 +108,85 @@ test('remove on Enter, then add and type in a new mathfield (#2973)', async ({
     )
   ).toBe('x^2+1');
 });
+
+// Chromium dispatches a `blur` event when a focused element is removed from
+// the DOM. Firefox and WebKit do not. The mathfield must dispatch the same
+// events in all browsers, so that an application that saves the value in a
+// `change` or `blur` listener does not lose the last edit.
+test('removing a focused mathfield dispatches change, blur and focusout', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (err) => errors.push(err.message));
+
+  await page.evaluate(() => {
+    const mf = document.createElement('math-field');
+    mf.id = 'mf-removed';
+    document.body.prepend(mf);
+    const log: string[] = [];
+    (window as any).removedLog = log;
+    for (const type of ['focus', 'change', 'blur', 'focusout'])
+      mf.addEventListener(type, () => log.push(type));
+    mf.focus();
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (document.getElementById('mf-removed') as any)?.hasFocus() ?? false
+      )
+    )
+    .toBe(true);
+  await page.waitForTimeout(100);
+  await page.keyboard.type('z');
+
+  const log = await page.evaluate(async () => {
+    document.getElementById('mf-removed')!.remove();
+    await new Promise((r) => setTimeout(r, 100));
+    return (window as any).removedLog;
+  });
+
+  expect(log).toEqual(['focus', 'change', 'blur', 'focusout']);
+  expect(errors).toEqual([]);
+});
+
+test('removing a focused mathfield with no edits does not dispatch change', async ({
+  page,
+}) => {
+  const log = await page.evaluate(async () => {
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const mf = document.createElement('math-field');
+    mf.value = 'x^2';
+    document.body.prepend(mf);
+    const log: string[] = [];
+    for (const type of ['focus', 'change', 'blur', 'focusout'])
+      mf.addEventListener(type, () => log.push(type));
+    mf.focus();
+    await wait(150);
+    mf.remove();
+    await wait(100);
+    return log;
+  });
+
+  expect(log).toEqual(['focus', 'blur', 'focusout']);
+});
+
+test('removing a mathfield that does not have the focus dispatches no event', async ({
+  page,
+}) => {
+  const log = await page.evaluate(async () => {
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const mf = document.createElement('math-field');
+    mf.value = 'x^2';
+    document.body.prepend(mf);
+    const log: string[] = [];
+    for (const type of ['focus', 'change', 'blur', 'focusout'])
+      mf.addEventListener(type, () => log.push(type));
+    await wait(150);
+    mf.remove();
+    await wait(100);
+    return log;
+  });
+
+  expect(log).toEqual([]);
+});

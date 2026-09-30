@@ -2104,6 +2104,16 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     this._observer?.disconnect();
     this._observer = null;
 
+    // Chromium dispatches a `blur` event when a focused element is removed
+    // from the DOM. Firefox and Safari do not. If the mathfield still has the
+    // focus at this point, no `blur` event was received: do the blur now, so
+    // that the `change`, `blur` and `focusout` events are dispatched in all
+    // browsers. The element is already detached from the document when this
+    // callback is called, so only the listeners attached to the element
+    // itself receive these events.
+    if (this._mathfield.hasFocus())
+      this._mathfield.onBlur({ dispatchEvents: true });
+
     window.queueMicrotask(() =>
       // Notify listeners that we have been unmounted
       this.dispatchEvent(

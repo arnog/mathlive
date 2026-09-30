@@ -64,6 +64,16 @@
   editable again. A read-only mathfield with editable prompts is not reported
   as read-only. Chromium does not report `aria-readonly` for this element,
   because the element is `contenteditable`.
+- When a mathfield is removed from the DOM while it has the focus, the
+  `change` (if the value was modified), `blur` and `focusout` events are now
+  dispatched in all browsers. Previously, they were dispatched only in
+  Chromium, so an application that saved the value in a `change` or `blur`
+  listener lost the last edit in Firefox and Safari. In Firefox and Safari the
+  element is already detached when these events are dispatched: only the
+  listeners attached to the mathfield itself receive them.
+- The hidden MathML content of the `<math-span>` and `<math-div>` elements is
+  now wrapped in a `<math>` element. Without it, the browser did not parse the
+  content as MathML.
 
 ## 0.110.0 _2026-06-08_
 
