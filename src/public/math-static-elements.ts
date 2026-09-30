@@ -10,10 +10,10 @@
 import {
   convertLatexToMarkup,
   convertAsciiMathToLatex,
-  convertMathJsonToLatex,
   convertLatexToSpeakableText,
   convertLatexToMathMl,
 } from './mathlive-ssr';
+import { mathJsonToLatex } from '../formats/math-json-to-latex';
 import type { LayoutOptions } from './options';
 import type { Expression } from './core-types';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
@@ -296,7 +296,7 @@ abstract class MathStaticElement extends HTMLElement {
       } else if (format === 'math-json') {
         // Convert MathJSON to LaTeX
         const mathJson: Expression = JSON.parse(content);
-        latex = convertMathJsonToLatex(mathJson);
+        latex = mathJsonToLatex(mathJson);
       } else {
         // Already LaTeX
         latex = content;

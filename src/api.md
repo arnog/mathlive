@@ -6316,27 +6316,6 @@ console.log(convertLatexToSpeakableText('\\frac{1}{2}'));
 
 <MemberCard>
 
-### convertMathJsonToLatex() {#convertmathjsontolatex}
-
-```ts
-function convertMathJsonToLatex(json): string
-```
-
-Convert a MathJSON expression to a LaTeX string.
-
-```js
-convertMathJsonToLatex(["Add", 1, 2]);
-// -> "1 + 2"
-```
-
-##### json
-
-[`Expression`](#expression)
-
-</MemberCard>
-
-<MemberCard>
-
 ### validateLatex() {#validatelatex}
 
 ```ts

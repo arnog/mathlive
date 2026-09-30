@@ -16,6 +16,12 @@
   still accepts a MathJSON object) to set one.
 - The `"math-json"` output format has been removed from `getValue()`. Use
   `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
+- The `convertMathJsonToLatex()` function has been removed. Use
+  `MathfieldElement.computeEngine.box(json).latex` instead, or the `latex`
+  property of a boxed expression from your own Compute Engine instance.
+  `renderMathInElement()` still renders `<script type="math/json">` tags, and
+  `<math-span>` and `<math-div>` still accept `format="math-json"`, when the
+  Compute Engine is loaded in the global scope.
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 - **#3081** **Accessibility** The `<math-field>` element now has the `group`
