@@ -9,11 +9,9 @@ import { Box } from './box';
  * CSS only offers a break opportunity between two atomic inline boxes, so the
  * boxes of the top-level row are grouped in `ML__nobreak` segments: the
  * browser can break a line between two segments, but not inside one.
- *
- * The markup is unchanged if the formula has no break point.
  */
 export function applyLineBreaks(root: Box): Box {
-  if (!root.children || !hasBreakPoint(root.children)) return root;
+  if (!root.children) return root;
 
   let afterOperator = false;
 
@@ -22,13 +20,10 @@ export function applyLineBreaks(root: Box): Box {
     let current: Box[] = [];
 
     const flush = () => {
-      if (current.length === 0) return;
-      const spacingOnly = current.every((x) => x.type === 'skip');
-      result.push(
-        ...(spacingOnly
-          ? current
-          : [new Box(current, { classes: 'ML__nobreak', type: 'ignore' })])
-      );
+      // A run of spacing boxes cannot be broken: it doesn't need a segment
+      if (current.some((box) => box.type !== 'skip'))
+        result.push(new Box(current, { classes: 'ML__nobreak' }));
+      else result.push(...current);
       current = [];
     };
 
@@ -42,8 +37,8 @@ export function applyLineBreaks(root: Box): Box {
 
       current.push(box);
 
-      // End the segment after the space following the operator, so that the
-      // next line starts flush with its operand
+      // Break after the space following an operator, so that the next line
+      // starts flush with its operand
       if (box.type !== 'skip') afterOperator = isBreakPoint(box);
       else if (afterOperator) {
         flush();
@@ -52,12 +47,10 @@ export function applyLineBreaks(root: Box): Box {
     }
 
     flush();
-
     return result;
   };
 
   root.children = segment(root.children);
-
   return root;
 }
 

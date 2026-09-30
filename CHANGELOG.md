@@ -1,14 +1,5 @@
 ## [Unreleased]
 
-### New Features
-
-- **#598** Added a `wrap` option (and matching `wrap` attribute) to break a
-  formula too long to fit the width of its container over multiple lines. It is
-  off by default. Following TeX conventions, a line can be broken after a binary
-  operator or a relation at the top level of the formula, but not inside a
-  fraction, a radical or a delimited group. The option is also supported by
-  `convertLatexToMarkup()` and `renderMathInDocument()`.
-
 ### Breaking Changes
 
 - The `@cortex-js/compute-engine` package is no longer a dependency of
@@ -27,6 +18,14 @@
   `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
+
+### New Features
+
+- **#598** Added a `wrap` option to break a formula too long for its container
+  over multiple lines: `<math-field wrap>`, `mf.wrap`, or
+  `convertLatexToMarkup(latex, { wrap: true })`. It is off by default. As in
+  TeX, a line is only broken after a binary operator or a relation at the top
+  level of the formula.
 
 ## 0.110.0 _2026-06-08_
 

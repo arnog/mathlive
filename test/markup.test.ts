@@ -470,39 +470,35 @@ describe('EXTENSIONS', function () {
 });
 
 describe('WRAP', () => {
-  const segments = (markup: string) => markup.split('ML__nobreak').length - 1;
+  const segments = (latex: string) =>
+    convertLatexToMarkup(latex, { wrap: true }).split('ML__nobreak').length - 1;
 
-  test('no break opportunity by default', () => {
+  test('no segments by default', () => {
     expect(convertLatexToMarkup('x+y=z')).not.toContain('ML__nobreak');
   });
 
   test('breaks after a binary operator and a relation', () => {
     // "x +", "y =", "z"
-    expect(segments(convertLatexToMarkup('x+y=z', { wrap: true }))).toBe(3);
+    expect(segments('x+y=z')).toBe(3);
   });
 
   test('does not break inside a fraction or a delimited group', () => {
     // "\frac{a+b}{c} +", "\left(d+e\right)"
-    expect(
-      segments(
-        convertLatexToMarkup('\\frac{a+b}{c}+\\left(d+e\\right)', {
-          wrap: true,
-        })
-      )
-    ).toBe(2);
+    expect(segments('\\frac{a+b}{c}+\\left(d+e\\right)')).toBe(2);
   });
 
-  test('does not break after a unary operator', () => {
-    expect(convertLatexToMarkup('-x', { wrap: true })).not.toContain(
-      'ML__nobreak'
-    );
+  test('does not break a formula without a break point', () => {
+    expect(segments('\\frac{1}{2}\\sqrt{2}\\sqrt{3}')).toBe(1);
+    expect(segments('-x')).toBe(1);
   });
 
-  test('does not change the markup of a formula without a break point', () => {
-    const markup = convertLatexToMarkup('\\frac{a+b}{c}', { wrap: true });
-    expect(markup.replace(' ML__wrap', '')).toBe(
-      convertLatexToMarkup('\\frac{a+b}{c}')
-    );
+  test('breaks inside a color run', () => {
+    // "x +", "y +", "z"
+    const markup = convertLatexToMarkup('x+\\textcolor{red}{y+z}', {
+      wrap: true,
+    });
+    expect(markup.split('ML__nobreak').length - 1).toBe(3);
+    expect(markup).toContain('color:');
   });
 });
 

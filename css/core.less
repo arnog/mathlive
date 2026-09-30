@@ -711,9 +711,14 @@
   // Use the available width, rather than the width of the formula
   width: auto;
 
-  .ML__base {
+  > .ML__base {
     width: auto;
     white-space: normal;
+  }
+
+  // Sized for the whole formula, but aligned with its last line
+  > .ML__strut--bottom {
+    display: none;
   }
 
   .ML__nobreak {

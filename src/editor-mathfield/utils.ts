@@ -207,7 +207,7 @@ export function getRangeBoundingRect(mf: _Mathfield, range: Range): Rect {
 
 /*
  * Return an array of bounds for the specified range, at most
- * one rect per branch and per line.
+ * one rect per branch (and per line, if the content wraps).
  */
 function getRangeBounds(
   mathfield: _Mathfield,
@@ -245,20 +245,16 @@ function getRangeBounds(
     );
     if (bounds) {
       const id = branchId(atom);
-      const lines = rects.get(id);
-      if (!lines) rects.set(id, [bounds]);
-      else {
-        // Merge with the rect on the same line, i.e. the one it overlaps
-        const r = lines.find(
-          (x) => bounds.top < x.bottom && bounds.bottom > x.top
-        );
-        if (r) {
-          r.left = Math.min(r.left, bounds.left);
-          r.right = Math.max(r.right, bounds.right);
-          r.top = Math.min(r.top, bounds.top);
-          r.bottom = Math.max(r.bottom, bounds.bottom);
-        } else lines.push(bounds);
-      }
+      const lines = rects.get(id) ?? [];
+      const r = mathfield.options.wrap
+        ? lines.find((x) => bounds.top < x.bottom && bounds.bottom > x.top)
+        : lines[0];
+      if (r) {
+        r.left = Math.min(r.left, bounds.left);
+        r.right = Math.max(r.right, bounds.right);
+        r.top = Math.min(r.top, bounds.top);
+        r.bottom = Math.max(r.bottom, bounds.bottom);
+      } else rects.set(id, [...lines, bounds]);
     }
   }
 

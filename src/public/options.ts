@@ -330,13 +330,6 @@ export type LayoutOptions = {
 
   maxMatrixCols: number;
 
-  /**
-   * When `true`, long formulas are broken over multiple lines to fit the
-   * width of the container. A line can be broken after a binary operator or
-   * a relation at the top level of the formula, following TeX conventions.
-   *
-   * **Default**: `false`
-   */
   wrap: boolean;
 };
 
