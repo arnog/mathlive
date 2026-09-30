@@ -24,13 +24,17 @@ import type { Argument } from 'latex-commands/types';
 /**
  * The order of these branches specify the default keyboard navigation order.
  * It can be overriden in `get children()`
+ *
+ * The subscript comes before the superscript, so that the lower bound of an
+ * integral or a sum is visited (and selected after an insertion) before its
+ * upper bound. This is also the order of the bounds in the MathJSON output.
  */
 export const NAMED_BRANCHES: BranchName[] = [
   'body',
   'above',
   'below',
-  'superscript',
   'subscript',
+  'superscript',
 ];
 
 /**
