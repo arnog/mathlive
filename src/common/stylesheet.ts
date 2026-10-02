@@ -19,6 +19,7 @@ type StylesheetId =
   | 'menu'
   | 'core'
   | 'mathfield-element'
+  | 'math-static-element'
   | 'mathfield'
   | 'environment-popover'
   | 'suggestion-popover'
@@ -47,6 +48,10 @@ export function getStylesheetContent(id: StylesheetId): string {
     :host([read-only]:focus), :host([read-only]:focus-within) {
       outline: none;
     }`;
+      break;
+    case 'math-static-element':
+      content = `
+    [part="render"] .ML__latex { -webkit-user-select: text; user-select: text; }`;
       break;
     case 'core':
       content = CORE_STYLESHEET;

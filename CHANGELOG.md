@@ -19,6 +19,15 @@
 - The **Evaluate**, **Simplify** and **Solve** items have been removed from the
   default context menu.
 
+### Improvements
+
+- **#3061** The formulas rendered by `<math-span>` and `<math-div>` can now be
+  selected, and copying them puts their LaTeX source on the clipboard. When the
+  selection also includes some surrounding text, the LaTeX source is wrapped in
+  `$...$` or `$$...$$`, and the styles that the surrounding text gets from the
+  style sheets of the page are not included in the copied HTML. The output of
+  `renderMathInElement()` and `<math-field>` remains unselectable.
+
 ## 0.110.0 _2026-06-08_
 
 ### Security Advisories

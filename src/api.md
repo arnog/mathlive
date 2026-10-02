@@ -6564,6 +6564,14 @@ Renders mathematical content inline using textstyle by default.
 <math-span mode="displaystyle">\\sum_{i=1}^n i</math-span>
 ```
 
+The rendered formula can be selected. When copied on its own, its LaTeX
+source is put on the clipboard. When copied with some surrounding text, each
+`<math-span>` is replaced with its LaTeX source wrapped in `$...$` and each
+`<math-div>` with its LaTeX source wrapped in `$$...$$`, and the styles that
+the surrounding text gets from the style sheets of the page are not
+included in the copied HTML. A partially selected element is copied in full. If the selection includes a `<math-field>`, the default copy
+behavior is used.
+
  render - Fired when content is successfully rendered
  render-error - Fired when rendering fails
 
