@@ -13,8 +13,8 @@ import {
   convertLatexToMarkup,
   convertLatexToMathMl,
   convertLatexToSpeakableText,
-  convertMathJsonToLatex,
 } from './public/mathlive-ssr';
+import { mathJsonToLatex } from './formats/math-json-to-latex';
 
 import './public/math-static-elements';
 export { MathSpanElement, MathDivElement } from './public/math-static-elements';
@@ -131,7 +131,7 @@ export function renderMathInElement(
   optionsPrivate.renderToMarkup ??= convertLatexToMarkup;
   optionsPrivate.renderToMathML ??= convertLatexToMathMl;
   optionsPrivate.renderToSpeakableText ??= convertLatexToSpeakableText;
-  optionsPrivate.serializeToLatex ??= convertMathJsonToLatex;
+  optionsPrivate.serializeToLatex ??= mathJsonToLatex;
   _renderMathInElement(el, optionsPrivate);
 }
 

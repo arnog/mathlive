@@ -16,6 +16,7 @@ import type {
 import { canVibrate } from '../ui/utils/capabilities';
 
 import { Atom } from '../core/atom-class';
+import { hostAccessibleName } from '../editor/a11y';
 import { gFontsState } from '../core/fonts';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import {
@@ -119,7 +120,10 @@ import {
 } from 'editor/environment-popover';
 import { Menu } from 'ui/menu/menu';
 import { onContextMenu } from 'ui/menu/context-menu';
-import { keyboardModifiersFromEvent } from '../ui/events/utils';
+import {
+  deepActiveElement,
+  keyboardModifiersFromEvent,
+} from '../ui/events/utils';
 import { getDefaultMenuItems } from 'editor/default-menu';
 import type { ModelState } from 'editor-model/types';
 import { _Model } from 'editor-model/model-private';
@@ -487,6 +491,10 @@ If you are using Vue, this may be because you are using the runtime-only build o
       this.element,
       this
     );
+    // Give the focusable keyboard sink (role=textbox) the host's
+    // accessible name: IDREFs can't cross the shadow boundary.
+    this.updateAccessibleName();
+    this.updateAccessibleReadOnly();
 
     // Request notification for when the window is resized, the device
     // switched from portrait to landscape or the document is scrolled
@@ -591,6 +599,27 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   get readOnly(): boolean {
     return this.options.readOnly ?? false;
+  }
+
+  /** Copy the host's accessible name to the keyboard sink */
+  updateAccessibleName(): void {
+    this.keyboardDelegate?.setAriaLabel(hostAccessibleName(this.host));
+  }
+
+  /**
+   * Set `aria-readonly` on the keyboard sink (the focusable `role=textbox`).
+   *
+   * The state is not set on the `<math-field>` host: the host has the `group`
+   * role, which does not support `aria-readonly`, and the element that has
+   * the focus is the keyboard sink.
+   *
+   * A read-only mathfield that has editable prompts accepts input in those
+   * prompts, so it is not reported as read-only.
+   */
+  updateAccessibleReadOnly(): void {
+    this.keyboardDelegate?.setAriaReadOnly(
+      this.readOnly && !this.hasEditablePrompts
+    );
   }
 
   get disabled(): boolean {
@@ -769,6 +798,7 @@ If you are using Vue, this may be because you are using the runtime-only build o
       if (this.hasFocus() && window.mathVirtualKeyboard.visible)
         this.executeCommand('hideVirtualKeyboard');
     }
+    if ('readOnly' in config) this.updateAccessibleReadOnly();
 
     // Changing some config options (i.e. `macros`) may
     // require the content to be reparsed and re-rendered
@@ -962,6 +992,13 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
   dispose(): void {
     if (!isValidMathfield(this)) return;
+
+    // A mathfield can be removed from the DOM while it has the focus without
+    // ever getting a blur event (Firefox and WebKit do not blur an element
+    // when it is removed). Don't leave a reference to the disposed mathfield
+    // in the global tracker (#2973).
+    if (_Mathfield._globallyFocusedMathfield === this)
+      _Mathfield._globallyFocusedMathfield = undefined;
 
     l10n.unsubscribe(this._l10Subscription);
 
@@ -1737,10 +1774,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
     // If another mathfield is globally tracked as focused, blur it first.
     // This handles cases where browsers don't fire blur events reliably
     // (e.g., rapid focus() calls on multiple mathfields in Chromium).
+    // Skip it if it has been disposed: its model is gone (#2973).
     const previouslyFocusedMathfield = _Mathfield._globallyFocusedMathfield;
     if (
       previouslyFocusedMathfield &&
       previouslyFocusedMathfield !== this &&
+      isValidMathfield(previouslyFocusedMathfield) &&
       !previouslyFocusedMathfield.disabled &&
       previouslyFocusedMathfield.hasFocus()
     ) {
@@ -1750,6 +1789,12 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     this.focusBlurInProgress = true;
     this.blurred = false;
+
+    // The name may come from a `<label>` or `aria-labelledby` target whose
+    // text changed since the last update
+    this.updateAccessibleName();
+    // Editable prompts may have been added or removed since the last update
+    this.updateAccessibleReadOnly();
 
     // Update the global tracker to point to this mathfield
     _Mathfield._globallyFocusedMathfield = this;
@@ -1772,8 +1817,41 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
     render(this, { interactive: true });
 
+    // Record which element has the focus now. The timer below compares it
+    // with the element that has the focus when the timer fires.
+    const activeElementOnFocus = deepActiveElement() as unknown as Node | null;
+
     setTimeout(() => {
       if (!isValidMathfield(this)) return;
+
+      // Until this timer fires, `focusBlurInProgress` is true, and `onBlur()`
+      // ignores all blur events. If the focus moved away from this mathfield
+      // during that time, the blur was ignored. The focus moved away if:
+      // - another mathfield called `onFocus()` after this one, or
+      // - the focus moved to an element outside this mathfield.
+      // In that case, do not focus the keyboard sink: that would take the
+      // focus back from the other element, and the keystrokes typed there
+      // would be inserted in this mathfield. Do the blur that was ignored
+      // instead. Do not dispatch the `blur` event: if the keyboard sink had
+      // the focus, the host already received the native `blur` event, and if
+      // it did not have the focus, no `focus` event was dispatched.
+      // `deepActiveElement()` returns the focused element inside the shadow
+      // root (for example the keyboard sink or a toggle button), and
+      // `Node.contains()` does not cross the shadow boundary, so check both
+      // the host and its shadow root.
+      const activeElement = deepActiveElement() as unknown as Node | null;
+      const isInsideThisMathfield =
+        this.element?.contains(activeElement) ||
+        this.element?.shadowRoot?.contains(activeElement);
+      if (
+        _Mathfield._globallyFocusedMathfield !== this ||
+        (activeElement !== activeElementOnFocus && !isInsideThisMathfield)
+      ) {
+        this.focusBlurInProgress = false;
+        this.programmaticFocusInProgress = false;
+        this.onBlur({ dispatchEvents: false });
+        return;
+      }
 
       // Only suppress events when responding to a DOM focus event to avoid
       // double-dispatching (fixes #2665). When focus() is called

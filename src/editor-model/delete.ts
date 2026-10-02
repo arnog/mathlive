@@ -278,9 +278,9 @@ function onDelete(
       if (atom.subscript || atom.superscript) {
         const pos: Atom | undefined =
           direction === 'forward'
-            ? (atom.superscript?.[0] ?? atom.subscript?.[0])
-            : (atom.subscript?.[0].lastSibling ??
-              atom.superscript?.[0].lastSibling);
+            ? (atom.subscript?.[0] ?? atom.superscript?.[0])
+            : (atom.superscript?.[0].lastSibling ??
+              atom.subscript?.[0].lastSibling);
         if (pos) model.position = model.offsetOf(pos);
         return true;
       }
@@ -312,36 +312,39 @@ function onDelete(
         model.position = pos;
         return true;
       }
-      // Branch was removed, navigate out
-      if (branch === 'superscript' && direction === 'backward')
+      // Branch was removed, navigate out. The subscript is before the
+      // superscript in the navigation order.
+      if (branch === 'subscript' && direction === 'backward')
         model.position = model.offsetOf(atom.firstChild) - 1;
-      else if (branch === 'subscript' && direction === 'backward') {
-        if (atom.superscript)
-          model.position = model.offsetOf(atom.superscript[0].lastSibling);
+      else if (branch === 'superscript' && direction === 'backward') {
+        if (atom.subscript)
+          model.position = model.offsetOf(atom.subscript[0].lastSibling);
         else model.position = model.offsetOf(atom.firstChild) - 1;
       } else model.position = model.offsetOf(atom);
 
       return true;
     }
 
-    // Branch is not empty, handle navigation within branches
-    if (branch === 'superscript') {
+    // Branch is not empty, handle navigation within branches. The subscript
+    // is before the superscript in the navigation order.
+    if (branch === 'subscript') {
       if (direction === 'backward') {
+        // Subscript first: move to before
         const pos = model.offsetOf(atom.firstChild) - 1;
         console.assert(pos >= 0);
         model.position = pos;
-      } else if (atom.subscript)
-        model.position = model.offsetOf(atom.subscript[0]);
+      } else if (atom.superscript)
+        model.position = model.offsetOf(atom.superscript[0]);
       else model.position = model.offsetOf(atom);
-    } else if (branch === 'subscript') {
-      if (direction === 'backward' && atom.superscript) {
-        // Subscript first: move to superscript end
-        model.position = model.offsetOf(atom.superscript[0].lastSibling);
+    } else if (branch === 'superscript') {
+      if (direction === 'backward' && atom.subscript) {
+        // Superscript first: move to subscript end
+        model.position = model.offsetOf(atom.subscript[0].lastSibling);
       } else if (direction === 'backward') {
-        // Subscript first: move to before
+        // Superscript first: move to before
         model.position = model.offsetOf(atom.firstChild) - 1;
       } else {
-        // Subscript last: move after
+        // Superscript last: move after
         model.position = model.offsetOf(atom);
       }
     }

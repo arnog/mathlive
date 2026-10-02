@@ -9,7 +9,7 @@ import { MiddleDelimAtom } from '../atoms/delim';
 import { argAtoms, defineFunction } from './definitions-utils';
 import { PlaceholderAtom } from '../atoms/placeholder';
 import { serializeLatexValue } from '../core/registers-utils';
-import type { LatexValue } from '../public/core-types';
+import type { LatexValue, MathstyleName } from '../public/core-types';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
 import { OperatorAtom } from '../atoms/operator';
@@ -235,6 +235,79 @@ defineFunction(['cfrac'], '[:string]{:expression}{:expression}', {
     return latexCommand(atom.command, numer, denom);
   },
 });
+
+// From the amsmath package:
+// `\genfrac{left-delim}{right-delim}{thickness}{mathstyle}{numer}{denom}`
+// - An empty delimiter argument is a null delimiter.
+// - An empty thickness argument uses the default rule thickness. A thickness
+//   of zero gives no fraction bar.
+// - The mathstyle argument is empty (use the current mathstyle) or one of
+//   0 (display), 1 (text), 2 (script) or 3 (scriptscript).
+const GENFRAC_MATHSTYLES: MathstyleName[] = [
+  'displaystyle',
+  'textstyle',
+  'scriptstyle',
+  'scriptscriptstyle',
+];
+
+defineFunction(
+  'genfrac',
+  '{left-delim:delim}{right-delim:delim}{thickness:value}{mathstyle:string}{numerator:expression}{denominator:expression}',
+  {
+    ifMode: 'math',
+    createAtom: (
+      options: CreateAtomOptions<
+        [string, string, LatexValue, string, Argument, Argument]
+      >
+    ) => {
+      const [leftDelim, rightDelim, thickness, mathstyle, numer, denom] =
+        options.args!;
+
+      const genfracOptions: GenfracOptions = { ...options };
+      if (leftDelim && leftDelim !== '.') genfracOptions.leftDelim = leftDelim;
+      if (rightDelim && rightDelim !== '.')
+        genfracOptions.rightDelim = rightDelim;
+
+      if (thickness) {
+        genfracOptions.barThickness = thickness;
+        genfracOptions.hasBarLine = !isZeroValue(thickness);
+      } else genfracOptions.hasBarLine = true;
+
+      const styleIndex = mathstyle?.trim();
+      if (styleIndex && /^[0-3]$/.test(styleIndex))
+        genfracOptions.mathstyleName = GENFRAC_MATHSTYLES[Number(styleIndex)];
+
+      return new GenfracAtom(
+        !numer ? [new PlaceholderAtom()] : argAtoms(numer),
+        !denom ? [new PlaceholderAtom()] : argAtoms(denom),
+        genfracOptions
+      );
+    },
+    serialize: (atom: GenfracAtom, options) => {
+      const styleIndex = atom.mathstyleName
+        ? GENFRAC_MATHSTYLES.indexOf(atom.mathstyleName)
+        : -1;
+      return latexCommand(
+        atom.command,
+        atom.leftDelim ?? '',
+        atom.rightDelim ?? '',
+        serializeLatexValue(atom.barThickness) ?? '',
+        styleIndex >= 0 ? styleIndex.toString() : '',
+        atom.aboveToLatex(options),
+        atom.belowToLatex(options)
+      );
+    },
+  }
+);
+
+/** True if the value is a literal zero, for example `0pt` or `0` */
+function isZeroValue(value: LatexValue): boolean {
+  if ('dimension' in value) return value.dimension === 0;
+  if ('glue' in value) return value.glue.dimension === 0;
+  if ('number' in value) return value.number === 0;
+  if ('string' in value) return parseFloat(value.string) === 0;
+  return false;
+}
 
 defineFunction(['brace', 'brack'], '', {
   infix: true,

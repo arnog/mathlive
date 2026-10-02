@@ -150,7 +150,10 @@ describe('MATHRM SERIALIZATION (issue #2818)', () => {
     // \mathrm should be preserved in latex-expanded format
     ['\\mathrm{d}', '\\mathrm{d}'],
     ['\\mathrm{dx}', '\\mathrm{dx}'],
-    ['\\frac{\\mathrm{d}y}{\\mathrm{d}x}', '\\frac{\\mathrm{d}y}{\\mathrm{d}x}'],
+    [
+      '\\frac{\\mathrm{d}y}{\\mathrm{d}x}',
+      '\\frac{\\mathrm{d}y}{\\mathrm{d}x}',
+    ],
     ['x\\mathrm{d}x', 'x\\mathrm{d}x'],
     ['a+\\mathrm{b}+c', 'a+\\mathrm{b}+c'],
     // Other upright variants should also work
@@ -169,12 +172,16 @@ describe('VALIDATE LATEX WITH MACROS', () => {
 
   test('unknown command is still flagged without macros', () => {
     const errors = validateLatex('\\unknowncmd');
-    expect(errors).toStrictEqual([expect.objectContaining({ code: 'unknown-command' })]);
+    expect(errors).toStrictEqual([
+      expect.objectContaining({ code: 'unknown-command' }),
+    ]);
   });
 
   test('unknown command is still flagged even with unrelated macros', () => {
     const errors = validateLatex('\\unknowncmd', { macros: { plimsoll: '⦵' } });
-    expect(errors).toStrictEqual([expect.objectContaining({ code: 'unknown-command' })]);
+    expect(errors).toStrictEqual([
+      expect.objectContaining({ code: 'unknown-command' }),
+    ]);
   });
 });
 
@@ -193,5 +200,38 @@ describe('REST* ARGUMENT COMMANDS (issue #2570)', () => {
     '\\ttfamily{monospace}',
   ])('%#/ %p renders correctly', (x) => {
     expect(markupAndError(x)).toMatchSnapshot();
+  });
+});
+
+describe('GENFRAC (issue #3048)', () => {
+  // Remove the original LaTeX kept by the parser, so that the atoms are
+  // serialized by the `\genfrac` serializer.
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    for (const atom of atoms) atom.verbatimLatex = undefined;
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    ['\\genfrac{}{}{}{}{a}{b}', '\\genfrac{}{}{}{}{a}{b}'],
+    ['\\genfrac(){0pt}{}{n}{k}', '\\genfrac{(}{)}{0pt}{}{n}{k}'],
+    ['\\genfrac{[}{]}{1pt}{0}{a}{b}', '\\genfrac{[}{]}{1pt}{0}{a}{b}'],
+    ['\\genfrac{\\lbrace}{.}{}{3}{a}{b}', '\\genfrac{\\lbrace}{}{}{3}{a}{b}'],
+    ['\\genfrac{}{}{0.4pt}{2}{a+b}{c}', '\\genfrac{}{}{0.4pt}{2}{a+b}{c}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+    expect(error(input)).toBe('no-error');
+  });
+
+  test('\\genfrac with a zero thickness renders like \\binom', () => {
+    expect(convertLatexToMarkup('\\genfrac{(}{)}{0pt}{}{n}{k}')).toBe(
+      convertLatexToMarkup('\\binom{n}{k}')
+    );
+  });
+
+  test('\\genfrac with default arguments renders like \\frac', () => {
+    expect(convertLatexToMarkup('\\genfrac{}{}{}{}{a}{b}')).toBe(
+      convertLatexToMarkup('\\frac{a}{b}')
+    );
   });
 });

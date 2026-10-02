@@ -10,10 +10,10 @@
 import {
   convertLatexToMarkup,
   convertAsciiMathToLatex,
-  convertMathJsonToLatex,
   convertLatexToSpeakableText,
   convertLatexToMathMl,
 } from './mathlive-ssr';
+import { mathJsonToLatex } from '../formats/math-json-to-latex';
 import type { LayoutOptions } from './options';
 import type { Expression } from './core-types';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
@@ -51,7 +51,7 @@ function convertContentToLatex(
 ): string {
   if (format === 'ascii-math') return convertAsciiMathToLatex(content);
   if (format === 'math-json')
-    return convertMathJsonToLatex(JSON.parse(content) as Expression);
+    return mathJsonToLatex(JSON.parse(content) as Expression);
   return content;
 }
 
@@ -508,7 +508,15 @@ abstract class MathStaticElement extends HTMLElement {
         this._shadowRoot.appendChild(this._mathMLContainer);
       }
 
-      this._mathMLContainer.innerHTML = mathML;
+      // `convertLatexToMathMl()` returns the content of a MathML expression
+      // (for example `<mrow>...</mrow>`), without the `<math>` root element.
+      // The HTML parser only creates MathML elements for the descendants of a
+      // `<math>` element. Without this root element, `<mrow>`, `<mfrac>`, etc.
+      // are parsed as unknown HTML elements, not as MathML.
+      this._mathMLContainer.innerHTML =
+        "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
+        mathML +
+        '</math>';
     } catch (error) {
       console.warn('Could not generate MathML:', error);
     }

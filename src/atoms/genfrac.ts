@@ -1,4 +1,4 @@
-import type { MathstyleName, Style } from '../public/core-types';
+import type { LatexValue, MathstyleName, Style } from '../public/core-types';
 
 import { Atom } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -17,6 +17,9 @@ export type GenfracOptions = {
   leftDelim?: string;
   rightDelim?: string;
   hasBarLine?: boolean;
+  /** The thickness of the fraction bar. If undefined, use the default
+   * rule thickness of the font. Used by `\genfrac`. */
+  barThickness?: LatexValue;
   mathstyleName?: MathstyleName;
   style?: Style;
 };
@@ -36,11 +39,12 @@ export class GenfracAtom extends Atom {
   readonly hasBarLine: boolean;
   readonly leftDelim?: string;
   readonly rightDelim?: string;
+  readonly barThickness?: LatexValue;
+  readonly mathstyleName?: MathstyleName;
   private readonly continuousFraction: boolean;
   private readonly align: 'left' | 'right' | 'center';
   private readonly numerPrefix?: string;
   private readonly denomPrefix?: string;
-  private readonly mathstyleName?: MathstyleName;
 
   constructor(
     above: readonly Atom[],
@@ -62,6 +66,7 @@ export class GenfracAtom extends Atom {
     this.mathstyleName = options?.mathstyleName;
     this.leftDelim = options?.leftDelim;
     this.rightDelim = options?.rightDelim;
+    this.barThickness = options?.barThickness;
   }
 
   static fromJson(json: AtomJson): GenfracAtom {
@@ -81,6 +86,7 @@ export class GenfracAtom extends Atom {
     if (this.leftDelim) options.leftDelim = this.leftDelim;
     if (this.rightDelim) options.rightDelim = this.rightDelim;
     if (!this.hasBarLine) options.hasBarLine = false;
+    if (this.barThickness) options.barThickness = this.barThickness;
     if (this.mathstyleName) options.mathstyleName = this.mathstyleName;
     return { ...super.toJson(), ...options };
   }
@@ -152,7 +158,12 @@ export class GenfracAtom extends Atom {
       : (Atom.createBox(denomContext, this.below, { type: 'ignore' }) ??
         new Box(null, { type: 'ignore' }));
 
-    const ruleThickness = this.hasBarLine ? metrics.defaultRuleThickness : 0;
+    let ruleThickness = 0;
+    if (this.hasBarLine) {
+      ruleThickness = this.barThickness
+        ? fracContext.toEm(this.barThickness)
+        : metrics.defaultRuleThickness;
+    }
 
     // Rule 15b from TeXBook Appendix G, p.444
     //
@@ -221,6 +232,13 @@ export class GenfracAtom extends Atom {
       fracLine.softWidth = Math.max(numerBox.width, denomBox.width);
       fracLine.height = ruleThickness / 2;
       fracLine.depth = ruleThickness / 2;
+      // The CSS rule for `.ML__frac-line` draws a bar of a fixed default
+      // thickness. A custom thickness overrides it with CSS variables: the
+      // bar is as thick as the element and has no vertical offset.
+      if (this.barThickness) {
+        fracLine.setStyle('--frac-line-thickness' as any, ruleThickness, 'em');
+        fracLine.setStyle('--frac-line-margin' as any, '0');
+      }
 
       const numerLine = AXIS_HEIGHT + ruleThickness / 2;
       if (numerShift < clearance + numerDepth + numerLine)

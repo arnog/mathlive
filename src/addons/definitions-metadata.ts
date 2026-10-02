@@ -285,6 +285,13 @@ metadata(
 );
 
 metadata(
+  'Fractions',
+  ['\\genfrac'],
+  RARE,
+  '$0{(}{)}{0pt}{}{\\placeholder{}}{\\placeholder{}}'
+);
+
+metadata(
   'Extensible Operators',
   ['\\sum', '\\prod', '\\bigcap', '\\bigcup', '\\int'],
   SUPERCOMMON

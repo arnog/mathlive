@@ -241,8 +241,11 @@
   &:after {
     content: '';
     display: block;
-    margin-top: ~'max(-1px, -0.04em)';
-    min-height: ~'max(1px, 0.04em)';
+    /* A custom bar thickness, for example from `\genfrac`, sets the
+       `--frac-line-thickness` variable on the element. The bar then fills
+       the element, so `--frac-line-margin` is set to 0. */
+    margin-top: ~'var(--frac-line-margin, max(-1px, -0.04em))';
+    min-height: ~'var(--frac-line-thickness, max(1px, 0.04em))';
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

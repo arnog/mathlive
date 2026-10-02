@@ -17,7 +17,6 @@ import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
 import { parseLatex } from '../core/parser';
 import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
-import { Expression } from './core-types';
 import { validateLatex as validateLatexInternal } from '../core/parser';
 
 import { atomToAsciiMath } from '../formats/atom-to-ascii-math';
@@ -209,36 +208,6 @@ export function convertLatexToSpeakableText(latex: string): string {
   });
 
   return atomToSpeakableText(atoms);
-}
-
-let gComputeEngine: any;
-
-/**
- * Convert a MathJSON expression to a LaTeX string.
- *
- * ```js
- * convertMathJsonToLatex(["Add", 1, 2]);
- * // -> "1 + 2"
- * ```
- * @category Conversion
- */
-export function convertMathJsonToLatex(json: Expression): string {
-  if (!gComputeEngine) {
-    const ComputeEngineCtor =
-      globalThis[Symbol.for('io.cortexjs.compute-engine')]?.ComputeEngine;
-
-    if (ComputeEngineCtor) gComputeEngine = new ComputeEngineCtor();
-    else {
-      console.error(
-        `MathLive {{SDK_VERSION}}: The CortexJS Compute Engine library is not available.
-        
-        Load the library, for example with:
-        
-        import "https://esm.run/@cortex-js/compute-engine"`
-      );
-    }
-  }
-  return gComputeEngine?.box(json).latex ?? '';
 }
 
 /** Convert a LaTeX string to a string of AsciiMath.

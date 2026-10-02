@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { convertLatexToMarkup, convertAsciiMathToLatex, convertMathJsonToLatex } from '../src/public/mathlive-ssr';
+import { convertLatexToMarkup, convertAsciiMathToLatex } from '../src/public/mathlive-ssr';
+import { mathJsonToLatex } from '../src/formats/math-json-to-latex';
 
 describe('Static Elements Rendering Functions', () => {
   describe('convertLatexToMarkup', () => {
@@ -68,22 +69,20 @@ describe('Static Elements Rendering Functions', () => {
       expect(latex).toContain('y');
     });
 
-    it('should convert MathJSON to LaTeX', () => {
-      // MathJSON conversion requires Compute Engine which isn't available in tests
-      // Just verify the function exists and doesn't throw
-      expect(() => convertMathJsonToLatex(['Add', 'x', 'y'])).not.toThrow();
-    });
-
-    it('should handle complex MathJSON expressions', () => {
-      // MathJSON conversion requires Compute Engine which isn't available in tests
-      // Just verify the function exists and doesn't throw
-      expect(() =>
-        convertMathJsonToLatex([
-          'Divide',
-          ['Add', 'a', 'b'],
-          ['Multiply', 'c', 'd'],
-        ])
-      ).not.toThrow();
+    it('should report an error and return an empty string for MathJSON when the Compute Engine is not loaded', () => {
+      // The tests do not load the Compute Engine, so the conversion cannot
+      // be done. The helper must log an error and not throw.
+      const consoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      try {
+        expect(mathJsonToLatex(['Add', 'x', 'y'])).toBe('');
+        expect(consoleError).toHaveBeenCalledWith(
+          expect.stringContaining('Compute Engine library is not available')
+        );
+      } finally {
+        consoleError.mockRestore();
+      }
     });
   });
 

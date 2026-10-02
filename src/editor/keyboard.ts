@@ -38,6 +38,7 @@ export interface KeyboardDelegate {
   hasFocus: () => boolean;
   setValue: (value: string) => void;
   setAriaLabel: (value: string) => void;
+  setAriaReadOnly: (value: boolean) => void;
   moveTo: (x: number, y: number) => void;
   dispose: () => void;
 }
@@ -330,6 +331,21 @@ export function delegateKeyboardEvents(
 
     setAriaLabel: (value: string): void =>
       keyboardSink.setAttribute('aria-label', value),
+
+    setAriaReadOnly: (value: boolean): void => {
+      // The default value of `aria-readonly` is `false`: remove the attribute
+      // instead of setting it to `"false"`.
+      //
+      // Chromium does not report this state in its accessibility tree: it
+      // ignores `aria-readonly` on an element that has
+      // `contenteditable="true"`. Do not set `contenteditable="false"` on the
+      // keyboard sink to correct this: in Safari, the Tab key then skips the
+      // keyboard sink, and a read-only mathfield cannot get the focus from
+      // the keyboard (the "tab focus" test in
+      // `test/playwright-tests/physical-keyboard.spec.ts` fails).
+      if (value) keyboardSink.setAttribute('aria-readonly', 'true');
+      else keyboardSink.removeAttribute('aria-readonly');
+    },
 
     setValue: (value: string): void => {
       if (keyboardSink.textContent === value) return;

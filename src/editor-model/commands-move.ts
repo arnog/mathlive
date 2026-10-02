@@ -586,9 +586,9 @@ register(
         if (parent.type === 'leftright' || parent.type === 'surd')
           return select(model, parent);
 
-        // 4.3/ If in an atom with a supsub, try subsup
-        if (atom.parentBranch === 'superscript' && parent.subscript)
-          return select(model, parent.subscript);
+        // 4.3/ If in the subscript of an atom, try its superscript
+        if (atom.parentBranch === 'subscript' && parent.superscript)
+          return select(model, parent.superscript);
 
         // 4.4/ If an above branch, try below
         if (atom.parentBranch === 'above' && parent.below)
@@ -680,9 +680,9 @@ register(
           if (parent.type === 'leftright' || parent.type === 'surd')
             return select(model, parent);
 
-          // 4.3/ If in an atom with a supsub, try subsup
-          if (atom.parentBranch === 'subscript' && parent.superscript)
-            return select(model, parent.superscript);
+          // 4.3/ If in the superscript of an atom, try its subscript
+          if (atom.parentBranch === 'superscript' && parent.subscript)
+            return select(model, parent.subscript);
 
           // 4.4/ If in a below branch, try above
           if (atom.parentBranch === 'below' && parent.above)
