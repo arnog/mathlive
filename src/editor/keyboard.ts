@@ -352,6 +352,18 @@ export function delegateKeyboardEvents(
       keyboardSink.textContent = value;
       // Move sink offscreen (Safari will display a visible selection otherwise)
       keyboardSink.style.left = `-1000px`;
+      // On iOS, setting the DOM selection scrolls the page to reveal it.
+      // The sink's static vertical position can be outside the (keyboard-
+      // shrunken) visual viewport, which triggers a large spurious scroll.
+      // Pin the sink vertically over the mathfield, clamped to the visual
+      // viewport, so the reveal is a no-op.
+      const vvTop = window.visualViewport?.offsetTop ?? 0;
+      const vvHeight = window.visualViewport?.height ?? window.innerHeight;
+      const top = Math.min(
+        Math.max(element.getBoundingClientRect().top, vvTop),
+        vvTop + vvHeight - 20
+      );
+      keyboardSink.style.top = `${top}px`;
       // Select the elements in the sink (Safari will not enable copy/paste if there isn't a selection)
       window.getSelection()?.selectAllChildren(keyboardSink);
     },
