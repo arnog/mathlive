@@ -577,6 +577,23 @@ export function makeKeyboardElement(keyboard: VirtualKeyboard): HTMLDivElement {
 
   result.addEventListener('pointerdown', handlePointerDown, { passive: false });
 
+  // On iOS, tap-focus is decided from the native touch event sequence, so
+  // `preventDefault()` on `pointerdown` does not stop a tapped keycap
+  // (a `tabindex="-1"` div) from stealing focus from the keyboard sink,
+  // which blurs the mathfield, clears its DOM selection and triggers a
+  // native scroll to reveal the newly focused element. Cancel `touchend`
+  // on keycaps to suppress that focus change. Keycap activation is
+  // unaffected (it runs on `pointerup`), but the synthesized `click` is
+  // suppressed, so this must not apply to the edit toolbar, which relies
+  // on `click` events.
+  result.addEventListener(
+    'touchend',
+    (ev) => {
+      if (ev.cancelable && parentKeycap(ev.target)) ev.preventDefault();
+    },
+    { passive: false }
+  );
+
   const toolbars = result.querySelectorAll<HTMLElement>('.ML__edit-toolbar');
   if (toolbars) {
     for (const toolbar of toolbars) {
