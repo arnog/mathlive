@@ -193,6 +193,11 @@
 // Account for the potential inset area at the bottom of the screen
 body > .ML__keyboard {
   position: fixed;
+  // Mobile Chrome sizes the fixed block past the visible viewport: wider on
+  // horizontal overflow, taller behind the URL bar. Clamp it back; without
+  // dvh support, the base `height: 100%` applies as before.
+  max-width: 100vw;
+  height: 100dvh;
   --_padding-bottom: calc(
     var(--keyboard-padding-bottom, 0px) + env(safe-area-inset-bottom, 0)
   );
