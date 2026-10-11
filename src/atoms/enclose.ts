@@ -194,8 +194,12 @@ export class EncloseAtom extends Atom {
     //   'top',
     //   `calc(${borderWidth} / 2 + ${padding - base.height}, 'em')`
     // );
-    base.setStyle('height', base.height + base.depth, 'em');
-    base.setStyle('width', base.width, 'em');
+    // Neither the width nor the height of the base are set. `base.width` does
+    // not include the inter-atom spacing (applied later) and overestimates
+    // vertical lists (fractions). An explicit height does not move the content,
+    // which stays on the baseline: the box of the base would no longer match
+    // its content. The browser lays out the base, and the notation is sized
+    // relative to it (see the `width` and `height` of the notation below).
 
     // The 'ML__notation' class is required to prevent the box from being
     // omitted during rendering (otherwise it would look like an empty, no-op
@@ -213,7 +217,8 @@ export class EncloseAtom extends Atom {
     if (this.notation.horizontalstrike) {
       // Position at x-height for text strike-through
       // X-height is typically around the middle of lowercase letters
-      const y = 2 * padding + base.height - X_HEIGHT / 2;
+      // The baseline is at `padding + base.height` from the top of the notation
+      const y = padding + base.height - X_HEIGHT / 2;
       svg += this.line(
         (padding + margin).toString(),
         y.toString(),
@@ -347,22 +352,26 @@ export class EncloseAtom extends Atom {
       svg += '/>';
     }
     notation.width = base.width + 2 * padding + wDelta;
-    // Symmetric padding: extend height and depth equally
-    notation.height = base.height + 2 * padding;
-    notation.depth = base.depth;
+    // Symmetric padding: the notation extends `padding` above and below the base
+    notation.height = base.height + padding;
+    notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
     notation.setStyle('left', `calc(-1 * ${borderWidth} - ${padding}em)`);
     // notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
     notation.setStyle(
       'height',
-      `calc( ${base.height + base.depth + 2 * padding}em + ${borderWidth})`
+      `calc(100% + ${2 * padding}em + ${borderWidth})`
     );
     // );
-    // Symmetric positioning: no top offset, padding is in height
-    notation.setStyle('top', `0em`);
+    // The base is at the top of the `result` box: move the notation up by the
+    // padding (and the border), as on the left side, so that the padding is
+    // the same above and below the base
+    notation.setStyle('top', `calc(-1 * ${borderWidth} - ${padding}em)`);
+    // Relative to the laid out width of the base (the `result` box below is a
+    // shrink-to-fit inline-block), not to the computed `base.width`.
     notation.setStyle(
       'width',
-      `calc(${base.width + 2 * padding}em + ${borderWidth})`
+      `calc(100% + ${2 * padding}em + ${borderWidth})`
     );
 
     if (this.backgroundcolor)
@@ -416,6 +425,9 @@ export class EncloseAtom extends Atom {
       // `svgStyle` contains only quoted SVG presentation attributes.
       let svgStyle = ` stroke-width="${escapeSvgAttr(this.strokeWidth ?? '')}" stroke="${escapeSvgAttr(this.strokeColor ?? '')}"`;
       svgStyle += ' stroke-linecap="round"';
+      // The overlay is stretched to the laid out size of the notation: the
+      // viewBox uses the computed size, which may differ.
+      svgStyle += ' preserveAspectRatio="none"';
       if (this.svgStrokeStyle)
         svgStyle += ` stroke-dasharray="${escapeSvgAttr(this.svgStrokeStyle)}"`;
       notation.svgStyle = svgStyle;
@@ -428,10 +440,10 @@ export class EncloseAtom extends Atom {
     // positioned over the base
     result.setStyle('position', 'relative');
     // result.setStyle('vertical-align', padding, 'em');
-    result.setStyle(
-      'height',
-      `${Math.floor(100 * (notation.depth + notation.height)) / 100}em`
-    );
+    // No explicit height: the CSS box of the result is the box of the base, as
+    // laid out by the browser. The notation overflows it by the padding, and
+    // the struts of the line use `result.height` and `result.depth` below,
+    // which include the padding.
     // We set the padding later with `left` and `right` so subtract it now
     // result.setStyle('width', `${Math.floor(100 * base.width) / 100}em`);
     // result.setStyle('width', `100%`);
@@ -440,6 +452,9 @@ export class EncloseAtom extends Atom {
     result.height = notation.height;
     result.depth = notation.depth;
     result.width = notation.width - 2 * padding;
+    // Keep the computed width for the layout of the parent, but don't write it
+    // as a CSS `width`: it would clip or stretch the base (see above).
+    result.hasExplicitWidth = false;
     result.left = padding;
     result.right = padding;
 
