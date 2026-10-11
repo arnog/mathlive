@@ -130,3 +130,34 @@ for (const formula of ['8', 'x+1', '3+5=8', 'y=g(p)']) {
     expect(offset).toBeLessThan(0.4);
   });
 }
+
+// In a mathfield, the caret is taller than `x+1`. It must not move or resize
+// the notation when it is inside the base: the top of the notation was then
+// clipped by the mathfield.
+test(`\\enclose{roundedbox} does not move when the caret is inside`, async ({
+  page,
+}) => {
+  const [unfocused, focused] = await page.evaluate(async () => {
+    const mf = document.createElement('math-field') as any;
+    mf.style.fontSize = '32px';
+    document.body.prepend(mf);
+    mf.value = '\\enclose{roundedbox}[1px solid red]{x+1}';
+    const frame = () => {
+      const r = mf.shadowRoot
+        .querySelector('.ML__notation')
+        .getBoundingClientRect();
+      return [r.top, r.bottom, r.left, r.right];
+    };
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const before = frame();
+    mf.focus();
+    mf.selection = { ranges: [[1, 1]] };
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const after = frame();
+    mf.remove();
+    return [before, after];
+  });
+
+  for (let i = 0; i < 4; i++)
+    expect(Math.abs(focused[i] - unfocused[i])).toBeLessThan(0.5);
+});

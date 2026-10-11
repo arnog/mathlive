@@ -375,16 +375,15 @@ export class EncloseAtom extends Atom {
     notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
     notation.setStyle('left', `calc(-1 * ${borderWidth} - ${padding}em)`);
-    // notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    // Vertically, the struts give the base its computed height and depth, so
+    // the notation uses them. It is anchored at the bottom of the `result`
+    // box, which is at the depth of the base: the top of the box can be raised
+    // by an element taller than the base, such as the caret in a mathfield.
     notation.setStyle(
       'height',
-      `calc(100% + ${2 * padding}em + ${borderWidth})`
+      `calc(${base.height + base.depth + 2 * padding}em + ${borderWidth})`
     );
-    // );
-    // The base is at the top of the `result` box: move the notation up by the
-    // padding (and the border), as on the left side, so that the padding is
-    // the same above and below the base
-    notation.setStyle('top', `calc(-1 * ${borderWidth} - ${padding}em)`);
+    notation.setStyle('bottom', `calc(-1 * ${borderWidth} - ${padding}em)`);
     // Relative to the laid out width of the base (the `result` box below is a
     // shrink-to-fit inline-block), not to the computed `base.width`.
     notation.setStyle(
