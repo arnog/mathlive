@@ -1,3 +1,17 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#864**, **#1697** The notation of `\enclose` (box, rounded box, circle,
+  strikes, arrows) is now sized and positioned to its content as laid out by
+  the browser. Previously, it used the width computed by MathLive, which does
+  not include the spacing around binary and relational operators and
+  overestimates fractions, and the padding was all below the content. As a
+  result, the box was too narrow for `x+1` (the `1` overlapped the border),
+  too wide for `\frac{1}{2}`, and the horizontal strike was drawn as an
+  underline. In a mathfield, the notation no longer moves when the caret is
+  inside it.
+
 ## 0.111.1 _2026-10-09_
 
 ### Security Advisories

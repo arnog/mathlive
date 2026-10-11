@@ -177,8 +177,26 @@ export class EncloseAtom extends Atom {
 
   render(parentContext: Context): Box | null {
     const context = new Context({ parent: parentContext }, this.style);
-    const base = Atom.createBox(context, this.body);
-    if (!base) return null;
+    const content = Atom.createBox(context, this.body);
+    if (!content) return null;
+
+    // The box of the base must match its computed height and depth around the
+    // baseline, so that the notation (and its SVG overlay) can be positioned
+    // with the computed metrics. With the default `line-height`, a line of
+    // text is taller than its characters. As for the root of a formula
+    // (see `makeStruts()`), the line height is set to 0 and two struts give
+    // the line box its height and depth.
+    const topStrut = new Box(null, { classes: 'ML__strut', type: 'ignore' });
+    topStrut.setStyle('height', Math.max(0, content.height), 'em');
+    const bottomStrut = new Box(null, {
+      classes: 'ML__strut--bottom',
+      type: 'ignore',
+    });
+    bottomStrut.setStyle('height', content.height + content.depth, 'em');
+    bottomStrut.setStyle('vertical-align', -content.depth, 'em');
+    const base = new Box([topStrut, bottomStrut, content], {
+      classes: 'ML__notation-base',
+    });
 
     const borderWidth = borderDim(this.borderStyle);
 
@@ -194,8 +212,12 @@ export class EncloseAtom extends Atom {
     //   'top',
     //   `calc(${borderWidth} / 2 + ${padding - base.height}, 'em')`
     // );
-    base.setStyle('height', base.height + base.depth, 'em');
-    base.setStyle('width', base.width, 'em');
+    // Neither the width nor the height of the base are set. `base.width` does
+    // not include the inter-atom spacing (applied later) and overestimates
+    // vertical lists (fractions). An explicit height does not move the content,
+    // which stays on the baseline: the box of the base would no longer match
+    // its content. The browser lays out the base, and the notation is sized
+    // relative to it (see the `width` and `height` of the notation below).
 
     // The 'ML__notation' class is required to prevent the box from being
     // omitted during rendering (otherwise it would look like an empty, no-op
@@ -213,7 +235,8 @@ export class EncloseAtom extends Atom {
     if (this.notation.horizontalstrike) {
       // Position at x-height for text strike-through
       // X-height is typically around the middle of lowercase letters
-      const y = 2 * padding + base.height - X_HEIGHT / 2;
+      // The baseline is at `padding + base.height` from the top of the notation
+      const y = padding + base.height - X_HEIGHT / 2;
       svg += this.line(
         (padding + margin).toString(),
         y.toString(),
@@ -347,22 +370,25 @@ export class EncloseAtom extends Atom {
       svg += '/>';
     }
     notation.width = base.width + 2 * padding + wDelta;
-    // Symmetric padding: extend height and depth equally
-    notation.height = base.height + 2 * padding;
-    notation.depth = base.depth;
+    // Symmetric padding: the notation extends `padding` above and below the base
+    notation.height = base.height + padding;
+    notation.depth = base.depth + padding;
     notation.setStyle('box-sizing', 'border-box');
     notation.setStyle('left', `calc(-1 * ${borderWidth} - ${padding}em)`);
-    // notation.setStyle('height', `${Math.floor(100 * h) / 100}em`);
+    // Vertically, the struts give the base its computed height and depth, so
+    // the notation uses them. It is anchored at the bottom of the `result`
+    // box, which is at the depth of the base: the top of the box can be raised
+    // by an element taller than the base, such as the caret in a mathfield.
     notation.setStyle(
       'height',
-      `calc( ${base.height + base.depth + 2 * padding}em + ${borderWidth})`
+      `calc(${base.height + base.depth + 2 * padding}em + ${borderWidth})`
     );
-    // );
-    // Symmetric positioning: no top offset, padding is in height
-    notation.setStyle('top', `0em`);
+    notation.setStyle('bottom', `calc(-1 * ${borderWidth} - ${padding}em)`);
+    // Relative to the laid out width of the base (the `result` box below is a
+    // shrink-to-fit inline-block), not to the computed `base.width`.
     notation.setStyle(
       'width',
-      `calc(${base.width + 2 * padding}em + ${borderWidth})`
+      `calc(100% + ${2 * padding}em + ${borderWidth})`
     );
 
     if (this.backgroundcolor)
@@ -416,6 +442,9 @@ export class EncloseAtom extends Atom {
       // `svgStyle` contains only quoted SVG presentation attributes.
       let svgStyle = ` stroke-width="${escapeSvgAttr(this.strokeWidth ?? '')}" stroke="${escapeSvgAttr(this.strokeColor ?? '')}"`;
       svgStyle += ' stroke-linecap="round"';
+      // The overlay is stretched to the laid out size of the notation: the
+      // viewBox uses the computed size, which may differ.
+      svgStyle += ' preserveAspectRatio="none"';
       if (this.svgStrokeStyle)
         svgStyle += ` stroke-dasharray="${escapeSvgAttr(this.svgStrokeStyle)}"`;
       notation.svgStyle = svgStyle;
@@ -428,18 +457,25 @@ export class EncloseAtom extends Atom {
     // positioned over the base
     result.setStyle('position', 'relative');
     // result.setStyle('vertical-align', padding, 'em');
-    result.setStyle(
-      'height',
-      `${Math.floor(100 * (notation.depth + notation.height)) / 100}em`
-    );
+    // No explicit height: the CSS box of the result is the box of the base, as
+    // laid out by the browser. The notation overflows it by the padding, and
+    // the struts of the line use `result.height` and `result.depth` below,
+    // which include the padding.
     // We set the padding later with `left` and `right` so subtract it now
     // result.setStyle('width', `${Math.floor(100 * base.width) / 100}em`);
     // result.setStyle('width', `100%`);
     result.setStyle('display', 'inline-block');
+    // The line height of the result (inherited by the base) is 0: the line
+    // box of the base is then given by the struts only, and the box of the
+    // result is the box of the base
+    result.setStyle('line-height', '0');
 
     result.height = notation.height;
     result.depth = notation.depth;
     result.width = notation.width - 2 * padding;
+    // Keep the computed width for the layout of the parent, but don't write it
+    // as a CSS `width`: it would clip or stretch the base (see above).
+    result.hasExplicitWidth = false;
     result.left = padding;
     result.right = padding;
 

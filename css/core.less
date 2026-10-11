@@ -748,6 +748,13 @@
   line-height: 0;
 }
 
+// The base of an `\enclose` notation has a line height of 0 (inherited from
+// its parent), so that its box matches its struts. Vertical lists need the
+// usual line height: Safari positions them with the text of `.ML__vlist-s`.
+.ML__notation-base .ML__vlist-t {
+  line-height: 1.2;
+}
+
 /* This class is used to implement the `\mathtip` and `\texttip` commands
    For UI elements, see `[data-ML__tooltip]`
 */
