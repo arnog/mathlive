@@ -177,8 +177,26 @@ export class EncloseAtom extends Atom {
 
   render(parentContext: Context): Box | null {
     const context = new Context({ parent: parentContext }, this.style);
-    const base = Atom.createBox(context, this.body);
-    if (!base) return null;
+    const content = Atom.createBox(context, this.body);
+    if (!content) return null;
+
+    // The box of the base must match its computed height and depth around the
+    // baseline, so that the notation (and its SVG overlay) can be positioned
+    // with the computed metrics. With the default `line-height`, a line of
+    // text is taller than its characters. As for the root of a formula
+    // (see `makeStruts()`), the line height is set to 0 and two struts give
+    // the line box its height and depth.
+    const topStrut = new Box(null, { classes: 'ML__strut', type: 'ignore' });
+    topStrut.setStyle('height', Math.max(0, content.height), 'em');
+    const bottomStrut = new Box(null, {
+      classes: 'ML__strut--bottom',
+      type: 'ignore',
+    });
+    bottomStrut.setStyle('height', content.height + content.depth, 'em');
+    bottomStrut.setStyle('vertical-align', -content.depth, 'em');
+    const base = new Box([topStrut, bottomStrut, content], {
+      classes: 'ML__notation-base',
+    });
 
     const borderWidth = borderDim(this.borderStyle);
 
@@ -448,6 +466,10 @@ export class EncloseAtom extends Atom {
     // result.setStyle('width', `${Math.floor(100 * base.width) / 100}em`);
     // result.setStyle('width', `100%`);
     result.setStyle('display', 'inline-block');
+    // The line height of the result (inherited by the base) is 0: the line
+    // box of the base is then given by the struts only, and the box of the
+    // result is the box of the base
+    result.setStyle('line-height', '0');
 
     result.height = notation.height;
     result.depth = notation.depth;

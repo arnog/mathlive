@@ -96,3 +96,37 @@ for (const notation of NOTATIONS) {
     });
   }
 }
+
+// The horizontal strike crosses the characters halfway up the x-height.
+// Before the fix, it was drawn below the baseline (an underline).
+for (const formula of ['8', 'x+1', '3+5=8', 'y=g(p)']) {
+  test(`\\enclose{horizontalstrike} crosses ${formula}`, async ({ page }) => {
+    const offset: number = await page.evaluate(async (formula) => {
+      const fontSize = 40;
+      const wrapper = document.createElement('div');
+      wrapper.style.fontSize = `${fontSize}px`;
+      // A zero height inline-block sits on the baseline of the text
+      const marker = document.createElement('span');
+      marker.style.cssText = 'display:inline-block;width:1px;height:0';
+      const element = document.createElement('math-span');
+      const rendered = new Promise((resolve) =>
+        element.addEventListener('render', resolve, { once: true })
+      );
+      element.textContent = `\\enclose{horizontalstrike}[1px solid red]{${formula}}`;
+      wrapper.append('a', marker, element);
+      document.body.prepend(wrapper);
+      await rendered;
+
+      const baseline = marker.getBoundingClientRect().bottom;
+      const line = element
+        .shadowRoot!.querySelector('.ML__notation line')!
+        .getBoundingClientRect();
+      wrapper.remove();
+      // Height of the strike above the baseline, in em
+      return (baseline - (line.top + line.bottom) / 2) / fontSize;
+    }, formula);
+
+    expect(offset).toBeGreaterThan(0.1);
+    expect(offset).toBeLessThan(0.4);
+  });
+}
