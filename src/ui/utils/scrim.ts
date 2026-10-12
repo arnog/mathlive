@@ -1,4 +1,5 @@
 import { deepActiveElement } from '../events/utils';
+import { supportPopover } from './capabilities';
 
 export class Scrim {
   private static _scrim: Scrim | undefined;
@@ -70,6 +71,20 @@ export class Scrim {
       element.style['backdropFilter' as any] = 'contrast(40%)';
     } else element.style.background = 'transparent';
 
+    // Show the scrim in the top layer, so that it covers the viewport even
+    // if an ancestor of its root has a transform, filter, mask or clip-path
+    if (supportPopover()) {
+      element.popover = 'manual';
+      // Override the user agent styles of [popover]
+      element.style.margin = '0';
+      element.style.padding = '0';
+      element.style.border = 'none';
+      element.style.width = 'auto';
+      element.style.height = 'auto';
+      element.style.overflow = 'visible';
+      element.style.color = 'inherit';
+    }
+
     this._element = element;
     return element;
   }
@@ -89,6 +104,7 @@ export class Scrim {
     const { element } = this;
 
     (options?.root ?? document.body).appendChild(element);
+    if (supportPopover()) element.showPopover();
 
     element.addEventListener('click', this);
     document.addEventListener('touchmove', this, false);
