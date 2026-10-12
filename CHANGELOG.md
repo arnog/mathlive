@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Issues Resolved
+
+- **#3111** Fixed the menu of a mathfield staying open after a click outside of
+  it when an ancestor of the mathfield had a `transform`, `filter`,
+  `mask-image`, `clip-path` or `contain: paint`, or when the click was on the
+  mathfield itself, including on the menu toggle.
+
 ## 0.111.1 _2026-10-09_
 
 ### Security Advisories

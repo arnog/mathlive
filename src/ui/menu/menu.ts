@@ -252,7 +252,12 @@ export class Menu extends _MenuListState implements RootMenuState {
       this.handleKeyupEvent(event as KeyboardEvent);
     else if (event.type === 'pointermove')
       this.lastMoveEvent = event as PointerEvent;
-    else if (event.type === 'pointerup') {
+    else if (event.type === 'pointerdown') {
+      // Keep the press from reaching the mathfield the scrim is attached to:
+      // it would capture the pointer, and the scrim would not get the
+      // pointerup or click that dismisses the menu
+      event.stopPropagation();
+    } else if (event.type === 'pointerup') {
       if (
         Number.isFinite(this.rootMenu._openTimestamp!) &&
         Date.now() - this.rootMenu._openTimestamp! < 120
@@ -288,6 +293,7 @@ export class Menu extends _MenuListState implements RootMenuState {
 
   private connectScrim(target?: Node | null): void {
     const scrim = this.scrim!;
+    scrim.addEventListener('pointerdown', this);
     scrim.addEventListener('pointerup', this, true);
 
     scrim.addEventListener('contextmenu', this);
@@ -301,6 +307,7 @@ export class Menu extends _MenuListState implements RootMenuState {
 
   private disconnectScrim(): void {
     const scrim = this.scrim!;
+    scrim.removeEventListener('pointerdown', this);
     scrim.removeEventListener('pointerup', this, true);
 
     scrim.removeEventListener('contextmenu', this);
