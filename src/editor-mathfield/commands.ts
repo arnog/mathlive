@@ -85,6 +85,29 @@ registerCommand(
       mathfield.insert('.');
       return true;
     },
+    insertDms: (mathfield: _Mathfield) => {
+      const model = mathfield.model;
+      if (!model.selectionIsCollapsed) return false;
+
+      let firstDigit = model.at(model.position);
+      if (!firstDigit.isDigit() || !/^\d$/.test(firstDigit.asDigit()))
+        return false;
+
+      while (firstDigit.leftSibling?.isDigit()) {
+        firstDigit = firstDigit.leftSibling;
+        if (!/^\d$/.test(firstDigit.asDigit())) return false;
+      }
+
+      const previousCommand = firstDigit.leftSibling?.command;
+      const marker =
+        previousCommand === '\\minute'
+          ? '\\second'
+          : previousCommand === '\\degree'
+            ? '\\minute'
+            : '\\degree';
+
+      return mathfield.insert(marker, { format: 'latex' });
+    },
     // A 'commit' command is used to simulate pressing the return/enter key,
     // e.g. when using a virtual keyboard
     commit: (mathfield: _Mathfield) => {

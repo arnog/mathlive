@@ -185,6 +185,21 @@ describe('VALIDATE LATEX WITH MACROS', () => {
   });
 });
 
+describe('DMS MACROS', () => {
+  test.each([
+    ['\\minute', '^{\\prime}'],
+    ['\\second', '^{\\prime\\prime}'],
+  ])('%s renders as an atomic superscript marker', (command, expansion) => {
+    const atoms = parseLatex(command, { parseMode: 'math' });
+
+    expect(atoms).toHaveLength(1);
+    expect(atoms[0].type).toBe('macro');
+    expect(atoms[0].captureSelection).toBe(true);
+    expect(Atom.serialize(atoms, { defaultMode: 'math' })).toBe(command);
+    expect(convertLatexToMarkup(command)).toBe(convertLatexToMarkup(expansion));
+  });
+});
+
 describe('REST* ARGUMENT COMMANDS (issue #2570)', () => {
   // Commands with {:rest*} deferred arguments should handle braced arguments
   test.each([
