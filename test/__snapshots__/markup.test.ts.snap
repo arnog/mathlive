@@ -803,7 +803,7 @@ exports[`LEFT/RIGHT Delimiters \\{ \\} 2`] = `
 
 exports[`LEFT/RIGHT Delimiters \\| | 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="ML__left-right" style="margin-top:-0.08333em;height:0.72777em"><span class="ML__small-delim ML__open">∣</span><span class="ML__mathit">x</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">+</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">1</span><span class="ML__small-delim ML__close">∣</span></span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.75em"></span><span class="ML__strut--bottom" style="height:1em;vertical-align:-0.25em"></span><span class="ML__base"><span class="ML__left-right" style="margin-top:-0.08333em;height:0.72777em"><span class="ML__small-delim ML__open">∥</span><span class="ML__mathit">x</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">+</span><span style="display:inline-block;width:0.23em"></span><span class="ML__cmr">1</span><span class="ML__small-delim ML__close">∣</span></span></span></span>",
   "no-error",
 ]
 `;
