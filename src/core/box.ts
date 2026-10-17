@@ -178,7 +178,6 @@ export class Box implements BoxInterface {
       // classes property of the box to account for the font.
       fontName =
         Mode.getFont(options.mode ?? 'math', this, {
-          variant: 'normal',
           ...options.style,
           letterShapeStyle: options.letterShapeStyle,
         }) ?? undefined;
