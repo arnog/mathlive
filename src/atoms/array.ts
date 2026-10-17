@@ -514,7 +514,9 @@ export class ArrayAtom extends Atom {
         r < nr - 1 &&
         !isMatrixEnvironment(this.environmentName) &&
         this.environmentName !== 'cases' &&
-        this.environmentName !== 'array'
+        this.environmentName !== 'array' &&
+        this.environmentName !== 'subarray' &&
+        this.environmentName !== 'substack'
       )
         depth += innerContext.getRegisterAsEm('jot');
 
@@ -713,10 +715,14 @@ export class ArrayAtom extends Atom {
     // Only wrap in \displaylines{} if there are multiple rows
     if (this.environmentName === 'lines' && this._rows.length > 1)
       result.push(`\\displaylines{`);
+    else if (this.environmentName === 'substack') result.push(`\\substack{`);
     else if (this.environmentName !== 'lines')
       result.push(`\\begin{${this.environmentName}}`);
 
-    if (this.environmentName === 'array') {
+    if (
+      this.environmentName === 'array' ||
+      this.environmentName === 'subarray'
+    ) {
       result.push('{');
       if (this.colFormat !== undefined) {
         for (const format of this.colFormat) {
@@ -750,6 +756,7 @@ export class ArrayAtom extends Atom {
     // Only close \displaylines{} if there are multiple rows
     if (this.environmentName === 'lines' && this._rows.length > 1)
       result.push(`}`);
+    else if (this.environmentName === 'substack') result.push(`}`);
     else if (this.environmentName !== 'lines')
       result.push(`\\end{${this.environmentName}}`);
 
