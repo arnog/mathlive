@@ -91,6 +91,44 @@ async function virtualKeyboardSample2(
   return 'n=x^2';
 }
 
+for (const [base, end] of [
+  ['2', 1],
+  ['12', 2],
+  ['(x+1)', 5],
+] as const) {
+  test(`squaring the selected base ${base} preserves its superscript (#3099)`, async ({
+    page,
+  }) => {
+    await page.goto('/dist/playwright-test-page/');
+    const mf = page.locator('#mf-1');
+    await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+    await mf.evaluate((mfe: MathfieldElement, value) => {
+      mfe.value = value;
+      mfe.focus();
+    }, base);
+
+    // Square once without a conflict, then square just the base again.
+    for (const expected of [`${base}^2`, `{${base}^2}^2`]) {
+      const selected = await mf.evaluate((mfe: MathfieldElement, end) => {
+        mfe.selection = { ranges: [[0, end]] };
+        return mfe.getValue(mfe.selection, 'latex');
+      }, end);
+      expect(selected).toBe(base);
+      await keycapLocator(page, { value: '#@^2}' }).click();
+      expect(await mf.evaluate((mfe: MathfieldElement) => mfe.getValue())).toBe(
+        expected
+      );
+    }
+    const reloaded = await mf.evaluate((mfe: MathfieldElement) => {
+      const latex = mfe.getValue();
+      mfe.value = '';
+      mfe.value = latex;
+      return mfe.getValue('latex-unstyled');
+    });
+    expect(reloaded).toBe(`{${base}^2}^2`);
+  });
+}
+
 test('virtual keyboard with two math fields', async ({ page }) => {
   await page.goto('/dist/playwright-test-page/');
 
