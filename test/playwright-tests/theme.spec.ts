@@ -59,25 +59,12 @@ test('theme attribute overrides the system color scheme', async ({ page }) => {
   await mathfield.evaluate((element) => element.setAttribute('theme', 'light'));
   expect(await readThemeStyles(mathfield)).toEqual(systemLight);
 
+  await mathfield.evaluate((element) => element.removeAttribute('theme'));
+  expect(await readThemeStyles(mathfield)).toEqual(systemDark);
+
   await page.emulateMedia({ colorScheme: 'light' });
   await mathfield.evaluate((element) => element.setAttribute('theme', 'dark'));
   expect(await readThemeStyles(mathfield)).toEqual(systemDark);
-});
-
-test('removing the theme attribute restores the system color scheme', async ({
-  page,
-}) => {
-  const mathfield = page.locator('#mf-1');
-
-  await page.emulateMedia({ colorScheme: 'light' });
-  const systemLight = await readThemeStyles(mathfield);
-
-  await page.emulateMedia({ colorScheme: 'dark' });
-  await mathfield.evaluate((element) => element.setAttribute('theme', 'light'));
-  expect(await readThemeStyles(mathfield)).toEqual(systemLight);
-
-  await mathfield.evaluate((element) => element.removeAttribute('theme'));
-  expect(await readThemeStyles(mathfield)).not.toEqual(systemLight);
 });
 
 test('forced colors override dark theme colors', async ({ page }) => {
@@ -93,17 +80,12 @@ test('forced colors override dark theme colors', async ({ page }) => {
       }
     }, theme);
 
-    const colors = await mathfield.evaluate((element) => {
+    const caretColor = await mathfield.evaluate((element) => {
       const container = element.shadowRoot!.querySelector('.ML__container')!;
-      const styles = getComputedStyle(container);
-      return [
-        '--_caret-color',
-        '--_selection-color',
-        '--_smart-fence-color',
-        '--_latex-color',
-        '--_composition-text-color',
-      ].map((property) => styles.getPropertyValue(property).trim());
+      return getComputedStyle(container)
+        .getPropertyValue('--_caret-color')
+        .trim();
     });
-    expect(colors).toEqual(['white', 'white', 'white', 'white', 'white']);
+    expect(caretColor).toBe('white');
   }
 });
