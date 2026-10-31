@@ -1041,8 +1041,10 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
     case 'box':
       const boxAtom = atom as BoxAtom;
       result = '<menclose notation="box"';
-      if (boxAtom.backgroundcolor)
-        result += ' mathbackground="' + boxAtom.backgroundcolor + '"';
+      if (boxAtom.backgroundcolor && 'string' in boxAtom.backgroundcolor) {
+        result +=
+          ' mathbackground="' + xmlEscape(boxAtom.backgroundcolor.string) + '"';
+      }
 
       result +=
         makeID(atom.id, options) +
@@ -1066,7 +1068,10 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
           ) &&
           encloseAtom.notation[notation]
         ) {
-          result += sep + notation;
+          // The notation names are filtered against a known list when the
+          // atom is created. They are escaped anyway, so that an atom built
+          // from other sources cannot inject attributes.
+          result += sep + xmlEscape(notation);
           sep = ' ';
         }
       }

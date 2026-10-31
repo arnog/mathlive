@@ -125,6 +125,7 @@ export interface BoxInterface {
   svgBody?: string;
   svgOverlay?: string;
   svgStyle?: string;
+  svgFilter?: string;
 
   delim?: string;
 

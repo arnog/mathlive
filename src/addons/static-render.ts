@@ -285,8 +285,14 @@ function createAccessibleMarkupPair(
       const span = document.createElement('span');
       span.setAttribute('translate', 'no');
 
-      const html = options.renderToSpeakableText(latex);
-      span.innerHTML = globalThis.MathfieldElement.createHTML(html);
+      // The speakable text is plain text unless SSML markup was requested.
+      // Plain text is assigned as text so that it cannot be interpreted as
+      // HTML. SSML is an XML document whose text content is escaped by
+      // `atomToSpeakableText()`.
+      const speakable = options.renderToSpeakableText(latex);
+      if (globalThis.MathfieldElement.textToSpeechMarkup === 'ssml')
+        span.innerHTML = globalThis.MathfieldElement.createHTML(speakable);
+      else span.textContent = speakable;
       span.className = 'ML__sr-only';
       fragment.append(span);
     }

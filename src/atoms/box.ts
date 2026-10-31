@@ -1,4 +1,5 @@
 import type { LatexValue } from '../public/core-types';
+import { validateCssBorder } from '../core/css-validate';
 
 import { Atom } from '../core/atom-class';
 import { Box } from '../core/box';
@@ -118,7 +119,10 @@ export class BoxAtom extends Atom {
       );
     }
 
-    if (this.border) box.setStyle('border', this.border);
+    // The border comes from the LaTeX input (`\bbox[border:...]`) and is
+    // validated so that it cannot add CSS declarations.
+    const border = validateCssBorder(this.border);
+    if (border) box.setStyle('border', border);
     // box.setStyle('top', /* width of the border */);
 
     // The result is a box that encloses the box and the base

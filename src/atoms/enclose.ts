@@ -7,6 +7,12 @@ import { latexCommand } from '../core/tokenizer';
 import { getDefinition } from '../latex-commands/definitions-utils';
 import { X_HEIGHT, AXIS_HEIGHT } from '../core/font-metrics';
 import type { AtomJson, ToLatexOptions } from 'core/types';
+import {
+  validateCssBorder,
+  validateCssColor,
+  validateCssLength,
+  validateShadow,
+} from '../core/css-validate';
 
 /** Escape special characters to prevent attribute injection in SVG markup. */
 function escapeSvgAttr(s: string): string {
@@ -69,7 +75,6 @@ export class EncloseAtom extends Atom {
   ) {
     super({ type: 'enclose', command, style: options.style });
     this.body = body;
-    this.backgroundcolor = options.backgroundcolor;
     if (notation.updiagonalarrow) notation.updiagonalstrike = false;
 
     if (notation.box) {
@@ -80,13 +85,24 @@ export class EncloseAtom extends Atom {
     }
 
     this.notation = notation;
+    // The option values come from the LaTeX input and are used in CSS
+    // declarations and SVG attributes. Each one is validated against a strict
+    // grammar, and replaced by a default when it is not valid, so that a
+    // crafted value cannot add CSS declarations or attributes.
     this.shadow = options.shadow ?? 'none';
-    this.strokeWidth = options.strokeWidth ?? '0.06em';
-    if (!this.strokeWidth) this.strokeWidth = '0.06em';
-    this.strokeStyle = options.strokeStyle;
+    this.strokeWidth = validateCssLength(options.strokeWidth) ?? '0.06em';
+    this.strokeStyle = /^(solid|dashed|dotted|double|none)$/.test(
+      options.strokeStyle ?? ''
+    )
+      ? options.strokeStyle
+      : 'solid';
     this.svgStrokeStyle = options.svgStrokeStyle;
-    this.strokeColor = options.strokeColor;
-    this.borderStyle = options.borderStyle;
+    this.strokeColor = validateCssColor(options.strokeColor) ?? 'currentColor';
+    this.backgroundcolor =
+      validateCssColor(options.backgroundcolor) ?? 'transparent';
+    this.borderStyle =
+      validateCssBorder(options.borderStyle) ??
+      `${this.strokeWidth} ${this.strokeStyle} ${this.strokeColor}`;
     this.padding = options.padding;
 
     this.captureSelection = false;
@@ -352,7 +368,7 @@ export class EncloseAtom extends Atom {
     if (this.backgroundcolor)
       notation.setStyle('background-color', this.backgroundcolor);
 
-    if (this.notation.box) notation.setStyle('border', '1px solid red');
+    if (this.notation.box) notation.setStyle('border', this.borderStyle);
 
     if (this.notation.actuarial) {
       notation.setStyle('border-top', this.borderStyle);
@@ -385,15 +401,20 @@ export class EncloseAtom extends Atom {
       notation.setStyle('border-bottom', this.borderStyle);
 
     if (svg) {
-      let svgStyle = '';
+      // The shadow is a CSS declaration. It is placed inside the quoted
+      // `style` attribute of the SVG overlay (see `Box.toMarkup()`), never
+      // emitted as raw attribute text. The value is validated against a strict
+      // grammar first, so a crafted value cannot inject attributes.
       if (this.shadow === 'auto') {
-        svgStyle +=
-          'filter: drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
+        notation.svgFilter =
+          'drop-shadow(0 0 .5px rgba(255, 255, 255, .7)) drop-shadow(1px 1px 2px #333)';
+      } else if (this.shadow && this.shadow !== 'none') {
+        const shadow = validateShadow(this.shadow);
+        if (shadow) notation.svgFilter = `drop-shadow(${shadow})`;
       }
-      if (this.shadow !== 'none')
-        svgStyle += `filter: drop-shadow(${escapeSvgAttr(this.shadow ?? '')})`;
 
-      svgStyle += ` stroke-width="${escapeSvgAttr(this.strokeWidth ?? '')}" stroke="${escapeSvgAttr(this.strokeColor ?? '')}"`;
+      // `svgStyle` contains only quoted SVG presentation attributes.
+      let svgStyle = ` stroke-width="${escapeSvgAttr(this.strokeWidth ?? '')}" stroke="${escapeSvgAttr(this.strokeColor ?? '')}"`;
       svgStyle += ' stroke-linecap="round"';
       if (this.svgStrokeStyle)
         svgStyle += ` stroke-dasharray="${escapeSvgAttr(this.svgStrokeStyle)}"`;

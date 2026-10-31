@@ -366,7 +366,7 @@ exports[`COLORS 13/ color format "rgb(3.5, 0, 0)" renders correctly 1`] = `
 
 exports[`COLORS 14/ color format "rgb(3, 5, 7" renders correctly 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="color:rgb(3, 5, 7"><span class="ML__mathit">x</span></span><span class="ML__mathit">b</span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">a</span><span class="ML__mathit">x</span><span class="ML__mathit">b</span></span></span>",
   "no-error",
 ]
 `;
@@ -380,7 +380,7 @@ exports[`COLORS 15/ color format "rgb(125.5, 0.556, -12.5)" renders correctly 1`
 
 exports[`COLORS 16/ color format "rgb(xxy)" renders correctly 1`] = `
 [
-  "<span class="ML__latex"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">a</span><span style="color:rgb(xxy)"><span class="ML__mathit">x</span></span><span class="ML__mathit">b</span></span></span>",
+  "<span class="ML__latex"><span class="ML__strut" style="height:0.7em"></span><span class="ML__base"><span class="ML__mathit">a</span><span class="ML__mathit">x</span><span class="ML__mathit">b</span></span></span>",
   "no-error",
 ]
 `;

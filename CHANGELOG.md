@@ -1,36 +1,84 @@
-## Unreleased
+## [Unreleased]
 
 ### Security
 
 - Virtual keyboard, proxy and mathfield messages now default to same-origin
-  validation. Cross-origin integrations must explicitly allow their trusted
-  peer origins. Proxy responses and mathfield commands are accepted only from
-  the expected keyboard window; unrelated messages are silently ignored.
+  validation. Cross-origin integrations must explicitly allow their trusted peer
+  origins. Proxy responses and mathfield commands are accepted only from the
+  expected keyboard window; unrelated messages are silently ignored.
 - Cross-window keyboard settings can select built-in layouts but cannot supply
   custom layouts or keycap overrides, even with origin validation disabled.
   Configure custom HTML layouts directly in the keyboard's host window.
-- State-changing messages are bound to the connected mathfield window. A
-  `show` or settings message cannot select a new command recipient, and another
-  frame cannot take over while the keyboard is visible.
-- Same-origin validation no longer equates unrelated opaque (`"null"`)
-  origins or accepts a wildcard as a sender's origin.
+- State-changing messages are bound to the connected mathfield window. A `show`
+  or settings message cannot select a new command recipient, and another frame
+  cannot take over while the keyboard is visible.
+- Same-origin validation no longer equates unrelated opaque (`"null"`) origins
+  or accepts a wildcard as a sender's origin.
+
+## 0.111.1 _2026-10-09_
+
+### Security Advisories
+
+- Fixed a cross-site scripting (XSS) vulnerability in the `shadow` option of the
+  `\enclose` command. The value of the option was written into the markup of the
+  SVG overlay as raw attribute text, outside of any quoted attribute. A value
+  containing spaces could therefore add attributes, including event handlers, to
+  the `<svg>` element, and run script when the markup was inserted in the
+  document. The issue affected `convertLatexToMarkup()`, the editor and the
+  `<math-span>` / `<math-div>` static elements. No HTML in the input was needed,
+  so input-side HTML sanitizers did not catch it. The value is now validated
+  against a strict grammar (two or three CSS lengths and an optional color) and
+  emitted inside the quoted `style` attribute. Invalid values are ignored. As a
+  side effect, the `shadow` option, which never had any visible effect, now
+  works. This is the same class of issue as GHSA-qwj6-q94f-8425 and
+  GHSA-fm7p-gw32-828p.
+- Fixed a cross-site scripting (XSS) vulnerability in the handling of
+  `\htmlData` and `\href` values. A value consisting of a single quote character
+  was treated as an already quoted value and emitted as an unterminated quote.
+  The text of the following attributes then became part of the value, and a
+  crafted input could turn it into an event handler attribute. Attribute values
+  are now always escaped and quoted by the renderer. As part of this change, `&`
+  is now escaped in attribute values, so a character reference such as `&copy;`
+  in a URL is preserved literally.
+- Fixed a cross-site scripting (XSS) vulnerability in the MathML output of the
+  `\enclose` command. The notation names were written unescaped into the
+  `notation` attribute of the `<menclose>` element. A crafted first argument
+  could close the attribute and add elements, which ran script when the MathML
+  was inserted in the document by the `<math-span>` / `<math-div>` elements or
+  by `renderMathInElement()` (which generates MathML by default). Unknown
+  notation names are now dropped and the names are escaped.
+- The speakable text generated for accessibility by `renderMathInElement()` is
+  now inserted as text, not as HTML. In SSML mode, the text content is now XML
+  escaped.
+- Hardened the handling of CSS values that originate from the LaTeX input.
+  Colors that are not recognized by the color map, the border of `\bbox`, the
+  border and background options of `\enclose` and the argument of `\fontfamily`
+  are now validated against a strict grammar before being used in a `style`
+  attribute. Previously, a `;` in these values could add arbitrary CSS
+  declarations. Invalid values are ignored.
+
+### Issues Resolved
+
+- `\enclose{box}` now honors its border options instead of always rendering a
+  `1px solid red` border.
+- The `mathbackground` attribute of the MathML output of `\bbox` now contains
+  the color instead of `[object Object]`.
 
 ## 0.111.0 _2026-09-30_
 
 ### Breaking Changes
 
-- The `@cortex-js/compute-engine` package is no longer a dependency of
-  MathLive. The Compute Engine was never bundled with MathLive; it was only
-  used for its TypeScript types. If your application loads the Compute Engine
-  (for example with `import "https://esm.run/@cortex-js/compute-engine"`),
-  MathLive continues to pick it up from the global scope and
-  `MathfieldElement.computeEngine` still works, but it is now typed as `any`.
-  Applications that need the types should add the package to their own
-  dependencies.
+- The `@cortex-js/compute-engine` package is no longer a dependency of MathLive.
+  The Compute Engine was never bundled with MathLive; it was only used for its
+  TypeScript types. If your application loads the Compute Engine (for example
+  with `import "https://esm.run/@cortex-js/compute-engine"`), MathLive continues
+  to pick it up from the global scope and `MathfieldElement.computeEngine` still
+  works, but it is now typed as `any`. Applications that need the types should
+  add the package to their own dependencies.
 - The `mathfield.expression` getter and setter have been removed. Use
   `MathfieldElement.computeEngine.parse(mf.getValue())` to obtain a boxed
-  expression, and `mf.setValue(expr.latex)` (or `mf.setValue(expr)`, which
-  still accepts a MathJSON object) to set one.
+  expression, and `mf.setValue(expr.latex)` (or `mf.setValue(expr)`, which still
+  accepts a MathJSON object) to set one.
 - The `"math-json"` output format has been removed from `getValue()`. Use
   `MathfieldElement.computeEngine.parse(mf.getValue()).json` instead.
 - The `convertMathJsonToLatex()` function has been removed. Use
@@ -58,16 +106,15 @@
   @314systems)
 - **#3046** The alphabetic keys of the virtual keyboard now vibrate when they
   are pressed, like the other keys, on devices that support vibration. Set
-  `MathfieldElement.keypressVibration` to `false` to turn this off.
-  (contributed by @IsaacOscar)
-- **#3048** Added support for the `\genfrac` command from the `amsmath`
-  package:
+  `MathfieldElement.keypressVibration` to `false` to turn this off. (contributed
+  by @IsaacOscar)
+- **#3048** Added support for the `\genfrac` command from the `amsmath` package:
   `\genfrac{left-delim}{right-delim}{thickness}{mathstyle}{numerator}{denominator}`.
   An empty delimiter is a null delimiter. An empty thickness uses the default
   thickness, and a thickness of `0pt` gives no fraction bar. The mathstyle is
   empty (use the current mathstyle) or one of `0` (display), `1` (text), `2`
-  (script) or `3` (scriptscript). For example, `\genfrac{(}{)}{0pt}{}{n}{k}`
-  is the same as `\binom{n}{k}`.
+  (script) or `3` (scriptscript). For example, `\genfrac{(}{)}{0pt}{}{n}{k}` is
+  the same as `\binom{n}{k}`.
 
 ### Resolved Issues
 
@@ -76,39 +123,38 @@
   bound is now selected first, and the **Tab** key moves from the lower bound to
   the upper bound. Previously the upper bound was selected first. This matches
   the order of the bounds in the MathJSON output. The change applies to all
-  atoms with scripts: for example, in `x_i^2` the right arrow key now moves
-  from `x` into the subscript `i` before the superscript `2`.
-- **#2973** Fixed a `TypeError` ("this.mathfield is undefined") when a
-  mathfield was focused after another mathfield had been removed from the DOM
-  while it had the focus. This happened in Firefox and Safari, which do not
-  blur an element when it is removed. (contributed by @dor-sr)
+  atoms with scripts: for example, in `x_i^2` the right arrow key now moves from
+  `x` into the subscript `i` before the superscript `2`.
+- **#2973** Fixed a `TypeError` ("this.mathfield is undefined") when a mathfield
+  was focused after another mathfield had been removed from the DOM while it had
+  the focus. This happened in Firefox and Safari, which do not blur an element
+  when it is removed. (contributed by @dor-sr)
 - **#3075** Fixed the copy of a multiline mathfield: the row separators (`\\`)
   were dropped, so the rows `a=b` and `c=d` were copied as `a=bc=d`.
   `mf.getValue(0, -1)` had the same problem and is also fixed. This regression
   was introduced in 0.108.0. (contributed by @ubarkai)
-- **#3081** **Accessibility** The focusable element of a mathfield (the
-  keyboard sink, `role="textbox"`) now has an accessible name. It is copied
-  from the `<math-field>` element's `aria-labelledby`, `aria-label`,
-  associated `<label>` or `title`, and defaults to "math input field".
-  Previously the textbox had no name, or had only the spoken form of its
-  content, and axe reported `aria-input-field-name`. (contributed by
-  @rztaylor)
+- **#3081** **Accessibility** The focusable element of a mathfield (the keyboard
+  sink, `role="textbox"`) now has an accessible name. It is copied from the
+  `<math-field>` element's `aria-labelledby`, `aria-label`, associated `<label>`
+  or `title`, and defaults to "math input field". Previously the textbox had no
+  name, or had only the spoken form of its content, and axe reported
+  `aria-input-field-name`. (contributed by @rztaylor)
 - **Accessibility** The `aria-readonly` state of a read-only mathfield is now
   set on the focusable element of the mathfield (the keyboard sink,
   `role="textbox"`) and no longer on the `<math-field>` element, whose `group`
-  role does not support it. The state is now set when the `readonly`
-  attribute or the `readOnly` property is used: previously it was set only by
-  the `readonly` property, and it was not removed when the mathfield became
-  editable again. A read-only mathfield with editable prompts is not reported
-  as read-only. Chromium does not report `aria-readonly` for this element,
-  because the element is `contenteditable`.
-- When a mathfield is removed from the DOM while it has the focus, the
-  `change` (if the value was modified), `blur` and `focusout` events are now
-  dispatched in all browsers. Previously, they were dispatched only in
-  Chromium, so an application that saved the value in a `change` or `blur`
-  listener lost the last edit in Firefox and Safari. In Firefox and Safari the
-  element is already detached when these events are dispatched: only the
-  listeners attached to the mathfield itself receive them.
+  role does not support it. The state is now set when the `readonly` attribute
+  or the `readOnly` property is used: previously it was set only by the
+  `readonly` property, and it was not removed when the mathfield became editable
+  again. A read-only mathfield with editable prompts is not reported as
+  read-only. Chromium does not report `aria-readonly` for this element, because
+  the element is `contenteditable`.
+- When a mathfield is removed from the DOM while it has the focus, the `change`
+  (if the value was modified), `blur` and `focusout` events are now dispatched
+  in all browsers. Previously, they were dispatched only in Chromium, so an
+  application that saved the value in a `change` or `blur` listener lost the
+  last edit in Firefox and Safari. In Firefox and Safari the element is already
+  detached when these events are dispatched: only the listeners attached to the
+  mathfield itself receive them.
 - The hidden MathML content of the `<math-span>` and `<math-div>` elements is
   now wrapped in a `<math>` element. Without it, the browser did not parse the
   content as MathML.

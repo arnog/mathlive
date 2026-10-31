@@ -131,7 +131,17 @@ export class Box implements BoxInterface {
 
   svgBody?: string;
   svgOverlay?: string;
+  /**
+   * Additional attributes for the `<svg>` overlay element. Must be a string
+   * of `name="value"` pairs with escaped values. Never place CSS declarations
+   * here: use `svgFilter` instead.
+   */
   svgStyle?: string;
+  /**
+   * Value of the CSS `filter` property applied to the `<svg>` overlay. It is
+   * emitted inside the quoted `style` attribute of the element.
+   */
+  svgFilter?: string;
 
   id?: string;
 
@@ -391,6 +401,12 @@ export class Box implements BoxInterface {
       } else svgMarkup += 'top:0;left:0;width:100%;';
 
       svgMarkup += 'z-index:2;';
+      // The filter value is validated by the caller (see `validateShadow()`
+      // in `src/atoms/enclose.ts`). Escaping the quote characters guarantees
+      // that it cannot close the `style` attribute even if that validation
+      // is bypassed.
+      if (this.svgFilter)
+        svgMarkup += `filter:${this.svgFilter.replace(/["&<>]/g, (c) => `&#${c.charCodeAt(0)};`)};`;
       svgMarkup += '"';
 
       if (this.svgStyle) svgMarkup += this.svgStyle;
@@ -471,7 +487,7 @@ export class Box implements BoxInterface {
               const url = new URL(matched[2]);
               if (url.protocol !== 'http:' && url.protocol !== 'https:')
                 throw new Error(`Invalid URL: ${matched[2]}`);
-              props.push(`href="${matched[2].replace(/"/g, '&quot;')}"`);
+              props.push(`href="${escapeAttributeValue(matched[2])}"`);
             } else
               props.push(`data-${key}=${sanitizeAttributeValue(matched[2])}`);
           }
@@ -793,37 +809,39 @@ function sanitizeAttributeName(attribute: string): string {
   return attribute;
 }
 
+/**
+ * Escape a string for use inside a double-quoted HTML attribute value.
+ * `&` is escaped too, so that a character reference in the input (for
+ * example `&copy;`) is preserved literally instead of being decoded.
+ */
+function escapeAttributeValue(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Return a double-quoted, escaped HTML attribute value.
+ *
+ * If the input is wrapped in a matching pair of `"` or `'` (as in
+ * `\htmlData{x="foo"}`), the outer quotes are removed first. The input is
+ * never trusted to be correctly quoted: a value such as a single `"` would
+ * otherwise be emitted as an unterminated quote, and the following attributes
+ * would become part of the value and could be reinterpreted as attribute
+ * syntax. Every value is therefore escaped and re-quoted here.
+ */
 function sanitizeAttributeValue(value: string): string {
   value = value.trim();
 
-  //
-  // Double-quoted value
-  //
-  if (value.startsWith('"') && value.endsWith('"')) {
-    // Must not contain any `"`
-    if (/"/.test(value.slice(1, -1)))
-      throw new Error(`Invalid attribute value: ${value}`);
-    return value;
-  }
+  if (
+    value.length >= 2 &&
+    ((value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'")))
+  )
+    value = value.slice(1, -1);
+  else if (value.length === 0) throw new Error(`Invalid empty attribute value`);
 
-  //
-  // Single-quoted value
-  //
-  if (value.startsWith("'") && value.endsWith("'")) {
-    // Must not contain any `'`
-    if (/'/.test(value.slice(1, -1)))
-      throw new Error(`Invalid attribute value: ${value}`);
-    return value;
-  }
-
-  //
-  // Unquoted value
-  //
-
-  if (value.length === 0) throw new Error(`Invalid empty attribute value`);
-
-  // An unquoted value must not contain any literal space characters, `"`, `'`, `=`, `>`, `<` or backtick characters
-
-  // However, for extra safety, transform it into a quoted value and replace any quotes with &quot;
-  return `"${value.replace(/"/g, '&quot;')}"`;
+  return `"${escapeAttributeValue(value)}"`;
 }

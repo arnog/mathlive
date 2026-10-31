@@ -250,6 +250,20 @@ function atomsToSpeakableFragment(
   return result;
 }
 
+/**
+ * Text from the LaTeX input that is inserted in the speakable output. When
+ * the output is SSML (an XML format), the XML special characters are escaped
+ * so that the text cannot add elements to the SSML document.
+ */
+function speechText(value: string | undefined): string {
+  if (!value) return '';
+  if (!globalThis.MathfieldElement.textToSpeechMarkup) return value;
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
   atom: undefined | Atom | readonly Atom[]
@@ -277,7 +291,7 @@ function atomToSpeakableFragment(
   if (atom.id && mode === 'math')
     result += '<mark name="' + atom.id.toString() + '"/>';
 
-  if (atom.mode === 'text') return result + atom.value;
+  if (atom.mode === 'text') return result + speechText(atom.value);
 
   let numer = '';
   let denom = '';
@@ -536,7 +550,7 @@ function atomToSpeakableFragment(
         atomValue = latexValue;
       }
 
-      if (mode === 'text') result += atomValue;
+      if (mode === 'text') result += speechText(atomValue);
       else {
         if (atom.type === 'mbin') result += '<break time="150ms"/>';
 

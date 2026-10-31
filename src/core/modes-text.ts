@@ -1,4 +1,5 @@
 import { TextAtom } from '../atoms/text';
+import { validateFontFamily } from './css-validate';
 
 import type { Atom } from './atom';
 import type { Box } from './box';
@@ -159,8 +160,10 @@ export class TextMode extends Mode {
     if (TEXT_FONT_CLASS[fontFamily!])
       box.classes += ' ' + TEXT_FONT_CLASS[fontFamily!];
     else if (fontFamily) {
-      // Not a well-known family. Use a style.
-      box.setStyle('font-family', fontFamily);
+      // Not a well-known family. Use a style. The name comes from the LaTeX
+      // input and is validated so that it cannot add CSS declarations.
+      const family = validateFontFamily(fontFamily);
+      if (family) box.setStyle('font-family', family);
     }
 
     if (style.fontShape) {

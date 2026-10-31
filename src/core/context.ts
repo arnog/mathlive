@@ -10,6 +10,7 @@ import type {
   DimensionUnit,
 } from '../public/core-types';
 import type { ContextInterface, BoxInterface, FontMetrics } from './types';
+import { validateCssColor } from './css-validate';
 
 import { DEFAULT_FONT_SIZE, FONT_SCALE, PT_PER_EM } from './font-metrics';
 import { D, Dc, Mathstyle, MATHSTYLES } from './mathstyle';
@@ -385,7 +386,11 @@ export class Context implements ContextInterface {
     if (value === null) return null;
     const val = this.evaluate(value);
     if (val === undefined) return null;
-    if ('string' in val) return this.colorMap?.(val.string) ?? val.string;
+    // If the color map does not recognize the color, the raw string is used
+    // as a CSS color only if it has the syntax of a CSS color. It ends up in a
+    // `style` attribute, so a free-form string must not get through.
+    if ('string' in val)
+      return this.colorMap?.(val.string) ?? validateCssColor(val.string) ?? null;
 
     return null;
   }
@@ -393,8 +398,13 @@ export class Context implements ContextInterface {
     if (value === null) return null;
     const val = this.evaluate(value);
     if (val === undefined) return null;
-    if ('string' in val)
-      return this.backgroundColorMap?.(val.string) ?? val.string;
+    if ('string' in val) {
+      return (
+        this.backgroundColorMap?.(val.string) ??
+        validateCssColor(val.string) ??
+        null
+      );
+    }
 
     return null;
   }
