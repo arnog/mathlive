@@ -40,18 +40,13 @@ import { Context } from './context';
 import { Argument, LatexCommandDefinition } from 'latex-commands/types';
 import { codePointToLatex } from './unicode';
 import { isArray } from '../common/types';
+import { LatexResourceLimitError } from '../public/latex-errors';
 
 const MAX_LATEX_TOKENS = 100_000;
 const MAX_LATEX_INPUT_LENGTH = 200_000;
 const MAX_LATEX_PARSE_DEPTH = 256;
 
-/** Raised when LaTeX input exceeds a parser resource budget. */
-export class LatexResourceLimitError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'LatexResourceLimitError';
-  }
-}
+export { LatexResourceLimitError };
 
 type ParseResourceBudget = {
   remainingTokens: number;

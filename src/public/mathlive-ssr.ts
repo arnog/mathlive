@@ -16,7 +16,7 @@ import { toMathML } from '../formats/atom-to-math-ml';
 import { Box, coalesce, makeStruts } from '../core/box';
 import { Context } from '../core/context';
 import { parseLatex } from '../core/parser';
-export { LatexResourceLimitError } from '../core/parser';
+export { LatexResourceLimitError } from './latex-errors';
 import { atomToSpeakableText } from '../formats/atom-to-speakable-text';
 import { validateLatex as validateLatexInternal } from '../core/parser';
 
