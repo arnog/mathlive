@@ -13,6 +13,7 @@ import type {
   BoxType,
   FontName,
 } from './types';
+import { validateInlineStyle } from './css-validate';
 import { Atom } from './atom-class';
 
 export function boxType(type: AtomType | undefined): BoxType | undefined {
@@ -524,7 +525,8 @@ export class Box implements BoxInterface {
         const matched = entry.match(/([^:]+):(.+$)/);
         if (matched) {
           const key = matched[1].trim().replace(/ /g, '-');
-          if (key) styles.push(`${key}:${matched[2]}`);
+          const value = validateInlineStyle(key, matched[2]);
+          if (value !== undefined) styles.push(`${key.toLowerCase()}:${value}`);
         }
       }
     }
@@ -783,10 +785,7 @@ function horizontalLayout(box: Box, fontName: FontName): void {
  * characters of `\text{}`, `\mbox{}`, etc. from being interpreted as markup.
  */
 function escapeText(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function sanitizeAttributeName(attribute: string): string {

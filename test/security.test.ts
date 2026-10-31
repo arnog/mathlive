@@ -1,6 +1,7 @@
 import {
   convertLatexToMarkup,
   convertLatexToMathMl,
+  validateLatex,
 } from '../src/public/mathlive-ssr';
 
 //
@@ -112,19 +113,25 @@ test('Enclose shadow attribute injection', () => {
     convertLatexToMarkup(
       String.raw`\enclose{horizontalstrike}[shadow="1px 1px 2px red"]{x}`
     )
-  ).toMatch(/<svg style="[^"]*filter:drop-shadow\(1px 1px 2px red\);" stroke-width="/);
+  ).toMatch(
+    /<svg style="[^"]*filter:drop-shadow\(1px 1px 2px red\);" stroke-width="/
+  );
 
   expect(
     convertLatexToMarkup(
       String.raw`\enclose{horizontalstrike}[shadow="1px 1px rgba(0, 0, 0, .5)"]{x}`
     )
-  ).toMatch(/filter:drop-shadow\(1px 1px rgba\(0, 0, 0, .5\)\);" stroke-width="/);
+  ).toMatch(
+    /filter:drop-shadow\(1px 1px rgba\(0, 0, 0, .5\)\);" stroke-width="/
+  );
 
   // `auto` uses the built-in preset and nothing else.
   const auto = convertLatexToMarkup(
     String.raw`\enclose{horizontalstrike}[shadow="auto"]{x}`
   );
-  expect(auto).toMatch(/<svg style="[^"]*filter:drop-shadow\(0 0 .5px rgba\(255, 255, 255, .7\)\) drop-shadow\(1px 1px 2px #333\);" stroke-width="/);
+  expect(auto).toMatch(
+    /<svg style="[^"]*filter:drop-shadow\(0 0 .5px rgba\(255, 255, 255, .7\)\) drop-shadow\(1px 1px 2px #333\);" stroke-width="/
+  );
   expect(auto).not.toMatch(/drop-shadow\(auto\)/);
 
   // Invalid shadows are dropped entirely.
@@ -154,7 +161,9 @@ test('Attribute value that is a single quote character', () => {
   const m1 = convertLatexToMarkup(
     String.raw`\htmlData{a=",b=x onmouseover=alert(1) y}{x}`
   );
-  expect(m1).toMatch('<span data-a="&quot;" data-b="x onmouseover=alert(1) y">');
+  expect(m1).toMatch(
+    '<span data-a="&quot;" data-b="x onmouseover=alert(1) y">'
+  );
 
   const m2 = convertLatexToMarkup(
     String.raw`\htmlData{a=',b=' onmouseover=alert(1) c}{x}`
@@ -183,7 +192,9 @@ test('Attribute value that is a single quote character', () => {
 // are escaped.
 //
 test('Enclose notation names in MathML', () => {
-  const m1 = convertLatexToMathMl(String.raw`\enclose{box" onclick="alert(1)}{x}`);
+  const m1 = convertLatexToMathMl(
+    String.raw`\enclose{box" onclick="alert(1)}{x}`
+  );
   expect(m1).not.toMatch(/onclick/);
   // `box"` is not a known notation name, so it is dropped
   expect(m1).toMatch('<menclose notation=""><mi>x</mi></menclose>');
@@ -208,15 +219,25 @@ test('CSS declaration injection', () => {
     const m = convertLatexToMarkup(latex);
     expect(m).not.toMatch(/url\(|position:fixed|evil/);
   };
-  noInjection(String.raw`\bbox[border:1px solid red;background:url(//evil/x)]{x}`);
+  noInjection(
+    String.raw`\bbox[border:1px solid red;background:url(//evil/x)]{x}`
+  );
   noInjection(String.raw`\bbox[;background:url(//evil/x)]{x}`);
-  noInjection(String.raw`\enclose{roundedbox}[2px solid red;position:fixed;inset:0]{x}`);
-  noInjection(String.raw`\enclose{box}[mathbackground="red;background:url(//evil/x)"]{x}`);
-  noInjection(String.raw`\enclose{left}[mathcolor="red;position:fixed;inset:0"]{x}`);
+  noInjection(
+    String.raw`\enclose{roundedbox}[2px solid red;position:fixed;inset:0]{x}`
+  );
+  noInjection(
+    String.raw`\enclose{box}[mathbackground="red;background:url(//evil/x)"]{x}`
+  );
+  noInjection(
+    String.raw`\enclose{left}[mathcolor="red;position:fixed;inset:0"]{x}`
+  );
   noInjection(String.raw`\textcolor{red;background:url(//evil/x)}{x}`);
   noInjection(String.raw`\color{;background:url(//evil/x)} x`);
   noInjection(String.raw`\colorbox{red;background:url(//evil/x)}{x}`);
-  noInjection(String.raw`\fcolorbox{red;background:url(//evil/x)}{blue;position:fixed}{x}`);
+  noInjection(
+    String.raw`\fcolorbox{red;background:url(//evil/x)}{blue;position:fixed}{x}`
+  );
   noInjection(String.raw`\text{\fontfamily{serif;position:fixed;top:0}X}`);
 
   // Valid values are preserved
@@ -227,9 +248,50 @@ test('CSS declaration injection', () => {
     convertLatexToMarkup(String.raw`\enclose{roundedbox}[2px dashed blue]{x}`)
   ).toMatch('border:2px dashed blue');
   expect(
-    convertLatexToMarkup(String.raw`\enclose{box}[mathbackground="rgba(0, 0, 0, .5)"]{x}`)
+    convertLatexToMarkup(
+      String.raw`\enclose{box}[mathbackground="rgba(0, 0, 0, .5)"]{x}`
+    )
   ).toMatch('background-color:rgba(0, 0, 0, .5)');
   expect(
     convertLatexToMarkup(String.raw`\text{\fontfamily{Comic Sans MS}X}`)
   ).toMatch('font-family:Comic Sans MS');
+});
+
+test('htmlStyle only accepts safe formatting declarations', () => {
+  const unsafe = convertLatexToMarkup(
+    String.raw`\htmlStyle{background:url(https://attacker.invalid/x);position:fixed;inset:0;z-index:999999;--payload:url(https://attacker.invalid/y);font-size:999999vw;margin:-999999px;border:999999px solid red}{x}`
+  );
+  expect(unsafe).not.toMatch(
+    /attacker|url\(|position:|inset:|z-index|--payload|font-size|margin|border/
+  );
+
+  const safe = convertLatexToMarkup(
+    String.raw`\htmlStyle{color:red;background-color:#fff;border:1px solid blue;font-weight:bold;font-style:italic;padding:2px 4px;vertical-align:middle}{x}`
+  );
+  expect(safe).toMatch(
+    /style="color:red;background-color:#fff;border:1px solid blue;font-weight:bold;font-style:italic;padding:2px 4px;vertical-align:middle"/
+  );
+});
+
+test('LaTeX parser resource limits', () => {
+  const nested = String.raw`\frac{`.repeat(300) + 'x' + '}{x}'.repeat(300);
+  expect(() => convertLatexToMarkup(nested)).toThrow(
+    /Maximum LaTeX nesting depth/
+  );
+
+  expect(() =>
+    convertLatexToMarkup(String.raw`\loop`, {
+      macros: { loop: String.raw`\loop` },
+    })
+  ).toThrow(/Maximum LaTeX expansion depth/);
+
+  expect(() => convertLatexToMarkup('x'.repeat(100_001))).toThrow(
+    /Maximum LaTeX token budget/
+  );
+  expect(() => validateLatex('x'.repeat(100_001))).toThrow(
+    /Maximum LaTeX token budget/
+  );
+  expect(() => convertLatexToMarkup('x'.repeat(200_001))).toThrow(
+    /Maximum LaTeX input length/
+  );
 });

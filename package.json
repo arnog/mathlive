@@ -57,6 +57,7 @@
     "clean": "bash ./scripts/clean.sh",
     "dist": "bash ./scripts/build.sh production; bash ./scripts/test.sh",
     "lint": "eslint --fix src/; prettier -w src/",
+    "postinstall": "node ./scripts/patch-typedoc.mjs",
     "prepare": "bash ./scripts/build.sh production",
     "start": "bash ./scripts/start.sh",
     "test": "bash ./scripts/test.sh",
@@ -172,5 +173,11 @@
   "allowScripts": {
     "esbuild@0.28.2": true,
     "fsevents@2.3.3": true
+  },
+  "overrides": {
+    "deepmerge": "4.1.1",
+    "glob": "14.0.3",
+    "minimatch": "11.0.3",
+    "postcss-selector-parser": "7.1.7"
   }
 }

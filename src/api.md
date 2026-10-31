@@ -6365,6 +6365,34 @@ type Expression = number | string | {} | [Expression, ...Expression[]];
 
 ## Other
 
+### LatexResourceLimitError {#latexresourcelimiterror}
+
+Raised when LaTeX input exceeds a parser resource budget.
+
+#### Extends
+
+- `Error`
+
+<MemberCard>
+
+##### new LatexResourceLimitError() {#constructor}
+
+<MemberCard>
+
+##### new LatexResourceLimitError()
+
+```ts
+new LatexResourceLimitError(message): LatexResourceLimitError
+```
+
+###### message
+
+`string`
+
+</MemberCard>
+
+</MemberCard>
+
 ### MathDivElement {#mathdivelement}
 
 `<math-div>` web component for block-level mathematical expressions.
@@ -6392,7 +6420,7 @@ Events
 
 <MemberCard>
 
-##### new MathDivElement() {#constructor}
+##### new MathDivElement() {#constructor-1}
 
 <MemberCard>
 
@@ -6573,7 +6601,7 @@ Events
 
 <MemberCard>
 
-##### new MathSpanElement() {#constructor-2}
+##### new MathSpanElement() {#constructor-3}
 
 <MemberCard>
 
