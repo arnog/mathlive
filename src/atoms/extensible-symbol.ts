@@ -49,34 +49,7 @@ export class ExtensibleSymbolAtom extends Atom {
   }
 
   render(context: Context): Box | null {
-    // Most symbol operators get larger in displaystyle (rule 13)
-    // except `\smallint`
-    const large = context.isDisplayStyle && this.value !== '\\smallint';
-
-    const base = new Box(this.value, {
-      fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
-      classes: 'ML__op-symbol ' + (large ? 'ML__large-op' : 'ML__small-op'),
-      type: 'op',
-      maxFontSize: context.scalingFactor,
-      isSelected: this.isSelected,
-    });
-
-    if (!base) return null;
-
-    // Apply italic correction
-    base.right = base.italic;
-
-    // Shift the symbol so its center lies on the axis (rule 13). It
-    // appears that our fonts have the centers of the symbols already
-    // almost on the axis, so these numbers are very small. Note we
-    // don't actually apply this here, but instead it is used either in
-    // the vlist creation or separately when there are no limits.
-    const baseShift =
-      (base.height - base.depth) / 2 - AXIS_HEIGHT * context.scalingFactor;
-
-    // The slant of the symbol is just its italic correction.
-    const slant = base.italic;
-    base.setTop(baseShift);
+    const { base, baseShift, slant } = this.symbolBox(context);
 
     let result = base;
     if (this.superscript || this.subscript) {
@@ -96,6 +69,46 @@ export class ExtensibleSymbolAtom extends Atom {
       isSelected: this.isSelected,
       classes: 'ML__op-group',
     }).wrap(context);
+  }
+
+  /**
+   * The symbol alone, without its limits, centered on the axis, with the
+   * shift and the slant its limits are placed by. `\sideset` places its
+   * prescripts by it.
+   */
+  symbolBox(context: Context): {
+    base: Box;
+    baseShift: number;
+    slant: number;
+  } {
+    // Most symbol operators get larger in displaystyle (rule 13)
+    // except `\smallint`
+    const large = context.isDisplayStyle && this.value !== '\\smallint';
+
+    const base = new Box(this.value, {
+      fontFamily: large ? 'Size2-Regular' : 'Size1-Regular',
+      classes: 'ML__op-symbol ' + (large ? 'ML__large-op' : 'ML__small-op'),
+      type: 'op',
+      maxFontSize: context.scalingFactor,
+      isSelected: this.isSelected,
+    });
+
+    // Apply italic correction
+    base.right = base.italic;
+
+    // Shift the symbol so its center lies on the axis (rule 13). It
+    // appears that our fonts have the centers of the symbols already
+    // almost on the axis, so these numbers are very small. Note we
+    // don't actually apply this here, but instead it is used either in
+    // the vlist creation or separately when there are no limits.
+    const baseShift =
+      (base.height - base.depth) / 2 - AXIS_HEIGHT * context.scalingFactor;
+
+    // The slant of the symbol is just its italic correction.
+    const slant = base.italic;
+    base.setTop(baseShift);
+
+    return { base, baseShift, slant };
   }
 
   _serialize(options: ToLatexOptions): string {

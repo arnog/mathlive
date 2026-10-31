@@ -28,6 +28,8 @@ import { TextAtom } from '../atoms/text';
 import { TooltipAtom } from '../atoms/tooltip';
 import { PromptAtom } from '../atoms/prompt';
 import { OperatorAtom } from '../atoms/operator';
+import { PrescriptAtom } from '../atoms/prescript';
+import { SidesetAtom } from '../atoms/sideset';
 import type { Argument } from 'latex-commands/types';
 import type { AtomJson, AtomType } from './types';
 
@@ -73,8 +75,10 @@ export function fromJson(json: AtomJson | AtomJson[]): Atom | Atom[] {
   if (type === 'overlap') result = OverlapAtom.fromJson(json);
   if (type === 'overunder') result = OverunderAtom.fromJson(json);
   if (type === 'placeholder') result = PlaceholderAtom.fromJson(json);
+  if (type === 'prescript') result = PrescriptAtom.fromJson(json);
   if (type === 'prompt') result = PromptAtom.fromJson(json);
   if (type === 'phantom') result = PhantomAtom.fromJson(json);
+  if (type === 'sideset') result = SidesetAtom.fromJson(json);
   if (type === 'sizeddelim') result = SizedDelimAtom.fromJson(json);
   if (type === 'spacing') result = SpacingAtom.fromJson(json);
   if (type === 'subsup') result = SubsupAtom.fromJson(json);
