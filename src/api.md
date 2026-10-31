@@ -6082,6 +6082,38 @@ renderMathInElement("formula");
 
 ## Conversion
 
+### LatexResourceLimitError {#latexresourcelimiterror}
+
+Raised when LaTeX input exceeds a parser resource budget: the length of
+the input, the number of tokens, or the nesting depth of the parse.
+
+This class is declared in `src/public/` because the build publishes only
+the type declarations of the files in this directory.
+
+#### Extends
+
+- `Error`
+
+<MemberCard>
+
+##### new LatexResourceLimitError() {#constructor}
+
+<MemberCard>
+
+##### new LatexResourceLimitError()
+
+```ts
+new LatexResourceLimitError(message): LatexResourceLimitError
+```
+
+###### message
+
+`string`
+
+</MemberCard>
+
+</MemberCard>
+
 <MemberCard>
 
 ### LatexSyntaxError {#latexsyntaxerror}
@@ -6364,34 +6396,6 @@ type Expression = number | string | {} | [Expression, ...Expression[]];
 </MemberCard>
 
 ## Other
-
-### LatexResourceLimitError {#latexresourcelimiterror}
-
-Raised when LaTeX input exceeds a parser resource budget.
-
-#### Extends
-
-- `Error`
-
-<MemberCard>
-
-##### new LatexResourceLimitError() {#constructor}
-
-<MemberCard>
-
-##### new LatexResourceLimitError()
-
-```ts
-new LatexResourceLimitError(message): LatexResourceLimitError
-```
-
-###### message
-
-`string`
-
-</MemberCard>
-
-</MemberCard>
 
 ### MathDivElement {#mathdivelement}
 
