@@ -82,12 +82,14 @@ defineFunction(['underbrace'], '{:auto}', {
     }),
 });
 
+// `\longrightarrow`, `\longleftarrow` and `\longleftrightarrow` are not
+// among them: in LaTeX they are symbols, which take no argument (see
+// symbols.ts), so in `a\longrightarrow b` the `b` follows the arrow. mhchem
+// writes them alone, as `\mathrel{\longrightarrow}`.
 defineFunction(
   [
     'xrightarrow',
-    'longrightarrow', // From mhchem.sty package
     'xleftarrow',
-    'longleftarrow', // From mhchem.sty package
     'xRightarrow',
     'xLeftarrow',
     'xleftharpoonup',
@@ -98,7 +100,6 @@ defineFunction(
     'xtwoheadleftarrow',
     'xtwoheadrightarrow',
     'xleftrightarrow',
-    'longleftrightarrow', // From mhchem.sty package
     'xLeftrightarrow',
     'xrightleftharpoons', // From mhchem.sty package
     'longrightleftharpoons',

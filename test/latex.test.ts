@@ -118,6 +118,32 @@ describe('INFIX COMMANDS', () => {
   expect(error('a\\over b \\over c')).toMatch('too-many-infix-commands');
 });
 
+describe('LONG ARROWS', () => {
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    for (const atom of atoms) atom.verbatimLatex = undefined;
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  // In LaTeX they are symbols: what follows them is not a label
+  test.each([
+    ['a\\longrightarrow b', 'a\\longrightarrow b'],
+    ['\\longleftarrow', '\\longleftarrow'],
+    ['A\\longleftrightarrow B', 'A\\longleftrightarrow B'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+  });
+
+  test('a\\longrightarrow b draws the arrow, then b', () => {
+    expect(convertLatexToMarkup('a\\longrightarrow b')).toContain('\u27f6');
+  });
+
+  test('mhchem still draws its arrows', () => {
+    expect(error('\\ce{A -> B}')).toBe('no-error');
+    expect(error('\\ce{A <=> B}')).toBe('no-error');
+  });
+});
+
 describe('VARIANT SERIALIZATION (issue #2867)', () => {
   function serialize(latex: string): string {
     const atoms = parseLatex(latex, { parseMode: 'math' });
