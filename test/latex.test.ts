@@ -140,6 +140,38 @@ describe('VARIANT SERIALIZATION (issue #2867)', () => {
   });
 });
 
+describe('BOLD ITALIC (\\bm, \\boldsymbol)', () => {
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    // `\bm` and `\boldsymbol` keep the letter's shape: italic for a Latin
+    // letter, so they are not `\mathbf`, which is upright
+    ['\\boldsymbol{x}', '\\bm{x}'],
+    ['\\bm{x}', '\\bm{x}'],
+    ['\\bm{x}^{\\top}\\mathbf{W}\\bm{x}', '\\bm{x}^{\\top}\\mathbf{W}\\bm{x}'],
+    ['\\boldsymbol{\\alpha}', '\\bm{\\alpha}'],
+    // Digits are upright either way
+    ['\\boldsymbol{1}', '\\mathbf{1}'],
+    ['\\mathbf{x}', '\\mathbf{x}'],
+    ['\\mathbf{Wx}', '\\mathbf{Wx}'],
+    // A bold italic variant carries its own weight
+    ['\\mathbfit{x}', '\\mathbfit{x}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+  });
+
+  test('\\bm{x} is drawn bold italic, \\mathbf{x} bold upright', () => {
+    expect(convertLatexToMarkup('\\bm{x}')).toContain('ML__mathbfit');
+    expect(convertLatexToMarkup('\\boldsymbol{x}')).toContain('ML__mathbfit');
+    expect(convertLatexToMarkup('\\mathbf{x}')).not.toContain('ML__mathbfit');
+    // An uppercase Greek letter is upright in TeX's letter shapes
+    expect(convertLatexToMarkup('\\bm{\\Gamma}')).not.toContain('ML__mathbfit');
+  });
+});
+
 describe('MATHRM SERIALIZATION (issue #2818)', () => {
   function serialize(latex: string): string {
     const atoms = parseLatex(latex, { parseMode: 'math' });

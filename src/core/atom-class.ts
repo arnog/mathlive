@@ -1080,7 +1080,7 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
             mode: this.mode,
             maxFontSize: context.scalingFactor,
             style: {
-              variant: 'normal', // Will auto-italicize
+              // No variant means the automatic shape: see MathMode.getFont()
               ...this.style,
               fontSize: Math.max(
                 1,
