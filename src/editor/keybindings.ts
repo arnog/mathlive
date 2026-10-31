@@ -101,12 +101,7 @@ export function getKeybindingsForCommand(
 
   const regex = new RegExp(
     '^' +
-      normalizedCommand
-        .replace('\\', '\\\\')
-        .replace('|', '\\|')
-        .replace('*', '\\*')
-        .replace('$', '\\$')
-        .replace('^', '\\^') +
+      normalizedCommand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
       '([^*a-zA-Z]|$)'
   );
   for (const keybinding of keybindings) {

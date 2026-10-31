@@ -485,7 +485,7 @@ const TEXT_SYMBOLS: Record<string, number> = {
 };
 
 export const COMMAND_MODE_CHARACTERS =
-  /[\w!@*()-=+{}\[\]\\';:?/.,~<>`|$%#&^" ]/;
+  /[\w!@*()=+{}\[\]\\';:?/.,~<>`|$%#&^" \-]/;
 
 export let LETTER: RegExp;
 export let LETTER_AND_DIGITS: RegExp;

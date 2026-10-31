@@ -1394,44 +1394,34 @@ class GrokThemeRenderContext extends MarkdownThemeContext {
 }
 
 function escapeChars(str) {
-  return str
-    .replace(/>/g, '\\>')
-    .replace(/</g, '\\<')
-    .replace(/{/g, '\\{')
-    .replace(/}/g, '\\}')
-    .replace(/_/g, '\\_')
-    .replace(/`/g, '\\`')
-    .replace(/\|/g, '\\|')
-    .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]')
-    .replace(/\*/g, '\\*');
+  const escapable = new Set('\\><{}_`|[]*');
+  let result = '';
+  for (const char of str) result += escapable.has(char) ? `\\${char}` : char;
+  return result;
 }
 
 function unEscapeChars(str) {
-  return str
-    .replace(
-      /(`[^`]*?)\\*([^`]*?`)/g,
-      (match, p1, p2) => `${p1}${p2.replace(/\*/g, '\\*')}`
-    )
-    .replace(/\\\\/g, '\\')
-    .replace(/(?<!\\)\*/g, '')
-    .replace(/\\</g, '<')
-    .replace(/\\>/g, '>')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\\_/g, '_')
-    .replace(/\\{/g, '{')
-    .replace(/\\}/g, '}')
-    .replace(/``.*?``|(?<!\\)`/g, (match) =>
-      match.startsWith('``') ? match : ''
-    )
+  const escapable = new Set('\\><{}_`|[]*');
+  let result = '';
+  for (let i = 0; i < str.length; i += 1) {
+    const char = str[i];
+    if (char === '\\' && i + 1 < str.length && escapable.has(str[i + 1])) {
+      result += str[i + 1];
+      i += 1;
+    } else if (char === '*') {
+      // Remove Markdown emphasis markers. Escaped asterisks are handled above
+      // and remain literal characters.
+    } else if (char === '`' && str[i + 1] !== '`' && str[i - 1] !== '`') {
+      // Remove Markdown inline-code delimiters. Escaped backticks and paired
+      // double backticks remain literal TypeScript syntax.
+    } else result += char;
+  }
+
+  return result
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
     .replace(/`` /g, '')
     .replace(/ ``/g, '')
-    .replace(/\\`/g, '`')
-    .replace(/\\\*/g, '*')
-    .replace(/\\\|/g, '|')
-    .replace(/\\\]/g, ']')
-    .replace(/\\\[/g, '[')
     .replace(/\[([^[\]]*)\]\((.*?)\)/gm, '$1');
 }
 
@@ -1499,7 +1489,6 @@ function printStackTrace(s) {
   var err = new Error();
   console.log(s + '\n' + err.stack.split('\n').slice(2).join('\n'));
 }
-
 
 function horizontalRule() {
   return '\n\n***\n\n';

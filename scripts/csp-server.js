@@ -16,8 +16,27 @@ const cspHeader = `default-src 'self'; script-src 'self' 'unsafe-inline' https:/
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
-  // Construct the file path
-  let filePath = path.join(servedir, req.url === '/' ? 'dist/smoke/' : req.url);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(
+      new URL(req.url, 'http://localhost').pathname
+    );
+  } catch {
+    res.writeHead(400);
+    res.end('Bad request');
+    return;
+  }
+
+  // Resolve the request under the server root and reject traversal attempts.
+  const relativePath =
+    pathname === '/' ? 'dist/smoke/' : pathname.replace(/^\/+/, '');
+  let filePath = path.resolve(servedir, relativePath);
+  const serverRoot = path.resolve(servedir) + path.sep;
+  if (!filePath.startsWith(serverRoot)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
   if (filePath.endsWith('/')) filePath += 'index.html';
 
   // Check if the file exists
@@ -42,7 +61,7 @@ const server = http.createServer((req, res) => {
     } else {
       // If the file doesn't exist, return 404
       res.writeHead(404);
-      res.end(`${filePath} not found`);
+      res.end('Not found');
     }
   });
 });

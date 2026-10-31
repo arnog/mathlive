@@ -338,7 +338,7 @@ const normalizedMatrices = [
 ] as const;
 
 function normalizeMatrixName(environment: MatrixEnvironment) {
-  return environment.replace('*', '') as (typeof normalizedMatrices)[number];
+  return environment.replace(/\*/g, '') as (typeof normalizedMatrices)[number];
 }
 
 const normalizedCases = ['cases', 'rcases'] as const;

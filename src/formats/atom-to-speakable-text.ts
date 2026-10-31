@@ -154,7 +154,7 @@ const ENVIRONMENTS_NAMES = {
 
 function getSpokenName(latex: string): string {
   let result = '';
-  if (latex.startsWith('\\')) result = ' ' + latex.replace('\\', '') + ' ';
+  if (latex.startsWith('\\')) result = ' ' + latex.slice(1) + ' ';
 
   return result;
 }
@@ -686,7 +686,9 @@ function atomToSpeakableFragment(
   if (!supsubHandled && !atom.hasEmptyBranch('superscript')) {
     let sup = atomToSpeakableFragment(mode, atom.superscript);
     sup = sup.trim();
-    const sup2 = sup.replace(/<[^>]*>/g, '');
+    const sup2 = globalThis.MathfieldElement.textToSpeechMarkup
+      ? speechMarkupToText(sup)
+      : sup;
     if (isAtomic(atom.superscript)) {
       if (mode === 'math') {
         const id = atomicID(atom.superscript);
@@ -803,8 +805,24 @@ export function atomToSpeakableText(atoms: Atom | readonly Atom[]): string {
     // If no markup was requested, or 'mac' markup, but we're not on a mac,
     // remove any that we may have
     // Strip out the SSML markup
-    result = result.replace(/<[^>]*>/g, '').replace(/\s{2,}/g, ' ');
+    if (mfe.textToSpeechMarkup) result = speechMarkupToText(result);
+    result = result.replace(/\s{2,}/g, ' ');
   }
 
+  return result;
+}
+
+/** Convert the small, generated SSML subset to plain text. User-provided text
+ * is XML-escaped before it reaches this function, so only generated tags are
+ * recognized as markup.
+ */
+function speechMarkupToText(value: string): string {
+  let result = '';
+  let inTag = false;
+  for (const char of value) {
+    if (char === '<') inTag = true;
+    else if (char === '>') inTag = false;
+    else if (!inTag) result += char;
+  }
   return result;
 }

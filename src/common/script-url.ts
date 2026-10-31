@@ -98,7 +98,8 @@ export async function resolveUrl(url: string): Promise<string> {
         // jsdelivr.net does not resolve to a script, but to a pseudo-directory
         // i.e. https://cdn.jsdelivr.net/npm/mathlive
         // We need to add a trailing slash to make it a directory
-        if (gResolvedScriptUrl.includes('jsdelivr.net/'))
+        const resolvedUrl = new URL(gResolvedScriptUrl);
+        if (resolvedUrl.hostname === 'cdn.jsdelivr.net')
           gResolvedScriptUrl += '/';
       }
     } catch (e) {

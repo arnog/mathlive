@@ -163,23 +163,24 @@ function convertStringToAtoms(s: string, context: ContextInterface): Atom[] {
 }
 
 function escapeTextModeCharacters(s: string): string {
-  // Map special TeX characters to alternatives
-  // Must do this one first, since other replacements include backslash
-  s = s.replace(/\\/g, '\\textbackslash ');
-
-  s = s.replace(/#/g, '\\#');
-  s = s.replace(/%/g, '\\%');
-  s = s.replace(/&/g, '\\&');
-  s = s.replace(/_/g, '\\_');
-  s = s.replace(/{/g, '\\textbraceleft ');
-  s = s.replace(/}/g, '\\textbraceright ');
-  s = s.replace(/lbrace/g, '\\textbraceleft ');
-  s = s.replace(/rbrace/g, '\\textbraceright ');
-  s = s.replace(/\^/g, '\\textasciicircum ');
-  s = s.replace(/~/g, '\\textasciitilde ');
-  s = s.replace(/£/g, '\\textsterling ');
-
-  return s;
+  const replacements: Record<string, string> = {
+    '\\': '\\textbackslash ',
+    '#': '\\#',
+    '%': '\\%',
+    '&': '\\&',
+    '_': '\\_',
+    '{': '\\textbraceleft ',
+    '}': '\\textbraceright ',
+    'lbrace': '\\textbraceleft ',
+    'rbrace': '\\textbraceright ',
+    '^': '\\textasciicircum ',
+    '~': '\\textasciitilde ',
+    '£': '\\textsterling ',
+  };
+  return s.replace(
+    /\\|lbrace|rbrace|[#%&_{}^~£]/g,
+    (match) => replacements[match]
+  );
 }
 
 new TextModeEditor();
