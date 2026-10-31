@@ -18,6 +18,7 @@ import type { LayoutOptions } from './options';
 import type { Expression } from './core-types';
 import { getStylesheet, getStylesheetContent } from '../common/stylesheet';
 import { loadFonts } from '../core/fonts';
+import { getStaticCopyData } from '../common/static-copy';
 
 /**
  * Format types supported by static elements
@@ -42,6 +43,73 @@ function ensureFontsLoaded(): void {
 }
 
 /**
+ * Convert the content of a static element to LaTeX
+ */
+function convertContentToLatex(
+  content: string,
+  format: StaticElementFormat
+): string {
+  if (format === 'ascii-math') return convertAsciiMathToLatex(content);
+  if (format === 'math-json')
+    return mathJsonToLatex(JSON.parse(content) as Expression);
+  return content;
+}
+
+/**
+ * The LaTeX source of a static element, as put on the clipboard. If the
+ * content cannot be converted (e.g. invalid MathJSON, or MathJSON without the
+ * Compute Engine), it is returned as is.
+ */
+function getElementLatex(element: MathStaticElement): string {
+  const content = element.textContent?.trim() ?? '';
+  try {
+    return convertContentToLatex(content, element.format) || content;
+  } catch {
+    return content;
+  }
+}
+
+/**
+ * The `copy` event is dispatched to the focused element (or the body), not to
+ * the elements in the selection, so a listener is installed on the document
+ * of each connected static element (adding the same listener again is a
+ * no-op).
+ */
+function onDocumentCopy(event: ClipboardEvent): void {
+  if (event.defaultPrevented || !event.clipboardData) return;
+
+  // Leave copy from editable content (including `<math-field>`) alone
+  const path = event.composedPath();
+  const target = path[0];
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    (target instanceof HTMLElement && target.isContentEditable) ||
+    path.some(
+      (node) => node instanceof Element && node.tagName === 'MATH-FIELD'
+    )
+  )
+    return;
+
+  // Static elements inside another shadow tree cannot be in a selection of
+  // the document tree, so the elements of the document are enough
+  const doc = event.currentTarget as Document;
+  const elements = [...doc.querySelectorAll('math-span, math-div')];
+  if (elements.length === 0) return;
+
+  const data = getStaticCopyData(doc, elements, (element) => ({
+    latex: getElementLatex(element as MathStaticElement),
+    display: element instanceof MathDivElement,
+  }));
+  if (!data) return;
+
+  event.clipboardData.setData('text/plain', data.text);
+  if (data.html !== undefined)
+    event.clipboardData.setData('text/html', data.html);
+  event.preventDefault();
+}
+
+/**
  * Base class for static math rendering elements
  */
 abstract class MathStaticElement extends HTMLElement {
@@ -58,11 +126,16 @@ abstract class MathStaticElement extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' })!;
 
     // Add stylesheets
-    if ('adoptedStyleSheets' in this._shadowRoot)
-      (this._shadowRoot as any).adoptedStyleSheets = [getStylesheet('core')];
-    else {
+    if ('adoptedStyleSheets' in this._shadowRoot) {
+      (this._shadowRoot as any).adoptedStyleSheets = [
+        getStylesheet('core'),
+        getStylesheet('math-static-element'),
+      ];
+    } else {
       const styleElement = document.createElement('style');
-      styleElement.textContent = getStylesheetContent('core');
+      styleElement.textContent =
+        getStylesheetContent('core') +
+        getStylesheetContent('math-static-element');
       (this._shadowRoot as ShadowRoot).appendChild(styleElement);
     }
 
@@ -114,6 +187,8 @@ abstract class MathStaticElement extends HTMLElement {
   connectedCallback(): void {
     // Lazy load fonts globally (performance optimization)
     ensureFontsLoaded();
+
+    this.ownerDocument.addEventListener('copy', onDocumentCopy);
 
     // Use Intersection Observer for deferred rendering (performance optimization)
     if ('IntersectionObserver' in window && !this._hasRendered) {
@@ -287,20 +362,7 @@ abstract class MathStaticElement extends HTMLElement {
       this._contentSlot.textContent = content;
 
       // Convert content based on format
-      let latex: string;
-      const format = this.format;
-
-      if (format === 'ascii-math') {
-        // Convert AsciiMath to LaTeX
-        latex = convertAsciiMathToLatex(content);
-      } else if (format === 'math-json') {
-        // Convert MathJSON to LaTeX
-        const mathJson: Expression = JSON.parse(content);
-        latex = mathJsonToLatex(mathJson);
-      } else {
-        // Already LaTeX
-        latex = content;
-      }
+      const latex = convertContentToLatex(content, this.format);
 
       // Build render options
       const options: Partial<LayoutOptions> = {
@@ -342,7 +404,7 @@ abstract class MathStaticElement extends HTMLElement {
         new CustomEvent('render', {
           bubbles: true,
           composed: true,
-          detail: { format, content: latex },
+          detail: { format: this.format, content: latex },
         })
       );
     } catch (error) {
@@ -396,6 +458,8 @@ abstract class MathStaticElement extends HTMLElement {
       if (!this._mathMLContainer) {
         this._mathMLContainer = document.createElement('div');
         this._mathMLContainer.style.position = 'absolute';
+        this._mathMLContainer.style.webkitUserSelect = 'none';
+        this._mathMLContainer.style.userSelect = 'none';
         this._mathMLContainer.style.width = '1px';
         this._mathMLContainer.style.height = '1px';
         this._mathMLContainer.style.overflow = 'hidden';
@@ -440,6 +504,15 @@ abstract class MathStaticElement extends HTMLElement {
  * <math-span format="ascii-math">x^2 + y^2</math-span>
  * <math-span mode="displaystyle">\\sum_{i=1}^n i</math-span>
  * ```
+ *
+ * The rendered formula can be selected. When copied on its own, its LaTeX
+ * source is put on the clipboard. When copied with some surrounding text, each
+ * `<math-span>` is replaced with its LaTeX source wrapped in `$...$` and each
+ * `<math-div>` with its LaTeX source wrapped in `$$...$$`, and the styles that
+ * the surrounding text gets from the style sheets of the page are not
+ * included in the copied HTML. A partially selected element is copied in
+ * full. If the selection includes a `<math-field>`, the default copy
+ * behavior is used.
  *
  * @event render - Fired when content is successfully rendered
  * @event render-error - Fired when rendering fails
