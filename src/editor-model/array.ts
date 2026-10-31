@@ -35,6 +35,7 @@ function cellSiblings(model: _Model): [Atom, Atom] {
  * If left sibling is \vert `vmatrix`
  * If left sibling is \Vert `Vmatrix`
  * If other \left\right create a matrix (inside the left-right)
+ * If in a subscript or a superscript, create a `\substack` (adding a row)
  *
  * If inside a leftright, use the content of the leftright as the initial cell
  */
@@ -150,6 +151,37 @@ function parentArray(
         if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
         else model.position = model.offsetOf(atom);
       }
+
+      return [undefined, [0, 0]];
+    }
+
+    //
+    // 3/ Are we in a subscript or a superscript, such as the limits of a
+    // `\sum`? A new row stacks them in a `\substack`.
+    //
+    const branch = atom.parentBranch;
+    if (
+      !where.endsWith('column') &&
+      atom.parent &&
+      (branch === 'subscript' || branch === 'superscript')
+    ) {
+      const parent = atom.parent;
+      const script = parent.branch(branch)!;
+      let secondCell = model.extractAtoms([
+        model.position,
+        model.offsetOf(script[script.length - 1]),
+      ]);
+      let firstCell = model.extractAtoms([
+        model.offsetOf(script[0]),
+        model.position,
+      ]);
+      if (firstCell.length === 0) firstCell = placeholderCell();
+      if (secondCell.length === 0) secondCell = placeholderCell();
+
+      const array = makeEnvironment('substack', [[firstCell], [secondCell]]);
+      parent.setChildren([array], branch);
+      if (isPlaceholderCell(array, 1, 0)) selectCell(model, array, 1, 0);
+      else setPositionInCell(model, array, 1, 0, 'start');
 
       return [undefined, [0, 0]];
     }

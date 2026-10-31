@@ -164,6 +164,43 @@ describe('MATHRM SERIALIZATION (issue #2818)', () => {
   });
 });
 
+describe('SUBSTACK AND SUBARRAY', () => {
+  // Remove the original LaTeX kept by the parser, so that the atoms are
+  // serialized by their own serializers.
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    for (const atom of atoms) {
+      atom.verbatimLatex = undefined;
+      for (const child of atom.children) child.verbatimLatex = undefined;
+    }
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    ['\\sum_{\\substack{i<n\\\\j<m}}x', '\\sum_{\\substack{i<n\\\\ j<m}}x'],
+    ['\\substack{a}', '\\substack{a}'],
+    [
+      '\\begin{subarray}{l}a\\\\b\\end{subarray}',
+      '\\begin{subarray}{l}a\\\\ b\\end{subarray}',
+    ],
+    [
+      '\\begin{subarray}{c}a\\\\b\\end{subarray}',
+      '\\begin{subarray}{c}a\\\\ b\\end{subarray}',
+    ],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+    expect(error(input)).toBe('no-error');
+    // What it writes reads back as itself
+    expect(serialize(expected)).toBe(expected);
+  });
+
+  test('\\substack is {subarray}{c}', () => {
+    expect(convertLatexToMarkup('x_{\\substack{a\\\\b}}')).toBe(
+      convertLatexToMarkup('x_{\\begin{subarray}{c}a\\\\b\\end{subarray}}')
+    );
+  });
+});
+
 describe('VALIDATE LATEX WITH MACROS', () => {
   test('custom macro is not flagged as unknown', () => {
     const errors = validateLatex('\\plimsoll', { macros: { plimsoll: '⦵' } });
