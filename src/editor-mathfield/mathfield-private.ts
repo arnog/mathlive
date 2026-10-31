@@ -99,7 +99,10 @@ import './mode-editor-text';
 import { computeInsertStyle, validateStyle } from './styling';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PromptAtom } from '../atoms/prompt';
-import { isVirtualKeyboardMessage } from '../virtual-keyboard/proxy';
+import {
+  isVirtualKeyboardMessage,
+  VirtualKeyboardProxy,
+} from '../virtual-keyboard/proxy';
 import '../public/mathfield-element';
 
 import '../virtual-keyboard/virtual-keyboard';
@@ -849,12 +852,20 @@ If you are using Vue, this may be because you are using the runtime-only build o
   async handleEvent(evt: Event): Promise<void> {
     if (!isValidMathfield(this)) return;
     if (isVirtualKeyboardMessage(evt)) {
-      if (!validateOrigin(evt.origin, this.options.originValidator ?? 'none')) {
-        throw new DOMException(
-          `Message from unknown origin (${evt.origin}) cannot be handled`,
-          'SecurityError'
-        );
-      }
+      const keyboard = window.mathVirtualKeyboard;
+      const source =
+        keyboard instanceof VirtualKeyboardProxy
+          ? keyboard.targetWindow
+          : window;
+      if (evt.source !== source) return;
+      const originValidator =
+        keyboard instanceof VirtualKeyboardProxy
+          ? keyboard.originValidator
+          : (this.options.originValidator ?? 'same-origin');
+      // Direct messages from the local keyboard also work on file: pages and
+      // in opaque sandboxed frames. Remote commands require both checks.
+      if (evt.source !== window && !validateOrigin(evt.origin, originValidator))
+        return;
 
       const { action } = evt.data;
 

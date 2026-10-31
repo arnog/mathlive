@@ -4855,7 +4855,11 @@ originValidator: OriginValidator;
 Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
 should be validated.
 
-**Default**: `"none"`
+Cross-origin peers must be explicitly allowed with a callback. Custom
+layouts and keycap overrides from all cross-window messages are rejected
+regardless of this policy. Rejected messages are silently ignored.
+
+**Default**: `"same-origin"`
 
 </MemberCard>
 
@@ -4953,6 +4957,10 @@ A layout has a name and styling information.
 In addition, a layout can be represented as a standard name which
 includes `"numeric"`, `"functions"`, `"symbols"`, `"alphabetic"`
 and `"greek".
+
+Custom layouts can contain HTML and must come from trusted code. An iframe
+can select built-in layout names only; configure custom layouts directly
+in the window that hosts the keyboard instead.
 
 **See* mathfield/guides/virtual-keyboards \| Guide: Virtual Keyboards
 
@@ -5389,7 +5397,11 @@ originValidator: OriginValidator;
 Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
 should be validated.
 
-**Default**: `"none"`
+Cross-origin peers must be explicitly allowed with a callback. Custom
+layouts and keycap overrides from all cross-window messages are rejected
+regardless of this policy. Rejected messages are silently ignored.
+
+**Default**: `"same-origin"`
 
 </MemberCard>
 
@@ -5478,6 +5490,10 @@ In addition, a layout can be represented as a standard name which
 includes `"numeric"`, `"functions"`, `"symbols"`, `"alphabetic"`
 and `"greek".
 
+Custom layouts can contain HTML and must come from trusted code. An iframe
+can select built-in layout names only; configure custom layouts directly
+in the window that hosts the keyboard instead.
+
 **See* mathfield/guides/virtual-keyboards \| Guide: Virtual Keyboards
 
 </MemberCard>
@@ -5565,15 +5581,16 @@ type NormalizedVirtualKeyboardLayout = VirtualKeyboardLayoutCore & {
 type OriginValidator = ((origin) => boolean) | "same-origin" | "none";
 ```
 
-Specify behavior for origin validation when using the virtual keyboard.
+Specify origin validation when using the virtual keyboard. The default is
+same-origin validation. Rejected messages are silently ignored.
 
 <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
 
 | Value | Description |
 | ----- | ----------- |
-| `"same-origin"` | The origin of received message must be the same of hosted window, instead exception will throw. |
-| `(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
-| `"none"` | No origin validation for post messages. |
+| `"same-origin"` | Accept only messages from the same non-opaque origin (default). |
+| `(origin: string) => boolean` | Accept messages when the callback returns true. Use an exact allowlist of trusted origins. |
+| `"none"` | Disable origin validation. Avoid this on pages containing untrusted frames. |
 
 </div>
 

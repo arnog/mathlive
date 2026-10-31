@@ -27,15 +27,35 @@ The virtual keyboard will be shown in the parent frame window.
 
 ## Cross-Origin Communication
 
-By default browsers will not allow a frame to access the content of another
-frame if they are not on the same domain. 
+MathLive accepts keyboard messages from the same origin by default. To share
+the host keyboard with a trusted cross-origin iframe, configure both sides
+after importing MathLive, before focusing a mathfield.
 
-To allow this, you need to set the `mathVirtualKeyboard.targetOrigin` property to `"*"` (any domain). This will allow the keyboard to communicate with the mathfield.
+In the host page (for example, `https://host.example`):
 
-In addition, you may need to set the mathfield `virtualKeyboardTargetOrigin` property to `"*"` as well. This
-will allow the mathfield to communicate with the virtual keyboard in the parent frame.
+```js
+mathVirtualKeyboard.targetOrigin = 'https://math.example';
+mathVirtualKeyboard.originValidator = (origin) =>
+  origin === 'https://math.example';
+```
 
-You may set the origin to a specific domain if you prefer.
+In the mathfield iframe (`https://math.example`):
 
+```js
+mathVirtualKeyboard.targetOrigin = 'https://host.example';
+mathVirtualKeyboard.originValidator = (origin) =>
+  origin === 'https://host.example';
+```
 
+Use exact origins, including the scheme and any non-default port. Avoid
+`targetOrigin = '*'` and `originValidator = 'none'` on pages with untrusted
+frames. The receiving proxy and mathfield also verify the sending window.
 
+A cross-origin iframe can select built-in layout names, `alphabeticLayout`,
+and `editToolbar`. Configure custom HTML layouts and keycap overrides in the
+host page; they cannot be supplied through cross-origin messages, even when
+origin validation is disabled.
+
+For an isolated keyboard within an iframe, set
+`mathfield.mathVirtualKeyboardPolicy = 'sandboxed'`. This does not require
+cross-origin communication with the host keyboard.

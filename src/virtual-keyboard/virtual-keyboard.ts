@@ -24,6 +24,7 @@ import { getCommandTarget, COMMANDS, parseCommand } from '../editor/commands';
 import { SelectorPrivate } from '../editor/types';
 
 import { isVirtualKeyboardMessage, VIRTUAL_KEYBOARD_MESSAGE } from './proxy';
+import { LAYOUTS } from './data';
 import {
   makeKeyboardElement,
   makeEditToolbar,
@@ -242,7 +243,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
   constructor() {
     this.targetOrigin = window.origin;
-    this.originValidator = 'none';
+    this.originValidator = 'same-origin';
 
     this._alphabeticLayout = 'auto';
     this._layouts = Object.freeze(['default']);
@@ -260,13 +261,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
 
     this.listeners = {};
 
-    try {
-      window.top?.addEventListener('message', this);
-    } catch (e) {
-      // We are in an iframe and the parent document is not accessible
-      // (different domains)
-      window.addEventListener('message', this);
-    }
+    window.addEventListener('message', this);
 
     // Listen for when a mathfield gets focused, and show
     // the virtual keyboard if needed
@@ -588,24 +583,51 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       | (FocusEvent & { type: 'blur' })
   ): void {
     if (isVirtualKeyboardMessage(evt)) {
-      if (!validateOrigin(evt.origin, this.originValidator)) {
-        throw new DOMException(
-          `Message from unknown origin (${evt.origin}) cannot be handled`,
-          'SecurityError'
-        );
+      if (!evt.source) return;
+      if (evt.source !== window) {
+        if (this.isSandbox) return;
+        if (!validateOrigin(evt.origin, this.originValidator)) return;
       }
-      if (evt.data.action === 'disconnect') {
+      const { action } = evt.data;
+      // Responses to proxies must never select a new command recipient.
+      if (
+        ![
+          'connect',
+          'disconnect',
+          'proxy-created',
+          'execute-command',
+          'show',
+          'hide',
+          'update-setting',
+          'update-toolbar',
+        ].includes(action)
+      )
+        return;
+
+      if (action === 'connect') {
+        // Do not let another frame take over an active keyboard. A hidden
+        // keyboard can be handed to the next focused mathfield frame.
+        if (
+          this._visible &&
+          this.connectedMathfieldWindow &&
+          evt.source !== this.connectedMathfieldWindow
+        )
+          return;
+        this.connectedMathfieldWindow = evt.source as Window;
+      } else if (action === 'proxy-created') {
+        // This is only a stateless synchronization request. It must not grant
+        // the sender control of the keyboard.
+      } else if (evt.source !== this.connectedMathfieldWindow) {
+        return;
+      }
+
+      if (action === 'update-setting' && !isValidSetting(evt.data)) return;
+
+      if (action === 'disconnect') {
         // Ignore ALL disconnect requests while VK is visible
         if (this._visible) return;
 
         this.connectedMathfieldWindow = undefined;
-      } else if (
-        evt.data.action !== 'update-setting' &&
-        evt.data.action !== 'proxy-created' &&
-        evt.data.action !== 'execute-command'
-      ) {
-        console.assert(evt.source !== undefined);
-        this.connectedMathfieldWindow = evt.source as Window;
       }
 
       this.handleMessage(evt.data, evt.source);
@@ -649,12 +671,12 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   ): void {
     const { action } = msg;
     if (action === 'execute-command') {
-      const { command } = msg;
-      const commandTarget = getCommandTarget(command!);
-
       // If we're in the top window and receiving a message from an iframe,
       // don't handle it here (the iframe's mathfield will handle it)
       if (window === window.top && source !== window) return;
+
+      const { command } = msg;
+      const commandTarget = getCommandTarget(command!);
 
       // If we're receiving our own message for a mathfield command,
       // don't re-execute it here (the local mathfield will handle it)
@@ -669,9 +691,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         'synchronize-proxy',
         {
           boundingRect: this.boundingRect,
-          alphabeticLayout: this._alphabeticLayout,
-          layouts: this._layouts,
-          editToolbar: this._editToolbar,
+          isShifted: this.isShifted,
         },
         source
       );
@@ -720,9 +740,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         'synchronize-proxy',
         {
           boundingRect: this.boundingRect,
-          alphabeticLayout: this._alphabeticLayout,
-          layouts: this._layouts,
-          editToolbar: this._editToolbar,
+          isShifted: this.isShifted,
         },
         source
       );
@@ -867,8 +885,7 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
   ): boolean {
     command = parseCommand(command) as
-      | SelectorPrivate
-      | [SelectorPrivate, ...any[]];
+      SelectorPrivate | [SelectorPrivate, ...any[]];
     if (!command) return false;
 
     let selector: SelectorPrivate;
@@ -897,6 +914,45 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     window.removeEventListener('blur', this);
     window.removeEventListener('message', this);
   }
+}
+
+/** Cross-window peers can select built-in settings, but cannot supply HTML,
+ * CSS, keycap overrides or commands through custom layout definitions. Custom
+ * layouts remain available through direct calls in the keyboard's host window.
+ */
+function isValidSetting(
+  msg: Extract<VirtualKeyboardMessage, { action: 'update-setting' }>
+): boolean {
+  if (
+    msg.alphabeticLayout !== undefined &&
+    !['auto', 'qwerty', 'azerty', 'qwertz', 'dvorak', 'colemak'].includes(
+      msg.alphabeticLayout
+    )
+  )
+    return false;
+  if (
+    msg.editToolbar !== undefined &&
+    !['none', 'default'].includes(msg.editToolbar)
+  )
+    return false;
+  if (msg.layouts !== undefined) {
+    const layouts = Array.isArray(msg.layouts) ? msg.layouts : [msg.layouts];
+    if (
+      !layouts.every((layout) => {
+        if (typeof layout === 'string') {
+          return (
+            layout === 'default' ||
+            layout === 'alphabetic' ||
+            Object.prototype.hasOwnProperty.call(LAYOUTS, layout)
+          );
+        }
+        return false;
+      })
+    )
+      return false;
+  }
+  if (msg.setKeycap !== undefined) return false;
+  return true;
 }
 
 function focusedMathfield(): MathfieldElement | null {

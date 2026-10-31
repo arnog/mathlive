@@ -197,7 +197,7 @@ export function getDefault(): Required<_MathfieldOptions> {
 
     mathVirtualKeyboardPolicy: 'auto',
 
-    originValidator: 'none',
+    originValidator: 'same-origin',
 
     onInsertStyle: defaultInsertStyleHook,
     onInlineShortcut: () => '',

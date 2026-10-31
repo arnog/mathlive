@@ -1,3 +1,20 @@
+## Unreleased
+
+### Security
+
+- Virtual keyboard, proxy and mathfield messages now default to same-origin
+  validation. Cross-origin integrations must explicitly allow their trusted
+  peer origins. Proxy responses and mathfield commands are accepted only from
+  the expected keyboard window; unrelated messages are silently ignored.
+- Cross-window keyboard settings can select built-in layouts but cannot supply
+  custom layouts or keycap overrides, even with origin validation disabled.
+  Configure custom HTML layouts directly in the keyboard's host window.
+- State-changing messages are bound to the connected mathfield window. A
+  `show` or settings message cannot select a new command recipient, and another
+  frame cannot take over while the keyboard is visible.
+- Same-origin validation no longer equates unrelated opaque (`"null"`)
+  origins or accepts a wildcard as a sender's origin.
+
 ## 0.111.0 _2026-09-30_
 
 ### Breaking Changes

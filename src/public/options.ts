@@ -8,24 +8,23 @@ import type {
 } from './core-types';
 
 /**
- * Specify behavior for origin validation when using the virtual keyboard.
+ * Specify origin validation when using the virtual keyboard. The default is
+ * same-origin validation. Rejected messages are silently ignored.
  *
  * <div className='symbols-table' style={{"--first-col-width":"32ex"}}>
  *
  * | Value | Description |
  * | ----- | ----------- |
- * | `"same-origin"` | The origin of received message must be the same of hosted window, instead exception will throw. |
- * | `(origin: string) => boolean` | The callback to verify origin to be expected validation. When callback return `false` value, message will rejected and exception will throw. |
- * | `"none"` | No origin validation for post messages. |
+ * | `"same-origin"` | Accept only messages from the same non-opaque origin (default). |
+ * | `(origin: string) => boolean` | Accept messages when the callback returns true. Use an exact allowlist of trusted origins. |
+ * | `"none"` | Disable origin validation. Avoid this on pages containing untrusted frames. |
  *
  * </div>
  *
  * @category Virtual Keyboard
  */
 export type OriginValidator =
-  | ((origin: string) => boolean)
-  | 'same-origin'
-  | 'none';
+  ((origin: string) => boolean) | 'same-origin' | 'none';
 
 /**
  * A keybinding associates a combination of physical keyboard keys with a
@@ -343,7 +342,7 @@ export type MathfieldOptions = LayoutOptions &
      * Specify how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
      * should be validated.
      *
-     * **Default**: `"none"`
+     * **Default**: `"same-origin"`
      */
     originValidator: OriginValidator;
   };

@@ -7,12 +7,7 @@ import type { OriginValidator } from './options';
  */
 
 export type AlphabeticKeyboardLayout =
-  | 'auto'
-  | 'qwerty'
-  | 'azerty'
-  | 'qwertz'
-  | 'dvorak'
-  | 'colemak';
+  'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
 
 /**
  * @category Virtual Keyboard
@@ -125,8 +120,8 @@ export type VirtualKeyboardLayoutCore = {
 export type VirtualKeyboardLayout = VirtualKeyboardLayoutCore &
   (
     | /** The set of layers for this layout */
-    { layers: (string | VirtualKeyboardLayer)[] }
-    /** As a shortcut, if a single layer, the rows of that layer */
+      { layers: (string | VirtualKeyboardLayer)[] }
+      /** As a shortcut, if a single layer, the rows of that layer */
     | { rows: (string | Partial<VirtualKeyboardKeycap>)[][] }
     | { markup: string }
   );
@@ -200,6 +195,10 @@ export interface VirtualKeyboardOptions {
    * includes `"numeric"`, `"functions"`, `"symbols"`, `"alphabetic"`
    * and `"greek".
    *
+   * Custom layouts can contain HTML and must come from trusted code. An iframe
+   * can select built-in layout names only; configure custom layouts directly
+   * in the window that hosts the keyboard instead.
+   *
    * **See* {@link mathfield/guides/virtual-keyboards | Guide: Virtual Keyboards}
    *
    *
@@ -272,7 +271,11 @@ export interface VirtualKeyboardOptions {
    * Specify behavior how origin of message from [postMessage](https://developer.mozilla.org/en/docs/Web/API/Window/postMessage)
    * should be validated.
    *
-   * **Default**: `"none"`
+   * Cross-origin peers must be explicitly allowed with a callback. Custom
+   * layouts and keycap overrides from all cross-window messages are rejected
+   * regardless of this policy. Rejected messages are silently ignored.
+   *
+   * **Default**: `"same-origin"`
    */
   originValidator: OriginValidator;
 }

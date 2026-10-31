@@ -274,10 +274,13 @@ export function validateOrigin(
   origin: string,
   originValidator: OriginValidator
 ): boolean {
-  if (origin === '*' || originValidator === 'none') return true;
+  // '*' is a targetOrigin wildcard, never a sender's origin. Opaque origins
+  // all serialize to 'null' and must not pass a same-origin comparison.
+  if (!origin || origin === '*') return false;
+  if (originValidator === 'none') return true;
 
   if (originValidator === 'same-origin')
-    return !window.origin || origin === window.origin;
+    return origin !== 'null' && origin === window.origin;
 
   if (typeof originValidator === 'function') return originValidator(origin);
 

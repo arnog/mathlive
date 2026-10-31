@@ -27,7 +27,12 @@ export function isVirtualKeyboardMessage(
 
   const msg = evt as MessageEvent<VirtualKeyboardMessage>;
 
-  return msg.data?.type === VIRTUAL_KEYBOARD_MESSAGE;
+  return (
+    msg.data !== null &&
+    typeof msg.data === 'object' &&
+    msg.data.type === VIRTUAL_KEYBOARD_MESSAGE &&
+    typeof msg.data.action === 'string'
+  );
 }
 /**
  * The `VirtualKeyboardProxy` singleton is used when inside an
@@ -45,7 +50,7 @@ export class VirtualKeyboardProxy
   }
 
   targetOrigin = window.origin;
-  originValidator: OriginValidator = 'none';
+  originValidator: OriginValidator = 'same-origin';
   targetWindow = window.top;
 
   private readonly listeners: {
@@ -68,14 +73,16 @@ export class VirtualKeyboardProxy
     keycap: string,
     value: string | Partial<VirtualKeyboardKeycap>
   ): void {
-    this.sendMessage('update-setting', { setKeycap: { keycap, value } });
+    this.sendConnectedMessage('update-setting', {
+      setKeycap: { keycap, value },
+    });
   }
 
   set alphabeticLayout(value: AlphabeticKeyboardLayout) {
-    this.sendMessage('update-setting', { alphabeticLayout: value });
+    this.sendConnectedMessage('update-setting', { alphabeticLayout: value });
   }
   set layouts(value: (VirtualKeyboardName | VirtualKeyboardLayout)[]) {
-    this.sendMessage('update-setting', { layouts: value });
+    this.sendConnectedMessage('update-setting', { layouts: value });
   }
   get normalizedLayouts(): (VirtualKeyboardLayoutCore & {
     layers: NormalizedVirtualKeyboardLayer[];
@@ -83,7 +90,7 @@ export class VirtualKeyboardProxy
     return [];
   }
   set editToolbar(value: EditToolbarOptions) {
-    this.sendMessage('update-setting', { editToolbar: value });
+    this.sendConnectedMessage('update-setting', { editToolbar: value });
   }
 
   set container(value: HTMLElement | null) {
@@ -100,7 +107,7 @@ export class VirtualKeyboardProxy
       })
     );
     if (success) {
-      this.sendMessage('show', options);
+      this.sendConnectedMessage('show', options);
       this.dispatchEvent(new Event('virtual-keyboard-toggle'));
     }
   }
@@ -143,11 +150,11 @@ export class VirtualKeyboardProxy
   }
 
   updateToolbar(mf: MathfieldProxy): void {
-    this.sendMessage('update-toolbar', mf);
+    this.sendConnectedMessage('update-toolbar', mf);
   }
 
   update(mf: MathfieldProxy): void {
-    this.sendMessage('update-setting', mf);
+    this.sendConnectedMessage('update-setting', mf);
   }
 
   connect(): void {
@@ -187,12 +194,8 @@ export class VirtualKeyboardProxy
 
   handleEvent(evt: Event): void {
     if (isVirtualKeyboardMessage(evt)) {
-      if (!validateOrigin(evt.origin, this.originValidator)) {
-        throw new DOMException(
-          `Message from unknown origin (${evt.origin}) cannot be handled`,
-          'SecurityError'
-        );
-      }
+      if (evt.source !== this.targetWindow) return;
+      if (!validateOrigin(evt.origin, this.originValidator)) return;
 
       this.handleMessage(evt.data);
     }
@@ -242,5 +245,14 @@ export class VirtualKeyboardProxy
       },
       this.targetOrigin
     );
+  }
+
+  /** Bind state-changing messages to this proxy's window before sending them. */
+  private sendConnectedMessage(
+    action: VirtualKeyboardMessageAction,
+    payload: any = {}
+  ): void {
+    this.sendMessage('connect');
+    this.sendMessage(action, payload);
   }
 }
