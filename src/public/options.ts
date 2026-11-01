@@ -328,6 +328,8 @@ export type LayoutOptions = {
   minFontScale: number;
 
   maxMatrixCols: number;
+
+  wrap: boolean;
 };
 
 /**
