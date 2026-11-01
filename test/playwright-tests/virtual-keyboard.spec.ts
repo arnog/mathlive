@@ -243,3 +243,63 @@ test('Switch layer by shift', async ({ page }) => {
     .evaluate((mfe: MathfieldElement) => mfe.value);
   expect(latex).toBe('Aa');
 });
+
+test('compact keycap scales structured labels', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  await page.locator('#mf-1').click();
+  await page.waitForFunction(() => Boolean(window.mathVirtualKeyboard));
+
+  await page.evaluate(() => {
+    window.mathVirtualKeyboard.layouts = [
+      {
+        label: 'compact',
+        rows: [
+          [
+            {
+              latex: String.raw`\begin{cases}#@ & #? \cr #@ & #?\end{cases}`,
+              class: 'compact',
+            },
+          ],
+        ],
+      },
+    ];
+  });
+
+  await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+  const keycap = page.locator('.MLK__layer.is-visible .MLK__keycap.compact');
+  await expect(keycap).toBeVisible();
+  await expect(keycap.locator('.ML__latex')).toHaveCSS(
+    'transform',
+    'matrix(0.72, 0, 0, 0.72, 0, 0)'
+  );
+});
+
+test('virtual keyboard inserts editable piecewise rows', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+  await page.locator('#mf-1').click();
+
+  await page.evaluate(() => {
+    window.mathVirtualKeyboard.layouts = [
+      {
+        label: 'piecewise',
+        rows: [
+          [
+            {
+              latex: String.raw`\begin{cases}#@ & #? \cr #@ & #?\end{cases}`,
+              class: 'compact',
+            },
+          ],
+        ],
+      },
+    ];
+  });
+
+  await page.locator('.ML__virtual-keyboard-toggle').nth(0).click();
+  await page.locator('.MLK__layer.is-visible .MLK__keycap.compact').click();
+
+  const latex = await page
+    .locator('#mf-1')
+    .evaluate((mfe: MathfieldElement) => mfe.getValue('latex-expanded'));
+  expect(latex).toContain('\\begin{cases}');
+  expect(latex.match(/\\placeholder\{\}/g)).toHaveLength(4);
+});

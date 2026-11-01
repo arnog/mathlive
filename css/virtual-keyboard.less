@@ -433,6 +433,15 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
     font-size: var(--_keycap-small-font-size);
   }
 
+  // Use for keycaps with tall structured labels (for example, a two-row
+  // piecewise template) that need to fit inside the standard key height.
+  .compact {
+    .ML__latex {
+      transform: scale(0.72);
+      transform-origin: center;
+    }
+  }
+
   /* For the alignment of the text on some modifiers (e.g. shift) */
   .bottom {
     justify-content: flex-end;
