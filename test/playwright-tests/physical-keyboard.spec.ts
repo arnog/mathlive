@@ -933,6 +933,115 @@ async function shiftTab(page) {
   await page.waitForTimeout(500);
 }
 
+for (const {
+  input,
+  start = 0,
+  end,
+  template,
+  expected,
+  reloaded = expected,
+  selectedOnly = false,
+} of [
+  {
+    input: '1+(a,[b,c))',
+    start: 2,
+    end: 11,
+    template: String.raw`\frac{#@}{2}`,
+    expected: String.raw`1+\frac{(a,[b,c))}{2}`,
+  },
+  {
+    input: '(a,b]',
+    end: 5,
+    template: String.raw`\frac{#@}{2}`,
+    expected: String.raw`\frac{(a,b]}{2}`,
+  },
+  {
+    input: 'red^3',
+    end: 3,
+    template: String.raw`\textcolor{#0}{x}^2`,
+    expected: String.raw`{\textcolor{red}{x}^2}^3`,
+    reloaded: '{x^2}^3',
+  },
+  { input: '2^3', end: 1, template: '#@^2', expected: '{2^2}^3' },
+  { input: 'a_2', end: 1, template: '#@_3', expected: '{a_3}_2' },
+  { input: '2^3', end: 1, template: 'a+#@^2', expected: 'a+{2^2}^3' },
+  {
+    input: 'a_2',
+    end: 1,
+    template: '#@^3',
+    expected: 'a^3_2',
+    reloaded: 'a_2^3',
+  },
+  {
+    input: '12^3',
+    end: 2,
+    template: 'a+z^2',
+    expected: 'a+{z^2}^3',
+    selectedOnly: true,
+  },
+  { input: '12^3', end: 2, template: '#@+#@^2', expected: '12+{12^2}^3' },
+  { input: '12^3', end: 2, template: '#@^2', expected: '{12^2}^3' },
+  { input: '(x+1)^2', end: 5, template: '#@^2', expected: '{(x+1)^2}^2' },
+  { input: '12^3', end: 2, template: 'a+#@^2', expected: 'a+{12^2}^3' },
+  { input: '(x+1)^2', end: 5, template: 'a+#@^2', expected: 'a+{(x+1)^2}^2' },
+  { input: '12_3', end: 2, template: '#@_2', expected: '{12_2}_3' },
+  { input: '12^3', end: 2, template: '(#@)^2', expected: '{(12)^2}^3' },
+  { input: '(a,b]^3', end: 5, template: '#@^2', expected: '{(a,b]^2}^3' },
+  { input: '12^3', end: 2, template: '#0^2', expected: '{12^2}^3' },
+  { input: '1.2^3', end: 3, template: '#@^2', expected: '{1.2^2}^3' },
+  {
+    input: '(x+(y+1))^2',
+    end: 9,
+    template: '#@^2',
+    expected: '{(x+(y+1))^2}^2',
+  },
+  {
+    input: '12_3',
+    end: 2,
+    template: '#@^2',
+    expected: '12^2_3',
+    reloaded: '12_3^2',
+  },
+]) {
+  for (const implicit of selectedOnly || template.includes('#0')
+    ? [false]
+    : [false, true]) {
+    test(`insertion preserves the complete ${implicit ? 'implicit' : 'selected'} base: ${input}, ${template} (#3099)`, async ({
+      page,
+    }) => {
+      await page.goto('/dist/playwright-test-page/');
+      const result = await page.locator('#mf-1').evaluate(
+        (mfe: MathfieldElement, { input, start, end, template, implicit }) => {
+          mfe.value = input;
+          mfe.focus();
+          mfe.selection = { ranges: [[implicit ? end : start, end]] };
+          mfe.executeCommand(['insert', template]);
+          const latex = mfe.getValue();
+          mfe.executeCommand('undo');
+          const undone = mfe.getValue();
+          mfe.executeCommand('redo');
+          const redone = mfe.getValue();
+          mfe.value = '';
+          mfe.value = latex;
+          return {
+            latex,
+            undone,
+            redone,
+            reloaded: mfe.getValue('latex-unstyled'),
+          };
+        },
+        { input, start, end, template, implicit }
+      );
+      expect(result).toEqual({
+        latex: expected,
+        undone: input,
+        redone: expected,
+        reloaded,
+      });
+    });
+  }
+}
+
 test('lower bound is navigated before upper bound (#2966)', async ({
   page,
 }) => {

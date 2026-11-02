@@ -9,6 +9,7 @@ import { parseLatex } from '../core/parser';
 import { fromJson } from '../core/atom';
 import { Atom } from '../core/atom-class';
 import { ArrayAtom } from '../atoms/array';
+import { GroupAtom } from '../atoms/group';
 import { LeftRightAtom } from '../atoms/leftright';
 
 import { range } from '../editor-model/selection-utils';
@@ -327,6 +328,44 @@ export class MathModeEditor extends ModeEditor {
 
       const cursor = model.at(model.position);
       if (cursor) {
+        // If the inserted and existing scripts conflict, group the new base
+        // for example, `2^2` followed by `^2` becomes `{2^2}^2`
+        const subsup = cursor.rightSibling;
+        const lastAtom = newAtoms[newAtoms.length - 1];
+        if (
+          subsup?.type === 'subsup' &&
+          lastAtom &&
+          ((lastAtom.superscript && subsup.superscript) ||
+            (lastAtom.subscript && subsup.subscript))
+        ) {
+          // A standalone script needs its complete number or delimited base.
+          let start = newAtoms.length - (lastAtom.type === 'subsup' ? 2 : 1);
+          if (newAtoms[start]?.type === 'mclose') {
+            let depth = 0;
+            for (let i = start; i >= 0; i--) {
+              if (newAtoms[i].type === 'mclose') depth++;
+              else if (newAtoms[i].type === 'mopen' && --depth === 0) {
+                start = i;
+                break;
+              }
+            }
+          } else if (newAtoms[start]?.isDigit()) {
+            while (
+              start > 0 &&
+              newAtoms[start - 1].isDigit() &&
+              !newAtoms[start - 1].superscript &&
+              !newAtoms[start - 1].subscript
+            )
+              start--;
+          }
+          if (start >= 0) {
+            newAtoms = [
+              ...newAtoms.slice(0, start),
+              new GroupAtom(newAtoms.slice(start), 'math'),
+            ];
+          }
+        }
+
         cursor.parent!.addChildrenAfter(newAtoms, cursor);
       } else {
         // cursor can be null when deferred implicit arg deletion
@@ -552,14 +591,14 @@ function getImplicitArgOffset(model: _Model): Offset {
   let afterDelim = false;
 
   if (atom.type === 'mclose') {
-    const delim = LEFT_DELIM[atom.value];
-    while (
-      !atom.isFirstSibling &&
-      !(atom.type === 'mopen' && atom.value === delim)
-    ) {
+    // Count nesting, allowing mixed delimiters such as interval endpoints.
+    let depth = 1;
+    while (!atom.isFirstSibling) {
       const left = atom.leftSibling;
       if (!left) break;
       atom = left;
+      if (atom.type === 'mclose') depth++;
+      else if (atom.type === 'mopen' && --depth === 0) break;
     }
     if (!atom.isFirstSibling) {
       const left = atom.leftSibling;
