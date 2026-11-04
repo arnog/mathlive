@@ -121,8 +121,36 @@
   );
 }
 
+:host([theme='dark']) .ML__container {
+  --_contains-highlight-color: var(
+    --contains-highlight-color,
+    hsl(var(--_hue), 85%, 75%)
+  );
+  --_caret-color: var(--caret-color, hsl(var(--_hue), 65%, 55%));
+  --_selection-color: var(--selection-color, #fff);
+  --_selection-background-color: var(
+    --selection-background-color,
+    hsl(var(--_hue), 65%, 55%)
+  );
+  --_text-highlight-background-color: var(
+    --text-highlight-background-color,
+    hsla(var(--_hue), 40%, 50%, 0.6)
+  );
+  --_contains-highlight-background-color: var(
+    --contains-highlight-background-color,
+    hsl(var(--_hue), 5%, 34%)
+  );
+  --_latex-color: var(--primary, hsl(var(--_hue), 40%, 50%));
+  --_composition-background-color: #69571c;
+  --_composition-text-color: white;
+  --_placeholder-color: hsl(var(--_hue), 60%, 69%);
+
+  --_smart-fence-color: var(--smart-fence-color, #fff);
+  --_smart-fence-opacity: var(--smart-fence-opacity, 0.7);
+}
+
 @media (prefers-color-scheme: dark) {
-  .ML__container {
+  :host(:not([theme='light'])) .ML__container {
     --_contains-highlight-color: var(
       --contains-highlight-color,
       hsl(var(--_hue), 85%, 75%)
