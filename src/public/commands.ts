@@ -137,6 +137,11 @@ export interface Commands {
   switchMode: (mathfield: Mathfield, mode: ParseMode) => boolean;
   insert: (mathfield: Mathfield, s: string, options: InsertOptions) => boolean;
   insertDecimalSeparator: (mathfield: Mathfield) => boolean;
+  /**
+   * Insert `\degree`, `\minute`, or `\second` after the integer at the caret,
+   * based on the preceding DMS marker.
+   */
+  insertDms: (mathfield: Mathfield) => boolean;
   typedText: (
     text: string,
     options: {
