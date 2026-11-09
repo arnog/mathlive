@@ -739,7 +739,9 @@ test('issue #2733: inline shortcut buffer should flush when field becomes empty'
   expect(latex).toBe('x');
 });
 
-test('backspace should not trap caret in empty latex group', async ({ page }) => {
+test('backspace should not trap caret in empty latex group', async ({
+  page,
+}) => {
   await page.goto('/dist/playwright-test-page/');
 
   await page.locator('#mf-1').pressSequentially('a\\');
@@ -789,7 +791,9 @@ test('fraction after parenthesized expression', async ({ page }) => {
   expect(latex).toBeTruthy();
 });
 
-test('fraction after parenthesized expression then ctrl+a delete retype', async ({ page }) => {
+test('fraction after parenthesized expression then ctrl+a delete retype', async ({
+  page,
+}) => {
   // Regression test for issue #2974: after building a fraction via the
   // keyboard sequence 5 ) Home ( End /, then Ctrl+A/Delete, typing should
   // still work (no orphaned parent references in the model)
@@ -830,7 +834,9 @@ test('fraction after parenthesized expression then ctrl+a delete retype', async 
   expect(latex).toBe('42');
 });
 
-test('fraction after parenthesized expression then more input', async ({ page }) => {
+test('fraction after parenthesized expression then more input', async ({
+  page,
+}) => {
   // Core regression test for issue #2974: fraction insertion should work
   await page.goto('/dist/playwright-test-page/');
 
@@ -889,7 +895,9 @@ test('fraction after complex parenthesized expression', async ({ page }) => {
   expect(final).not.toBe('');
 });
 
-test('select and wrap in parens then delete should not empty field (#2974)', async ({ page }) => {
+test('select and wrap in parens then delete should not empty field (#2974)', async ({
+  page,
+}) => {
   // Regression: typing 1, selecting it, typing ( to wrap in parens,
   // then pressing Delete should not make the mathfield empty/uninteractable
   await page.goto('/dist/playwright-test-page/');
@@ -919,7 +927,6 @@ test('select and wrap in parens then delete should not empty field (#2974)', asy
   const finalLatex = await mf.evaluate((mfe: MathfieldElement) => mfe.value);
   expect(finalLatex).toBe('2');
 });
-
 
 async function tab(page) {
   await page.keyboard.press('Tab');
@@ -986,4 +993,76 @@ test('arrow keys visit the subscript before the superscript (#2966)', async ({
   expect(
     await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
   ).toBe(String.raw`x_{a1}^{b2}`);
+});
+
+// On the German Mac layout `^` is a dead key: the browser composes it with the
+// next key and commits "^2" as one piece of text. MathLive replays composed text
+// as keystrokes, so the `^` must not be caught by a keybinding on its way to
+// becoming a superscript (#2529, #3066). A composition can only be driven
+// through the DevTools protocol, hence Chromium only.
+test('German Mac layout: the ^ dead key followed by 2 is a superscript (#2529)', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'needs the DevTools protocol');
+
+  await page.goto('/dist/playwright-test-page/');
+  const cdp = await page.context().newCDPSession(page);
+  // Focus after attaching the session, or its first keystrokes miss the field
+  await page.locator('#mf-1').focus();
+  const press = async (key: string, code: string) => {
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key,
+      code,
+      text: key,
+      unmodifiedText: key,
+    });
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key, code });
+  };
+
+  // Keys that only the German layout produces, so that MathLive detects it
+  await press('x', 'KeyX');
+  await press('y', 'KeyZ');
+  await press('z', 'KeyY');
+  await press('ü', 'BracketLeft');
+
+  // The `^` dead key, then `2`: the OS commits "^2" as composed text
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyDown',
+    key: 'Dead',
+    code: 'Backquote',
+    windowsVirtualKeyCode: 229,
+  });
+  await cdp.send('Input.imeSetComposition', {
+    text: '^',
+    selectionStart: 1,
+    selectionEnd: 1,
+  });
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyUp',
+    key: 'Dead',
+    code: 'Backquote',
+  });
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyDown',
+    key: '2',
+    code: 'Digit2',
+    windowsVirtualKeyCode: 229,
+  });
+  await cdp.send('Input.insertText', { text: '^2' });
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyUp',
+    key: '2',
+    code: 'Digit2',
+  });
+
+  await expect
+    .poll(() =>
+      page.locator('#mf-1').evaluate((e: MathfieldElement) => e.value)
+    )
+    .toBe('xyzü^2');
+  expect(
+    await page.locator('#mf-1').evaluate((e: MathfieldElement) => e.mode)
+  ).toBe('math');
 });
