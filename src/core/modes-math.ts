@@ -177,12 +177,10 @@ export class MathMode extends Mode {
       fontSeries?: FontSeries;
       fontShape?: FontShape;
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright';
-      variant: Variant;
+      variant?: Variant;
       variantStyle?: VariantStyle;
     }
   ): FontName | null {
-    console.assert(style.variant !== undefined);
-
     if (style.fontFamily) {
       // Build the variant key from fontFamily + fontSeries + fontShape
       let variantKey = style.fontFamily;
@@ -207,7 +205,12 @@ export class MathMode extends Mode {
       return fontName;
     }
 
-    let { variant } = style;
+    // No variant is the automatic shape. `\mathbf` sets the 'normal' variant
+    // and is upright, while `\bm` and `\boldsymbol` set only the weight, so
+    // their letters keep the shape they would have had: in TeX, `\bm{x}` is a
+    // bold italic x.
+    const automaticShape = style.variant === undefined;
+    let variant: Variant = style.variant ?? 'normal';
     let { variantStyle } = style;
 
     // 1. Remap to "main" font some characters that don't exist
@@ -230,7 +233,11 @@ export class MathMode extends Mode {
     }
 
     // 2. Auto-italicize some symbols, depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && box.value.length === 1) {
+    if (
+      variant === 'normal' &&
+      (!variantStyle || (automaticShape && variantStyle === 'bold')) &&
+      box.value.length === 1
+    ) {
       let italicize = false;
       LETTER_SHAPE_RANGES.forEach((x, i) => {
         if (
@@ -297,18 +304,54 @@ function emitBoldRun(run: Atom[], options: ToLatexOptions): string[] {
     if (weightString(x[0].parent!) === 'bold')
       return joinLatex(emitVariantRun(x, options));
 
-    // Use '\mathbf' if possible, otherwise `\bm`. Note that `\bm` is
-    // not as well supported as `\mathbf` but it can handle more cases
-    // (i.e. greek letters, operators, variants, etc...)
+    return joinLatex(
+      getBoldSpellingRuns(x).map((y) => {
+        const body = joinLatex(emitVariantRun(y, options));
+        const spelling = boldSpelling(y[0]);
 
-    // Get the content of the run
-    const value = joinLatex(x.map((x) => x.value ?? ''));
-    if (/^[a-zA-Z0-9]+$/.test(value))
-      return latexCommand('\\mathbf', joinLatex(emitVariantRun(x, options)));
+        // A bold italic variant (`\mathbfit`) carries its own weight
+        if (spelling === 'variant') return body;
 
-    // If the run contains a mix of characters, use `\bm`
-    return latexCommand('\\bm', joinLatex(emitVariantRun(x, options)));
+        // Use '\mathbf' if possible, otherwise `\bm`. Note that `\bm` is
+        // not as well supported as `\mathbf` but it can handle more cases
+        // (i.e. greek letters, operators, variants, etc...). `\mathbf` is
+        // upright, so it can't spell a letter with the automatic shape,
+        // which `\bm` keeps italic: only digits are the same either way.
+        const value = joinLatex(y.map((x) => x.value ?? ''));
+        if (
+          spelling === 'upright'
+            ? /^[a-zA-Z0-9]+$/.test(value)
+            : /^[0-9]+$/.test(value)
+        )
+          return latexCommand('\\mathbf', body);
+
+        // If the run contains a mix of characters, use `\bm`
+        return latexCommand('\\bm', body);
+      })
+    );
   });
+}
+
+/**
+ * How the weight of a bold atom is spelt: by its variant (`\mathbfit`), as
+ * an upright bold (`\mathbf`, which sets a variant), or as a bold that keeps
+ * the automatic shape (`\bm`, `\boldsymbol`, or a bold style applied to a
+ * selection), which in TeX keeps a Latin letter italic.
+ */
+function boldSpelling(atom: Atom): 'variant' | 'upright' | 'automatic' {
+  const { variant, variantStyle } = atom.style;
+  if (variantStyle === 'bolditalic') return 'variant';
+  return variant === undefined ? 'automatic' : 'upright';
+}
+
+function getBoldSpellingRuns(run: readonly Atom[]): (readonly Atom[])[] {
+  const result: Atom[][] = [];
+  for (const atom of run) {
+    const last = result[result.length - 1];
+    if (last && boldSpelling(last[0]) === boldSpelling(atom)) last.push(atom);
+    else result.push([atom]);
+  }
+  return result;
 }
 
 function emitVariantRun(
