@@ -259,6 +259,20 @@ describe('LEFT/RIGHT', () => {
   });
 });
 
+describe('DOUBLE BAR DELIMITER', () => {
+  // `\|` is a double bar, as `\Vert` is, small or large
+  test.each(['x', '\\frac{\\frac34}{\\frac57}'])(
+    '\\left\\| %s \\right\\|',
+    (x) => {
+      const markup = convertLatexToMarkup(`\\left\\| ${x} \\right\\|`);
+      expect(markup).not.toContain('\u2223');
+      expect(markup).toBe(
+        convertLatexToMarkup(`\\left\\Vert ${x} \\right\\Vert`)
+      );
+    }
+  );
+});
+
 describe('DELIMITER SIZING COMMANDS', () => {
   test.each([
     ['\\bigl', '\\bigr', '\\bigm', '\\big'],

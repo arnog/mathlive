@@ -73,7 +73,7 @@ function getSymbolValue(symbol: string): number {
       '|': 0x2223,
       '\u2223': 0x2223, // DIVIDES
       '\u2225': 0x2225, // PARALLEL TO
-      '\\|': 0x2223,
+      '\\|': 0x2225,
       '\\{': 0x7b, // '{',
       '\\}': 0x7d, // '}',
       '\\lbrace': 0x7b, // '{',
