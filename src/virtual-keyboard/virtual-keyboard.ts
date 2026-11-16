@@ -44,6 +44,20 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
   private _visible: boolean;
   private _element?: HTMLDivElement;
   private _rebuilding: boolean;
+  private readonly followViewportPan = (): void => {
+    const vv = window.visualViewport;
+    const style = this._element?.style;
+    if (!vv || !style) return;
+    // Mobile Chrome attaches position:fixed elements to the layout viewport,
+    // which on zoomable pages is sized for the minimum page scale — much
+    // larger than what's on screen. Scrolling then pans the visual viewport
+    // inside it (offsetLeft/offsetTop) without moving fixed elements, so pin
+    // the container to the visual viewport rect on every pan/resize.
+    style.setProperty('left', `${vv.offsetLeft}px`);
+    style.setProperty('top', `${vv.offsetTop}px`);
+    style.setProperty('width', `${vv.width}px`);
+    style.setProperty('height', `${vv.height}px`);
+  };
   private readonly observer: ResizeObserver;
   private originalContainerBottomPadding: string | null = null;
 
@@ -476,6 +490,13 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
         container.style.paddingBottom = padding
           ? `calc(${padding} + ${keyboardHeight}px)`
           : `${keyboardHeight}px`;
+
+        // Mobile Chrome pans the visual viewport over the (larger) layout
+        // viewport while fixed elements stay put; keep the keyboard pinned
+        // to the visible rect while it is shown.
+        window.visualViewport?.addEventListener('scroll', this.followViewportPan);
+        window.visualViewport?.addEventListener('resize', this.followViewportPan);
+        this.followViewportPan();
       }
       window.addEventListener('mouseup', this);
       window.addEventListener('blur', this);
@@ -534,6 +555,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
       window.removeEventListener('keydown', this, { capture: true });
       window.removeEventListener('keyup', this, { capture: true });
       window.removeEventListener('contextmenu', this, { capture: true });
+      window.visualViewport?.removeEventListener(
+        'scroll',
+        this.followViewportPan
+      );
+      window.visualViewport?.removeEventListener(
+        'resize',
+        this.followViewportPan
+      );
       hideVariantsPanel();
 
       releaseStylesheets();
@@ -913,6 +942,14 @@ export class VirtualKeyboard implements VirtualKeyboardInterface, EventTarget {
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
     window.removeEventListener('message', this);
+    window.visualViewport?.removeEventListener(
+      'scroll',
+      this.followViewportPan
+    );
+    window.visualViewport?.removeEventListener(
+      'resize',
+      this.followViewportPan
+    );
   }
 }
 
