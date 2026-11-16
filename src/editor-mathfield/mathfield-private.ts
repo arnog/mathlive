@@ -222,6 +222,8 @@ export class _Mathfield implements Mathfield, KeyboardDelegateInterface {
   private connectedToVirtualKeyboard = false;
 
   private eventController: AbortController;
+  /** Cancels the focus restore armed by the last blur */
+  private focusRestoreController?: AbortController;
   resizeObserver: ResizeObserver;
   // ResizeObserver, sadly, fire at least once, even if no size has changed.
   // Workaround this by tracking its state. See https://github.com/WICG/resize-observer/issues/38#issuecomment-532833484
@@ -1017,6 +1019,8 @@ If you are using Vue, this may be because you are using the runtime-only build o
     (this as any).keyboardDelegate = undefined;
     this.eventController.abort();
     (this as any).eventController = undefined;
+    this.focusRestoreController?.abort();
+    this.focusRestoreController = undefined;
 
     this.resizeObserver.disconnect();
 
@@ -1972,7 +1976,9 @@ If you are using Vue, this may be because you are using the runtime-only build o
 
       // Wait for the window focus to change
       // (the mathfield gets blurred before the window)
+      this.focusRestoreController?.abort();
       const controller = new AbortController();
+      this.focusRestoreController = controller;
       const signal = controller.signal;
       window.addEventListener(
         'blur',
@@ -1992,12 +1998,14 @@ If you are using Vue, this may be because you are using the runtime-only build o
       // cancel the above
       document.addEventListener('focusin', () => controller.abort(), {
         once: true,
+        signal,
       });
 
       // If user clicks anywhere, cancel the refocus (covers case where
       // click doesn't cause an element to come into focus)
       document.addEventListener('click', () => controller.abort(), {
         once: true,
+        signal,
       });
     }
   }
