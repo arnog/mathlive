@@ -71,9 +71,12 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
   {
     key: '[IntlBackslash]',
+    ifLayout: ['windows.en-intl'],
     ifMode: 'math',
     command: ['switchMode', 'latex', '', '\\'],
-  }, // On UK QWERTY keyboards
+  }, // On UK QWERTY keyboards, the key left of Z types `\`. It is the only
+  // layout where it does: on the German Mac layout it is the `^` dead key,
+  // and elsewhere it is `<`, `§` or `º`, so this binding must not apply there.
 
   {
     key: '[Tab]',
@@ -437,12 +440,10 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '^'],
   },
-  {
-    key: '[IntlBackslash]',
-    ifLayout: ['apple.german'],
-    ifMode: 'math',
-    command: ['insert', '^'],
-  },
+  // No binding for the `^` key on the German Mac layout: it is a dead key, so
+  // the `^` arrives as composed text and the default handling of a typed `^`
+  // (moveToSuperscript) applies. A binding on the key would run on the dead
+  // keydown as well, inserting a second, empty superscript.
 ];
 
 /**
