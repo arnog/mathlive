@@ -100,6 +100,43 @@ defineFunction('displaylines', '', {
     }),
 });
 
+/** `\substack{i<n \\ j<m}` (amsmath) stacks lines in a subscript or a
+ * superscript, typically the conditions of the limits of a `\sum`. It is
+ * `\begin{subarray}{c}...\end{subarray}`. Like `\displaylines`, it is a
+ * function whose argument is rows.
+ */
+defineFunction('substack', '', {
+  parse: (parser: Parser) => {
+    parser.skipWhitespace();
+    if (!parser.match('<{>')) return [];
+
+    const rows: Atom[][][] = [];
+    let row: Atom[] = [];
+
+    parser.beginContext({ tabular: true });
+    do {
+      if (parser.end() || parser.match('<}>')) break;
+      if (parser.matchRowSeparator()) {
+        rows.push([row]);
+        row = [];
+      } else if (!parser.matchColumnSeparator()) {
+        // A `&` is ignored: a `\substack` has one column
+        row.push(
+          ...parser.scan((token) =>
+            ['<}>', '&', '\\cr', '\\\\', '\\tabularnewline'].includes(token)
+          )
+        );
+      }
+    } while (true);
+    parser.endContext();
+    rows.push([row]);
+
+    return rows as Argument[];
+  },
+  createAtom: (options) =>
+    makeEnvironment('substack', options.args as (readonly Atom[])[][]),
+});
+
 /** The `split` environment is used to split a long formula over multiple lines.
  * It is used inside another environment, typically `equation` or `align`.
  * The first column is right-aligned, the second column is left-aligned.
@@ -211,6 +248,10 @@ defineTabularEnvironment(
   '[columns:colspec]',
   makeEnvironment
 );
+
+// From amsmath.dtx: one column, `l` or `c`, set in \scriptstyle with the
+// tight line spacing of the script font. `\substack` is `{subarray}{c}`.
+defineTabularEnvironment('subarray', '{columns:colspec}', makeEnvironment);
 
 // \cases is standard LaTeX
 // \dcases is from the mathtools package
@@ -462,6 +503,28 @@ export function makeEnvironment(
         rightDelim: '\\rbrace',
         columns: casesColumns(),
       });
+
+    case 'subarray':
+    case 'substack': {
+      const align =
+        name === 'subarray' &&
+        (args[0] as ColumnFormat[] | null)?.some(
+          (column) => 'align' in column && column.align === 'l'
+        )
+          ? 'l'
+          : 'c';
+      return new ArrayAtom(name, content, rowGaps, {
+        mathstyleName: 'scriptstyle',
+        // As KaTeX's {subarray}: no space before or after the column
+        leftDelim: '.',
+        rightDelim: '.',
+        arraystretch: 0.5,
+        columns: [{ align }],
+        minColumns: 1,
+        maxColumns: 1,
+        minRows: 1,
+      });
+    }
 
     case 'lines':
       return new ArrayAtom(name, content, rowGaps, {

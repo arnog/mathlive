@@ -462,6 +462,8 @@ export type TabularEnvironment =
   | 'rcases'
   | 'smallmatrix'
   | 'smallmatrix*'
+  | 'subarray'
+  | 'substack'
   | CasesEnvironment
   | MatrixEnvironment;
 
