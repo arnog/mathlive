@@ -1,5 +1,6 @@
 import {
   convertLatexToMarkup,
+  convertLatexToMathMl,
   validateLatex,
 } from '../src/public/mathlive-ssr';
 import { parseLatex } from '../src/core/parser';
@@ -232,6 +233,64 @@ describe('GENFRAC (issue #3048)', () => {
   test('\\genfrac with default arguments renders like \\frac', () => {
     expect(convertLatexToMarkup('\\genfrac{}{}{}{}{a}{b}')).toBe(
       convertLatexToMarkup('\\frac{a}{b}')
+    );
+  });
+});
+
+describe('PRESCRIPT AND SIDESET', () => {
+  // Remove the original LaTeX kept by the parser, so that the atoms are
+  // serialized by their own serializers.
+  function serialize(latex: string): string {
+    const atoms = parseLatex(latex, { parseMode: 'math' });
+    for (const atom of atoms) {
+      atom.verbatimLatex = undefined;
+      for (const child of atom.children) child.verbatimLatex = undefined;
+    }
+    return Atom.serialize(atoms, { defaultMode: 'math' });
+  }
+
+  test.each([
+    ['\\prescript{14}{6}{C}', '\\prescript{14}{6}{C}'],
+    ['\\prescript{}{6}{C}^{2+}', '\\prescript{}{6}{C}^{2+}'],
+    ['\\prescript{\\mu}{\\nu}{T}', '\\prescript{\\mu}{\\nu}{T}'],
+    ['\\sideset{_a^b}{_c^d}\\sum', '\\sideset{_{a}^{b}}{_{c}^{d}}\\sum'],
+    [
+      '\\sideset{_a^b}{_c^d}\\sum_{i=1}^{n}x_i',
+      '\\sideset{_{a}^{b}}{_{c}^{d}}\\sum_{i=1}^{n}x_{i}',
+    ],
+    ["\\sideset{}{'}\\sum_{n<k}", '\\sideset{}{^{\\prime}}\\sum_{n<k}'],
+    ['\\sideset{}{^*}\\prod', '\\sideset{}{^{*}}\\prod'],
+    ['\\sideset{_a}{}\\int', '\\sideset{_{a}}{}\\int'],
+    ['\\sideset{_a^b}{_c^d}{\\sum}', '\\sideset{_{a}^{b}}{_{c}^{d}}\\sum'],
+    ['\\sideset{}{}\\sum\\limits_{i}', '\\sideset{}{}\\sum\\limits_{i}'],
+  ])('%#/ %p serializes as %p', (input, expected) => {
+    expect(serialize(input)).toBe(expected);
+    expect(error(input)).toBe('no-error');
+    // What it writes reads back as itself
+    expect(serialize(expected)).toBe(expected);
+  });
+
+  test('the scripts of \\prescript come before its base', () => {
+    const markup = convertLatexToMarkup('\\prescript{14}{6}{C}');
+    expect(markup.indexOf('>6<')).toBeLessThan(markup.indexOf('>C<'));
+    expect(markup.indexOf('>1<')).toBeLessThan(markup.indexOf('>C<'));
+  });
+
+  test('\\sideset draws its operator once, with its limits', () => {
+    const markup = convertLatexToMarkup(
+      '\\displaystyle\\sideset{_a^b}{_c^d}\\sum_{i=1}^{n}'
+    );
+    expect(markup.split('∑').length).toBe(2);
+    for (const x of ['a', 'b', 'c', 'd', 'i', 'n'])
+      expect(markup).toContain(`>${x}<`);
+  });
+
+  test('MathML: <mmultiscripts>, with <none> for a missing script', () => {
+    expect(convertLatexToMathMl('\\prescript{14}{6}{C}')).toBe(
+      '<mmultiscripts><mi>C</mi><mprescripts></mprescripts><mn>6</mn><mn>14</mn></mmultiscripts>'
+    );
+    expect(convertLatexToMathMl('\\sideset{_a}{^b}\\sum')).toBe(
+      '<mmultiscripts><mo>\u2211</mo><none></none><mi>b</mi><mprescripts></mprescripts><mi>a</mi><none></none></mmultiscripts>'
     );
   });
 });

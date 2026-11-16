@@ -9,6 +9,7 @@ import { BoxAtom } from 'atoms/box';
 import { OverunderAtom } from 'atoms/overunder';
 import { GenfracAtom } from 'atoms/genfrac';
 import { AccentAtom } from 'atoms/accent';
+import { SidesetAtom } from 'atoms/sideset';
 import { LatexValue } from 'public/core-types';
 
 type MathMLStream = {
@@ -584,6 +585,15 @@ export function toMathML(
   return result.mathML;
 }
 
+/** A script of `<mmultiscripts>`: `<none>` when there is none */
+function scriptToMathML(
+  atoms: readonly Atom[] | undefined,
+  options: { generateID?: boolean }
+): string {
+  if (!atoms?.some((x) => x.type !== 'first')) return '<none></none>';
+  return toMathML(atoms, options) || '<none></none>';
+}
+
 function toMo(atom, options) {
   let result = '';
   const body = toString(atom.value);
@@ -1093,6 +1103,35 @@ function atomToMathML(atom: Atom, options: { generateID?: boolean }): string {
     case 'space':
       result += '&nbsp;';
       break;
+
+    case 'prescript':
+      result = `<mmultiscripts${makeID(atom.id, options)}>${
+        toMathML(atom.body, options) || '<mrow></mrow>'
+      }<mprescripts></mprescripts>${scriptToMathML(
+        atom.below,
+        options
+      )}${scriptToMathML(atom.above, options)}</mmultiscripts>`;
+      break;
+
+    case 'sideset': {
+      // As Temml writes it: the operator with its four scripts. The limits
+      // are attached around it, as an operator's are.
+      const operator = (atom as SidesetAtom).operator;
+      result = `<mmultiscripts${makeID(atom.id, options)}>${
+        !operator
+          ? '<mrow></mrow>'
+          : operator.type === 'extensible-symbol'
+            ? toMo(operator, options)
+            : atomToMathML(operator, options)
+      }${scriptToMathML(operator?.subscript, options)}${scriptToMathML(
+        operator?.superscript,
+        options
+      )}<mprescripts></mprescripts>${scriptToMathML(
+        atom.below,
+        options
+      )}${scriptToMathML(atom.above, options)}</mmultiscripts>`;
+      break;
+    }
 
     case 'subsup':
       // if (atom.superscript && atom.subscript) {

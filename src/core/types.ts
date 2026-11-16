@@ -252,8 +252,10 @@ export type AtomType =
   | 'overunder' // Displays an annotation above or below a symbol
   | 'placeholder' // A temporary item. Placeholders are displayed as a dashed square in the editor.
   | 'phantom'
+  | 'prescript' // Scripts before a base: `\prescript`
   | 'root' // A group, which has no parent (only one per formula)
   | 'rule' // Draw a line, for the `\rule` command
+  | 'sideset' // Scripts at the corners of a large operator: `\sideset`
   | 'sizeddelim' // A delimiter that can grow
   | 'space'
   | 'spacing'

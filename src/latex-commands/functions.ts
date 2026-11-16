@@ -13,6 +13,8 @@ import type { LatexValue, MathstyleName } from '../public/core-types';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
 import { OperatorAtom } from '../atoms/operator';
+import { PrescriptAtom } from '../atoms/prescript';
+import { SidesetAtom } from '../atoms/sideset';
 import type { CreateAtomOptions } from 'core/types';
 import type { Argument } from './types';
 
@@ -492,6 +494,63 @@ defineFunction(Object.keys(EXTENSIBLE_SYMBOLS), '', {
     });
   },
 });
+
+// From the mathtools package: `\prescript{sup}{sub}{base}`
+defineFunction('prescript', '{:auto}{:auto}{:auto}', {
+  createAtom: (options) =>
+    new PrescriptAtom({
+      ...options,
+      above: argAtoms(options.args![0]),
+      below: argAtoms(options.args![1]),
+      body: argAtoms(options.args![2]),
+    }),
+  serialize: (atom, options) =>
+    latexCommand(
+      atom.command,
+      atom.aboveToLatex(options),
+      atom.belowToLatex(options),
+      atom.bodyToLatex(options)
+    ),
+});
+
+// From the amsmath package: `\sideset{_a^b}{_c^d}\sum`. Its arguments are
+// scripts only: before the operator, then after it.
+defineFunction('sideset', '{:auto}{:auto}{:auto}', {
+  ifMode: 'math',
+  createAtom: (options) => {
+    const before = argScripts(options.args![0]);
+    const after = argScripts(options.args![1]);
+    const body = argAtoms(options.args![2]);
+    const operator = body[body.length - 1];
+    if (operator && (after.subscript || after.superscript)) {
+      operator.subscript = after.subscript;
+      operator.superscript = after.superscript;
+      // Beside the operator, never limits, and not written as `\nolimits`
+      if (operator.subsupPlacement !== undefined)
+        operator.subsupPlacement = 'adjacent';
+    }
+    return new SidesetAtom({
+      ...options,
+      above: before.superscript,
+      below: before.subscript,
+      body,
+    });
+  },
+});
+
+/** The scripts of a `\sideset` argument, `_a^b`, `^b`, `'`... */
+function argScripts(arg: Argument | null | undefined): {
+  subscript?: readonly Atom[];
+  superscript?: readonly Atom[];
+} {
+  const atoms = argAtoms(arg).filter((x) => x.type !== 'first');
+  if (atoms.length === 0) return {};
+  // `\sideset` takes only scripts (amsmath, Temml): anything else is kept as
+  // a superscript, so nothing is lost
+  if (atoms.length !== 1 || atoms[0].type !== 'subsup')
+    return { superscript: atoms };
+  return { subscript: atoms[0].subscript, superscript: atoms[0].superscript };
+}
 
 defineFunction(['Re', 'Im'], '', {
   ifMode: 'math',

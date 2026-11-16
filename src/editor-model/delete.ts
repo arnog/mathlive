@@ -216,6 +216,38 @@ function onDelete(
   // 'genfrac': \frac, \choose, etc...
   //
 
+  //
+  // 'prescript': \prescript{sup}{sub}{base}
+  // 'sideset': \sideset{_a^b}{_c^d}\sum
+  //
+  // Deleting one from outside goes into it, unless all of it is empty. At
+  // the edge of one of its branches, the caret moves on to the next branch
+  // (or out of it), as the arrow keys do, until every branch is empty: then
+  // the atom is deleted.
+  //
+  if (atom.type === 'prescript' || atom.type === 'sideset') {
+    const empty = atom.children.every((x) => x.type === 'first');
+    if (!branch) {
+      if (empty) return false;
+      model.position = model.offsetOf(
+        direction === 'forward' ? atom.firstChild : atom.lastChild
+      );
+      return true;
+    }
+    if (empty && atom.parent) {
+      const pos = model.offsetOf(atom.leftSibling);
+      atom.parent.removeChild(atom);
+      model.announce('delete', undefined, [atom]);
+      model.position = pos;
+      return true;
+    }
+    model.position =
+      direction === 'backward'
+        ? Math.max(0, model.position - 1)
+        : Math.min(model.lastOffset, model.position + 1);
+    return true;
+  }
+
   if (atom.type === 'genfrac' || atom.type === 'overunder') {
     if (!branch) {
       // After or before atom

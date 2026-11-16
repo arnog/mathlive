@@ -384,35 +384,11 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
   }
 
   supsubToLatex(options: ToLatexOptions): string {
-    let result = '';
-
-    // Super/subscript are always in math mode
-    options = { ...options, defaultMode: 'math' };
-
-    if (this.branch('subscript') !== undefined) {
-      const sub = Mode.serialize(this.subscript, options);
-      if (sub.length === 0) result += '_{}';
-      else if (sub.length === 1) {
-        // Using the short form without braces is a stylistic choice
-        // In general, LaTeX recommends the use of braces
-        if (/^[0-9]$/.test(sub)) result += `_${sub}`;
-        else result += `_{${sub}}`;
-      } else result += `_{${sub}}`;
-    }
-
-    if (this.branch('superscript') !== undefined) {
-      const sup = Mode.serialize(this.superscript, options);
-      if (sup.length === 0) result += '^{}';
-      else if (sup.length === 1) {
-        if (sup === '\u2032') result += '^\\prime ';
-        else if (sup === '\u2033') result += '^\\doubleprime ';
-        // Using the short form without braces is a stylistic choice
-        // In general, LaTeX recommends the use of braces
-        else if (/^[0-9]$/.test(sup)) result += `^${sup}`;
-        else result += `^{${sup}}`;
-      } else result += `^{${sup}}`;
-    }
-    return result;
+    return scriptsToLatex(
+      this.branch('subscript'),
+      this.branch('superscript'),
+      options
+    );
   }
 
   get treeDepth(): number {
@@ -870,117 +846,18 @@ export class Atom<T extends (Argument | null)[] = (Argument | null)[]> {
     // If no superscript or subscript, nothing to do.
     if (!superscript && !subscript) return base;
 
-    // Superscript and subscripts are discussed in the TeXbook
-    // on page 445-446, rules 18(a-f).
-    // TeX:14859-14945
-    let supBox: Box | null = null;
-    let subBox: Box | null = null;
-    const isCharacterBox = options.isCharacterBox ?? this.isCharacterBox();
-
-    // Rule 18a, p445
-
-    let supShift = 0;
-    if (superscript) {
-      const context = new Context({
-        parent: parentContext,
-        mathstyle: 'superscript',
-      });
-      supBox = Atom.createBox(context, superscript);
-      if (!isCharacterBox) {
-        supShift =
-          base.height - parentContext.metrics.supDrop * context.scalingFactor;
-      }
-    }
-
-    let subShift = 0;
-    if (subscript) {
-      const context = new Context({
-        parent: parentContext,
-        mathstyle: 'subscript',
-      });
-      subBox = Atom.createBox(context, subscript);
-      if (!isCharacterBox) {
-        subShift =
-          base.depth + parentContext.metrics.subDrop * context.scalingFactor;
-      }
-    }
-
-    // Rule 18c, p445
-    let minSupShift: number;
-    if (parentContext.isDisplayStyle)
-      minSupShift = parentContext.metrics.sup1; // Sigma13
-    else if (parentContext.isCramped)
-      minSupShift = parentContext.metrics.sup3; // Sigma15
-    else minSupShift = parentContext.metrics.sup2; // Sigma14
-
-    // Scriptspace is a font-size-independent size, so scale it
-    // appropriately
-    const scriptspace = 0.5 / PT_PER_EM / parentContext.scalingFactor;
-    let supsub: Box | null = null;
-    if (subBox && supBox) {
-      // Rule 18e
-      supShift = Math.max(
-        supShift,
-        minSupShift,
-        supBox.depth + 0.25 * parentContext.metrics.xHeight
-      );
-      subShift = Math.max(subShift, parentContext.metrics.sub2);
-      const ruleWidth = parentContext.metrics.defaultRuleThickness;
-      if (
-        supShift - supBox.depth - (subBox.height - subShift) <
-        4 * ruleWidth
-      ) {
-        subShift = 4 * ruleWidth - (supShift - supBox.depth) + subBox.height;
-        const psi =
-          0.8 * parentContext.metrics.xHeight - (supShift - supBox.depth);
-        if (psi > 0) {
-          supShift += psi;
-          subShift -= psi;
-        }
-      }
-
+    const supsub = makeScripts(parentContext, {
+      base,
+      superscript,
+      subscript,
+      isCharacterBox: options.isCharacterBox ?? this.isCharacterBox(),
       // Subscripts shouldn't be shifted by the nucleus' italic correction.
       // Account for that by shifting the subscript back the appropriate
       // amount. Note we only do this when the nucleus is a single symbol.
-      const slant =
-        this.type === 'extensible-symbol' && base.italic ? -base.italic : 0;
-      supsub = new VBox({
-        individualShift: [
-          { box: subBox, shift: subShift, marginLeft: slant },
-          { box: supBox, shift: -supShift },
-        ],
-      });
-    } else if (subBox && !supBox) {
-      // Rule 18b
-      subShift = Math.max(
-        subShift,
-        parentContext.metrics.sub1,
-        subBox.height - 0.8 * X_HEIGHT
-      );
-
-      supsub = new VBox({
-        shift: subShift,
-        children: [
-          {
-            box: subBox,
-            marginRight: scriptspace,
-            marginLeft: this.isCharacterBox() ? -base.italic : 0,
-          },
-        ],
-      });
-    } else if (!subBox && supBox) {
-      // Rule 18c, d
-      supShift = Math.max(
-        supShift,
-        minSupShift,
-        supBox.depth + 0.25 * X_HEIGHT
-      );
-
-      supsub = new VBox({
-        shift: -supShift,
-        children: [{ box: supBox, marginRight: scriptspace }],
-      });
-    }
+      slant:
+        this.type === 'extensible-symbol' && base.italic ? -base.italic : 0,
+      subscriptKern: this.isCharacterBox() ? -base.italic : 0,
+    });
 
     // Display the caret *following* the superscript and subscript,
     // so attach the caret to the 'subsup' element.
@@ -1265,4 +1142,184 @@ function argumentsToJson<T extends any[]>(args: T): any {
       return { group: arg.group.map((x) => x.toJson()) };
     return arg;
   });
+}
+
+/**
+ * A superscript and a subscript stacked as one box, without their base, as
+ * TeX places them beside a base (rule 18, TeXbook p. 445-446): their shifts
+ * depend on the base's height and depth. `attachSupsub()` puts the box after
+ * the base; prescripts (`\prescript`, `\sideset`) put it before the base,
+ * flush right against it (`align: 'right'`).
+ */
+export function makeScripts(
+  parentContext: Context,
+  options: {
+    base: Box;
+    superscript?: readonly Atom[];
+    subscript?: readonly Atom[];
+    isCharacterBox: boolean;
+    /** The kern of the subscript when there are both */
+    slant?: number;
+    /** The kern of the subscript when there is no superscript */
+    subscriptKern?: number;
+    align?: 'left' | 'right';
+  }
+): Box | null {
+  const { base, superscript, subscript, isCharacterBox } = options;
+  // Superscript and subscripts are discussed in the TeXbook
+  // on page 445-446, rules 18(a-f).
+  // TeX:14859-14945
+  let supBox: Box | null = null;
+  let subBox: Box | null = null;
+
+  // Rule 18a, p445
+
+  let supShift = 0;
+  if (superscript) {
+    const context = new Context({
+      parent: parentContext,
+      mathstyle: 'superscript',
+    });
+    supBox = Atom.createBox(context, superscript);
+    if (!isCharacterBox) {
+      supShift =
+        base.height - parentContext.metrics.supDrop * context.scalingFactor;
+    }
+  }
+
+  let subShift = 0;
+  if (subscript) {
+    const context = new Context({
+      parent: parentContext,
+      mathstyle: 'subscript',
+    });
+    subBox = Atom.createBox(context, subscript);
+    if (!isCharacterBox) {
+      subShift =
+        base.depth + parentContext.metrics.subDrop * context.scalingFactor;
+    }
+  }
+
+  // Rule 18c, p445
+  let minSupShift: number;
+  if (parentContext.isDisplayStyle)
+    minSupShift = parentContext.metrics.sup1; // Sigma13
+  else if (parentContext.isCramped)
+    minSupShift = parentContext.metrics.sup3; // Sigma15
+  else minSupShift = parentContext.metrics.sup2; // Sigma14
+
+  // Scriptspace is a font-size-independent size, so scale it
+  // appropriately
+  const scriptspace = 0.5 / PT_PER_EM / parentContext.scalingFactor;
+
+  // Prescripts are flush right, and the scriptspace separates them from
+  // the base that follows
+  const right = options.align === 'right';
+  const width = Math.max(supBox?.width ?? 0, subBox?.width ?? 0);
+  const flush = (box: Box): number => (right ? width - box.width : 0);
+
+  let supsub: Box | null = null;
+  if (subBox && supBox) {
+    // Rule 18e
+    supShift = Math.max(
+      supShift,
+      minSupShift,
+      supBox.depth + 0.25 * parentContext.metrics.xHeight
+    );
+    subShift = Math.max(subShift, parentContext.metrics.sub2);
+    const ruleWidth = parentContext.metrics.defaultRuleThickness;
+    if (supShift - supBox.depth - (subBox.height - subShift) < 4 * ruleWidth) {
+      subShift = 4 * ruleWidth - (supShift - supBox.depth) + subBox.height;
+      const psi =
+        0.8 * parentContext.metrics.xHeight - (supShift - supBox.depth);
+      if (psi > 0) {
+        supShift += psi;
+        subShift -= psi;
+      }
+    }
+
+    supsub = new VBox({
+      individualShift: [
+        {
+          box: subBox,
+          shift: subShift,
+          marginLeft: (options.slant ?? 0) + flush(subBox),
+          marginRight: right ? scriptspace : undefined,
+        },
+        {
+          box: supBox,
+          shift: -supShift,
+          marginLeft: flush(supBox),
+          marginRight: right ? scriptspace : undefined,
+        },
+      ],
+    });
+  } else if (subBox && !supBox) {
+    // Rule 18b
+    subShift = Math.max(
+      subShift,
+      parentContext.metrics.sub1,
+      subBox.height - 0.8 * X_HEIGHT
+    );
+
+    supsub = new VBox({
+      shift: subShift,
+      children: [
+        {
+          box: subBox,
+          marginRight: scriptspace,
+          marginLeft: options.subscriptKern ?? 0,
+        },
+      ],
+    });
+  } else if (!subBox && supBox) {
+    // Rule 18c, d
+    supShift = Math.max(supShift, minSupShift, supBox.depth + 0.25 * X_HEIGHT);
+
+    supsub = new VBox({
+      shift: -supShift,
+      children: [{ box: supBox, marginRight: scriptspace }],
+    });
+  }
+  return supsub;
+}
+
+/**
+ * A subscript and a superscript as LaTeX, `_{a}^{b}`. A missing script is
+ * left out; an empty one is `_{}` or `^{}`.
+ */
+export function scriptsToLatex(
+  subscript: readonly Atom[] | undefined,
+  superscript: readonly Atom[] | undefined,
+  options: ToLatexOptions
+): string {
+  let result = '';
+
+  // Super/subscript are always in math mode
+  options = { ...options, defaultMode: 'math' };
+
+  if (subscript !== undefined) {
+    const sub = Mode.serialize(subscript, options);
+    if (sub.length === 0) result += '_{}';
+    else if (sub.length === 1) {
+      // Using the short form without braces is a stylistic choice
+      // In general, LaTeX recommends the use of braces
+      if (/^[0-9]$/.test(sub)) result += `_${sub}`;
+      else result += `_{${sub}}`;
+    } else result += `_{${sub}}`;
+  }
+
+  if (superscript !== undefined) {
+    const sup = Mode.serialize(superscript, options);
+    if (sup.length === 0) result += '^{}';
+    else if (sup.length === 1) {
+      if (sup === '\u2032') result += '^\\prime ';
+      else if (sup === '\u2033') result += '^\\doubleprime ';
+      // Using the short form without braces is a stylistic choice
+      // In general, LaTeX recommends the use of braces
+      else if (/^[0-9]$/.test(sup)) result += `^${sup}`;
+      else result += `^{${sup}}`;
+    } else result += `^{${sup}}`;
+  }
+  return result;
 }
