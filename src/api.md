@@ -3581,6 +3581,19 @@ insertDecimalSeparator: (mathfield) => boolean;
 
 <MemberCard>
 
+##### Commands.insertDms {#insertdms}
+
+```ts
+insertDms: (mathfield) => boolean;
+```
+
+Insert `\degree`, `\minute`, or `\second` after the integer at the caret,
+based on the preceding DMS marker.
+
+</MemberCard>
+
+<MemberCard>
+
 ##### Commands.performWithFeedback {#performwithfeedback}
 
 ```ts

@@ -271,6 +271,19 @@ const DEFAULT_MACROS: MacroDictionary = {
     captureSelection: false,
   },
 
+  'minute': {
+    def: '^{\\prime}',
+    args: 0,
+    captureSelection: true,
+    expand: false,
+  },
+  'second': {
+    def: '^{\\prime\\prime}',
+    args: 0,
+    captureSelection: true,
+    expand: false,
+  },
+
   // Proof Wiki
   'rd': '\\mathrm{d}',
   'rD': '\\mathrm{D}',
