@@ -267,3 +267,54 @@ test('right parenthesis before left - caret position', async ({ page }) => {
   // The position index for '1+2*\left(|3+4\right)' where | is cursor
   expect(position).toBe(5);
 });
+
+test('preserves nested parentheses when setting a value', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  const inputs = [
+    { latex: String.raw`\sin(f(x))`, pairs: 2 },
+    { latex: String.raw`\sin((x))`, pairs: 2 },
+    { latex: String.raw`\sin(f(x)+g(y))`, pairs: 3 },
+    { latex: String.raw`\sin(x)`, pairs: 1 },
+  ];
+
+  for (const smartFence of [true, false]) {
+    for (const { latex, pairs } of inputs) {
+      const result = await page.locator('#mf-1').evaluate(
+        (mfe: MathfieldElement, { latex, smartFence }) => {
+          mfe.smartFence = smartFence;
+          mfe.setValue(latex);
+          const mathml = new DOMParser().parseFromString(
+            mfe.getValue('math-ml'),
+            'application/xml'
+          );
+          const operators = [...mathml.querySelectorAll('mo')].map(
+            (node) => node.textContent
+          );
+          return {
+            expanded: mfe.getValue('latex-expanded'),
+            opens: operators.filter((op) => op === '(').length,
+            closes: operators.filter((op) => op === ')').length,
+          };
+        },
+        { latex, smartFence }
+      );
+      expect(result.expanded).toBe(latex);
+      expect(result.opens).toBe(pairs);
+      expect(result.closes).toBe(pairs);
+    }
+  }
+});
+
+test('preserves nested parentheses in initial children', async ({ page }) => {
+  await page.goto('/dist/playwright-test-page/');
+
+  const expanded = await page.evaluate(() => {
+    const mfe = document.createElement('math-field') as MathfieldElement;
+    mfe.textContent = String.raw`\sin(f(x))`;
+    document.body.appendChild(mfe);
+    return mfe.getValue('latex-expanded');
+  });
+
+  expect(expanded).toBe(String.raw`\sin(f(x))`);
+});

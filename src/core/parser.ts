@@ -1077,9 +1077,15 @@ export class Parser {
     this.beginContext();
     let nestLevel = 1;
     while (!this.end() && nestLevel !== 0) {
-      if (this.match('(')) nestLevel += 1;
-      if (this.match(')')) nestLevel -= 1;
-      if (nestLevel !== 0) this.parseExpression();
+      if (this.peek() === '(') nestLevel += 1;
+      else if (this.peek() === ')') {
+        nestLevel -= 1;
+        if (nestLevel === 0) {
+          this.next();
+          break;
+        }
+      }
+      this.parseExpression();
     }
 
     const result = new LeftRightAtom('', this.mathlist, {
