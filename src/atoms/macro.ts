@@ -1,6 +1,7 @@
 import { Atom } from '../core/atom-class';
 import { Context } from '../core/context';
 import { Box } from '../core/box';
+import { joinLatex } from '../core/tokenizer';
 import type { Style } from '../public/core-types';
 import type { AtomJson, ToLatexOptions } from 'core/types';
 
@@ -51,7 +52,7 @@ export class MacroAtom extends Atom {
   _serialize(options: ToLatexOptions): string {
     return options.expandMacro && this.expand
       ? this.bodyToLatex(options)
-      : this.command + (this.macroArgs ?? '');
+      : joinLatex([this.command, this.macroArgs ?? '']);
   }
 
   applyStyle(style: Style, options?: { unstyledOnly: boolean }): void {
